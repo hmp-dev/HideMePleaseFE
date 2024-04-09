@@ -1,7 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -136,61 +134,55 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
             ),
           ),
         ),
-        SizedBox(
-          height: 60,
-          width: deviceWidth,
-          child: Expanded(
-            child: TabBar(
-              controller: tabViewController,
-              isScrollable: true,
-              labelColor: white,
-              labelStyle: fontM(16),
-              unselectedLabelColor: white.withOpacity(0.5),
-              dividerColor: Colors.transparent,
-              unselectedLabelStyle: fontM(16),
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicatorColor: white,
-              indicatorWeight: 1,
-              indicator: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: white, width: 0.5),
-                ),
-              ),
-              tabAlignment: TabAlignment.center,
-              tabs: [
-                Tab(
-                  child: SizedBox(
-                    width: deviceWidth * 0.25,
-                    child: const Center(
-                      child: Text(
-                        "NFT",
-                      ),
-                    ),
-                  ),
-                ),
-                Tab(
-                  child: SizedBox(
-                    width: deviceWidth * 0.25,
-                    child: const Center(
-                      child: Text(
-                        "커뮤니티",
-                      ),
-                    ),
-                  ),
-                ),
-                Tab(
-                  child: SizedBox(
-                    width: deviceWidth * 0.25,
-                    child: const Center(
-                      child: Text(
-                        "포인트",
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+        TabBar(
+          controller: tabViewController,
+          isScrollable: true,
+          labelColor: white,
+          labelStyle: fontM(16),
+          unselectedLabelColor: white.withOpacity(0.5),
+          dividerColor: Colors.transparent,
+          unselectedLabelStyle: fontM(16),
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicatorColor: white,
+          indicatorWeight: 1,
+          indicator: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: white, width: 0.5),
             ),
           ),
+          tabAlignment: TabAlignment.center,
+          tabs: [
+            Tab(
+              child: SizedBox(
+                width: deviceWidth * 0.25,
+                child: const Center(
+                  child: Text(
+                    "NFT",
+                  ),
+                ),
+              ),
+            ),
+            Tab(
+              child: SizedBox(
+                width: deviceWidth * 0.25,
+                child: const Center(
+                  child: Text(
+                    "커뮤니티",
+                  ),
+                ),
+              ),
+            ),
+            Tab(
+              child: SizedBox(
+                width: deviceWidth * 0.25,
+                child: const Center(
+                  child: Text(
+                    "포인트",
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

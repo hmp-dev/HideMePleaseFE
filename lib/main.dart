@@ -1,5 +1,6 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +10,7 @@ import 'package:mobile/app/app.dart';
 import 'package:mobile/app/core/env/app_env.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/firebase_options.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +47,9 @@ Future initApp() async {
   await configureDependencies();
 
   await Future.wait([
+    // Firebase
+    Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
+
     // Localization
     EasyLocalization.ensureInitialized(),
 

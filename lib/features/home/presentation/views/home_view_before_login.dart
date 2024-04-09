@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/auth/presentation/screens/social_auth_screen.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/rounder_button_small.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
@@ -17,9 +18,14 @@ class HomeViewBeforeLogin extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 100),
-        DefaultImage(
-          path: "assets/images/hide-me-please-logo.png",
-          width: 200,
+        InkWell(
+          onTap: () {
+            SocialAuthScreen.push(context);
+          },
+          child: DefaultImage(
+            path: "assets/images/hide-me-please-logo.png",
+            width: 200,
+          ),
         ),
         const SizedBox(height: 20),
         Center(

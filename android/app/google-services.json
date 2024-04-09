@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "543048086110",
+    "project_id": "hidemeplease",
+    "storage_bucket": "hidemeplease.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:543048086110:android:bbb7d030b56934215bfacf",
+        "android_client_info": {
+          "package_name": "com.kr.hideme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmrcByvj3igYdCsl1l_aV38DaM0HcWTxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
