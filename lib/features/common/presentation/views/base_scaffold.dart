@@ -67,28 +67,26 @@ class _BaseScaffoldState extends State<BaseScaffold> {
       children: [
         Scaffold(
           backgroundColor: widget.backgroundColor ?? bg,
-          body: SafeArea(
-            child: GestureDetector(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-              },
-              child: Container(
-                color: Colors.transparent,
-                height: double.infinity,
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: widget.safeArea
-                          ? MediaQuery.of(context).padding.top
-                          : 0,
-                      color: widget.backgroundColor ?? bg,
-                    ),
-                    _appBar(),
-                    Expanded(child: widget.body),
-                  ],
-                ),
+          body: GestureDetector(
+            onTap: () {
+              FocusScope.of(context).unfocus();
+            },
+            child: Container(
+              color: Colors.transparent,
+              height: double.infinity,
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: widget.safeArea
+                        ? MediaQuery.of(context).padding.top
+                        : 0,
+                    color: widget.backgroundColor ?? bg,
+                  ),
+                  _appBar(),
+                  Expanded(child: widget.body),
+                ],
               ),
             ),
           ),

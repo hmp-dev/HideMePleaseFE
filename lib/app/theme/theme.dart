@@ -4,6 +4,7 @@ const bg = Color(0xff0E0D0D);
 const bg1 = Color(0xFF0C0C0E);
 const white = Color(0xFFFFFFFF);
 const whiteWithOpacityOne = Color(0x80FFFFFF);
+const fore2White70percent = Color(0x70ffffff);
 const lightBlue = Color(0xFF00A3FF);
 const blackLight = Color(0xFF191c1c);
 const pink = Color(0xffFF016A);
@@ -44,81 +45,6 @@ const gray200 = Color(0xffF5F5F5);
 const gray300 = Color(0xffe9e9e9);
 const gray500 = Color(0xffD9D9D9);
 
-TextStyle fontH(
-  double size, {
-  Color? color,
-  double? letterSpacing = -0.1,
-  double? lineHeight,
-}) =>
-    TextStyle(
-      fontSize: size,
-      fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w900,
-      color: color ?? gray100,
-      letterSpacing: letterSpacing,
-      height: lineHeight,
-    );
-
-TextStyle fontB(
-  double size, {
-  Color? color,
-  double? letterSpacing = -0.1,
-  double? lineHeight,
-}) =>
-    TextStyle(
-      fontSize: size,
-      fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w700,
-      color: color ?? gray100,
-      letterSpacing: letterSpacing,
-      height: lineHeight,
-    );
-
-TextStyle fontSB(
-  double size, {
-  Color? color,
-  double? letterSpacing = -0.1,
-  double? lineHeight,
-}) =>
-    TextStyle(
-      fontSize: size,
-      fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w600,
-      color: color ?? gray100,
-      letterSpacing: letterSpacing,
-      height: lineHeight,
-    );
-
-TextStyle fontM(
-  double size, {
-  Color? color,
-  double? letterSpacing = -0.1,
-  double? lineHeight,
-}) =>
-    TextStyle(
-      fontSize: size,
-      fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w500,
-      color: color ?? gray100,
-      letterSpacing: letterSpacing,
-      height: lineHeight,
-    );
-
-TextStyle fontR(
-  double size, {
-  Color? color,
-  double? letterSpacing = -0.1,
-  double? lineHeight,
-}) =>
-    TextStyle(
-      fontSize: size,
-      fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w400,
-      color: color ?? gray100,
-      letterSpacing: letterSpacing,
-      height: lineHeight,
-    );
-
 TextStyle fontL(
   double size, {
   Color? color,
@@ -134,6 +60,96 @@ TextStyle fontL(
       height: lineHeight,
     );
 
+TextStyle fontR(
+  double size, {
+  Color? color,
+  double? letterSpacing = -0.1,
+  double? lineHeight,
+}) =>
+    TextStyle(
+      fontSize: size,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w400,
+      color: color ?? white,
+      letterSpacing: letterSpacing,
+      height: lineHeight,
+    );
+
+TextStyle fontM(
+  double size, {
+  Color? color,
+  double? letterSpacing = -0.1,
+  double? lineHeight,
+}) =>
+    TextStyle(
+      fontSize: size,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w500,
+      color: color ?? white,
+      letterSpacing: letterSpacing,
+      height: lineHeight,
+    );
+
+TextStyle fontSB(
+  double size, {
+  Color? color,
+  double? letterSpacing = -0.1,
+  double? lineHeight,
+}) =>
+    TextStyle(
+      fontSize: size,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w600,
+      color: color ?? white,
+      letterSpacing: letterSpacing,
+      height: lineHeight,
+    );
+
+TextStyle fontB(
+  double size, {
+  Color? color,
+  double? letterSpacing = -0.1,
+  double? lineHeight,
+}) =>
+    TextStyle(
+      fontSize: size,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w700,
+      color: color ?? white,
+      letterSpacing: letterSpacing,
+      height: lineHeight,
+    );
+
+TextStyle fontEB(
+  double size, {
+  Color? color,
+  double? letterSpacing = -0.1,
+  double? lineHeight,
+}) =>
+    TextStyle(
+      fontSize: size,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w800,
+      color: color ?? white,
+      letterSpacing: letterSpacing,
+      height: lineHeight,
+    );
+
+TextStyle fontH(
+  double size, {
+  Color? color,
+  double? letterSpacing = -0.1,
+  double? lineHeight,
+}) =>
+    TextStyle(
+      fontSize: size,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w900,
+      color: color ?? white,
+      letterSpacing: letterSpacing,
+      height: lineHeight,
+    );
+
 TextStyle fontTH(
   double size, {
   Color? color,
@@ -144,7 +160,7 @@ TextStyle fontTH(
       fontSize: size,
       fontFamily: 'Pretendard',
       fontWeight: FontWeight.w100,
-      color: color ?? gray100,
+      color: color ?? white,
       letterSpacing: letterSpacing,
       height: lineHeight,
     );
@@ -158,7 +174,7 @@ TextStyle fontStroke(double size, {Color? color, Color? outlineColor}) =>
       foreground: Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3
-        ..color = outlineColor ?? Colors.white,
+        ..color = outlineColor ?? white,
       letterSpacing: -0.1,
     );
 

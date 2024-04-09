@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/rounder_button_small.dart';
+import 'package:mobile/features/community/presentation/screens/temp_data_community_cards.dart';
+import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -32,6 +35,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -55,7 +59,62 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   color: const Color(0xFF55080A),
                 )
               ],
-            )
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "전체 커뮤니티",
+                      style: fontM(16, lineHeight: 1.4),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      "102",
+                      style: fontM(16,
+                          lineHeight: 1.4, color: fore2White70percent),
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "포인트 순",
+                      style: fontR(14,
+                          lineHeight: 1.4, color: fore2White70percent),
+                    ),
+                    const SizedBox(width: 5),
+                    DefaultImage(
+                      path: "assets/icons/ic_arrow_down.svg",
+                      width: 14,
+                      height: 14,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.center,
+              child: Wrap(
+                spacing: 20.0,
+                runSpacing: 20.0,
+                alignment: WrapAlignment.center,
+                children: List.generate(
+                  communityNFTItemList.length,
+                  (index) {
+                    return NftCommunityCardWidget(
+                      title: communityNFTItemList[index].title,
+                      imagePath: communityNFTItemList[index].imagePath,
+                    );
+                  },
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -46,26 +46,28 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
         child: DefaultImage(
             path: "assets/icons/img_icon_system.svg", width: 32, height: 32),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(top: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildRow(context),
-            const SizedBox(height: 32),
-            _buildTabView(context),
-            SizedBox(
-              height: 496,
-              child: TabBarView(
-                controller: tabViewController,
-                children: const [
-                  MyPage(),
-                  MyPage(),
-                  MyPage(),
-                ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildRow(context),
+              const SizedBox(height: 32),
+              _buildTabView(context),
+              SizedBox(
+                height: 496,
+                child: TabBarView(
+                  controller: tabViewController,
+                  children: const [
+                    MyPage(),
+                    MyPage(),
+                    MyPage(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
