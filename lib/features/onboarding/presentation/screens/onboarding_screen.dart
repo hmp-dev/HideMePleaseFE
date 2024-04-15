@@ -4,7 +4,9 @@ import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_check_button.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/default_icon_button.dart';
+import 'package:mobile/features/common/presentation/widgets/rounded_button.dart';
+import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/page_pop_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -254,98 +256,5 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     } else {
       await prefs.setInt('initScreen', 0);
     }
-  }
-}
-
-class DefaultIconButton extends StatelessWidget {
-  const DefaultIconButton({
-    super.key,
-    required this.iconPath,
-    required this.onTap,
-  });
-
-  final String iconPath;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: DefaultImage(path: iconPath),
-    );
-  }
-}
-
-class RoundedButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-
-  const RoundedButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: darkGray, // You can change the color as needed
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class RoundedButtonWithBorder extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-
-  const RoundedButtonWithBorder({
-    super.key,
-    required this.text,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity, // Fill available width
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: lightGray,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Colors.grey), // Gray border
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey, // Text color is gray
-          ),
-        ),
-      ),
-    );
   }
 }

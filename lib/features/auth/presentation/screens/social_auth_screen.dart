@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/app/core/helpers/target.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/auth/presentation/widgets/agree_text_widget.dart';
 import 'package:mobile/features/auth/presentation/widgets/social_login_button.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_check_button.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
-import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class SocialAuthScreen extends StatefulWidget {
@@ -132,58 +131,4 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
 class GoogleSignInApi {
   static final _googleSignIn = GoogleSignIn();
   static Future<GoogleSignInAccount?> login() => _googleSignIn.signIn();
-}
-
-class AgreeTextWidget extends StatelessWidget {
-  const AgreeTextWidget({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: () {
-            WebViewScreen.push(
-              context: context,
-              title: "서비스 이용약관",
-              url:
-                  "https://www.notion.so/hyperhire/HideMePlease-e763862aee144b83a9d0b4eac3ab0a49",
-            );
-          },
-          child: Text(
-            "서비스 이용약관",
-            textAlign: TextAlign.center,
-            style: fontRUnderLined(14),
-          ),
-        ),
-        Text(
-          "및 ",
-          textAlign: TextAlign.center,
-          style: fontR(14, color: white),
-        ),
-        GestureDetector(
-          onTap: () {
-            WebViewScreen.push(
-              context: context,
-              title: "개인정보 처리방침",
-              url:
-                  "https://www.notion.so/hyperhire/HideMePlease-e763862aee144b83a9d0b4eac3ab0a49",
-            );
-          },
-          child: Text(
-            "개인정보 처리방침",
-            textAlign: TextAlign.center,
-            style: fontRUnderLined(14),
-          ),
-        ),
-        Text(
-          "에 동의합니다.",
-          textAlign: TextAlign.center,
-          style: fontR(14, color: white),
-        ),
-      ],
-    );
-  }
 }
