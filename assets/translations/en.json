@@ -4,5 +4,17 @@
     "closeApp":"Close App",
     "doYouWantToCloseTheApp" : "Do you want to close the app?",
     "somethingError": "Something went wrong!",
-    "myPage":"My Page"
+    "myPage":"My Page",
+    "next":"Next",
+    "previous":"Previous",
+    "welcomeNFT":"Welcome NFT",
+    "onBaordingMessageWelcomeSlide":"Starting with Hamiple Welcome NFT,\nA community to work with in the future.\nSearch carefully.",
+    "community":"Community",
+    "onBoardingMessageCommunitySlide":"Choose a community to support,\ncommunity with members\nIncrease your benefits as you grow.",
+    "event":"Event",
+    "onBoardingMessageEventSlide":"Check out the community events.\nVarious offline\nevents that will increase solidarity are waiting for you.",
+    "spaceAndBenefits":"Space & Benefits",
+    "onBoardingMessageSpaceAndBenefitsSlide":"Give your boss a high five!\nYou can easily\nuse the benefits through NFC!",
+    "dontShowNextTimeMsg":"Do not show next time",
+    "confirm":"Confirm"
 }

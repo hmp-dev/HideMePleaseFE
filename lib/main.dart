@@ -11,11 +11,22 @@ import 'package:mobile/app/core/env/app_env.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// init Screen bool
+/// check if it is first time App is launched by user
+
+int? initScreen;
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  /// Setting an Int value for initScreen
+  /// To show the Intro Screens at Start
+  final prefs = await SharedPreferences.getInstance();
+  initScreen = prefs.getInt('initScreen');
 
   await initApp();
 
@@ -24,12 +35,15 @@ void main() async {
       supportedLocales: const [Locale('en'), Locale('ko')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
-      startLocale:
-          AppEnv.flavor.isProd && kReleaseMode ? const Locale('ko') : null,
+      startLocale: AppEnv.flavor.isProd && kReleaseMode
+          ? const Locale('ko')
+          : const Locale('ko'),
       useOnlyLangCode: true,
       child: DevicePreview(
         enabled: false,
-        builder: (_) => const MyApp(),
+        builder: (_) => MyApp(
+          initScreen: initScreen,
+        ),
       ),
     ),
   );

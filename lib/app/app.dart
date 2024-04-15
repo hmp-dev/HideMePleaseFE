@@ -10,7 +10,9 @@ import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/theme/theme.dart';
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, this.initScreen});
+
+  final int? initScreen;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -36,7 +38,10 @@ class _MyAppState extends State<MyApp> {
         locale: context.locale,
         title: '공유용',
         theme: theme(),
-        initialRoute: Routes.app,
+        //initialRoute: ,
+        initialRoute: widget.initScreen == 0 || widget.initScreen == null
+            ? Routes.onboardingScreen
+            : Routes.appHome,
         onGenerateRoute: generateRoute,
         navigatorObservers: const [
           //FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),

@@ -4,5 +4,18 @@
     "closeApp":"앱 종료",
     "doYouWantToCloseTheApp" : "앱을 종료하시겠습니까?",
     "somethingError": "오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-    "myPage":"마이페이지"
+    "myPage":"마이페이지",
+    "next":"다음",
+    "previous":"이전",
+    "welcomeNFT":"Welcome NFT",
+    "onBaordingMessageWelcomeSlide":"하미플 웰컴 NFT로 시작해,\n앞으로 함께할 커뮤니티를\n신중히 찾아보세요.",
+    "community":"커뮤니티",
+    "onBoardingMessageCommunitySlide":"응원할 커뮤니티를 선택해,\n멤버들과 함께 커뮤니티를\n키워나가며 혜택을 늘려보세요.",
+    "event":"이벤트",
+    "onBoardingMessageEventSlide":"커뮤니티 이벤트를 확인해보세요.\n결속력을 높여줄 다양한 오프라인\n이벤트가 기다리고 있어요.",
+    "spaceAndBenefits":"공간 & 혜택",
+    "onBoardingMessageSpaceAndBenefitsSlide":"사장님과 하이파이브를 해보세요!\nNFC를 통해 간편하게 혜택을\n사용할 수 있어요!",
+    "dontShowNextTimeMsg":"다음에 표시하지 않음",
+    "confirm":"확인"
+    
 }

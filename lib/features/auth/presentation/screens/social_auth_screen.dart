@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mobile/app/core/helpers/target.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/auth/presentation/widgets/social_login_button.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
+import 'package:mobile/features/common/presentation/widgets/default_check_button.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
+import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class SocialAuthScreen extends StatefulWidget {
   const SocialAuthScreen({super.key});
@@ -21,6 +29,8 @@ class SocialAuthScreen extends StatefulWidget {
 }
 
 class _SocialAuthScreenState extends State<SocialAuthScreen> {
+  bool isAgreeWithTerms = false;
+
   @override
   void initState() {
     super.initState();
@@ -54,17 +64,60 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, bottom: 20),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isAgreeWithTerms = !isAgreeWithTerms;
+                              });
+                            },
+                            child: DefaultCheckButton(
+                              isSelected: isAgreeWithTerms,
+                              size: 22,
+                              borderRadius: 4,
+                            ),
+                          ),
+                          const HorizontalSpace(7),
+                          const AgreeTextWidget(),
+                        ],
+                      ),
+                    ),
                     SocialLoginButton(
-                      text: 'Google 계정으로 시작',
-                      buttonType: SocialLoginButtonType.google,
+                      text: 'World ID로 시작',
+                      buttonType: SocialLoginButtonType.worldId,
                       onPressed: () {},
                     ),
                     const SizedBox(height: 10),
-                    SocialLoginButton(
-                      text: 'Apple ID로 시작',
-                      buttonType: SocialLoginButtonType.apple,
-                      onPressed: () {},
-                    ),
+                    if (isAndroid())
+                      SocialLoginButton(
+                        text: 'Google 계정으로 시작',
+                        buttonType: SocialLoginButtonType.google,
+                        onPressed: () async {
+                          final googleUser = await GoogleSignInApi.login();
+                          final googleAuth = await googleUser!.authentication;
+                          Log.info(
+                              'googleAuth.accessToken: ${googleAuth.accessToken}');
+                        },
+                      ),
+                    if (isIOS())
+                      SocialLoginButton(
+                        text: 'Apple ID로 시작',
+                        buttonType: SocialLoginButtonType.apple,
+                        onPressed: () async {
+                          final credential =
+                              await SignInWithApple.getAppleIDCredential(
+                            scopes: [
+                              AppleIDAuthorizationScopes.email,
+                              AppleIDAuthorizationScopes.fullName,
+                            ],
+                          );
+
+                          Log.info(credential);
+                        },
+                      ),
                   ],
                 ),
               ),
@@ -72,6 +125,65 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class GoogleSignInApi {
+  static final _googleSignIn = GoogleSignIn();
+  static Future<GoogleSignInAccount?> login() => _googleSignIn.signIn();
+}
+
+class AgreeTextWidget extends StatelessWidget {
+  const AgreeTextWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            WebViewScreen.push(
+              context: context,
+              title: "서비스 이용약관",
+              url:
+                  "https://www.notion.so/hyperhire/HideMePlease-e763862aee144b83a9d0b4eac3ab0a49",
+            );
+          },
+          child: Text(
+            "서비스 이용약관",
+            textAlign: TextAlign.center,
+            style: fontRUnderLined(14),
+          ),
+        ),
+        Text(
+          "및 ",
+          textAlign: TextAlign.center,
+          style: fontR(14, color: white),
+        ),
+        GestureDetector(
+          onTap: () {
+            WebViewScreen.push(
+              context: context,
+              title: "개인정보 처리방침",
+              url:
+                  "https://www.notion.so/hyperhire/HideMePlease-e763862aee144b83a9d0b4eac3ab0a49",
+            );
+          },
+          child: Text(
+            "개인정보 처리방침",
+            textAlign: TextAlign.center,
+            style: fontRUnderLined(14),
+          ),
+        ),
+        Text(
+          "에 동의합니다.",
+          textAlign: TextAlign.center,
+          style: fontR(14, color: white),
+        ),
+      ],
     );
   }
 }

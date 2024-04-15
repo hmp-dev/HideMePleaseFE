@@ -20,10 +20,10 @@ class AppState extends BaseState {
   List<Object?> get props => [isLoggedIn, status];
 
   @override
-  AppState copyWith(
-      {bool? isLoggedIn,
-      RequestStatus? status,
-      bool? isLoggedOutFromDeleteAccount}) {
+  AppState copyWith({
+    bool? isLoggedIn,
+    RequestStatus? status,
+  }) {
     return AppState(
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
       status: status ?? this.status,

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/enum/home_view_type.dart';
-import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/auth/presentation/screens/social_auth_screen.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/rounder_button_small.dart';
-import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
+import 'package:mobile/features/onboarding/presentation/screens/onboarding_screen.dart';
 
 class HomeViewBeforeLogin extends StatelessWidget {
   const HomeViewBeforeLogin({
@@ -37,10 +35,12 @@ class HomeViewBeforeLogin extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         RoundedButtonSmall(
-          title: "지갑연결하기",
+          title: "지갑연결하기 1",
           onTap: () {
-            getIt<HomeCubit>()
-                .onUpdateHomeViewType(HomeViewType.AfterLoginWithOutNFT);
+            // getIt<HomeCubit>()
+            //     .onUpdateHomeViewType(HomeViewType.AfterLoginWithOutNFT);
+
+            OnBoardingScreen.push(context);
           },
         ),
         const SizedBox(height: 50),

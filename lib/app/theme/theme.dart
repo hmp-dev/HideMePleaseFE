@@ -3,6 +3,14 @@ import 'package:flutter/material.dart';
 const bg = Color(0xff0E0D0D);
 const bg1 = Color(0xFF0C0C0E);
 const white = Color(0xFFFFFFFF);
+const extraLightGray = Color(0xFFE4E3E3);
+const lightGray = Color(0xFFF4F4F4);
+const lighterGray = Color(0xFFDAD9D9);
+const brownishGray = Color(0xFF787777);
+const pureBlack = Color(0xFF000000);
+const darkGray = Color(0xFF1A1919);
+const lightGrayStroke = Color(0xFFBFBEBE);
+
 const whiteWithOpacityOne = Color(0x80FFFFFF);
 const fore2White70percent = Color(0x70ffffff);
 const lightBlue = Color(0xFF00A3FF);
@@ -75,6 +83,31 @@ TextStyle fontR(
       height: lineHeight,
     );
 
+TextStyle fontRUnderLined(
+  double size, {
+  Color? color,
+  double? letterSpacing = -0.1,
+  double? lineHeight,
+}) =>
+    TextStyle(
+      fontSize: size,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w400,
+      color: color ?? white,
+      letterSpacing: letterSpacing,
+      height: lineHeight,
+      decoration: TextDecoration.underline,
+      decorationColor: white,
+    );
+
+// TextStyle(
+//                                         fontSize: 14,
+//                                         fontFamily: 'Pretendard',
+//                                         fontWeight: FontWeight.w400,
+//                                         color: white,
+//                                         letterSpacing: -0.1,
+//                                         decoration: TextDecoration.underline,
+//                                         decorationColor: white)
 TextStyle fontM(
   double size, {
   Color? color,

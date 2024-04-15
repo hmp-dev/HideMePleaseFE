@@ -29,7 +29,11 @@ enum SocialLoginButtonType {
   github,
 
   /// General Logo, without any image, default text is 'Sign In'
-  generalLogin
+  generalLogin,
+
+  //
+
+  worldId
 }
 
 /// All SSupported Button Modes
@@ -169,6 +173,16 @@ class SocialLoginButton extends StatelessWidget {
         backgroundColor = const Color(0xFF444444);
         _isLocal = false;
         break;
+
+      case SocialLoginButtonType.worldId:
+        buttonTextStyle =
+            textStyle ?? const TextStyle(color: Color(0xFFFEFEFE));
+        text = "Sign In with WorldId";
+        imageName = "${_defaultImagePath}ic_worldcoin.svg";
+        backgroundColor = const Color(0xFF444444);
+        _isLocal = false;
+        break;
+
       case SocialLoginButtonType.generalLogin:
         buttonTextStyle = textStyle ?? const TextStyle(color: Colors.white);
         text = "Sign In";
