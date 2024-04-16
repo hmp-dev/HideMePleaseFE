@@ -19,5 +19,6 @@ abstract class  LocaleKeys {
   static const onBoardingMessageSpaceAndBenefitsSlide = 'onBoardingMessageSpaceAndBenefitsSlide';
   static const dontShowNextTimeMsg = 'dontShowNextTimeMsg';
   static const confirm = 'confirm';
+  static const agreeTermsAlertMSG = 'agreeTermsAlertMSG';
 
 }

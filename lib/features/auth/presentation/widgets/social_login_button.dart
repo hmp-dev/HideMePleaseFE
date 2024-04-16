@@ -299,7 +299,8 @@ class _LoginButton extends StatelessWidget {
                 )
               : DefaultImage(
                   path: imagePath ?? "",
-                  width: imageWidth,
+                  //width: imageWidth,
+                  height: imageWidth,
                 );
     }
     return const Column();

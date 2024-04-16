@@ -8,16 +8,15 @@ abstract class BaseCubit<BaseState> extends Cubit<BaseState> {
 abstract class BaseState extends Equatable {
   const BaseState();
 
-  RequestStatus get status => throw UnimplementedError();
-
   RequestStatus get submitStatus => throw UnimplementedError();
 
   bool get isLoading =>
-      status == RequestStatus.initial || status == RequestStatus.loading;
+      submitStatus == RequestStatus.initial ||
+      submitStatus == RequestStatus.loading;
 
-  bool get isSuccess => status == RequestStatus.success;
+  bool get isSuccess => submitStatus == RequestStatus.success;
 
-  bool get isFailure => status == RequestStatus.failure;
+  bool get isFailure => submitStatus == RequestStatus.failure;
 
   bool get isSubmitLoading => submitStatus == RequestStatus.loading;
 

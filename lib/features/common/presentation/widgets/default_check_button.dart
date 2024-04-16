@@ -34,8 +34,8 @@ class _DefaultCheckButtonState extends State<DefaultCheckButton> {
         child: widget.isSelected
             ? DefaultImage(
                 path: "assets/icons/ic_check.svg",
-                width: 24,
-                height: 24,
+                width: 32,
+                height: 32,
               )
             : const SizedBox(),
       ),

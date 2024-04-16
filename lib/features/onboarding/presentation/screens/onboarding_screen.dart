@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/helpers/pref_keys.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
@@ -252,9 +254,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   setDontShowAgain(bool isDontShow) async {
     final prefs = await SharedPreferences.getInstance();
     if (isDontShow) {
-      await prefs.setInt('initScreen', 1);
+      await prefs.setInt(isShowOnBoardingView, 1);
     } else {
-      await prefs.setInt('initScreen', 0);
+      await prefs.setInt(isShowOnBoardingView, 0);
     }
+
+    var isShowOnBoarding = prefs.getInt(isShowOnBoardingView);
+    Log.info("isShowOnBoarding: $isShowOnBoarding");
   }
 }

@@ -16,5 +16,6 @@
     "spaceAndBenefits":"Space & Benefits",
     "onBoardingMessageSpaceAndBenefitsSlide":"Give your boss a high five!\nYou can easily\nuse the benefits through NFC!",
     "dontShowNextTimeMsg":"Do not show next time",
-    "confirm":"Confirm"
+    "confirm":"Confirm",
+    "agreeTermsAlertMSG":"Please agree to the terms before proceeding"
 }

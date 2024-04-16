@@ -4,21 +4,21 @@ class HomeState extends BaseState {
   final HomeViewType homeViewType;
 
   const HomeState({
-    this.status = RequestStatus.initial,
+    this.submitStatus = RequestStatus.initial,
     this.homeViewType = HomeViewType.BeforeLogin,
   });
 
   @override
-  final RequestStatus status;
+  final RequestStatus submitStatus;
 
   factory HomeState.initial() => const HomeState();
 
   @override
-  List<Object?> get props => [status, homeViewType];
+  List<Object?> get props => [submitStatus, homeViewType];
 
   @override
   String toString() =>
-      'HomeState(status: $status, homeViewType: $homeViewType)';
+      'HomeState(status: $submitStatus, homeViewType: $homeViewType)';
 
   @override
   HomeState copyWith({
@@ -26,7 +26,7 @@ class HomeState extends BaseState {
     HomeViewType? homeViewType,
   }) {
     return HomeState(
-      status: status ?? this.status,
+      submitStatus: status ?? submitStatus,
       homeViewType: homeViewType ?? this.homeViewType,
     );
   }

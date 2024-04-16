@@ -8,6 +8,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:mobile/app/app.dart';
 import 'package:mobile/app/core/env/app_env.dart';
+import 'package:mobile/app/core/helpers/pref_keys.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/firebase_options.dart';
@@ -16,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// init Screen bool
 /// check if it is first time App is launched by user
 
-int? initScreen;
+int? isShowOnBoarding;
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +27,8 @@ void main() async {
   /// Setting an Int value for initScreen
   /// To show the Intro Screens at Start
   final prefs = await SharedPreferences.getInstance();
-  initScreen = prefs.getInt('initScreen');
+  isShowOnBoarding = prefs.getInt(isShowOnBoardingView);
+  Log.info("isShowOnBoarding: $isShowOnBoarding");
 
   await initApp();
 
@@ -42,7 +44,7 @@ void main() async {
       child: DevicePreview(
         enabled: false,
         builder: (_) => MyApp(
-          initScreen: initScreen,
+          isShowOnBoarding: isShowOnBoarding,
         ),
       ),
     ),

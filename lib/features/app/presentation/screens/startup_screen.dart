@@ -30,11 +30,11 @@ class _StartUpScreenState extends State<StartUpScreen> {
 
     // Determine where to navigate based on app state
     final appCubit = getIt<AppCubit>();
-    if (appCubit.state.status == RequestStatus.success) {
+    if (appCubit.state.submitStatus == RequestStatus.success) {
       if (appCubit.state.isLoggedIn) {
         Navigator.pushNamedAndRemoveUntil(
           context,
-          Routes.appHome,
+          Routes.socialLogin,
           (route) => false,
         );
       } else {

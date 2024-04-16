@@ -4,20 +4,20 @@ class AppState extends BaseState {
   final bool isLoggedIn;
 
   @override
-  final RequestStatus status;
+  final RequestStatus submitStatus;
 
   const AppState({
     required this.isLoggedIn,
-    this.status = RequestStatus.initial,
+    this.submitStatus = RequestStatus.initial,
   });
 
   factory AppState.initial() => const AppState(
         isLoggedIn: false,
-        status: RequestStatus.initial,
+        submitStatus: RequestStatus.initial,
       );
 
   @override
-  List<Object?> get props => [isLoggedIn, status];
+  List<Object?> get props => [isLoggedIn, submitStatus];
 
   @override
   AppState copyWith({
@@ -26,7 +26,7 @@ class AppState extends BaseState {
   }) {
     return AppState(
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
-      status: status ?? this.status,
+      submitStatus: status ?? submitStatus,
     );
   }
 }
