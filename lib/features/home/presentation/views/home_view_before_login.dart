@@ -42,10 +42,21 @@ class HomeViewBeforeLogin extends StatelessWidget {
         W3MConnectWalletButton(service: w3mService),
         const SizedBox(height: 20),
         if (w3mService.session?.address != null)
-          Text(
-            " Connected Wallet address:\n${w3mService.session?.address}",
-            style: fontR(12, color: white),
+          Column(
+            children: [
+              ListTile(
+                dense: true,
+                title: Text('${w3mService.session?.address}'),
+                subtitle: const Text("Connected Wallet address"),
+              ),
+              ListTile(
+                dense: true,
+                title: Text('${w3mService.session?.connectedWalletName}'),
+                subtitle: const Text("Connected Wallet Name"),
+              ),
+            ],
           ),
+
         const SizedBox(height: 50),
         NFTCardWidgetParent(
           imagePath: "assets/images/home_card_img.png",

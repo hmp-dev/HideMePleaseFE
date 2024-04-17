@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Mobile</string>
+	<string>HideMePlease</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -46,6 +46,82 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.543048086110-l6rc1op8m76gj7hd4rfm43dcshlhqpj5</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.web3modal.flutterExample</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>web3modalflutter</string>
+			</array>
+		</dict>
+	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>wirexwallet</string>
+		<string>stasis</string>
+		<string>omni</string>
+		<string>strikex</string>
+		<string>bitcoincom</string>
+		<string>bnc</string>
+		<string>kryptogo</string>
+		<string>roninwallet</string>
+		<string>moonstake</string>
+		<string>ripio</string>
+		<string>frontier</string>
+		<string>qubic</string>
+		<string>dropp</string>
+		<string>safepalwallet</string>
+		<string>bee</string>
+		<string>shido</string>
+		<string>foxwallet</string>
+		<string>exodus</string>
+		<string>coolwallet</string>
+		<string>shinobi-wallet</string>
+		<string>halowallet</string>
+		<string>spotonchain</string>
+		<string>rainbow</string>
+		<string>obvious</string>
+		<string>robinhood-wallet</string>
+		<string>cbwallet</string>
+		<string>okto</string>
+		<string>bitkeep</string>
+		<string>hyperPay</string>
+		<string>bitizen</string>
+		<string>ape</string>
+		<string>uniswap</string>
+		<string>vimwallet</string>
+		<string>oasys-wallet</string>
+		<string>coinstats</string>
+		<string>ledgerlive</string>
+		<string>safe</string>
+		<string>okex</string>
+		<string>trust</string>
+		<string>thorwallet</string>
+		<string>everspace</string>
+		<string>cosmostation</string>
+		<string>coinwallet</string>
+		<string>mewwallet</string>
+		<string>metamask</string>
+		<string>avacus</string>
+		<string>argent</string>
+		<string>walletapp</string>
+		<string>wcflutterwallet</string>
+		<string>rn-web3wallet</string>
 	</array>
 </dict>
 </plist>

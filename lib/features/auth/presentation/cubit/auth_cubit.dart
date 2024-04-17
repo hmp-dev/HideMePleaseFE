@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 
 part 'auth_state.dart';
@@ -26,7 +27,18 @@ class AuthCubit extends BaseCubit<AuthState> {
     );
   }
 
-  Future<void> onAppleLogin() async {}
+  Future<void> onAppleLogin() async {
+    final result = await _authRepository.requestAppleLogin();
+    result.fold(
+      (l) => emit(
+        state.copyWith(submitStatus: RequestStatus.failure, message: l.message),
+      ),
+      (idToken) {
+        onBackendApiLogin(firebaseIdToken: idToken);
+      },
+    );
+  }
+
   Future<void> onWorldIdLogin() async {}
   Future<void> onBackendApiLogin({
     required String firebaseIdToken,
@@ -44,15 +56,32 @@ class AuthCubit extends BaseCubit<AuthState> {
     //
     response.fold(
       (err) => emit(state.copyWith(
-          submitStatus: RequestStatus.failure, isLoggedIn: false)),
+          submitStatus: RequestStatus.failure, isLogInSuccessful: false)),
       (success) => emit(
         state.copyWith(
           submitStatus: RequestStatus.success,
-          isLoggedIn: true,
+          isLogInSuccessful: true,
         ),
       ),
     );
   }
 
-  Future<void> onLogOut() async {}
+  Future<void> onLogOut() async {
+    Log.info("inside onLogOut");
+    EasyLoading.show();
+
+    final response = await _authRepository.requestLogOut();
+
+    EasyLoading.dismiss();
+
+    response.fold(
+      (err) => emit(state.copyWith(submitStatus: RequestStatus.failure)),
+      (success) => emit(
+        state.copyWith(
+          submitStatus: RequestStatus.success,
+          isLogInSuccessful: false,
+        ),
+      ),
+    );
+  }
 }

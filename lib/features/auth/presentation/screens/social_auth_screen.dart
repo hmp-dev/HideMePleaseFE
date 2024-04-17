@@ -14,6 +14,7 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+// import 'package:flutter_appauth/flutter_appauth.dart';
 
 class SocialAuthScreen extends StatefulWidget {
   const SocialAuthScreen({super.key});
@@ -23,11 +24,40 @@ class SocialAuthScreen extends StatefulWidget {
 }
 
 class _SocialAuthScreenState extends State<SocialAuthScreen> {
+  // final FlutterAppAuth appAuth = const FlutterAppAuth();
+
   bool isAgreeWithTerms = false;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> _login(BuildContext context) async {
+    // try {
+    //   final AuthorizationTokenResponse? result =
+    //       await appAuth.authorizeAndExchangeCode(
+    //     AuthorizationTokenRequest(
+    //       'app_staging_374700e081c2e519c5f50d1f16c5507c',
+    //       'http://localhost:3000/api/auth/callback/worldcoin',
+    //       discoveryUrl:
+    //           'https://id.worldcoin.org/.well-known/openid-configuration',
+    //       scopes: ['openid'],
+    //     ),
+    //   );
+
+    //   if (result != null) {
+    //     // Use result.accessToken for API requests
+    //     Log.info('Access token: ${result.accessToken}');
+    //     // Navigate to next screen or perform other actions upon successful login
+    //   } else {
+    //     // Handle null response (possible cancellation or error)
+    //     Log.info('Login failed: Result is null');
+    //   }
+    // } catch (e) {
+    //   Log.error('Login failed: $e');
+    //   // Handle login failure, display error message, etc.
+    // }
   }
 
   @override
@@ -41,6 +71,10 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
           if (state.isSubmitSuccess && state.isLogInSuccessful) {
             Navigator.pushNamedAndRemoveUntil(
                 context, Routes.appHome, (route) => false);
+          }
+
+          if (state.isSubmitFailure) {
+            context.showErrorSnackBar(state.message);
           }
         },
         child: SafeArea(
@@ -92,35 +126,40 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                       SocialLoginButton(
                         text: 'World ID로 시작',
                         buttonType: SocialLoginButtonType.worldId,
-                        onPressed: () {},
+                        onPressed: () {
+                          _login(context);
+                        },
                       ),
                       const SizedBox(height: 10),
-                      if (isAndroid())
-                        SocialLoginButton(
-                          text: 'Google 계정으로 시작',
-                          buttonType: SocialLoginButtonType.google,
-                          onPressed: () async {
-                            if (isAgreeWithTerms) {
-                              getIt<AuthCubit>().onGoogleLogin();
-                            } else {
-                              context.showSnackBar(
-                                  LocaleKeys.agreeTermsAlertMSG.tr());
-                            }
-                          },
-                        ),
+                      SocialLoginButton(
+                        text: 'Google 계정으로 시작',
+                        buttonType: SocialLoginButtonType.google,
+                        onPressed: () async {
+                          if (isAgreeWithTerms) {
+                            getIt<AuthCubit>().onGoogleLogin();
+                          } else {
+                            context.showSnackBar(
+                                LocaleKeys.agreeTermsAlertMSG.tr());
+                          }
+                        },
+                      ),
                       if (isIOS())
-                        SocialLoginButton(
-                          text: 'Apple ID로 시작',
-                          buttonType: SocialLoginButtonType.apple,
-                          onPressed: () async {
-                            if (isAgreeWithTerms) {
-                              //TODO implement Cubit to Login with Apple
-                            } else {
-                              context.showSnackBar(
-                                  LocaleKeys.agreeTermsAlertMSG.tr());
-                            }
-                          },
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: SocialLoginButton(
+                            text: 'Apple ID로 시작',
+                            buttonType: SocialLoginButtonType.apple,
+                            onPressed: () async {
+                              if (isAgreeWithTerms) {
+                                getIt<AuthCubit>().onAppleLogin();
+                              } else {
+                                context.showSnackBar(
+                                    LocaleKeys.agreeTermsAlertMSG.tr());
+                              }
+                            },
+                          ),
                         ),
+                      const SizedBox(height: 10),
                     ],
                   ),
                 ),

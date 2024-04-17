@@ -34,8 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
         url: 'https://hidemeplease.xyz/',
         icons: ['https://walletconnect.com/walletconnect-logo.png'],
         redirect: Redirect(
-          native: 'w3m://',
-          universal: 'https://hidemeplease.xyz/',
+          native: 'web3modalflutter://',
+          universal: 'HideMePlease',
         ),
       ),
     );

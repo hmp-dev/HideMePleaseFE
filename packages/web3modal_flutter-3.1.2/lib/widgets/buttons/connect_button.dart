@@ -91,9 +91,8 @@ class ConnectButton extends StatelessWidget {
                   width: size.height * 0.7,
                   height: size.height * 0.7,
                   padding: const EdgeInsets.all(kPadding6),
-                  child: CircularProgressIndicator(
-                    color: themeColors.accent100,
-                    strokeWidth: size == BaseButtonSize.small ? 1.0 : 1.5,
+                  child: CircularProgressIndicator.adaptive(
+                    valueColor: AlwaysStoppedAnimation(Colors.white),
                   ),
                 ),
                 const SizedBox.square(dimension: 4.0),
@@ -104,7 +103,7 @@ class ConnectButton extends StatelessWidget {
                   size == BaseButtonSize.small
                       ? Text(titleOverride ??
                           StringConstants.connectButtonIdleShort)
-                      : Text(titleOverride ?? '지갑연결하기',
+                      : Text(titleOverride ?? '',
                           style:
                               fontM(16, lineHeight: 1.3, color: Colors.white)),
               ],

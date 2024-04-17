@@ -59,10 +59,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAVP-Zc_mbf-Wso0w7SDaO9zchmlTQlCOo',
-    appId: '1:543048086110:ios:6bdc584af773d2e55bfacf',
+    appId: '1:543048086110:ios:c8dfd2486d8161695bfacf',
     messagingSenderId: '543048086110',
     projectId: 'hidemeplease',
     storageBucket: 'hidemeplease.appspot.com',
-    iosBundleId: 'com.example.mobile',
+    androidClientId: '543048086110-3be607s0sflqh51un0cfjtv113hnk4uk.apps.googleusercontent.com',
+    iosClientId: '543048086110-l6rc1op8m76gj7hd4rfm43dcshlhqpj5.apps.googleusercontent.com',
+    iosBundleId: 'com.kr.hideme',
   );
 }

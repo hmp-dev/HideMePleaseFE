@@ -12,7 +12,20 @@
           "package_name": "com.kr.hideme"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "543048086110-3be607s0sflqh51un0cfjtv113hnk4uk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kr.hideme",
+            "certificate_hash": "4dd99cb629ca6eb9eb4bdd362deb0d7bc7563618"
+          }
+        },
+        {
+          "client_id": "543048086110-jn0tth49otdmk6i7kncrf4aj5olkc5i1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDmrcByvj3igYdCsl1l_aV38DaM0HcWTxU"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "543048086110-jn0tth49otdmk6i7kncrf4aj5olkc5i1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "543048086110-9dejnv6oi4l61nv6jm1cbfqplss03omt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mobile"
+              }
+            }
+          ]
         }
       }
     }

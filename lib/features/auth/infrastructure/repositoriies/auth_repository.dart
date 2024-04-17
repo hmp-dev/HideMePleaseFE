@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/app/core/exceptions/login_with_google_failure.dart';
@@ -10,12 +15,26 @@ import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_remote_data_source.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:google_sign_in/google_sign_in.dart';
+
+/// Generates a cryptographically secure random nonce, to be included in a
+/// credential request.
+String generateNonce([int length = 32]) {
+  const charset =
+      '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+  final random = Random.secure();
+  return List.generate(length, (_) => charset[random.nextInt(charset.length)])
+      .join();
+}
+
+/// Returns the sha256 hash of [input] in hex notation.
+String sha256ofString(String input) {
+  final bytes = utf8.encode(input);
+  final digest = sha256.convert(bytes);
+  return digest.toString();
+}
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
-  
   final AuthRemoteDataSource _remoteDataSource;
   final AuthLocalDataSource _localDataSource;
 
@@ -27,27 +46,37 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<HMPError, String>> requestAppleLogin() async {
     try {
-      final credential = await SignInWithApple.getAppleIDCredential(
+      // To prevent replay attacks with the credential returned from Apple, we
+      // include a nonce in the credential request. When signing in with
+      // Firebase, the nonce in the id token returned by Apple, is expected to
+      // match the sha256 hash of `rawNonce`.
+      final rawNonce = generateNonce();
+      final nonce = sha256ofString(rawNonce);
+
+      // Request credential for the currently signed in Apple account.
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
+        nonce: nonce,
       );
 
-      Log.info(credential);
+      // Create an `OAuthCredential` from the credential returned by Apple.
+      final oauthCredential = OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        rawNonce: rawNonce,
+      );
 
-      if (1 == 1) {
-        return right("unit");
-      }
+      // Sign in the user with Firebase. If the nonce we generated earlier does
+      // not match the nonce in `appleCredential.identityToken`, sign in will fail.
+      await FirebaseAuth.instance.signInWithCredential(oauthCredential);
 
-      return left(HMPError.fromNetwork());
-    } on DioException catch (e, t) {
-      return left(HMPError.fromNetwork(
-        message: e.message,
-        error: e,
-        trace: t,
-      ));
+      final getIdToken = await FirebaseAuth.instance.currentUser?.getIdToken();
+
+      return right(getIdToken ?? "");
     } catch (e, t) {
+      Log.error('inside Apple login Error:$e}');
       return left(HMPError.fromUnknown(
         error: e,
         trace: t,
@@ -57,12 +86,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<HMPError, String>> requestGoogleLogin() async {
+    Log.info('AuthRepository > requestGoogleLogin');
     try {
-      late final firebase_auth.AuthCredential credential;
+      late final AuthCredential credential;
 
       final googleUser = await GoogleSignIn().signIn();
       final googleAuth = await googleUser!.authentication;
-      credential = firebase_auth.GoogleAuthProvider.credential(
+      credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
@@ -77,7 +107,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return right(getIdToken ?? "");
 
       //
-    } on firebase_auth.FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       final errorMsg = LogInWithGoogleFailure.fromCode(e.code);
       return left(
         HMPError.fromNetwork(
@@ -127,191 +157,64 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<HMPError, Unit>> logOut() {
-    // TODO: implement logOut
-    throw UnimplementedError();
+  Future<Either<HMPError, Unit>> requestLogOut() async {
+    try {
+      await Future.wait([
+        FirebaseAuth.instance.signOut(),
+        GoogleSignIn().signOut(),
+        _localDataSource.deleteAll()
+      ]);
+
+      return right(unit);
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
   }
 
-  // @override
-  // Future<Either<AuthError, VerifyOtpResponseDto>> verifyOtp({
-  //   required String phoneNumber,
-  //   required String otp,
-  // }) async {
-  //   try {
-  //     final response = await _remoteDataSource.verifyOtp(
-  //       phoneNumber: phoneNumber,
-  //       otp: otp,
-  //     );
+  @override
+  Future<Either<HMPError, Unit>> setAuthToken(String token) async {
+    try {
+      await _localDataSource.setAuthToken(token);
 
-  //     await Future.wait([
-  //       _localDataSource.setAuthToken(response.accessToken!),
-  //       if (response.userId != null)
-  //         _localDataSource.setUserId(response.userId!),
-  //     ]);
+      return right(unit);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
 
-  //     return right(response);
-  //   } on DioException catch (e, t) {
-  //     if (e.response?.statusCode == 400) {
-  //       return left(AuthError.fromNetwork(
-  //         authErrorType: AuthErrorType.invalidOtp,
-  //         message: e.response?.data['message'][0],
-  //         error: e,
-  //         trace: t,
-  //       ));
-  //     }
+  @override
+  Future<Either<HMPError, String>> getAuthToken() async {
+    try {
+      final response = await _localDataSource.getAuthToken();
 
-  //     return left(AuthError.fromNetwork(
-  //       message: e.message,
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   } catch (e, t) {
-  //     return left(AuthError.fromUnknown(
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   }
-  // }
+      if (response == null) {
+        return left(HMPError.fromNetwork(message: 'Not logged in.'));
+      }
 
-  // @override
-  // Future<Either<AuthError, Unit>> logOut() async {
-  //   try {
-  //     await _localDataSource.deleteAll();
-
-  //     return right(unit);
-  //   } catch (e, t) {
-  //     return left(AuthError.fromUnknown(
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   }
-  // }
-
-  // @override
-  // Future<Either<AuthError, Unit>> setAuthToken(String token) async {
-  //   try {
-  //     await _localDataSource.setAuthToken(token);
-
-  //     return right(unit);
-  //   } on DioException catch (e, t) {
-  //     return left(AuthError.fromNetwork(
-  //       message: e.message,
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   } catch (e, t) {
-  //     return left(AuthError.fromUnknown(
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   }
-  // }
-
-  // @override
-  // Future<Either<AuthError, String>> getAuthToken() async {
-  //   try {
-  //     final response = await _localDataSource.getAuthToken();
-
-  //     if (response == null) {
-  //       return left(AuthError.fromNetwork(message: 'Not logged in.'));
-  //     }
-
-  //     return right(response);
-  //   } on DioException catch (e, t) {
-  //     return left(AuthError.fromNetwork(
-  //       message: e.message,
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   } catch (e, t) {
-  //     return left(AuthError.fromUnknown(
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   }
-  // }
-
-  // @override
-  // Future<Either<AuthError, ListTermsResponseDto>> getTerms() async {
-  //   try {
-  //     final response = await _remoteDataSource.getTerms();
-
-  //     return right(response);
-  //   } on DioException catch (e, t) {
-  //     return left(AuthError.fromNetwork(
-  //       message: e.message,
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   } catch (e, t) {
-  //     return left(AuthError.fromUnknown(
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   }
-  // }
-
-  // @override
-  // Future<Either<AuthError, GetTermsDetailResponseDto>> getTermDetails(
-  //     {required String termsId}) async {
-  //   try {
-  //     final response = await _remoteDataSource.getTermDetails(termsId: termsId);
-  //     return right(response);
-  //   } on DioException catch (e, t) {
-  //     return left(AuthError.fromNetwork(
-  //       message: e.message,
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   } catch (e, t) {
-  //     return left(AuthError.fromUnknown(
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   }
-  // }
-
-  // @override
-  // Future<Either<AuthError, Unit>> compeleteSignUp() async {
-  //   try {
-  //     await _remoteDataSource.compeleteSignUp();
-
-  //     return right(unit);
-  //   } on DioException catch (e, t) {
-  //     return left(AuthError.fromNetwork(
-  //       message: e.message,
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   } catch (e, t) {
-  //     return left(AuthError.fromUnknown(
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   }
-  // }
-
-  // @override
-  // Future<Either<AuthError, Unit>> setAgreedTerms(List<String> termIds) async {
-  //   try {
-  //     final response = await _remoteDataSource.setAgreedTerms(termIds);
-
-  //     if (response) {
-  //       return right(unit);
-  //     }
-
-  //     return left(AuthError.fromNetwork());
-  //   } on DioException catch (e, t) {
-  //     return left(AuthError.fromNetwork(
-  //       message: e.message,
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   } catch (e, t) {
-  //     return left(AuthError.fromUnknown(
-  //       error: e,
-  //       trace: t,
-  //     ));
-  //   }
-  // }
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
 }

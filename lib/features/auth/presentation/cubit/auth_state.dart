@@ -28,12 +28,12 @@ class AuthState extends BaseState {
 
   @override
   AuthState copyWith({
-    bool? isLoggedIn,
+    bool? isLogInSuccessful,
     RequestStatus? submitStatus,
     String? message,
   }) {
     return AuthState(
-      isLogInSuccessful: isLoggedIn ?? isLogInSuccessful,
+      isLogInSuccessful: isLogInSuccessful ?? this.isLogInSuccessful,
       submitStatus: submitStatus ?? this.submitStatus,
       message: message ?? this.message,
     );

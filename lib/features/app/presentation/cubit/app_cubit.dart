@@ -3,21 +3,28 @@
 import 'dart:async';
 
 import 'package:mobile/app/core/cubit/cubit.dart';
-import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 
 part 'app_state.dart';
 
 @lazySingleton
 class AppCubit extends BaseCubit<AppState> {
-  AppCubit() : super(AppState.initial());
+  final AuthRepository _authRepository;
+
+  AppCubit(this._authRepository) : super(AppState.initial());
 
   Future<void> onStart() async {
-    emit(state.copyWith(status: RequestStatus.loading));
-    Log.info("OnStart is called");
-    emit(state.copyWith(status: RequestStatus.success, isLoggedIn: false));
+    await _updateAuthStatus();
   }
 
-  Future<void> _updateAuthStatus() async {}
+  Future<void> _updateAuthStatus() async {
+    final authTokenRes = await _authRepository.getAuthToken();
+
+    authTokenRes.fold((error) => emit(state.copyWith(isLoggedIn: false)),
+        (authToken) async {
+      emit(state.copyWith(isLoggedIn: true));
+    });
+  }
 
   Future<void> onLogOut() async {}
 }

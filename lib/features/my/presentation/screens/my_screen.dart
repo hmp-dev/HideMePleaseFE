@@ -1,8 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/my/presentation/widgets/my_page.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -40,31 +46,48 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
         Navigator.pop(context);
       },
       suffix: GestureDetector(
-        onTap: () {},
+        onTap: () {
+          Log.info("logout is tapped");
+          getIt<AuthCubit>().onLogOut();
+        },
         child: DefaultImage(
             path: "assets/icons/img_icon_system.svg", width: 32, height: 32),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _buildRow(context),
-              const SizedBox(height: 32),
-              _buildTabView(context),
-              SizedBox(
-                height: 496,
-                child: TabBarView(
-                  controller: tabViewController,
-                  children: const [
-                    MyPage(),
-                    MyPage(),
-                    MyPage(),
-                  ],
+        child: BlocListener<AuthCubit, AuthState>(
+          bloc: getIt<AuthCubit>(),
+          listener: (context, state) {
+            Log.info("inside listener");
+            if (state.isSubmitFailure) {
+              context.showErrorSnackBar(state.message);
+            }
+
+            if (state.isSubmitSuccess && !state.isLogInSuccessful) {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, Routes.socialLogin, (route) => false);
+            }
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _buildRow(context),
+                const SizedBox(height: 32),
+                _buildTabView(context),
+                SizedBox(
+                  height: 496,
+                  child: TabBarView(
+                    controller: tabViewController,
+                    children: const [
+                      MyPage(),
+                      MyPage(),
+                      MyPage(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -130,59 +153,65 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
           width: deviceWidth,
           decoration: const BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: whiteWithOpacityOne, width: 1),
+              bottom: BorderSide(
+                color: whiteWithOpacityOne,
+                width: 0.7,
+              ),
             ),
           ),
         ),
-        TabBar(
-          controller: tabViewController,
-          isScrollable: true,
-          labelColor: white,
-          labelStyle: fontM(16),
-          unselectedLabelColor: white.withOpacity(0.5),
-          dividerColor: Colors.transparent,
-          unselectedLabelStyle: fontM(16),
-          indicatorSize: TabBarIndicatorSize.tab,
-          indicatorColor: white,
-          indicatorWeight: 1,
-          indicator: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: white, width: 0.5),
+        Padding(
+          padding: const EdgeInsets.only(top: 7.0),
+          child: TabBar(
+            controller: tabViewController,
+            isScrollable: true,
+            labelColor: white,
+            labelStyle: fontM(16),
+            unselectedLabelColor: white.withOpacity(0.5),
+            dividerColor: Colors.transparent,
+            unselectedLabelStyle: fontM(16),
+            indicatorSize: TabBarIndicatorSize.tab,
+            indicatorColor: white,
+            indicatorWeight: 1,
+            indicator: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: white, width: 0.5),
+              ),
             ),
+            tabAlignment: TabAlignment.center,
+            tabs: [
+              Tab(
+                child: SizedBox(
+                  width: deviceWidth * 0.25,
+                  child: const Center(
+                    child: Text(
+                      "NFT",
+                    ),
+                  ),
+                ),
+              ),
+              Tab(
+                child: SizedBox(
+                  width: deviceWidth * 0.25,
+                  child: const Center(
+                    child: Text(
+                      "커뮤니티",
+                    ),
+                  ),
+                ),
+              ),
+              Tab(
+                child: SizedBox(
+                  width: deviceWidth * 0.25,
+                  child: const Center(
+                    child: Text(
+                      "포인트",
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          tabAlignment: TabAlignment.center,
-          tabs: [
-            Tab(
-              child: SizedBox(
-                width: deviceWidth * 0.25,
-                child: const Center(
-                  child: Text(
-                    "NFT",
-                  ),
-                ),
-              ),
-            ),
-            Tab(
-              child: SizedBox(
-                width: deviceWidth * 0.25,
-                child: const Center(
-                  child: Text(
-                    "커뮤니티",
-                  ),
-                ),
-              ),
-            ),
-            Tab(
-              child: SizedBox(
-                width: deviceWidth * 0.25,
-                child: const Center(
-                  child: Text(
-                    "포인트",
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ],
     );
