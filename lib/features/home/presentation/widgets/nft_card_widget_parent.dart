@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 
 class NFTCardWidgetParent extends StatelessWidget {
-  const NFTCardWidgetParent(
-      {super.key, required this.imagePath, required this.child});
+  const NFTCardWidgetParent({
+    super.key,
+    required this.imagePath,
+    required this.topWidget,
+    required this.bottomWidget,
+  });
 
   final String imagePath;
-  final Widget child;
+  final Widget topWidget;
+  final Widget bottomWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +82,17 @@ class NFTCardWidgetParent extends StatelessWidget {
             ],
           ),
         ),
-        child,
+        SizedBox(
+          height: 486,
+          width: 326,
+          child: Column(
+            children: [
+              topWidget,
+              const Spacer(),
+              bottomWidget,
+            ],
+          ),
+        ),
       ],
     );
   }

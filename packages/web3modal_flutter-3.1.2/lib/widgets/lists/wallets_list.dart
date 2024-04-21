@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shimmer/shimmer.dart';
-
 import 'package:web3modal_flutter/models/grid_item.dart';
 import 'package:web3modal_flutter/theme/constants.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
-import 'package:web3modal_flutter/widgets/lists/list_items/wallet_item_chip.dart';
 import 'package:web3modal_flutter/widgets/lists/list_items/wallet_list_item.dart';
 
 class WalletsList extends StatelessWidget {
@@ -47,18 +46,29 @@ class WalletsList extends StatelessWidget {
               showCheckmark: e.data.installed,
               imageUrl: e.image,
               title: e.title,
-              trailing: e.data.recent
-                  ? const WalletItemChip(value: ' RECENT ')
-                  : null,
+              trailing: SvgPicture.asset(
+                'assets/angle-arrow.svg',
+                package: 'web3modal_flutter',
+                colorFilter: ColorFilter.mode(
+                  Colors.white,
+                  BlendMode.srcIn,
+                ),
+                width: 18.0,
+                height: 18.0,
+              ),
+
+              // e.data.recent
+              //     ? const WalletItemChip(value: ' RECENT ')
+              //     : null,
             ),
           );
     final List<Widget> items = List<Widget>.from(walletsListItems);
     if (firstItem != null) {
       items.insert(0, firstItem!);
     }
-    if (bottomItems.isNotEmpty) {
-      items.addAll(bottomItems);
-    }
+    // if (bottomItems.isNotEmpty) {
+    //   items.addAll(bottomItems);
+    // }
 
     return ListView.separated(
       padding: const EdgeInsets.symmetric(

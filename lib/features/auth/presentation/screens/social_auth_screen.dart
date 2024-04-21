@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/helpers/target.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
@@ -14,7 +16,7 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-// import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SocialAuthScreen extends StatefulWidget {
   const SocialAuthScreen({super.key});
@@ -24,7 +26,7 @@ class SocialAuthScreen extends StatefulWidget {
 }
 
 class _SocialAuthScreenState extends State<SocialAuthScreen> {
-  // final FlutterAppAuth appAuth = const FlutterAppAuth();
+  final FlutterAppAuth appAuth = const FlutterAppAuth();
 
   bool isAgreeWithTerms = false;
 
@@ -34,30 +36,31 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
   }
 
   Future<void> _login(BuildContext context) async {
-    // try {
-    //   final AuthorizationTokenResponse? result =
-    //       await appAuth.authorizeAndExchangeCode(
-    //     AuthorizationTokenRequest(
-    //       'app_staging_374700e081c2e519c5f50d1f16c5507c',
-    //       'http://localhost:3000/api/auth/callback/worldcoin',
-    //       discoveryUrl:
-    //           'https://id.worldcoin.org/.well-known/openid-configuration',
-    //       scopes: ['openid'],
-    //     ),
-    //   );
+    try {
+      final AuthorizationTokenResponse? result =
+          await appAuth.authorizeAndExchangeCode(
+        AuthorizationTokenRequest(
+          'app_staging_374700e081c2e519c5f50d1f16c5507c',
+          'https://hidemeplease.xyz/',
+          discoveryUrl:
+              'https://id.worldcoin.org/.well-known/openid-configuration',
+          scopes: ['token'],
+          clientSecret: 'sk_149c5f5428f1289d5cb671df741191a3716738b0764b8321',
+        ),
+      );
 
-    //   if (result != null) {
-    //     // Use result.accessToken for API requests
-    //     Log.info('Access token: ${result.accessToken}');
-    //     // Navigate to next screen or perform other actions upon successful login
-    //   } else {
-    //     // Handle null response (possible cancellation or error)
-    //     Log.info('Login failed: Result is null');
-    //   }
-    // } catch (e) {
-    //   Log.error('Login failed: $e');
-    //   // Handle login failure, display error message, etc.
-    // }
+      if (result != null) {
+        // Use result.accessToken for API requests
+        Log.info('Access token: $result');
+        // Navigate to next screen or perform other actions upon successful login
+      } else {
+        // Handle null response (possible cancellation or error)
+        Log.info('Login failed: Result is null');
+      }
+    } catch (e) {
+      Log.error('Login failed: $e');
+      // Handle login failure, display error message, etc.
+    }
   }
 
   @override
@@ -127,7 +130,17 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         text: 'World ID로 시작',
                         buttonType: SocialLoginButtonType.worldId,
                         onPressed: () {
-                          _login(context);
+                          //_login(context);
+                          // _launchURL(
+                          //     'https://b83f-103-92-103-113.ngrok-free.app/?type=android');
+                          // WebViewScreen.push(
+                          //     context: context,
+                          //     title: "World ID",
+                          //     url:
+                          //         'https://b83f-103-92-103-113.ngrok-free.app/');
+
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, Routes.appHome, (route) => false);
                         },
                       ),
                       const SizedBox(height: 10),
@@ -170,4 +183,16 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
       ),
     );
   }
+
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url,
+          forceSafariVC: false, forceWebView: false, enableJavaScript: true);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 }
+
+
+//web3modalflutter:// 

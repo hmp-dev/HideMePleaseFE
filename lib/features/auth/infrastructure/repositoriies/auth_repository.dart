@@ -99,6 +99,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
       await FirebaseAuth.instance.signInWithCredential(credential);
 
+      final currentUser = FirebaseAuth.instance.currentUser;
+      Log.info(
+          'displayName:${currentUser?.displayName}\nemail:${currentUser?.email}\nphotoURL:${currentUser?.photoURL}\nuid:${currentUser?.uid}\nproviderData:${currentUser?.providerData}\n');
+
       final getIdToken = await FirebaseAuth.instance.currentUser?.getIdToken();
 
       Log.info('getIdToken:$getIdToken}');
@@ -218,3 +222,6 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 }
+
+
+// https://id.worldcoin.org/login?response_type=token&response_mode=fragment&client_id=app_6e9ef9c3f36caeaa4a02cb834db32895&redirect_uri=https://www.google.com/&nonce=dkEmoy_ujfk7B8uTiQpp&ready=true&scope=openid&state=session_102030405060708090

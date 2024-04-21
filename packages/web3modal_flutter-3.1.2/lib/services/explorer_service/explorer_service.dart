@@ -19,7 +19,7 @@ import 'package:web3modal_flutter/utils/platform/i_platform_utils.dart';
 import 'package:web3modal_flutter/utils/platform/platform_utils_singleton.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
-const int _defaultEntriesCount = 48;
+const int _defaultEntriesCount = 1000;
 
 class ExplorerService implements IExplorerService {
   static const _apiUrl = 'https://api.web3modal.com';

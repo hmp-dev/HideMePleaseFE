@@ -10,6 +10,7 @@ const brownishGray = Color(0xFF787777);
 const pureBlack = Color(0xFF000000);
 const darkGray = Color(0xFF1A1919);
 const lightGrayStroke = Color(0xFFBFBEBE);
+const cececeColor = Color(0xFFCECECE);
 
 const whiteWithOpacityOne = Color(0x80FFFFFF);
 const fore2White70percent = Color(0x70ffffff);

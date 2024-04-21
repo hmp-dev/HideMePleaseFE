@@ -98,14 +98,16 @@ class ConnectButton extends StatelessWidget {
                 const SizedBox.square(dimension: 4.0),
                 if (connecting)
                   Text(
-                      titleOverride ?? StringConstants.connectButtonConnecting),
+                    titleOverride ?? '연결 중',
+                    style: font_MW3M(16, lineHeight: 1.3, color: Colors.white),
+                  ),
                 if (serviceStatus.isLoading)
                   size == BaseButtonSize.small
                       ? Text(titleOverride ??
                           StringConstants.connectButtonIdleShort)
                       : Text(titleOverride ?? '',
-                          style:
-                              fontM(16, lineHeight: 1.3, color: Colors.white)),
+                          style: font_MW3M(16,
+                              lineHeight: 1.3, color: Colors.white)),
               ],
             )
           : connected
@@ -114,22 +116,8 @@ class ConnectButton extends StatelessWidget {
                   ? Text(
                       titleOverride ?? StringConstants.connectButtonIdleShort)
                   : Text(titleOverride ?? '지갑연결하기 지갑',
-                      style: fontM(16, lineHeight: 1.3, color: Colors.white)),
+                      style:
+                          font_MW3M(16, lineHeight: 1.3, color: Colors.white)),
     );
   }
-
-  TextStyle fontM(
-    double size, {
-    Color? color,
-    double? letterSpacing = -0.1,
-    double? lineHeight,
-  }) =>
-      TextStyle(
-        fontSize: size,
-        fontFamily: 'Pretendard',
-        fontWeight: FontWeight.w500,
-        color: color ?? Colors.white,
-        letterSpacing: letterSpacing,
-        height: lineHeight,
-      );
 }

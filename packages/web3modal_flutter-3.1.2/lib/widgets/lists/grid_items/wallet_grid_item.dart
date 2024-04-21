@@ -93,9 +93,7 @@ class WalletGridItem extends StatelessWidget {
                       : TextOverflow.ellipsis,
                   softWrap: !radiuses.isCircular(),
                   style: themeData.textStyles.tiny500.copyWith(
-                    color: isSelected
-                        ? themeColors.accent100
-                        : themeColors.foreground100,
+                    color: isSelected ? themeColors.accent100 : Colors.white,
                     height: 1.0,
                   ),
                 ),

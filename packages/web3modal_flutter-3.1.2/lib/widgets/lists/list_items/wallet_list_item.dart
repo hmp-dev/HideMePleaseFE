@@ -83,14 +83,14 @@ class WalletListItem extends StatelessWidget {
                 left: 4.0,
                 right: 8.0,
               ),
-              child: Text(
-                title,
-                style: themeData.textStyles.paragraph500.copyWith(
-                  color: onTap == null
-                      ? themeColors.foreground200
-                      : themeColors.foreground100,
-                ),
-              ),
+              child: Text(title, style: fontR__MW3M(16)
+
+                  // themeData.textStyles.paragraph500.copyWith(
+                  //   color: onTap == null
+                  //       ? themeColors.foreground200
+                  //       : themeColors.foreground100,
+                  // ),
+                  ),
             ),
           ),
           trailing ?? const SizedBox.shrink(),

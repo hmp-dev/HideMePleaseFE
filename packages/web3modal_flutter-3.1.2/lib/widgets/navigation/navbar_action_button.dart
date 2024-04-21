@@ -21,7 +21,9 @@ class NavbarActionButton extends StatelessWidget {
       dimension: kNavbarHeight,
       child: IconButton(
         onPressed: action,
-        icon: SvgPicture.asset(
+        icon: 
+        
+        SvgPicture.asset(
           asset,
           package: 'web3modal_flutter',
           colorFilter: ColorFilter.mode(

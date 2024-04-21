@@ -32,7 +32,7 @@ dependencies:
   firebase_performance: ^0.9.3+19
   flutter:
     sdk: flutter
-  # flutter_appauth: ^6.0.6
+  flutter_appauth: ^6.0.6
   flutter_bloc: ^8.1.5
   flutter_easyloading: ^3.0.5
   flutter_inappwebview: ^6.0.0
