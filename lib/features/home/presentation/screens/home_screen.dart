@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/constants/wallet_connects_constants.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/home/infrastructure/dtos/save_wallet_request_dto.dart';
@@ -10,7 +12,6 @@ import 'package:mobile/features/home/presentation/views/home_view_after_login_wi
 import 'package:mobile/features/home/presentation/views/home_view_after_login_without_nft.dart';
 import 'package:mobile/features/home/presentation/views/home_view_before_login.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
-import 'package:mobile/app/core/constants/wallet_connects_constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -107,11 +108,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onModalConnect(ModalConnect? args) {
     Log.info('[$runtimeType] onModalConnect ${args?.session.address}');
     final publicAddress = args?.session.address ?? '';
-    final provider = args?.session.connectedWalletName?.toUpperCase() ?? '';
+    final connectedWalletName =
+        args?.session.connectedWalletName?.toUpperCase() ?? '';
+
+    final providerName = getWalletProvider(connectedWalletName);
 
     getIt<WalletsCubit>().onPostWallet(
         saveWalletRequestDto: SaveWalletRequestDto(
-            publicAddress: publicAddress, provider: provider));
+            publicAddress: publicAddress, provider: providerName));
   }
 
   void _onModalDisconnect(ModalDisconnect? args) {

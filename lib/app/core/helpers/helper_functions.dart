@@ -1,3 +1,5 @@
+import 'package:mobile/app/core/enum/wallet_type.dart';
+
 String formatWalletAddress(String walletAddress) {
   if (walletAddress.length < 10) {
     return walletAddress; // Return the original address if it's too short
@@ -11,4 +13,14 @@ String formatWalletAddress(String walletAddress) {
   String formattedAddress = '$prefix...$suffix';
 
   return formattedAddress;
+}
+
+String getWalletProvider(String inputString) {
+  String lowercaseInput = inputString.toLowerCase();
+  for (WalletProvider provider in WalletProvider.values) {
+    if (lowercaseInput.contains(provider.name.toLowerCase())) {
+      return provider.name;
+    }
+  }
+  return '';
 }

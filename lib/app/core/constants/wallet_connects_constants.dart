@@ -10,7 +10,5 @@ class Web3Constants {
     'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393',
     //WALLET_CONNECT
     '304bb44bf87f84cdd1c30839b10c31c286bcd9c8d3577276e039d204e34ed013',
-    //WEMIX
-    'fa9c3adc4f0bbe263db1565d200f776e5da900ead0f1914e0ecbf8b313d268e9'
   };
 }
