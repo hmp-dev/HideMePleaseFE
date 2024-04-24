@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ class BaseScaffold extends StatefulWidget {
   final bool onLoading;
   final bool isFirstPage;
   final bool safeArea;
+  final String backIconPath;
 
   const BaseScaffold({
     super.key,
@@ -28,6 +31,7 @@ class BaseScaffold extends StatefulWidget {
     required this.body,
     this.onLoading = false,
     this.isFirstPage = false,
+    this.backIconPath = "assets/icons/img_icon_arrow.svg",
   });
 
   @override
@@ -126,9 +130,10 @@ class _BaseScaffoldState extends State<BaseScaffold> {
                             color: Colors.transparent,
                             alignment: Alignment.centerLeft,
                             child: DefaultImage(
-                              path: "assets/icons/img_icon_arrow.svg",
+                              path: widget.backIconPath,
                               width: 32,
                               height: 32,
+                              color: white,
                             ),
                           ),
                         )

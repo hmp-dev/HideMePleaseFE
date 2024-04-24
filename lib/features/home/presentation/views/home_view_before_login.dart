@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/helpers/helper_functions.dart';
-import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
+import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
 class HomeViewBeforeLogin extends StatefulWidget {
@@ -27,19 +28,8 @@ class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
         const SizedBox(height: 100),
         GestureDetector(
           onTap: () {
-            final publicAddress = widget.w3mService.session?.address ?? '';
-            final connectedWalletName =
-                widget.w3mService.session?.connectedWalletName ?? '';
-
-            final providerName = getWalletProvider(connectedWalletName);
-
-            Log.info("publicAddress is: $publicAddress");
-            Log.info("Providers is: $connectedWalletName");
-            Log.info("ProviderName is: $providerName");
-
-            // getIt<WalletsCubit>().onPostWallet(
-            //     saveWalletRequestDto: SaveWalletRequestDto(
-            //         publicAddress: publicAddress, provider: providerName));
+            getIt<NftCubit>().onGetNftCollections();
+            MyMembershipSettingsScreen.push(context);
           },
           child: DefaultImage(
             path: "assets/images/hide-me-please-logo.png",

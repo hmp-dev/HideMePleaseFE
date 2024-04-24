@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobile/features/home/domain/entities/connected_wallet_entity.dart';
+import 'package:mobile/features/common/domain/entities/connected_wallet_entity.dart';
 
 part 'connected_wallet_dto.g.dart';
 

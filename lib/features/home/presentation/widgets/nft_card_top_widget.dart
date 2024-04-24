@@ -15,7 +15,7 @@ class NftCardTopWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           DefaultImage(
-            path: "assets/icons/chainIcon_x2.svg",
+            path: "assets/icons/ethereum_chain_icon.svg",
             width: 40,
             height: 40,
           ),

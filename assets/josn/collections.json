@@ -1,0 +1,51 @@
+{
+    "collections": [
+      {
+        "tokenAddress": "0xd82f929ffe23c6df1c025d033bdac8577baa1b3c",
+        "possibleSpam": true,
+        "contractType": "ERC1155",
+        "name": "CLAIM 500M SHIB",
+        "symbol": "NFT AIRDROP",
+        "verifiedCollection": false,
+        "collectionLogo": null,
+        "collectionBannerImage": null,
+        "chain": "0x89",
+        "walletAddress": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+        "tokens": [
+          {
+            "tokenId": "0",
+            "name": "CLAIM 500M SHIB",
+            "imageUrl": "https://nft-preview-media.s3.us-east-1.amazonaws.com/evm/0x89/0xd82f929ffe23c6df1c025d033bdac8577baa1b3c/0x089ab8d6089f2301daa26e908d17b5911b6a709366d49f6f77a971631bdfe8c0/medium.png",
+            "selected": false
+          }
+        ],
+        "chainSymbol": "POLYGON"
+      },
+      {
+        "tokenAddress": "0xd4e0638dc1b362e528334df328424888aafa6328",
+        "possibleSpam": true,
+        "contractType": "ERC1155",
+        "name": "'",
+        "symbol": "0x0ai New Year Gift",
+        "verifiedCollection": false,
+        "collectionLogo": null,
+        "collectionBannerImage": null,
+        "chain": "0x89",
+        "walletAddress": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+        "tokens": [
+          {
+            "tokenId": "0",
+            "name": "'",
+            "selected": false
+          }
+        ],
+        "chainSymbol": "POLYGON"
+      }
+    ],
+    "next": {
+      "type": "POLYGON",
+      "cursor": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYWdlIjoxLCJ0b2tlbkFkZHJlc3MiOiIweGQ0ZTA2MzhkYzFiMzYyZTUyODMzNGRmMzI4NDI0ODg4YWFmYTYzMjgiLCJpYXQiOjE3MTM4NTgzNjN9.qy3MyxakfiTReqzU268C48hyOL27ozX2-Yzi-Vq6-08",
+      "nextWalletAddress": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed"
+    }
+  }
+  

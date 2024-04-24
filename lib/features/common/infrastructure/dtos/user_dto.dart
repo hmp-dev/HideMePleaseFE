@@ -2,7 +2,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobile/features/common/domain/entities/user_data.dart';
+import 'package:mobile/features/common/domain/entities/user_entity.dart';
 
 part 'user_dto.g.dart';
 

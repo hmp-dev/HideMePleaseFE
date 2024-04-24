@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
-const bg = Color(0xff0E0D0D);
 const bg1 = Color(0xFF0C0C0E);
+const bg2 = Color(0xCC0C0C0E);
+const bg3 = Color(0x800C0C0E);
+const bg4 = Color(0x330C0C0E);
+const bg5 = Color(0x1A0C0C0E);
+
+const bg = Color(0xff0E0D0D);
 const white = Color(0xFFFFFFFF);
 const extraLightGray = Color(0xFFE4E3E3);
 const lightGray = Color(0xFFF4F4F4);

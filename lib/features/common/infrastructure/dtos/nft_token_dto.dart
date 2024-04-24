@@ -1,0 +1,39 @@
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:mobile/features/common/domain/entities/nft_token_entity.dart';
+
+part 'nft_token_dto.g.dart';
+
+@JsonSerializable()
+class NftTokenDto extends Equatable {
+  @JsonKey(name: "tokenId")
+  final String? tokenId;
+  @JsonKey(name: "name")
+  final String? name;
+  @JsonKey(name: "imageUrl")
+  final String? imageUrl;
+  @JsonKey(name: "selected")
+  final bool? selected;
+
+  const NftTokenDto({
+    this.tokenId,
+    this.name,
+    this.imageUrl,
+    this.selected,
+  });
+
+  factory NftTokenDto.fromJson(Map<String, dynamic> json) =>
+      _$NftTokenDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$NftTokenDtoToJson(this);
+
+  @override
+  List<Object?> get props => [tokenId, name, imageUrl, selected];
+
+  NftTokenEntity toEntity() => NftTokenEntity(
+        tokenId: tokenId ?? '',
+        name: name ?? '',
+        imageUrl: imageUrl ?? '',
+        selected: selected ?? false,
+      );
+}

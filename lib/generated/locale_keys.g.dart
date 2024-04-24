@@ -20,5 +20,10 @@ abstract class  LocaleKeys {
   static const dontShowNextTimeMsg = 'dontShowNextTimeMsg';
   static const confirm = 'confirm';
   static const agreeTermsAlertMSG = 'agreeTermsAlertMSG';
+  static const myMembershipSettings = 'myMembershipSettings';
+  static const linkedWallet = 'linkedWallet';
+  static const addWallet = 'addWallet';
+  static const standard = 'standard';
+  static const all = 'all';
 
 }

@@ -112,13 +112,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
       //
     } on FirebaseAuthException catch (e) {
+      Log.info('FirebaseAuthException:$e}');
       final errorMsg = LogInWithGoogleFailure.fromCode(e.code);
       return left(
         HMPError.fromNetwork(
           message: errorMsg.message,
         ),
       );
-    } catch (_) {
+    } catch (e) {
+      Log.info('Exception:$e}');
       return left(
         HMPError.fromNetwork(
           message: const LogInWithGoogleFailure().message,

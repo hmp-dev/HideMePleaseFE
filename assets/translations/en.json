@@ -17,5 +17,10 @@
     "onBoardingMessageSpaceAndBenefitsSlide":"Give your boss a high five!\nYou can easily\nuse the benefits through NFC!",
     "dontShowNextTimeMsg":"Do not show next time",
     "confirm":"Confirm",
-    "agreeTermsAlertMSG":"Please agree to the terms before proceeding"
+    "agreeTermsAlertMSG":"Please agree to the terms before proceeding",
+    "myMembershipSettings":"My Membership Settings",
+    "linkedWallet":"Linked Wallet",
+    "addWallet":"Add Wallet",
+    "standard":"Standard",
+    "all":"All"
 }

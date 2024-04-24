@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
-import 'package:mobile/features/home/infrastructure/dtos/connected_wallet_dto.dart';
-import 'package:mobile/features/home/infrastructure/dtos/save_wallet_request_dto.dart';
+import 'package:mobile/features/common/infrastructure/dtos/connected_wallet_dto.dart';
+import 'package:mobile/features/common/infrastructure/dtos/save_wallet_request_dto.dart';
 
 @lazySingleton
 class WalletsRemoteDataSource {

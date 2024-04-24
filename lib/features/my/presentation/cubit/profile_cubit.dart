@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
-import 'package:mobile/features/common/domain/entities/user_data.dart';
+import 'package:mobile/features/common/domain/entities/user_entity.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
