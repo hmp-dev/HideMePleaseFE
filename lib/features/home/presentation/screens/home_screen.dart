@@ -6,11 +6,13 @@ import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_wallet_request_dto.dart';
-import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
+import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/views/home_view_after_login_with_nft.dart';
 import 'package:mobile/features/home/presentation/views/home_view_after_login_without_nft.dart';
 import 'package:mobile/features/home/presentation/views/home_view_before_login.dart';
+import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -59,21 +61,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeCubit, HomeState>(
-      bloc: getIt<HomeCubit>(),
-      listener: (context, state) {},
-      builder: (context, state) {
-        return SingleChildScrollView(
-          child: getHomeView(state.homeViewType),
-        );
+    return BlocListener<WalletsCubit, WalletsState>(
+      bloc: getIt<WalletsCubit>(),
+      listener: (context, state) {
+        if (state.isSuccess) {
+          Log.info("Wallet: ${state.connectedWallets}");
+          // call to get nft collections
+          getIt<NftCubit>().onGetNftCollections();
+          // show the AfterLoginWithNFT screen
+          getIt<HomeCubit>()
+              .onUpdateHomeViewType(HomeViewType.afterLoginWithNFT);
+          // navigate to MyMembershipSettingsScreen
+          MyMembershipSettingsScreen.push(context);
+        }
       },
+      child: BlocConsumer<HomeCubit, HomeState>(
+        bloc: getIt<HomeCubit>(),
+        listener: (context, state) {},
+        builder: (context, state) {
+          return SingleChildScrollView(
+            child: getHomeView(state.homeViewType),
+          );
+        },
+      ),
     );
   }
 
   getHomeView(HomeViewType homeViewType) {
-    if (homeViewType == HomeViewType.AfterLoginWithOutNFT) {
+    if (homeViewType == HomeViewType.afterLoginWithOutNFT) {
       return const HomeViewAfterLoginWithOutNFT();
-    } else if (homeViewType == HomeViewType.AfterLoginWithNFT) {
+    } else if (homeViewType == HomeViewType.afterLoginWithNFT) {
       return const HomeViewAfterLoginWithNFT();
     } else {
       return HomeViewBeforeLogin(w3mService: _w3mService);

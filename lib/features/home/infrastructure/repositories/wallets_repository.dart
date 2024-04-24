@@ -41,6 +41,17 @@ class WalletsRepositoryImpl implements WalletsRepository {
           saveWalletRequestDto: saveWalletRequestDto);
       return right(response);
     } on DioException catch (e, t) {
+      Map<String, dynamic> responseMap =
+          e.response?.data as Map<String, dynamic>;
+      String errorMessage = responseMap['message'];
+      if (errorMessage.contains('nUnique constraint failed on the fields')) {
+        return left(HMPError.fromNetwork(
+          message: "Wallet already exists",
+          error: e,
+          trace: t,
+        ));
+      }
+
       return left(HMPError.fromNetwork(
         message: e.message,
         error: e,

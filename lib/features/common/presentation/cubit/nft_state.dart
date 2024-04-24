@@ -2,6 +2,7 @@ part of 'nft_cubit.dart';
 
 class NftState extends BaseState {
   final NftCollectionsGroupEntity nftCollectionsGroupEntity;
+  final List<SelectedNFTDto> selectedNftTokensList;
   final String errorMessage;
 
   @override
@@ -9,12 +10,14 @@ class NftState extends BaseState {
 
   const NftState({
     required this.nftCollectionsGroupEntity,
+    required this.selectedNftTokensList,
     this.submitStatus = RequestStatus.initial,
     required this.errorMessage,
   });
 
   factory NftState.initial() => NftState(
         nftCollectionsGroupEntity: NftCollectionsGroupEntity.empty(),
+        selectedNftTokensList: const [],
         submitStatus: RequestStatus.initial,
         errorMessage: "",
       );
@@ -29,6 +32,7 @@ class NftState extends BaseState {
   @override
   NftState copyWith({
     NftCollectionsGroupEntity? nftCollectionsGroupEntity,
+    List<SelectedNFTDto>? selectedNftTokensList,
     RequestStatus? submitStatus,
     bool? isProfileIncomplete,
     String? errorMessage,
@@ -36,6 +40,8 @@ class NftState extends BaseState {
     return NftState(
       nftCollectionsGroupEntity:
           nftCollectionsGroupEntity ?? this.nftCollectionsGroupEntity,
+      selectedNftTokensList:
+          selectedNftTokensList ?? this.selectedNftTokensList,
       submitStatus: submitStatus ?? this.submitStatus,
       errorMessage: errorMessage ?? this.errorMessage,
     );

@@ -6,15 +6,7 @@
     "somethingError": "오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
     "myPage":"마이페이지",
     "next":"다음",
-    "previous":"이전",
-    "welcomeNFT":"Welcome NFT",
-    "onBaordingMessageWelcomeSlide":"하미플 웰컴 NFT로 시작해,\n앞으로 함께할 커뮤니티를\n신중히 찾아보세요.",
-    "community":"커뮤니티",
-    "onBoardingMessageCommunitySlide":"응원할 커뮤니티를 선택해,\n멤버들과 함께 커뮤니티를\n키워나가며 혜택을 늘려보세요.",
-    "event":"이벤트",
-    "onBoardingMessageEventSlide":"커뮤니티 이벤트를 확인해보세요.\n결속력을 높여줄 다양한 오프라인\n이벤트가 기다리고 있어요.",
-    "spaceAndBenefits":"공간 & 혜택",
-    "onBoardingMessageSpaceAndBenefitsSlide":"사장님과 하이파이브를 해보세요!\nNFC를 통해 간편하게 혜택을\n사용할 수 있어요!",
+    "previous":"이전",   
     "dontShowNextTimeMsg":"다음에 표시하지 않음",
     "confirm":"확인",
     "agreeTermsAlertMSG":"계속하기 전에 약관에 동의하세요.",
@@ -22,6 +14,23 @@
     "linkedWallet":"연결된 지갑",
     "addWallet":"지갑 추가",
     "standard":"기준",
-    "All":"전체"
+    "All":"전체",
+    "selecting":"선택중",
+    "editMembershipList":"멤버십 리스트 편집",
+    "cancel":"취소",
+    "onBoardingSlide1TitleA":"NFT 연결하고",
+    "onBoardingSlide1TitleB":"혜택 받기",
+    "onBoardingSlide1Desc":"처음이라면 무료 NFT로 시작해보세요 연결만 해도 쏟아지는 혜택!",
+    "onBoardingSlide2TitleA":"하이 파이브로",
+    "onBoardingSlide2TitleB":"쉽게 쓰는 혜택",
+    "onBoardingSlide2Desc":"사장님과 NFC 태그를 하면 손쉽게 혜택을 쓸 수 있어요!",
+    "onBoardingSlide3TitleA":"혜택을 사용하면",
+    "onBoardingSlide3TitleB":"쌓이는 포인트",
+    "onBoardingSlide3Desc":"혜택을 사용하고 커뮤니티에서 대화하면 자동으로 포인트가 적립돼요!",
+    "onBoardingSlide4TitleA":"쌓을수록",
+    "onBoardingSlide4TitleB":"커지는 혜택",
+    "onBoardingSlide4Desc":"커뮤니티 멤버와 함께 모은 포인트로 혜택을 키워보세요!"
+    
+    
     
 }

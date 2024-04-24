@@ -27,9 +27,9 @@ class _DefaultCheckButtonState extends State<DefaultCheckButton> {
         width: widget.size ?? 24,
         height: widget.size ?? 24,
         decoration: BoxDecoration(
-          color: white,
-          borderRadius: BorderRadius.circular(widget.borderRadius ?? 0),
-          border: Border.all(color: gray500),
+          color: bk1,
+          borderRadius: BorderRadius.circular(widget.borderRadius ?? 3),
+          border: Border.all(color: fore3),
         ),
         child: widget.isSelected
             ? DefaultImage(

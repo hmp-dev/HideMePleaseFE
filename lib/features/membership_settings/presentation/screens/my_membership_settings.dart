@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
@@ -8,10 +7,13 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/hmp_blue_button.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
-import 'package:mobile/features/common/presentation/widgets/large_button.dart';
 import 'package:mobile/features/common/presentation/widgets/rounder_button_small.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/membership_settings/presentation/widgets/block_chain_select_button.dart';
+import 'package:mobile/features/membership_settings/presentation/widgets/collection_title_widget.dart';
+import 'package:mobile/features/membership_settings/presentation/widgets/nft_token_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyMembershipSettingsScreen extends StatefulWidget {
@@ -78,7 +80,11 @@ class _MyMembershipSettingsScreenState extends State<MyMembershipSettingsScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(height: 32),
-                              buildLinkedWalletWidget(context),
+                              InkWell(
+                                  onTap: () {
+                                    getIt<NftCubit>().onGetSelectedNftTokens();
+                                  },
+                                  child: buildLinkedWalletWidget(context)),
                               const SizedBox(height: 20),
                               Container(
                                 margin: const EdgeInsets.only(left: 16),
@@ -148,32 +154,23 @@ class _MyMembershipSettingsScreenState extends State<MyMembershipSettingsScreen>
                                               .tokens
                                               .length,
                                           itemBuilder: (context, index) {
-                                            return Column(
-                                              children: [
-                                                CachedNetworkImage(
-                                                  imageUrl: state
-                                                      .nftCollectionsGroupEntity
-                                                      .collections[index]
-                                                      .tokens[index]
-                                                      .imageUrl,
-                                                  width: 100,
-                                                  height: 100,
-                                                ),
-                                                const VerticalSpace(10),
-                                                SizedBox(
-                                                  width: 100,
-                                                  child: Text(
-                                                    state
-                                                        .nftCollectionsGroupEntity
-                                                        .collections[index]
-                                                        .tokens[index]
-                                                        .name,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: fontM(12),
-                                                  ),
-                                                )
-                                              ],
+                                            return NftTokenWidget(
+                                              nftTokenEntity: state
+                                                  .nftCollectionsGroupEntity
+                                                  .collections[index]
+                                                  .tokens[index],
+                                              tokenAddress: state
+                                                  .nftCollectionsGroupEntity
+                                                  .collections[index]
+                                                  .tokenAddress,
+                                              walletAddress: state
+                                                  .nftCollectionsGroupEntity
+                                                  .collections[index]
+                                                  .walletAddress,
+                                              chain: state
+                                                  .nftCollectionsGroupEntity
+                                                  .collections[index]
+                                                  .chain,
                                             );
                                           },
                                         ),
@@ -185,7 +182,7 @@ class _MyMembershipSettingsScreenState extends State<MyMembershipSettingsScreen>
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 20),
-                                child: LargeButton(
+                                child: HMPBlueButton(
                                   text: LocaleKeys.next.tr(),
                                   onPressed: () {},
                                 ),
@@ -253,83 +250,6 @@ class _MyMembershipSettingsScreenState extends State<MyMembershipSettingsScreen>
             ],
           )
         ],
-      ),
-    );
-  }
-}
-
-class CollectionTitleWidget extends StatelessWidget {
-  final String title;
-  final String chainSymbol;
-
-  const CollectionTitleWidget({
-    super.key,
-    required this.title,
-    required this.chainSymbol,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          DefaultImage(
-            path: "assets/icons/ethereum_chain_icon.svg",
-            width: 40,
-            height: 40,
-          ),
-          const HorizontalSpace(15),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.6,
-            child: Text(
-              title,
-              //"London Underground Station(LUS) 264 Genesis",
-              overflow: TextOverflow.ellipsis,
-              style: fontSB(18),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class BlockChainSelectButton extends StatelessWidget {
-  final String title;
-  final VoidCallback onTap;
-  final bool isSelected;
-
-  const BlockChainSelectButton({
-    super.key,
-    required this.title,
-    required this.onTap,
-    required this.isSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 12.0),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF3D3D3E) : Colors.transparent,
-            borderRadius: BorderRadius.circular(50),
-            border:
-                isSelected ? null : Border.all(color: const Color(0xFF3D3D3E)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 10),
-            child: Center(
-              child: Text(
-                title,
-                style: fontSB(14),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

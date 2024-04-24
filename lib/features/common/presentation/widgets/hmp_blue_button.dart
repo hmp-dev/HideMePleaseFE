@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 
-class RoundedButton extends StatelessWidget {
+class HMPBlueButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const RoundedButton({
+  const HMPBlueButton({
     super.key,
     required this.text,
     required this.onPressed,
@@ -15,23 +15,19 @@ class RoundedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 52,
+      height: 54,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: darkGray,
+          backgroundColor: hmpBlue,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
         child: Text(
           text,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: fontCompactMd(),
         ),
       ),
     );

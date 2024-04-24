@@ -9,14 +9,6 @@ abstract class  LocaleKeys {
   static const myPage = 'myPage';
   static const next = 'next';
   static const previous = 'previous';
-  static const welcomeNFT = 'welcomeNFT';
-  static const onBaordingMessageWelcomeSlide = 'onBaordingMessageWelcomeSlide';
-  static const community = 'community';
-  static const onBoardingMessageCommunitySlide = 'onBoardingMessageCommunitySlide';
-  static const event = 'event';
-  static const onBoardingMessageEventSlide = 'onBoardingMessageEventSlide';
-  static const spaceAndBenefits = 'spaceAndBenefits';
-  static const onBoardingMessageSpaceAndBenefitsSlide = 'onBoardingMessageSpaceAndBenefitsSlide';
   static const dontShowNextTimeMsg = 'dontShowNextTimeMsg';
   static const confirm = 'confirm';
   static const agreeTermsAlertMSG = 'agreeTermsAlertMSG';
@@ -25,5 +17,20 @@ abstract class  LocaleKeys {
   static const addWallet = 'addWallet';
   static const standard = 'standard';
   static const all = 'all';
+  static const selecting = 'selecting';
+  static const editMembershipList = 'editMembershipList';
+  static const cancel = 'cancel';
+  static const onBoardingSlide1TitleA = 'onBoardingSlide1TitleA';
+  static const onBoardingSlide1TitleB = 'onBoardingSlide1TitleB';
+  static const onBoardingSlide1Desc = 'onBoardingSlide1Desc';
+  static const onBoardingSlide2TitleA = 'onBoardingSlide2TitleA';
+  static const onBoardingSlide2TitleB = 'onBoardingSlide2TitleB';
+  static const onBoardingSlide2Desc = 'onBoardingSlide2Desc';
+  static const onBoardingSlide3TitleA = 'onBoardingSlide3TitleA';
+  static const onBoardingSlide3TitleB = 'onBoardingSlide3TitleB';
+  static const onBoardingSlide3Desc = 'onBoardingSlide3Desc';
+  static const onBoardingSlide4TitleA = 'onBoardingSlide4TitleA';
+  static const onBoardingSlide4TitleB = 'onBoardingSlide4TitleB';
+  static const onBoardingSlide4Desc = 'onBoardingSlide4Desc';
 
 }

@@ -5,7 +5,7 @@ class HomeState extends BaseState {
 
   const HomeState({
     this.submitStatus = RequestStatus.initial,
-    this.homeViewType = HomeViewType.BeforeLogin,
+    this.homeViewType = HomeViewType.beforeLogin,
   });
 
   @override

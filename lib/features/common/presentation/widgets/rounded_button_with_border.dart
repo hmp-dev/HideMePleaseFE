@@ -14,24 +14,21 @@ class RoundedButtonWithBorder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity, // Fill available width
+      width: double.infinity,
+      height: 54, // Fill available width
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: lightGray,
+          backgroundColor: bg1,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Colors.grey), // Gray border
-            borderRadius: BorderRadius.circular(30),
+            side: const BorderSide(color: fore4), // Gray border
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
         child: Text(
           text,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey, // Text color is gray
-          ),
+          style: fontCompactMdMedium(),
         ),
       ),
     );

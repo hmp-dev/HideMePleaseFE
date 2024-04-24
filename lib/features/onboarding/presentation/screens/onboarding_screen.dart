@@ -5,11 +5,8 @@ import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
-import 'package:mobile/features/common/presentation/widgets/default_check_button.dart';
-import 'package:mobile/features/common/presentation/widgets/default_icon_button.dart';
-import 'package:mobile/features/common/presentation/widgets/rounded_button.dart';
+import 'package:mobile/features/common/presentation/widgets/hmp_blue_button.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
-import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/page_pop_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,32 +39,36 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void initState() {
     pageViewModelData.add(
       PageViewData(
-        titleText: LocaleKeys.welcomeNFT.tr(),
-        subText: LocaleKeys.onBaordingMessageWelcomeSlide.tr(),
-        imagePath: "assets/images/iPhone-13-Pro-Front.png",
+        titleTextA: LocaleKeys.onBoardingSlide1TitleA.tr(),
+        titleTextB: LocaleKeys.onBoardingSlide1TitleB.tr(),
+        descText: LocaleKeys.onBoardingSlide1Desc.tr(),
+        imagePath: "assets/images/onboarding_1.svg",
       ),
     );
 
     pageViewModelData.add(
       PageViewData(
-        titleText: LocaleKeys.community.tr(),
-        subText: LocaleKeys.onBoardingMessageCommunitySlide.tr(),
-        imagePath: "assets/images/iPhone-13-Pro-Front.png",
+        titleTextA: LocaleKeys.onBoardingSlide2TitleA.tr(),
+        titleTextB: LocaleKeys.onBoardingSlide2TitleB.tr(),
+        descText: LocaleKeys.onBoardingSlide2Desc.tr(),
+        imagePath: "assets/images/onboarding_2.svg",
       ),
     );
 
     pageViewModelData.add(
       PageViewData(
-          titleText: LocaleKeys.event.tr(),
-          subText: LocaleKeys.onBoardingMessageEventSlide.tr(),
-          imagePath: "assets/images/iPhone-13-Pro-Front.png"),
+          titleTextA: LocaleKeys.onBoardingSlide3TitleA.tr(),
+          titleTextB: LocaleKeys.onBoardingSlide3TitleB.tr(),
+          descText: LocaleKeys.onBoardingSlide3Desc.tr(),
+          imagePath: "assets/images/onboarding_3.svg"),
     );
 
     pageViewModelData.add(
       PageViewData(
-          titleText: LocaleKeys.spaceAndBenefits.tr(),
-          subText: LocaleKeys.onBoardingMessageSpaceAndBenefitsSlide.tr(),
-          imagePath: "assets/images/iPhone-13-Pro-Front.png"),
+          titleTextA: LocaleKeys.onBoardingSlide4TitleA.tr(),
+          titleTextB: LocaleKeys.onBoardingSlide4TitleB.tr(),
+          descText: LocaleKeys.onBoardingSlide4Desc.tr(),
+          imagePath: "assets/images/onboarding_4.svg"),
     );
 
     super.initState();
@@ -108,74 +109,47 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      backgroundColor: lightGray,
+      backgroundColor: bg1,
       body: Stack(
         children: [
           Column(
             children: <Widget>[
               SizedBox(
-                height: MediaQuery.of(context).padding.top,
-              ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    PageView(
-                      controller: _pageController,
-                      pageSnapping: true,
-                      onPageChanged: (index) {
-                        setState(() {
-                          currentSlideIndex = index;
-                        });
-                      },
-                      scrollDirection: Axis.horizontal,
-                      children: <Widget>[
-                        PagePopup(imageData: pageViewModelData[0]),
-                        PagePopup(imageData: pageViewModelData[1]),
-                        PagePopup(imageData: pageViewModelData[2]),
-                        PagePopup(imageData: pageViewModelData[3]),
-                      ],
-                    ),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 20.0, top: 150, right: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            currentSlideIndex != 0
-                                ? DefaultIconButton(
-                                    iconPath: "assets/icons/ic_caret_left.svg",
-                                    onTap: _goToPreviousPage,
-                                  )
-                                : const SizedBox.shrink(),
-                            currentSlideIndex + 1 < pageViewModelData.length
-                                ? DefaultIconButton(
-                                    iconPath: "assets/icons/ic_caret_right.svg",
-                                    onTap: _goToNextPage,
-                                  )
-                                : const SizedBox.shrink(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                height: MediaQuery.of(context).padding.top +
+                    (MediaQuery.of(context).size.height * 0.10),
               ),
               SmoothPageIndicator(
                 controller: _pageController, // PageController
                 count: pageViewModelData.length,
                 effect: const WormEffect(
-                    activeDotColor: pureBlack,
-                    dotColor: lighterGray,
+                    activeDotColor: hmpBlue,
+                    dotColor: fore4,
                     dotHeight: 7.0,
                     dotWidth: 7.0,
                     spacing: 5.0), // your preferred effect
                 onDotClicked: (index) {},
               ),
-              const VerticalSpace(30),
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  pageSnapping: true,
+                  onPageChanged: (index) {
+                    setState(() {
+                      currentSlideIndex = index;
+                    });
+                  },
+                  scrollDirection: Axis.horizontal,
+                  children: <Widget>[
+                    PagePopup(imageData: pageViewModelData[0]),
+                    PagePopup(imageData: pageViewModelData[1]),
+                    PagePopup(imageData: pageViewModelData[2]),
+                    PagePopup(imageData: pageViewModelData[3]),
+                  ],
+                ),
+              ),
               currentSlideIndex + 1 == pageViewModelData.length
                   ? Padding(
-                      padding: const EdgeInsets.only(left: 20, bottom: 20),
+                      padding: const EdgeInsets.only(bottom: 20),
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
@@ -184,16 +158,22 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
                           // setDontShowAgain value in local storage
                           setDontShowAgain(dontShowCheckBox);
+
+                          Log.info("dontShowAgain: $dontShowCheckBox");
                         },
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            DefaultCheckButton(
-                              isSelected: dontShowCheckBox,
-                              size: 18,
-                              borderRadius: 0,
+                            Checkbox(
+                              value: dontShowCheckBox,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  dontShowCheckBox = value ?? false;
+                                });
+                              },
                             ),
                             Text(LocaleKeys.dontShowNextTimeMsg.tr(),
-                                style: fontR(14, color: pureBlack)),
+                                style: fontCompactSm(color: fore3)),
                           ],
                         ),
                       ),
@@ -202,7 +182,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               currentSlideIndex == 0
                   ? Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: RoundedButton(
+                      child: HMPBlueButton(
                         text: LocaleKeys.next.tr(),
                         onPressed: _goToNextPage,
                       ),
@@ -223,7 +203,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                             width: MediaQuery.of(context).size.width * 0.42,
                             child: currentSlideIndex + 1 ==
                                     pageViewModelData.length
-                                ? RoundedButton(
+                                ? HMPBlueButton(
                                     text: LocaleKeys.confirm.tr(),
                                     onPressed: () {
                                       Navigator.pushNamedAndRemoveUntil(
@@ -233,7 +213,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                       );
                                     },
                                   )
-                                : RoundedButton(
+                                : HMPBlueButton(
                                     text: LocaleKeys.next.tr(),
                                     onPressed: _goToNextPage,
                                   ),

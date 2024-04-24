@@ -11,10 +11,8 @@ import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/auth/presentation/widgets/agree_text_widget.dart';
 import 'package:mobile/features/auth/presentation/widgets/social_login_button.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
-import 'package:mobile/features/common/presentation/widgets/default_check_button.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
-import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -109,19 +107,14 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         padding: const EdgeInsets.only(left: 0, bottom: 20),
                         child: Row(
                           children: [
-                            GestureDetector(
-                              onTap: () {
+                            Checkbox(
+                              value: isAgreeWithTerms,
+                              onChanged: (bool? value) {
                                 setState(() {
-                                  isAgreeWithTerms = !isAgreeWithTerms;
+                                  isAgreeWithTerms = value ?? false;
                                 });
                               },
-                              child: DefaultCheckButton(
-                                isSelected: isAgreeWithTerms,
-                                size: 22,
-                                borderRadius: 4,
-                              ),
                             ),
-                            const HorizontalSpace(7),
                             const AgreeTextWidget(),
                           ],
                         ),
@@ -130,17 +123,12 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         text: 'World ID로 시작',
                         buttonType: SocialLoginButtonType.worldId,
                         onPressed: () {
-                          //_login(context);
-                          // _launchURL(
-                          //     'https://b83f-103-92-103-113.ngrok-free.app/?type=android');
-                          // WebViewScreen.push(
-                          //     context: context,
-                          //     title: "World ID",
-                          //     url:
-                          //         'https://b83f-103-92-103-113.ngrok-free.app/');
-
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, Routes.appHome, (route) => false);
+                          if (isAgreeWithTerms) {
+                            getIt<AuthCubit>().onWorldIdLogin();
+                          } else {
+                            context.showSnackBar(
+                                LocaleKeys.agreeTermsAlertMSG.tr());
+                          }
                         },
                       ),
                       const SizedBox(height: 10),

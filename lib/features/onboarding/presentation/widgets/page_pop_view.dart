@@ -16,36 +16,47 @@ class PagePopup extends StatelessWidget {
           child: SizedBox(),
         ),
         Expanded(
-          flex: 1,
-          child: Text(
-            imageData.titleText,
-            textAlign: TextAlign.center,
-            style: fontSB(18, color: brownishGray),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              imageData.subText,
-              textAlign: TextAlign.center,
-              style: fontSB(20, color: pureBlack),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 8,
+          flex: 5,
           child: Center(
             child: SizedBox(
               width: MediaQuery.of(context).size.width - 120,
               child: AspectRatio(
-                aspectRatio: 1,
+                aspectRatio: 0.5,
                 child: DefaultImage(
                   path: imageData.imagePath,
                   boxFit: BoxFit.contain,
+                  width: 182,
+                  height: 158,
                 ),
               ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              Text(
+                imageData.titleTextA,
+                textAlign: TextAlign.center,
+                style: fontTitle03Bold(),
+              ),
+              Text(
+                imageData.titleTextB,
+                textAlign: TextAlign.center,
+                style: fontTitle03Bold(color: hmpBlue),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: SizedBox(
+            width: 250,
+            child: Text(
+              imageData.descText,
+              textAlign: TextAlign.center,
+              style: fontCompactMd(color: fore2),
             ),
           ),
         ),
@@ -59,13 +70,15 @@ class PagePopup extends StatelessWidget {
 }
 
 class PageViewData {
-  final String titleText;
-  final String subText;
+  final String titleTextA;
+  final String titleTextB;
+  final String descText;
   final String imagePath;
 
   PageViewData({
-    required this.titleText,
-    required this.subText,
+    required this.titleTextA,
+    required this.titleTextB,
+    required this.descText,
     required this.imagePath,
   });
 }

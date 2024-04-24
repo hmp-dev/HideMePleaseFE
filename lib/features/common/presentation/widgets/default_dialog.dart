@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mobile/util/bold_generator.dart';
 
 class DefaultDialog extends StatefulWidget {
@@ -142,7 +144,9 @@ class _DefaultDialogState extends State<DefaultDialog> {
                         Navigator.pop(context);
                       },
                       title: widget.cancelButtonLabel ??
-                          (widget.onSuccess != null ? "취소" : "확인"),
+                          (widget.onSuccess != null
+                              ? LocaleKeys.cancel.tr()
+                              : LocaleKeys.confirm.tr()),
                       background: widget.onSuccess == null
                           ? pink
                           : (widget.buttonColor ?? gray900),
@@ -158,7 +162,8 @@ class _DefaultDialogState extends State<DefaultDialog> {
                           widget.onSuccess!();
                           Navigator.pop(context, true);
                         },
-                        title: widget.successButtonLabel ?? "확인",
+                        title: widget.successButtonLabel ??
+                            LocaleKeys.confirm.tr(),
                         background: pink,
                         textColor: Colors.white,
                       ),
