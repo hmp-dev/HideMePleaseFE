@@ -6,15 +6,15 @@ part 'next_collections_dto.g.dart';
 
 @JsonSerializable()
 class NextCollectionsDto extends Equatable {
-  @JsonKey(name: "type")
-  final String? type;
+  @JsonKey(name: "cursorType")
+  final String? cursorType;
   @JsonKey(name: "cursor")
   final String? cursor;
   @JsonKey(name: "nextWalletAddress")
   final String? nextWalletAddress;
 
   const NextCollectionsDto({
-    this.type,
+    this.cursorType,
     this.cursor,
     this.nextWalletAddress,
   });
@@ -25,11 +25,11 @@ class NextCollectionsDto extends Equatable {
   Map<String, dynamic> toJson() => _$NextCollectionsDtoToJson(this);
 
   @override
-  List<Object?> get props => [type, cursor, nextWalletAddress];
+  List<Object?> get props => [cursorType, cursor, nextWalletAddress];
 
   NextCollectionsEntity toEntity() {
     return NextCollectionsEntity(
-      type: type ?? '',
+      cursorType: cursorType ?? '',
       cursor: cursor ?? '',
       nextWalletAddress: nextWalletAddress ?? '',
     );

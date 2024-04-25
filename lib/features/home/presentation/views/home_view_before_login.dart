@@ -4,7 +4,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_widget.dart';
-import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
+import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent_local.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
@@ -46,27 +46,8 @@ class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
         ),
         const SizedBox(height: 20),
         W3MConnectWalletButton(service: widget.w3mService),
-        // if (widget.w3mService.session?.address != null)
-        //   Padding(
-        //     padding: const EdgeInsets.only(top: 20.0),
-        //     child: Column(
-        //       children: [
-        //         ListTile(
-        //           dense: true,
-        //           title: Text('${widget.w3mService.session?.address}'),
-        //           subtitle: const Text("Connected Wallet address"),
-        //         ),
-        //         ListTile(
-        //           dense: true,
-        //           title:
-        //               Text('${widget.w3mService.session?.connectedWalletName}'),
-        //           subtitle: const Text("Connected Wallet Name"),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
         const SizedBox(height: 50),
-        const NFTCardWidgetParent(
+        const NFTCardWidgetParentLocal(
           imagePath: "assets/images/home_card_img.png",
           topWidget: NftCardTopWidget(),
           bottomWidget: NftCardTopWidget(),

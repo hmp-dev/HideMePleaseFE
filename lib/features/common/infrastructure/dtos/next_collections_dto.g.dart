@@ -8,14 +8,14 @@ part of 'next_collections_dto.dart';
 
 NextCollectionsDto _$NextCollectionsDtoFromJson(Map<String, dynamic> json) =>
     NextCollectionsDto(
-      type: json['type'] as String?,
+      cursorType: json['type'] as String?,
       cursor: json['cursor'] as String?,
       nextWalletAddress: json['nextWalletAddress'] as String?,
     );
 
 Map<String, dynamic> _$NextCollectionsDtoToJson(NextCollectionsDto instance) =>
     <String, dynamic>{
-      'type': instance.type,
+      'type': instance.cursorType,
       'cursor': instance.cursor,
       'nextWalletAddress': instance.nextWalletAddress,
     };

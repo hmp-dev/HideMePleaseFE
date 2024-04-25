@@ -22,8 +22,6 @@ class NftCubit extends BaseCubit<NftState> {
   Future<void> onGetNftCollections() async {
     EasyLoading.show();
 
-    emit(state.copyWith(submitStatus: RequestStatus.loading));
-
     final response = await _nftRepository.getNftCollections();
 
     EasyLoading.dismiss();
@@ -52,12 +50,11 @@ class NftCubit extends BaseCubit<NftState> {
   }) async {
     EasyLoading.show();
 
-    emit(state.copyWith(submitStatus: RequestStatus.loading));
-
     final response = await _nftRepository.postNftSelectDeselectToken(
         selectTokenToggleRequestDto: selectTokenToggleRequestDto);
 
     EasyLoading.dismiss();
+
     response.fold(
       (err) {
         Log.error(err);
@@ -73,6 +70,10 @@ class NftCubit extends BaseCubit<NftState> {
             errorMessage: '',
           ),
         );
+
+        // call the NFT Collections Again
+        onGetNftCollections();
+        onGetSelectedNftTokens();
       },
     );
   }
@@ -80,11 +81,10 @@ class NftCubit extends BaseCubit<NftState> {
   Future<void> onGetSelectedNftTokens() async {
     EasyLoading.show();
 
-    emit(state.copyWith(submitStatus: RequestStatus.loading));
-
     final response = await _nftRepository.getSelectNftTokensList();
 
     EasyLoading.dismiss();
+
     response.fold(
       (err) {
         Log.error(err);

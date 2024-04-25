@@ -9,8 +9,7 @@ import 'package:mobile/features/common/infrastructure/dtos/save_wallet_request_d
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
-import 'package:mobile/features/home/presentation/views/home_view_after_login_with_nft.dart';
-import 'package:mobile/features/home/presentation/views/home_view_after_login_without_nft.dart';
+import 'package:mobile/features/home/presentation/views/home_view_after_wallet_connected.dart';
 import 'package:mobile/features/home/presentation/views/home_view_before_login.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
@@ -70,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
           getIt<NftCubit>().onGetNftCollections();
           // show the AfterLoginWithNFT screen
           getIt<HomeCubit>()
-              .onUpdateHomeViewType(HomeViewType.afterLoginWithNFT);
+              .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
           // navigate to MyMembershipSettingsScreen
           MyMembershipSettingsScreen.push(context);
         }
@@ -88,10 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getHomeView(HomeViewType homeViewType) {
-    if (homeViewType == HomeViewType.afterLoginWithOutNFT) {
-      return const HomeViewAfterLoginWithOutNFT();
-    } else if (homeViewType == HomeViewType.afterLoginWithNFT) {
-      return const HomeViewAfterLoginWithNFT();
+    if (homeViewType == HomeViewType.afterWalletConnected) {
+      return const HomeViewAfterWalletConnected();
     } else {
       return HomeViewBeforeLogin(w3mService: _w3mService);
     }

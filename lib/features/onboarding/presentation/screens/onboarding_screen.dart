@@ -1,11 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/helpers/pref_keys.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_blue_button.dart';
+import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/page_pop_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -170,6 +172,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                 setState(() {
                                   dontShowCheckBox = value ?? false;
                                 });
+
+                                setDontShowAgain(dontShowCheckBox);
                               },
                             ),
                             Text(LocaleKeys.dontShowNextTimeMsg.tr(),
@@ -192,15 +196,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.42,
+                          Expanded(
                             child: RoundedButtonWithBorder(
                               text: LocaleKeys.previous.tr(),
                               onPressed: _goToPreviousPage,
                             ),
                           ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.42,
+                          const HorizontalSpace(20),
+                          Expanded(
                             child: currentSlideIndex + 1 ==
                                     pageViewModelData.length
                                 ? HMPBlueButton(

@@ -1,33 +1,33 @@
 import 'package:equatable/equatable.dart';
 
 class NextCollectionsEntity extends Equatable {
-  final String type;
+  final String cursorType;
   final String cursor;
   final String nextWalletAddress;
 
   const NextCollectionsEntity({
-    required this.type,
+    required this.cursorType,
     required this.cursor,
     required this.nextWalletAddress,
   });
 
   @override
-  List<Object> get props => [type, cursor, nextWalletAddress];
+  List<Object> get props => [cursorType, cursor, nextWalletAddress];
 
   NextCollectionsEntity copyWith({
-    String? type,
+    String? cursorType,
     String? cursor,
     String? nextWalletAddress,
   }) {
     return NextCollectionsEntity(
-      type: type ?? this.type,
+      cursorType: cursorType ?? this.cursorType,
       cursor: cursor ?? this.cursor,
       nextWalletAddress: nextWalletAddress ?? this.nextWalletAddress,
     );
   }
 
   const NextCollectionsEntity.empty()
-      : type = '',
+      : cursorType = '',
         cursor = '',
         nextWalletAddress = '';
 }

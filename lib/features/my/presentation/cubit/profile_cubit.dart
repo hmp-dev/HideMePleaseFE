@@ -15,7 +15,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     this._profileRepository,
   ) : super(ProfileState.initial());
 
-  Future<void> onStart() async {
+  Future<void> onGetUserProfile() async {
     emit(state.copyWith(submitStatus: RequestStatus.loading));
     final response = await _profileRepository.getProfileData();
     response.fold(
