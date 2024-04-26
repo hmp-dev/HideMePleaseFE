@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 
 part 'auth_state.dart';
@@ -61,25 +60,6 @@ class AuthCubit extends BaseCubit<AuthState> {
         state.copyWith(
           submitStatus: RequestStatus.success,
           isLogInSuccessful: true,
-        ),
-      ),
-    );
-  }
-
-  Future<void> onLogOut() async {
-    Log.info("inside onLogOut");
-    EasyLoading.show();
-
-    final response = await _authRepository.requestLogOut();
-
-    EasyLoading.dismiss();
-
-    response.fold(
-      (err) => emit(state.copyWith(submitStatus: RequestStatus.failure)),
-      (success) => emit(
-        state.copyWith(
-          submitStatus: RequestStatus.success,
-          isLogInSuccessful: false,
         ),
       ),
     );

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent_local.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
@@ -37,11 +39,17 @@ class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
           ),
         ),
         const SizedBox(height: 20),
-        Center(
-          child: Text(
-            "지갑을 연결하고\n웹컴 NFT를 받아보세요!",
-            textAlign: TextAlign.center,
-            style: fontR(18, lineHeight: 1.4),
+        GestureDetector(
+          onTap: () {
+            getIt<HomeCubit>()
+                .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
+          },
+          child: Center(
+            child: Text(
+              "지갑을 연결하고\n웹컴 NFT를 받아보세요!",
+              textAlign: TextAlign.center,
+              style: fontR(18, lineHeight: 1.4),
+            ),
           ),
         ),
         const SizedBox(height: 20),

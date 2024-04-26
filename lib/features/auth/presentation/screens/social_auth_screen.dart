@@ -71,7 +71,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
         listener: (context, state) {
           if (state.isSubmitSuccess && state.isLogInSuccessful) {
             Navigator.pushNamedAndRemoveUntil(
-                context, Routes.appHome, (route) => false);
+                context, Routes.startUpScreen, (route) => false);
           }
 
           if (state.isSubmitFailure) {

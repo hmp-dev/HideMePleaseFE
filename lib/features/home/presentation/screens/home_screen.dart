@@ -87,6 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getHomeView(HomeViewType homeViewType) {
+    Log.info('[$runtimeType] getHomeView $homeViewType');
     if (homeViewType == HomeViewType.afterWalletConnected) {
       return const HomeViewAfterWalletConnected();
     } else {

@@ -1,4 +1,5 @@
 import 'package:mobile/app/core/enum/wallet_type.dart';
+import 'package:intl/intl.dart';
 
 String formatWalletAddress(String walletAddress) {
   if (walletAddress.length < 10) {
@@ -23,4 +24,12 @@ String getWalletProvider(String inputString) {
     }
   }
   return '';
+}
+
+String formatDate(DateTime dateTime) {
+  // Define the desired date format
+  final dateFormat = DateFormat('MM/dd HH:mm');
+
+  // Format the DateTime object using the defined format
+  return dateFormat.format(dateTime);
 }

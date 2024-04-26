@@ -3,7 +3,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -129,6 +132,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen>
                                         }
                                         final item = state.selectedNftTokensList
                                             .removeAt(oldIndex);
+
                                         state.selectedNftTokensList
                                             .insert(newIndex, item);
                                       },
@@ -157,7 +161,28 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen>
                         Expanded(
                           child: HMPBlueButton(
                             text: LocaleKeys.next.tr(),
-                            onPressed: () {},
+                            onPressed: () {
+                              List<String> order = [];
+
+                              for (var nft in state.selectedNftTokensList) {
+                                order.add(nft.id ?? '');
+                              }
+
+                              Log.info(order);
+
+                              getIt<NftCubit>().onPostCollectionOrderSave(
+                                  saveSelectedTokensReorderRequestDto:
+                                      SaveSelectedTokensReorderRequestDto(
+                                          order: order));
+
+                              // Navigate to Home
+
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                Routes.appHome,
+                                (route) => false,
+                              );
+                            },
                           ),
                         ),
                       ],

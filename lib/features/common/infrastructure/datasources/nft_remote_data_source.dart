@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group_dto.dart';
+import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/selected_nft_dto.dart';
 
@@ -10,8 +11,21 @@ class NftRemoteDataSource {
 
   NftRemoteDataSource(this._network);
 
-  Future<NftCollectionsGroupDto> getAllConnectedWallets() async {
-    final response = await _network.get("nft/collections", {});
+  Future<NftCollectionsGroupDto> getNftCollections({
+    String? chain,
+    String? cursorType,
+    String? nextWalletAddress,
+    String? cursor,
+  }) async {
+    // Construct the query parameters
+    final Map<String, String> queryParams = {
+      if (chain != null) 'chain': chain,
+      if (cursorType != null) 'cursorType': cursorType,
+      if (nextWalletAddress != null) 'nextWalletAddress': nextWalletAddress,
+      if (cursor != null) 'cursor': cursor,
+    };
+
+    final response = await _network.get("nft/collections", queryParams);
     return NftCollectionsGroupDto.fromJson(
         response.data as Map<String, dynamic>);
   }
@@ -34,5 +48,10 @@ class NftRemoteDataSource {
         .toList();
   }
 
-  
+  Future<bool> saveCollectionsSelectedOrder(
+      SaveSelectedTokensReorderRequestDto saveOrderDto) async {
+    final response = await _network.post(
+        "nft/collections/selected/order", saveOrderDto.toJson());
+    return response.statusCode == 201;
+  }
 }

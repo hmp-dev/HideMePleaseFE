@@ -5,6 +5,7 @@ import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/common/domain/repositories/nft_repository.dart';
 import 'package:mobile/features/common/infrastructure/datasources/nft_remote_data_source.dart';
 import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group_dto.dart';
+import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/selected_nft_dto.dart';
 
@@ -15,9 +16,19 @@ class NftRepositoryImpl extends NftRepository {
   NftRepositoryImpl(this._nftRemoteDataSource);
 
   @override
-  Future<Either<HMPError, NftCollectionsGroupDto>> getNftCollections() async {
+  Future<Either<HMPError, NftCollectionsGroupDto>> getNftCollections({
+    String? chain,
+    String? cursorType,
+    String? nextWalletAddress,
+    String? cursor,
+  }) async {
     try {
-      final response = await _nftRemoteDataSource.getAllConnectedWallets();
+      final response = await _nftRemoteDataSource.getNftCollections(
+        chain: chain,
+        cursorType: cursorType,
+        nextWalletAddress: nextWalletAddress,
+        cursor: cursor,
+      );
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(
@@ -60,6 +71,29 @@ class NftRepositoryImpl extends NftRepository {
       getSelectNftTokensList() async {
     try {
       final response = await _nftRemoteDataSource.getSelectTokens();
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, bool>> postCollectionOrderSave(
+      {required SaveSelectedTokensReorderRequestDto
+          saveSelectedTokensReorderRequestDto}) async {
+    try {
+      final response = await _nftRemoteDataSource
+          .saveCollectionsSelectedOrder(saveSelectedTokensReorderRequestDto);
+
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(

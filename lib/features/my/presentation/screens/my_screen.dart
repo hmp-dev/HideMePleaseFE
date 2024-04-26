@@ -5,10 +5,9 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/my/presentation/widgets/my_page.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -48,23 +47,18 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
       suffix: GestureDetector(
         onTap: () {
           Log.info("logout is tapped");
-          getIt<AuthCubit>().onLogOut();
+          getIt<AppCubit>().onLogOut();
         },
         child: DefaultImage(
             path: "assets/icons/img_icon_system.svg", width: 32, height: 32),
       ),
       body: SafeArea(
-        child: BlocListener<AuthCubit, AuthState>(
-          bloc: getIt<AuthCubit>(),
+        child: BlocListener<AppCubit, AppState>(
+          bloc: getIt<AppCubit>(),
           listener: (context, state) {
-            Log.info("inside listener");
-            if (state.isSubmitFailure) {
-              context.showErrorSnackBar(state.message);
-            }
-
-            if (state.isSubmitSuccess && !state.isLogInSuccessful) {
+            if (!state.isLoggedIn) {
               Navigator.pushNamedAndRemoveUntil(
-                  context, Routes.socialLogin, (route) => false);
+                  context, Routes.startUpScreen, (route) => false);
             }
           },
           child: SingleChildScrollView(

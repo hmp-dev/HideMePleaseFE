@@ -54,6 +54,7 @@ class _StartUpScreenState extends State<StartUpScreen> {
             }
 
             if (state.isLoggedIn) {
+              Log.info("-------inside state.isLoggedIn: ${state.isLoggedIn}");
               // User is logged in
               // a - fetch User Profile Data
               getIt<ProfileCubit>().onGetUserProfile();
@@ -77,7 +78,8 @@ class _StartUpScreenState extends State<StartUpScreen> {
           listener: (context, walletsState) {
             if (walletsState.isSuccess) {
               //on fetching Tokens navigate to Home
-              Log.info("Profile: ${walletsState.connectedWallets}");
+              Log.info(
+                  "++++++++++++++++++++++++++++++Profile: ${walletsState.connectedWallets}");
               if (walletsState.connectedWallets.isEmpty) {
                 // If a wallet is NOT Connected
                 // Update Home View to Show with Before Wallet Connected
@@ -94,7 +96,7 @@ class _StartUpScreenState extends State<StartUpScreen> {
                 // Update Home View to Show with Wallet Connected
                 // and then Navigate to Home View
                 getIt<HomeCubit>()
-                    .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
+                    .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
 
                 Navigator.pushNamedAndRemoveUntil(
                   context,
