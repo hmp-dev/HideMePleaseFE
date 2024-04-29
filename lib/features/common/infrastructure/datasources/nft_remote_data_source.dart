@@ -4,6 +4,8 @@ import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/selected_nft_dto.dart';
+import 'package:mobile/features/common/infrastructure/dtos/user_selected_nft_dto.dart';
+import 'package:mobile/features/common/infrastructure/dtos/welcome_nft_dto.dart';
 
 @lazySingleton
 class NftRemoteDataSource {
@@ -53,5 +55,18 @@ class NftRemoteDataSource {
     final response = await _network.post(
         "nft/collections/selected/order", saveOrderDto.toJson());
     return response.statusCode == 201;
+  }
+
+  Future<WelcomeNftDto> getWelcomeNFT() async {
+    final response = await _network.get("nft/welcome", {});
+    return WelcomeNftDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<List<UserSelectedNftDto>> getUserSelectNfts() async {
+    final response = await _network.get("nft/nfts/selected", {});
+    return response.data
+        .map<UserSelectedNftDto>(
+            (e) => UserSelectedNftDto.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

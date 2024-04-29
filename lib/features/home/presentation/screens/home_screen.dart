@@ -6,6 +6,7 @@ import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_wallet_request_dto.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     initializeState();
     super.initState();
+    getIt<EnableLocationCubit>().onAskDeviceLocation();
   }
 
   initializeState() async {

@@ -6,6 +6,8 @@ class NftState extends BaseState {
   final DateTime collectionFetchTime;
   final String errorMessage;
   final String selectedChain;
+  final WelcomeNftEntity welcomeNftEntity;
+  final List<UserSelectedNftEntity> userSelectedNfts;
 
   @override
   final RequestStatus submitStatus;
@@ -17,6 +19,8 @@ class NftState extends BaseState {
     this.submitStatus = RequestStatus.initial,
     required this.errorMessage,
     required this.selectedChain,
+    required this.welcomeNftEntity,
+    required this.userSelectedNfts,
   });
 
   factory NftState.initial() => NftState(
@@ -26,6 +30,8 @@ class NftState extends BaseState {
         submitStatus: RequestStatus.initial,
         errorMessage: "",
         selectedChain: ChainType.ALL.name,
+        welcomeNftEntity: const WelcomeNftEntity.empty(),
+        userSelectedNfts: const [],
       );
 
   @override
@@ -36,6 +42,8 @@ class NftState extends BaseState {
         submitStatus,
         errorMessage,
         selectedChain,
+        welcomeNftEntity,
+        userSelectedNfts,
       ];
 
   @override
@@ -47,6 +55,8 @@ class NftState extends BaseState {
     bool? isProfileIncomplete,
     String? errorMessage,
     String? selectedChain,
+    WelcomeNftEntity? welcomeNftEntity,
+    List<UserSelectedNftEntity>? userSelectedNfts,
   }) {
     return NftState(
       nftCollectionsGroupEntity:
@@ -57,6 +67,8 @@ class NftState extends BaseState {
       submitStatus: submitStatus ?? this.submitStatus,
       errorMessage: errorMessage ?? this.errorMessage,
       selectedChain: selectedChain ?? this.selectedChain,
+      welcomeNftEntity: welcomeNftEntity ?? this.welcomeNftEntity,
+      userSelectedNfts: userSelectedNfts ?? this.userSelectedNfts,
     );
   }
 }

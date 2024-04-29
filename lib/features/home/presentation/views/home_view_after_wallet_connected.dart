@@ -2,10 +2,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/button_small.dart';
@@ -16,6 +18,7 @@ import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_bottom_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 
 class HomeViewAfterWalletConnected extends StatefulWidget {
   const HomeViewAfterWalletConnected({
@@ -83,8 +86,15 @@ class _HomeViewAfterWalletConnectedState
                       const SizedBox(width: 20),
                       GestureDetector(
                         onTap: () {
-                          getIt<HomeCubit>().onUpdateHomeViewType(
-                              HomeViewType.beforeWalletConnected);
+                          // getIt<HomeCubit>().onUpdateHomeViewType(
+                          //     HomeViewType.beforeWalletConnected);
+
+                          // getIt<ProfileCubit>().onUpdateUserProfile(
+                          //     UpdateProfileRequestDto(nickName: "Dave John"));
+
+                          // getIt<NftCubit>().onGetWelcomeNft();
+
+                          getIt<NftCubit>().onGetUserSelectedNfts();
                         },
                         child: DefaultImage(
                           path: "assets/icons/ic_notification.svg",

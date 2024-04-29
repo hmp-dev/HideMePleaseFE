@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart' as _i1;
 import 'package:injectable/injectable.dart' as _i2;
 import 'package:mobile/app/core/network/network.dart' as _i8;
 import 'package:mobile/app/core/storage/secure_storage.dart' as _i6;
-import 'package:mobile/features/app/presentation/cubit/app_cubit.dart' as _i24;
+import 'package:mobile/features/app/presentation/cubit/app_cubit.dart' as _i25;
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart'
     as _i19;
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart'
@@ -23,19 +23,21 @@ import 'package:mobile/features/auth/infrastructure/datasources/auth_remote_data
 import 'package:mobile/features/auth/infrastructure/repositoriies/auth_repository.dart'
     as _i20;
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart'
-    as _i25;
+    as _i26;
 import 'package:mobile/features/common/domain/repositories/nft_repository.dart'
     as _i10;
 import 'package:mobile/features/common/infrastructure/datasources/nft_remote_data_source.dart'
     as _i9;
 import 'package:mobile/features/common/infrastructure/repositories/nft_repository.dart'
     as _i11;
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart'
+    as _i21;
 import 'package:mobile/features/common/presentation/cubit/network_cubit.dart'
     as _i4;
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart'
-    as _i21;
+    as _i22;
 import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart'
-    as _i23;
+    as _i24;
 import 'package:mobile/features/home/domain/repositories/wallets_repository.dart'
     as _i16;
 import 'package:mobile/features/home/infrastructure/data_sources/wallets_remote_data_source.dart'
@@ -50,7 +52,7 @@ import 'package:mobile/features/my/infrastructure/data_sources/profile_remote_da
 import 'package:mobile/features/my/infrastructure/repositories/profile_repository.dart'
     as _i14;
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart'
-    as _i22;
+    as _i23;
 
 extension GetItInjectableX on _i1.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -94,16 +96,18 @@ extension GetItInjectableX on _i1.GetIt {
           gh<_i18.AuthRemoteDataSource>(),
           gh<_i7.AuthLocalDataSource>(),
         ));
-    gh.lazySingleton<_i21.NftCubit>(
-        () => _i21.NftCubit(gh<_i10.NftRepository>()));
-    gh.lazySingleton<_i22.ProfileCubit>(
-        () => _i22.ProfileCubit(gh<_i13.ProfileRepository>()));
-    gh.lazySingleton<_i23.WalletsCubit>(
-        () => _i23.WalletsCubit(gh<_i16.WalletsRepository>()));
-    gh.lazySingleton<_i24.AppCubit>(
-        () => _i24.AppCubit(gh<_i19.AuthRepository>()));
-    gh.lazySingleton<_i25.AuthCubit>(
-        () => _i25.AuthCubit(gh<_i19.AuthRepository>()));
+    gh.lazySingleton<_i21.EnableLocationCubit>(
+        () => _i21.EnableLocationCubit(gh<_i13.ProfileRepository>()));
+    gh.lazySingleton<_i22.NftCubit>(
+        () => _i22.NftCubit(gh<_i10.NftRepository>()));
+    gh.lazySingleton<_i23.ProfileCubit>(
+        () => _i23.ProfileCubit(gh<_i13.ProfileRepository>()));
+    gh.lazySingleton<_i24.WalletsCubit>(
+        () => _i24.WalletsCubit(gh<_i16.WalletsRepository>()));
+    gh.lazySingleton<_i25.AppCubit>(
+        () => _i25.AppCubit(gh<_i19.AuthRepository>()));
+    gh.lazySingleton<_i26.AuthCubit>(
+        () => _i26.AuthCubit(gh<_i19.AuthRepository>()));
     return this;
   }
 }

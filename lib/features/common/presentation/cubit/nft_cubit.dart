@@ -5,6 +5,8 @@ import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/domain/entities/nft_collections_group_entity.dart';
+import 'package:mobile/features/common/domain/entities/user_selected_nft_entity.dart';
+import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/domain/repositories/nft_repository.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/selected_nft_dto.dart';
@@ -121,7 +123,7 @@ class NftCubit extends BaseCubit<NftState> {
   Future<void> onGetSelectedNftTokens() async {
     EasyLoading.show();
 
-    final response = await _nftRepository.getSelectNftTokensList();
+    final response = await _nftRepository.getSelectNftCollections();
 
     EasyLoading.dismiss();
 
@@ -168,6 +170,60 @@ class NftCubit extends BaseCubit<NftState> {
       (nftCollectionsGroup) {
         emit(
           state.copyWith(
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetWelcomeNft() async {
+    EasyLoading.show();
+
+    final response = await _nftRepository.getWelcomeNft();
+
+    EasyLoading.dismiss();
+
+    response.fold(
+      (err) {
+        Log.error(err);
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (welcomeNft) {
+        emit(
+          state.copyWith(
+            welcomeNftEntity: welcomeNft.toEntity(),
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetUserSelectedNfts() async {
+    EasyLoading.show();
+
+    final response = await _nftRepository.getUserSelectedNfts();
+
+    EasyLoading.dismiss();
+
+    response.fold(
+      (err) {
+        Log.error(err);
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (nfts) {
+        emit(
+          state.copyWith(
+            userSelectedNfts: nfts.map((e) => e.toEntity()).toList(),
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),
