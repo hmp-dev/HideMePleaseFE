@@ -150,4 +150,25 @@ class NftRepositoryImpl extends NftRepository {
       ));
     }
   }
+
+  @override
+  Future<Either<HMPError, String>> getConsumeUserWelcomeNft(
+      {required int welcomeNftId}) async {
+    try {
+      final response =
+          await _nftRemoteDataSource.getConsumeWelcomeNft(welcomeNftId);
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
 }

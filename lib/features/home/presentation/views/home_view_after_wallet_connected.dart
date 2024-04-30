@@ -94,7 +94,10 @@ class _HomeViewAfterWalletConnectedState
 
                           // getIt<NftCubit>().onGetWelcomeNft();
 
-                          getIt<NftCubit>().onGetUserSelectedNfts();
+                          //getIt<NftCubit>().onGetUserSelectedNfts();
+
+                          getIt<NftCubit>()
+                              .onGetConsumeWelcomeNft(welcomeNftId: 2);
                         },
                         child: DefaultImage(
                           path: "assets/icons/ic_notification.svg",

@@ -231,4 +231,34 @@ class NftCubit extends BaseCubit<NftState> {
       },
     );
   }
+
+  Future<void> onGetConsumeWelcomeNft({
+    required int welcomeNftId,
+  }) async {
+    EasyLoading.show();
+
+    final response = await _nftRepository.getConsumeUserWelcomeNft(
+        welcomeNftId: welcomeNftId);
+
+    EasyLoading.dismiss();
+
+    response.fold(
+      (err) {
+        Log.error(err);
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (url) {
+        emit(
+          state.copyWith(
+            consumeWelcomeNftUrl: url,
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+          ),
+        );
+      },
+    );
+  }
 }

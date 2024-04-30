@@ -29,4 +29,8 @@ abstract class NftRepository {
   Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft();
 
   Future<Either<HMPError, List<UserSelectedNftDto>>> getUserSelectedNfts();
+
+  Future<Either<HMPError, String>> getConsumeUserWelcomeNft({
+    required int welcomeNftId,
+  });
 }

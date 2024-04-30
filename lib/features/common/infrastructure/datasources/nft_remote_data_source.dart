@@ -69,4 +69,11 @@ class NftRemoteDataSource {
             (e) => UserSelectedNftDto.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  //https://testnet.binancefuture.com/en/futures/BTCUSDT
+
+  Future<String> getConsumeWelcomeNft(int welcomeNftId) async {
+    final response = await _network.get("nft/welcome/$welcomeNftId", {});
+    return response.data;
+  }
 }
