@@ -1,7 +1,8 @@
 part of 'profile_cubit.dart';
 
 class ProfileState extends BaseState {
-  final UserEntity userProfile;
+  final BaseUserEntity baseUserData;
+  final UserProfileEntity userProfileEntity;
   final bool isProfileIncomplete;
   final String errorMessage;
 
@@ -9,14 +10,16 @@ class ProfileState extends BaseState {
   final RequestStatus submitStatus;
 
   const ProfileState({
-    required this.userProfile,
+    required this.baseUserData,
+    required this.userProfileEntity,
     this.submitStatus = RequestStatus.initial,
     required this.isProfileIncomplete,
     required this.errorMessage,
   });
 
   factory ProfileState.initial() => const ProfileState(
-        userProfile: UserEntity.empty(),
+        baseUserData: BaseUserEntity.empty(),
+        userProfileEntity: UserProfileEntity.empty(),
         submitStatus: RequestStatus.initial,
         isProfileIncomplete: false,
         errorMessage: "",
@@ -24,7 +27,8 @@ class ProfileState extends BaseState {
 
   @override
   List<Object?> get props => [
-        userProfile,
+        baseUserData,
+        userProfileEntity,
         submitStatus,
         isProfileIncomplete,
         errorMessage,
@@ -32,13 +36,15 @@ class ProfileState extends BaseState {
 
   @override
   ProfileState copyWith({
-    UserEntity? userProfile,
+    BaseUserEntity? baseUserData,
+    UserProfileEntity? userProfileEntity,
     RequestStatus? submitStatus,
     bool? isProfileIncomplete,
     String? errorMessage,
   }) {
     return ProfileState(
-      userProfile: userProfile ?? this.userProfile,
+      baseUserData: baseUserData ?? this.baseUserData,
+      userProfileEntity: userProfileEntity ?? this.userProfileEntity,
       submitStatus: submitStatus ?? this.submitStatus,
       isProfileIncomplete: isProfileIncomplete ?? this.isProfileIncomplete,
       errorMessage: errorMessage ?? this.errorMessage,

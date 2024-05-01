@@ -6,8 +6,10 @@ import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
+import 'package:mobile/features/my/domain/entities/base_user_entity.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/widgets/my_page.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -33,7 +35,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    tabViewController = TabController(length: 3, vsync: this);
+    tabViewController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -62,25 +64,31 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
             }
           },
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _buildRow(context),
-                const SizedBox(height: 32),
-                _buildTabView(context),
-                SizedBox(
-                  height: 496,
-                  child: TabBarView(
-                    controller: tabViewController,
-                    children: const [
-                      MyPage(),
-                      MyPage(),
-                      MyPage(),
-                    ],
-                  ),
-                ),
-              ],
+            child: BlocConsumer<ProfileCubit, ProfileState>(
+              bloc: getIt<ProfileCubit>(),
+              listener: (context, state) {},
+              builder: (context, state) {
+                final userData = state.baseUserData;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    _buildTitleRow(context, userData),
+                    const SizedBox(height: 32),
+                    _buildTabView(context),
+                    SizedBox(
+                      height: 496,
+                      child: TabBarView(
+                        controller: tabViewController,
+                        children: const [
+                          MyPage(),
+                          MyPage(),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -88,7 +96,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildRow(BuildContext context) {
+  Widget _buildTitleRow(BuildContext context, BaseUserEntity userProfile) {
     return Padding(
       padding: const EdgeInsets.only(
         left: 20,
@@ -112,7 +120,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "나는꿈을꾸는문어",
+                    "나는꿈을꾸는문어", //name I am a dreaming octopus
                     style: fontM(16),
                   ),
                   const SizedBox(height: 7),
@@ -120,6 +128,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                     width: 226,
                     child: Text(
                       "높은 산에 올라가면 나는 초록색 문어, 장미 꽃밭 숨어들면 나는 빨간색 문어",
+                      // introduction Text
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: fontR(14,
@@ -176,30 +185,20 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
             tabs: [
               Tab(
                 child: SizedBox(
-                  width: deviceWidth * 0.25,
-                  child: const Center(
+                  width: deviceWidth * 0.45,
+                  child: Center(
                     child: Text(
-                      "NFT",
+                      LocaleKeys.membership.tr(),
                     ),
                   ),
                 ),
               ),
               Tab(
                 child: SizedBox(
-                  width: deviceWidth * 0.25,
-                  child: const Center(
+                  width: deviceWidth * 0.45,
+                  child: Center(
                     child: Text(
-                      "커뮤니티",
-                    ),
-                  ),
-                ),
-              ),
-              Tab(
-                child: SizedBox(
-                  width: deviceWidth * 0.25,
-                  child: const Center(
-                    child: Text(
-                      "포인트",
+                      LocaleKeys.points.tr(),
                     ),
                   ),
                 ),

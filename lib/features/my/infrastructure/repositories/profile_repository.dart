@@ -3,9 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/common/infrastructure/dtos/update_profile_request_dto.dart';
-import 'package:mobile/features/common/infrastructure/dtos/user_dto.dart';
+import 'package:mobile/features/my/infrastructure/dtos/base_user_dto.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/infrastructure/data_sources/profile_remote_data_source.dart';
+import 'package:mobile/features/my/infrastructure/dtos/user_profile_dto.dart';
 
 @LazySingleton(as: ProfileRepository)
 class ProfileRepositoryImpl implements ProfileRepository {
@@ -14,9 +15,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
   const ProfileRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<Either<HMPError, UserDto>> getProfileData() async {
+  Future<Either<HMPError, BaseUserDto>> getBaseUserData() async {
     try {
-      final response = await _remoteDataSource.getProfileData();
+      final response = await _remoteDataSource.getBaseUserData();
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(
@@ -33,12 +34,31 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Either<HMPError, UserDto>> updateProfileData({
+  Future<Either<HMPError, UserProfileDto>> updateProfileData({
     required UpdateProfileRequestDto updateProfileRequestDto,
   }) async {
     try {
       final response = await _remoteDataSource.putProfileData(
           updateProfileRequestDto: updateProfileRequestDto);
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, UserProfileDto>> getUserProfileData() async {
+    try {
+      final response = await _remoteDataSource.getProfileData();
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(

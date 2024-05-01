@@ -176,7 +176,6 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen>
                                           order: order));
 
                               // Navigate to Home
-
                               Navigator.pushNamedAndRemoveUntil(
                                 context,
                                 Routes.appHome,

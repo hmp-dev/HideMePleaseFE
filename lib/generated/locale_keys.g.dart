@@ -32,5 +32,7 @@ abstract class  LocaleKeys {
   static const onBoardingSlide4TitleA = 'onBoardingSlide4TitleA';
   static const onBoardingSlide4TitleB = 'onBoardingSlide4TitleB';
   static const onBoardingSlide4Desc = 'onBoardingSlide4Desc';
+  static const membership = 'membership';
+  static const points = 'points';
 
 }

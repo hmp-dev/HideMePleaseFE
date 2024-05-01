@@ -30,5 +30,7 @@
     "onBoardingSlide3Desc": "Use benefits and chat in the community to automatically accumulate points!",
     "onBoardingSlide4TitleA": "Growing Benefits as You",
     "onBoardingSlide4TitleB": "Accumulate",
-    "onBoardingSlide4Desc": "Use points collected with community members to increase benefits!"
+    "onBoardingSlide4Desc": "Use points collected with community members to increase benefits!",
+    "membership":"Membership",
+    "points":"Points"
 }

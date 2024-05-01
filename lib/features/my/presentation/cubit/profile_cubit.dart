@@ -2,8 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
-import 'package:mobile/features/common/domain/entities/user_entity.dart';
+import 'package:mobile/features/my/domain/entities/base_user_entity.dart';
 import 'package:mobile/features/common/infrastructure/dtos/update_profile_request_dto.dart';
+import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -17,9 +18,9 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     this._profileRepository,
   ) : super(ProfileState.initial());
 
-  Future<void> onGetUserProfile() async {
+  Future<void> onGetBaseUser() async {
     emit(state.copyWith(submitStatus: RequestStatus.loading));
-    final response = await _profileRepository.getProfileData();
+    final response = await _profileRepository.getBaseUserData();
     response.fold(
       (err) {
         emit(state.copyWith(
@@ -34,7 +35,32 @@ class ProfileCubit extends BaseCubit<ProfileState> {
           state.copyWith(
             submitStatus: RequestStatus.success,
             errorMessage: '',
-            userProfile: user.toEntity(),
+            baseUserData: user.toEntity(),
+            isProfileIncomplete: false,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetUserProfile() async {
+    emit(state.copyWith(submitStatus: RequestStatus.loading));
+    final response = await _profileRepository.getUserProfileData();
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+          isProfileIncomplete: false,
+        ));
+      },
+      (user) {
+        // if users
+        emit(
+          state.copyWith(
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+            userProfileEntity: user.toEntity(),
             isProfileIncomplete: false,
           ),
         );
@@ -68,7 +94,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
           state.copyWith(
             submitStatus: RequestStatus.success,
             errorMessage: '',
-            userProfile: user.toEntity(),
+            userProfileEntity: user.toEntity(),
             isProfileIncomplete: false,
           ),
         );

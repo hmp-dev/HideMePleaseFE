@@ -1,20 +1,20 @@
 {
   "project_info": {
-    "project_number": "543048086110",
-    "project_id": "hidemeplease",
-    "storage_bucket": "hidemeplease.appspot.com"
+    "project_number": "125892280544",
+    "project_id": "hidemeplease2024-dev",
+    "storage_bucket": "hidemeplease2024-dev.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:543048086110:android:bbb7d030b56934215bfacf",
+        "mobilesdk_app_id": "1:125892280544:android:d475ae2e943e8ecf1ad085",
         "android_client_info": {
           "package_name": "com.kr.hideme"
         }
       },
       "oauth_client": [
         {
-          "client_id": "543048086110-3be607s0sflqh51un0cfjtv113hnk4uk.apps.googleusercontent.com",
+          "client_id": "125892280544-e08040me4mkli7rvrsrueu63qp08omhu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.kr.hideme",
@@ -22,27 +22,27 @@
           }
         },
         {
-          "client_id": "543048086110-jn0tth49otdmk6i7kncrf4aj5olkc5i1.apps.googleusercontent.com",
+          "client_id": "125892280544-rjf7f4jt6u5qpledlfgj5go9hobt7spe.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDmrcByvj3igYdCsl1l_aV38DaM0HcWTxU"
+          "current_key": "AIzaSyC34ZypssIyxhziS2uMnGeJ3etF8fv8GWk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "543048086110-jn0tth49otdmk6i7kncrf4aj5olkc5i1.apps.googleusercontent.com",
+              "client_id": "125892280544-rjf7f4jt6u5qpledlfgj5go9hobt7spe.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "543048086110-9dejnv6oi4l61nv6jm1cbfqplss03omt.apps.googleusercontent.com",
+              "client_id": "125892280544-gf2eq6ekng6053cqr3hnpvgfa6ug9h0t.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.mobile"
+                "bundle_id": "com.kr.hideme"
               }
             }
           ]

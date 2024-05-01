@@ -3,23 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>543048086110-l6rc1op8m76gj7hd4rfm43dcshlhqpj5.apps.googleusercontent.com</string>
+	<string>125892280544-gf2eq6ekng6053cqr3hnpvgfa6ug9h0t.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.543048086110-l6rc1op8m76gj7hd4rfm43dcshlhqpj5</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>543048086110-3be607s0sflqh51un0cfjtv113hnk4uk.apps.googleusercontent.com</string>
+	<string>com.googleusercontent.apps.125892280544-gf2eq6ekng6053cqr3hnpvgfa6ug9h0t</string>
 	<key>API_KEY</key>
-	<string>AIzaSyAVP-Zc_mbf-Wso0w7SDaO9zchmlTQlCOo</string>
+	<string>AIzaSyD3dPy2GP0TA8lloQsbX0cHbLLy2NiUNO8</string>
 	<key>GCM_SENDER_ID</key>
-	<string>543048086110</string>
+	<string>125892280544</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.kr.hideme</string>
 	<key>PROJECT_ID</key>
-	<string>hidemeplease</string>
+	<string>hidemeplease2024-dev</string>
 	<key>STORAGE_BUCKET</key>
-	<string>hidemeplease.appspot.com</string>
+	<string>hidemeplease2024-dev.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:543048086110:ios:c8dfd2486d8161695bfacf</string>
+	<string>1:125892280544:ios:e09f9f0d79745e321ad085</string>
 </dict>
 </plist>

@@ -32,10 +32,10 @@ class _StartUpScreenState extends State<StartUpScreen> {
 
   // start UP Logic
   //==> Check if User is LoggedIn --> in not loggedIn navigate to Social Login View
-  //--If logged in get UserProfile date
-  //--If logged in get userConnected Wallets
-  //--> If no wallet Connected -> goto Home with showing Connect a Wallet View
-  //--> If Wallet Connected -> fetch list for selected Tokens and  go to home view with  showing view connected wallets and Tokens as slider
+  //---->  If logged in get UserProfile date
+  //---->  If logged in get userConnected Wallets
+  //----> If no wallet Connected -> goto Home with showing Connect a Wallet View
+  //----> If Wallet Connected -> fetch list for selected Tokens and  go to home view with  showing view connected wallets and Tokens as slider
 
   @override
   Widget build(BuildContext context) {
@@ -56,11 +56,13 @@ class _StartUpScreenState extends State<StartUpScreen> {
             if (state.isLoggedIn) {
               Log.info("-------inside state.isLoggedIn: ${state.isLoggedIn}");
               // User is logged in
-              // a - fetch User Profile Data
+              // a - fetch Base User Data
+              getIt<ProfileCubit>().onGetBaseUser();
+              // b- get User Profile Data
               getIt<ProfileCubit>().onGetUserProfile();
-              // b - fetch user connected Wallets
+              // c - fetch user connected Wallets
               getIt<WalletsCubit>().onGetAllWallets();
-              // c - fetch user selected NFT Tokens
+              // d - fetch user selected NFT Tokens
               getIt<NftCubit>().onGetSelectedNftTokens();
             }
           },
@@ -69,7 +71,7 @@ class _StartUpScreenState extends State<StartUpScreen> {
           bloc: getIt<ProfileCubit>(),
           listener: (context, profileState) {
             if (profileState.isSuccess) {
-              Log.info("Profile: ${profileState.userProfile}");
+              Log.info("Profile: ${profileState.baseUserData}");
             }
           },
         ),
