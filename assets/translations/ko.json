@@ -31,7 +31,17 @@
     "onBoardingSlide4TitleB":"커지는 혜택",
     "onBoardingSlide4Desc":"커뮤니티 멤버와 함께 모은 포인트로 혜택을 키워보세요!",
     "membership":"멤버십",
-    "points":"포인트"
+    "points":"포인트",
+    "editMyPage":"마이페이지 편집",
+    "nickName":"닉네임",
+    "pleaseEnterYourName":"닉네임을 입력하세요",
+    "introduction":"한 줄 소개",
+    "enterYourIntroduction":"소개를 입력하세요",
+    "visitStatusDisclosure":"방문 현황 공개",
+    "iWillRevealIt":"공개할게요",
+    "iWillHideIt":"숨길게요",
+    "locationAgreeInfoText":"방문 현황 동의 시, 숨어있는 사람 수에 내 방문이 포함됩니다. 동의해도 개인 정보는 노출되지 않습니다."
+   
     
     
     

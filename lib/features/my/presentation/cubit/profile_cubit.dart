@@ -98,6 +98,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
             isProfileIncomplete: false,
           ),
         );
+
+        onGetUserProfile();
       },
     );
   }

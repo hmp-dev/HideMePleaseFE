@@ -34,5 +34,14 @@ abstract class  LocaleKeys {
   static const onBoardingSlide4Desc = 'onBoardingSlide4Desc';
   static const membership = 'membership';
   static const points = 'points';
+  static const editMyPage = 'editMyPage';
+  static const nickName = 'nickName';
+  static const pleaseEnterYourName = 'pleaseEnterYourName';
+  static const introduction = 'introduction';
+  static const enterYourIntroduction = 'enterYourIntroduction';
+  static const visitStatusDisclosure = 'visitStatusDisclosure';
+  static const iWillRevealIt = 'iWillRevealIt';
+  static const iWillHideIt = 'iWillHideIt';
+  static const locationAgreeInfoText = 'locationAgreeInfoText';
 
 }

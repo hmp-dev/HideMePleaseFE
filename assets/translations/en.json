@@ -7,7 +7,6 @@
     "myPage":"My Page",
     "next":"Next",
     "previous":"Previous",
-
     "dontShowNextTimeMsg":"Do not show next time",
     "confirm":"Confirm",
     "agreeTermsAlertMSG":"Please agree to the terms before proceeding",
@@ -32,5 +31,15 @@
     "onBoardingSlide4TitleB": "Accumulate",
     "onBoardingSlide4Desc": "Use points collected with community members to increase benefits!",
     "membership":"Membership",
-    "points":"Points"
+    "points":"Points",
+    "editMyPage":"Edit My Page",
+    "nickName":"Nick Name",
+    "pleaseEnterYourName":"Please enter your Name",
+    "introduction":"Introduction",
+    "enterYourIntroduction":"Enter your introduction",
+    "visitStatusDisclosure":"Visit status disclosure",
+    "iWillRevealIt":"I'll reveal it",
+    "iWillHideIt":"I'll hide it",
+    "locationAgreeInfoText":"If you agree to visit status, your visit will be included in the number of hidden people. Even if you agree, your personal information will not be revealed."
+
 }

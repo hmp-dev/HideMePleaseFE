@@ -2,14 +2,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
-import 'package:mobile/features/my/domain/entities/base_user_entity.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
 import 'package:mobile/features/my/presentation/widgets/my_page.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -40,63 +41,72 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return BaseScaffold(
-      title: LocaleKeys.myPage.tr(),
-      isCenterTitle: true,
-      onBack: () {
-        Navigator.pop(context);
-      },
-      suffix: GestureDetector(
-        onTap: () {
-          Log.info("logout is tapped");
-          getIt<AppCubit>().onLogOut();
-        },
-        child: DefaultImage(
-            path: "assets/icons/img_icon_system.svg", width: 32, height: 32),
-      ),
-      body: SafeArea(
-        child: BlocListener<AppCubit, AppState>(
-          bloc: getIt<AppCubit>(),
-          listener: (context, state) {
-            if (!state.isLoggedIn) {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, Routes.startUpScreen, (route) => false);
-            }
+    return BlocConsumer<ProfileCubit, ProfileState>(
+      bloc: getIt<ProfileCubit>(),
+      listener: (context, state) {},
+      builder: (context, state) {
+        final userData = state.userProfileEntity;
+        return BaseScaffold(
+          title: LocaleKeys.myPage.tr(),
+          isCenterTitle: true,
+          onBack: () {
+            Navigator.pop(context);
           },
-          child: SingleChildScrollView(
-            child: BlocConsumer<ProfileCubit, ProfileState>(
-              bloc: getIt<ProfileCubit>(),
-              listener: (context, state) {},
-              builder: (context, state) {
-                final userData = state.baseUserData;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    _buildTitleRow(context, userData),
-                    const SizedBox(height: 32),
-                    _buildTabView(context),
-                    SizedBox(
-                      height: 496,
-                      child: TabBarView(
-                        controller: tabViewController,
-                        children: const [
-                          MyPage(),
-                          MyPage(),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
+          suffix: GestureDetector(
+            onTap: () {
+              // Log.info("logout is tapped");
+              // getIt<AppCubit>().onLogOut();
+
+              MyEditScreen.push(context);
+            },
+            child: DefaultImage(
+                path: "assets/icons/img_icon_system.svg",
+                width: 32,
+                height: 32),
+          ),
+          body: SafeArea(
+            child: BlocListener<AppCubit, AppState>(
+              bloc: getIt<AppCubit>(),
+              listener: (context, appState) {
+                if (!appState.isLoggedIn) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    Routes.startUpScreen,
+                    (route) => false,
+                  );
+                }
               },
+              child: SingleChildScrollView(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildTitleRow(context, userData),
+                  const SizedBox(height: 32),
+                  _buildTabView(context),
+                  SizedBox(
+                    height: 496,
+                    child: TabBarView(
+                      controller: tabViewController,
+                      children: const [
+                        MyPage(),
+                        MyPage(),
+                      ],
+                    ),
+                  ),
+                ],
+              )),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildTitleRow(BuildContext context, BaseUserEntity userProfile) {
+  Widget _buildTitleRow(
+    BuildContext context,
+    UserProfileEntity userProfile,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(
         left: 20,
