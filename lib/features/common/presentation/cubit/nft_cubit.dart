@@ -5,13 +5,12 @@ import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/domain/entities/nft_collections_group_entity.dart';
-import 'package:mobile/features/common/domain/entities/user_selected_nft_entity.dart';
+import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/domain/repositories/nft_repository.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
-import 'package:mobile/features/common/infrastructure/dtos/selected_nft_dto.dart';
-import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 part 'nft_state.dart';
 
@@ -138,7 +137,8 @@ class NftCubit extends BaseCubit<NftState> {
       (selectedNftTokensList) {
         emit(
           state.copyWith(
-            selectedNftTokensList: selectedNftTokensList,
+            selectedNftTokensList:
+                selectedNftTokensList.map((e) => e.toEntity()).toList(),
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),
@@ -197,33 +197,6 @@ class NftCubit extends BaseCubit<NftState> {
         emit(
           state.copyWith(
             welcomeNftEntity: welcomeNft.toEntity(),
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> onGetUserSelectedNfts() async {
-    EasyLoading.show();
-
-    final response = await _nftRepository.getUserSelectedNfts();
-
-    EasyLoading.dismiss();
-
-    response.fold(
-      (err) {
-        Log.error(err);
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
-        ));
-      },
-      (nfts) {
-        emit(
-          state.copyWith(
-            userSelectedNfts: nfts.map((e) => e.toEntity()).toList(),
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),

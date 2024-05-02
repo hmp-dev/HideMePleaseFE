@@ -6,6 +6,8 @@ part 'nft_token_dto.g.dart';
 
 @JsonSerializable()
 class NftTokenDto extends Equatable {
+  @JsonKey(name: "id")
+  final String? id;
   @JsonKey(name: "tokenId")
   final String? tokenId;
   @JsonKey(name: "name")
@@ -16,6 +18,7 @@ class NftTokenDto extends Equatable {
   final bool? selected;
 
   const NftTokenDto({
+    this.id,
     this.tokenId,
     this.name,
     this.imageUrl,
@@ -28,9 +31,10 @@ class NftTokenDto extends Equatable {
   Map<String, dynamic> toJson() => _$NftTokenDtoToJson(this);
 
   @override
-  List<Object?> get props => [tokenId, name, imageUrl, selected];
+  List<Object?> get props => [id, tokenId, name, imageUrl, selected];
 
   NftTokenEntity toEntity() => NftTokenEntity(
+        id: id!,
         tokenId: tokenId ?? '',
         name: name ?? '',
         imageUrl: imageUrl ?? '',

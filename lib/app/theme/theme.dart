@@ -73,6 +73,9 @@ const bk2 = Color(0x80000000);
 // white 10%
 const bk3 = Color(0x80000000);
 
+// backgroundGr1
+const backgroundGr1 = Color(0xFF4E4E55);
+
 const pink = Color(0xFFFF00E5);
 const red = Color(0xFFFF0001);
 const yellow = Color(0xFFFFC000);
@@ -378,6 +381,17 @@ TextStyle fontCompactXs({Color? color = fore1}) => TextStyle(
       color: color ?? fore1,
       letterSpacing: -0.1,
       height: 1.3,
+    );
+
+TextStyle fontCompactXsUnderline({Color? color = fore1}) => TextStyle(
+      fontSize: 12,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w400,
+      color: color ?? fore1,
+      letterSpacing: -0.1,
+      height: 1.3,
+      decoration: TextDecoration.underline,
+      decorationColor: fore3,
     );
 
 TextStyle fontCompactXsMedium({Color? color = fore1}) => TextStyle(

@@ -10,7 +10,7 @@ import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_r
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/common/presentation/widgets/hmp_blue_button.dart';
+import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -109,10 +109,9 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen>
                                       itemBuilder: (context, index) {
                                         final nft =
                                             state.selectedNftTokensList[index];
-                                        final imageUrl = nft.nftImageUrl ?? "";
-                                        final name = nft.nftName ?? "";
-                                        final chain =
-                                            nft.chain?.toLowerCase() ?? "";
+                                        final imageUrl = nft.imageUrl;
+                                        final name = nft.name;
+                                        final chain = nft.chain.toLowerCase();
 
                                         //
                                         return ReorderableDelayedDragStartListener(
@@ -159,13 +158,13 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen>
                         ),
                         const HorizontalSpace(20),
                         Expanded(
-                          child: HMPBlueButton(
+                          child: HMPCustomButton(
                             text: LocaleKeys.next.tr(),
                             onPressed: () {
                               List<String> order = [];
 
                               for (var nft in state.selectedNftTokensList) {
-                                order.add(nft.id ?? '');
+                                order.add(nft.id);
                               }
 
                               Log.info(order);

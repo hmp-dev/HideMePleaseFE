@@ -28,50 +28,50 @@ class NftTokenWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Column(
-          children: [
-            nftTokenEntity.imageUrl != ""
-                ? CachedNetworkImage(
-                    imageUrl: nftTokenEntity.imageUrl,
-                    width: 100,
-                    height: 100,
-                  )
-                : DefaultImage(
-                    path: "assets/images/home_card_img.png",
-                    width: 100,
-                    height: 100,
-                    boxFit: BoxFit.cover,
-                  ),
-            const VerticalSpace(10),
-            SizedBox(
-              width: 100,
-              child: Text(
-                nftTokenEntity.name,
-                overflow: TextOverflow.ellipsis,
-                style: fontM(12),
-              ),
-            )
-          ],
-        ),
-        GestureDetector(
-          onTap: () {
-            getIt<NftCubit>().onSelectDeselectNftToken(
-                selectTokenToggleRequestDto: SelectTokenToggleRequestDto(
-              tokenId: nftTokenEntity.tokenId,
-              tokenAddress: tokenAddress,
-              chain: chain,
-              walletAddress: walletAddress,
-              selected: !nftTokenEntity.selected,
-              order: tokenOrder,
-            ));
-          },
-          child: nftTokenEntity.selected
-              ? const SelectedRadio()
-              : const NotSelectedRadio(),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Stack(
+        children: [
+          Column(
+            children: [
+              nftTokenEntity.imageUrl != ""
+                  ? CachedNetworkImage(
+                      imageUrl: nftTokenEntity.imageUrl,
+                      width: 100,
+                      height: 100,
+                    )
+                  : DefaultImage(
+                      path: "assets/images/home_card_img.png",
+                      width: 100,
+                      height: 100,
+                      boxFit: BoxFit.cover,
+                    ),
+              const VerticalSpace(10),
+              SizedBox(
+                width: 100,
+                child: Text(
+                  nftTokenEntity.name,
+                  overflow: TextOverflow.ellipsis,
+                  style: fontM(12),
+                ),
+              )
+            ],
+          ),
+          GestureDetector(
+            onTap: () {
+              getIt<NftCubit>().onSelectDeselectNftToken(
+                  selectTokenToggleRequestDto: SelectTokenToggleRequestDto(
+                nftId: nftTokenEntity.id,
+                selected: !nftTokenEntity.selected,
+                order: tokenOrder,
+              ));
+            },
+            child: nftTokenEntity.selected
+                ? const SelectedRadio()
+                : const NotSelectedRadio(),
+          ),
+        ],
+      ),
     );
   }
 }

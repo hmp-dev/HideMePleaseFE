@@ -40,7 +40,8 @@
     "visitStatusDisclosure":"방문 현황 공개",
     "iWillRevealIt":"공개할게요",
     "iWillHideIt":"숨길게요",
-    "locationAgreeInfoText":"방문 현황 동의 시, 숨어있는 사람 수에 내 방문이 포함됩니다. 동의해도 개인 정보는 노출되지 않습니다."
+    "locationAgreeInfoText":"방문 현황 동의 시, 숨어있는 사람 수에 내 방문이 포함됩니다. 동의해도 개인 정보는 노출되지 않습니다.",
+    "selectProfileImage":"프로필 이미지 선택"
    
     
     

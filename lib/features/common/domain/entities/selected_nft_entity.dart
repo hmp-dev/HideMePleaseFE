@@ -5,20 +5,16 @@ class SelectedNFTEntity extends Equatable {
   final int order;
   final String name;
   final String symbol;
-  final String collectionLogoUrl;
   final String chain;
-  final String nftName;
-  final String nftImageUrl;
+  final String imageUrl;
 
   const SelectedNFTEntity({
     required this.id,
     required this.order,
     required this.name,
     required this.symbol,
-    required this.collectionLogoUrl,
     required this.chain,
-    required this.nftName,
-    required this.nftImageUrl,
+    required this.imageUrl,
   });
 
   const SelectedNFTEntity.empty()
@@ -26,10 +22,8 @@ class SelectedNFTEntity extends Equatable {
         order = 0,
         name = '',
         symbol = '',
-        collectionLogoUrl = '',
         chain = '',
-        nftName = '',
-        nftImageUrl = '';
+        imageUrl = '';
 
   @override
   List<Object?> get props => [
@@ -37,10 +31,8 @@ class SelectedNFTEntity extends Equatable {
         order,
         name,
         symbol,
-        collectionLogoUrl,
         chain,
-        nftName,
-        nftImageUrl,
+        imageUrl,
       ];
 
   SelectedNFTEntity copyWith({
@@ -48,20 +40,16 @@ class SelectedNFTEntity extends Equatable {
     required int order,
     required String name,
     required String symbol,
-    required String collectionLogoUrl,
     required String chain,
-    required String nftName,
-    required String nftImageUrl,
+    required String imageUrl,
   }) {
     return SelectedNFTEntity(
       id: id,
       order: order,
       name: name,
       symbol: symbol,
-      collectionLogoUrl: collectionLogoUrl,
       chain: chain,
-      nftName: nftName,
-      nftImageUrl: nftImageUrl,
+      imageUrl: imageUrl,
     );
   }
 }

@@ -6,7 +6,7 @@ import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
-import 'package:mobile/features/common/presentation/widgets/hmp_blue_button.dart';
+import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/page_pop_view.dart';
@@ -186,7 +186,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               currentSlideIndex == 0
                   ? Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: HMPBlueButton(
+                      child: HMPCustomButton(
                         text: LocaleKeys.next.tr(),
                         onPressed: _goToNextPage,
                       ),
@@ -206,7 +206,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           Expanded(
                             child: currentSlideIndex + 1 ==
                                     pageViewModelData.length
-                                ? HMPBlueButton(
+                                ? HMPCustomButton(
                                     text: LocaleKeys.confirm.tr(),
                                     onPressed: () {
                                       Navigator.pushNamedAndRemoveUntil(
@@ -216,7 +216,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                       );
                                     },
                                   )
-                                : HMPBlueButton(
+                                : HMPCustomButton(
                                     text: LocaleKeys.next.tr(),
                                     onPressed: _goToNextPage,
                                   ),

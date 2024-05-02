@@ -12,10 +12,8 @@ SelectedNFTDto _$SelectedNFTDtoFromJson(Map<String, dynamic> json) =>
       order: json['order'] as int?,
       name: json['name'] as String?,
       symbol: json['symbol'] as String?,
-      collectionLogoUrl: json['collectionLogo'] as String?,
       chain: json['chain'] as String?,
-      nftName: json['nftName'] as String?,
-      nftImageUrl: json['nftImageUrl'] as String?,
+      imageUrl: json['imageUrl'] as String?,
     );
 
 Map<String, dynamic> _$SelectedNFTDtoToJson(SelectedNFTDto instance) =>
@@ -24,8 +22,6 @@ Map<String, dynamic> _$SelectedNFTDtoToJson(SelectedNFTDto instance) =>
       'order': instance.order,
       'name': instance.name,
       'symbol': instance.symbol,
-      'collectionLogo': instance.collectionLogoUrl,
       'chain': instance.chain,
-      'nftName': instance.nftName,
-      'nftImageUrl': instance.nftImageUrl,
+      'imageUrl': instance.imageUrl,
     };

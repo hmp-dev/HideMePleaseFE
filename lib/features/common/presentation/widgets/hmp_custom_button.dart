@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 
-class HMPBlueButton extends StatelessWidget {
+class HMPCustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const HMPBlueButton({
+  const HMPCustomButton({
     super.key,
     required this.text,
     required this.onPressed,
@@ -19,7 +19,7 @@ class HMPBlueButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: hmpBlue,
+          backgroundColor: backgroundGr1,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4),

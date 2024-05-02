@@ -50,10 +50,10 @@ class SocialLoginButton extends StatelessWidget {
     this.text,
     this.backgroundColor = white,
     this.disabledBackgroundColor,
-    this.height = 52.0,
+    this.height = 60.0,
     this.borderRadius = 100.0,
-    this.width,
-    this.imageWidth = 32,
+    this.width = 60.0,
+    this.imageWidth = 40.0,
     this.mode = SocialLoginButtonMode.multi,
     this.textStyle,
   });
@@ -267,20 +267,21 @@ class _LoginButton extends StatelessWidget {
             ),
           ),
           onPressed: onPressed,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              createImageChildren(),
-              Text(
-                text,
-                style: fontSB(16, color: black800),
-              ),
-              Opacity(
-                opacity: 0.0,
-                child: createImageChildren(mode: mode),
-              ),
-            ],
-          ),
+          child: createImageChildren(),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: <Widget>[
+          //     createImageChildren(),
+          //     Text(
+          //       text,
+          //       style: fontSB(16, color: black800),
+          //     ),
+          //     Opacity(
+          //       opacity: 0.0,
+          //       child: createImageChildren(mode: mode),
+          //     ),
+          //   ],
+          // ),
         ),
       ),
     );
@@ -299,7 +300,7 @@ class _LoginButton extends StatelessWidget {
                 )
               : DefaultImage(
                   path: imagePath ?? "",
-                  //width: imageWidth,
+                  width: imageWidth,
                   height: imageWidth,
                 );
     }

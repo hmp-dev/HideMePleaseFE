@@ -9,7 +9,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/common/presentation/widgets/hmp_blue_button.dart';
+import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/rounder_button_small.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
@@ -255,7 +255,7 @@ class _MyMembershipSettingsScreenState
                   child: Padding(
                     padding: const EdgeInsets.only(
                         left: 20.0, right: 20, bottom: 20),
-                    child: HMPBlueButton(
+                    child: HMPCustomButton(
                       text: LocaleKeys.next.tr(),
                       onPressed: () {
                         getIt<NftCubit>().onGetSelectedNftTokens();

@@ -8,7 +8,6 @@ import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/selected_nft_dto.dart';
-import 'package:mobile/features/common/infrastructure/dtos/user_selected_nft_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/welcome_nft_dto.dart';
 
 @LazySingleton(as: NftRepository)
@@ -116,26 +115,6 @@ class NftRepositoryImpl extends NftRepository {
   Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft() async {
     try {
       final response = await _nftRemoteDataSource.getWelcomeNFT();
-      return right(response);
-    } on DioException catch (e, t) {
-      return left(HMPError.fromNetwork(
-        message: e.message,
-        error: e,
-        trace: t,
-      ));
-    } catch (e, t) {
-      return left(HMPError.fromUnknown(
-        error: e,
-        trace: t,
-      ));
-    }
-  }
-
-  @override
-  Future<Either<HMPError, List<UserSelectedNftDto>>>
-      getUserSelectedNfts() async {
-    try {
-      final response = await _nftRemoteDataSource.getUserSelectNfts();
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(

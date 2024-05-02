@@ -4,7 +4,6 @@ import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/selected_nft_dto.dart';
-import 'package:mobile/features/common/infrastructure/dtos/user_selected_nft_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/welcome_nft_dto.dart';
 
 abstract class NftRepository {
@@ -27,8 +26,6 @@ abstract class NftRepository {
   Future<Either<HMPError, List<SelectedNFTDto>>> getSelectNftCollections();
 
   Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft();
-
-  Future<Either<HMPError, List<UserSelectedNftDto>>> getUserSelectedNfts();
 
   Future<Either<HMPError, String>> getConsumeUserWelcomeNft({
     required int welcomeNftId,

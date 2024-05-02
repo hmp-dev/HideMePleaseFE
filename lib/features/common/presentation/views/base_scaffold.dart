@@ -19,6 +19,7 @@ class BaseScaffold extends StatefulWidget {
   final bool isFirstPage;
   final bool safeArea;
   final String backIconPath;
+  final Widget? bottomNavigationBar;
 
   const BaseScaffold({
     super.key,
@@ -32,6 +33,7 @@ class BaseScaffold extends StatefulWidget {
     this.onLoading = false,
     this.isFirstPage = false,
     this.backIconPath = "assets/icons/img_icon_arrow.svg",
+    this.bottomNavigationBar,
   });
 
   @override
@@ -71,6 +73,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
       children: [
         Scaffold(
           backgroundColor: widget.backgroundColor ?? bg,
+          bottomNavigationBar: widget.bottomNavigationBar,
           body: GestureDetector(
             onTap: () {
               FocusScope.of(context).unfocus();

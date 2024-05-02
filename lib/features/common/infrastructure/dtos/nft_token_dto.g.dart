@@ -7,6 +7,7 @@ part of 'nft_token_dto.dart';
 // **************************************************************************
 
 NftTokenDto _$NftTokenDtoFromJson(Map<String, dynamic> json) => NftTokenDto(
+      id: json['id'] as String?,
       tokenId: json['tokenId'] as String?,
       name: json['name'] as String?,
       imageUrl: json['imageUrl'] as String?,
@@ -15,6 +16,7 @@ NftTokenDto _$NftTokenDtoFromJson(Map<String, dynamic> json) => NftTokenDto(
 
 Map<String, dynamic> _$NftTokenDtoToJson(NftTokenDto instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'tokenId': instance.tokenId,
       'name': instance.name,
       'imageUrl': instance.imageUrl,

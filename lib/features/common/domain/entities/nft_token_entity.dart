@@ -1,12 +1,14 @@
 import 'package:equatable/equatable.dart';
 
 class NftTokenEntity extends Equatable {
+  final String id;
   final String tokenId;
   final String name;
   final String imageUrl;
   final bool selected;
 
   const NftTokenEntity({
+    required this.id,
     required this.tokenId,
     required this.name,
     required this.imageUrl,
@@ -14,7 +16,8 @@ class NftTokenEntity extends Equatable {
   });
 
   const NftTokenEntity.empty()
-      : tokenId = '',
+      : id = '',
+        tokenId = '',
         name = '',
         imageUrl = '',
         selected = false;
@@ -29,6 +32,7 @@ class NftTokenEntity extends Equatable {
     required bool selected,
   }) {
     return NftTokenEntity(
+      id: id,
       tokenId: tokenId,
       name: name,
       imageUrl: imageUrl,

@@ -1,26 +1,17 @@
 class SelectTokenToggleRequestDto {
-  String tokenId;
-  String tokenAddress;
-  String chain;
-  String walletAddress;
+  String nftId;
   bool selected;
   int order;
 
   SelectTokenToggleRequestDto({
-    required this.tokenId,
-    required this.tokenAddress,
-    required this.chain,
-    required this.walletAddress,
+    required this.nftId,
     required this.selected,
     required this.order,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      "tokenId": tokenId,
-      "tokenAddress": tokenAddress,
-      "chain": chain,
-      "walletAddress": walletAddress,
+      "nftId": nftId,
       "selected": selected,
       "order": order,
     };

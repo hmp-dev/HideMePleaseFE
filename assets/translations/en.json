@@ -40,6 +40,7 @@
     "visitStatusDisclosure":"Visit status disclosure",
     "iWillRevealIt":"I'll reveal it",
     "iWillHideIt":"I'll hide it",
-    "locationAgreeInfoText":"If you agree to visit status, your visit will be included in the number of hidden people. Even if you agree, your personal information will not be revealed."
+    "locationAgreeInfoText":"If you agree to visit status, your visit will be included in the number of hidden people. Even if you agree, your personal information will not be revealed.",
+    "selectProfileImage":"Select profile image"
 
 }

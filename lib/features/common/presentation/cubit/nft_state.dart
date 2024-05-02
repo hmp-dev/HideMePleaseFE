@@ -2,12 +2,11 @@ part of 'nft_cubit.dart';
 
 class NftState extends BaseState {
   final NftCollectionsGroupEntity nftCollectionsGroupEntity;
-  final List<SelectedNFTDto> selectedNftTokensList;
+  final List<SelectedNFTEntity> selectedNftTokensList;
   final DateTime collectionFetchTime;
   final String errorMessage;
   final String selectedChain;
   final WelcomeNftEntity welcomeNftEntity;
-  final List<UserSelectedNftEntity> userSelectedNfts;
   final String consumeWelcomeNftUrl;
 
   @override
@@ -21,7 +20,6 @@ class NftState extends BaseState {
     required this.errorMessage,
     required this.selectedChain,
     required this.welcomeNftEntity,
-    required this.userSelectedNfts,
     required this.consumeWelcomeNftUrl,
   });
 
@@ -33,7 +31,6 @@ class NftState extends BaseState {
         errorMessage: "",
         selectedChain: ChainType.ALL.name,
         welcomeNftEntity: const WelcomeNftEntity.empty(),
-        userSelectedNfts: const [],
         consumeWelcomeNftUrl: "",
       );
 
@@ -46,21 +43,19 @@ class NftState extends BaseState {
         errorMessage,
         selectedChain,
         welcomeNftEntity,
-        userSelectedNfts,
         consumeWelcomeNftUrl,
       ];
 
   @override
   NftState copyWith({
     NftCollectionsGroupEntity? nftCollectionsGroupEntity,
-    List<SelectedNFTDto>? selectedNftTokensList,
+    List<SelectedNFTEntity>? selectedNftTokensList,
     DateTime? collectionFetchTime,
     RequestStatus? submitStatus,
     bool? isProfileIncomplete,
     String? errorMessage,
     String? selectedChain,
     WelcomeNftEntity? welcomeNftEntity,
-    List<UserSelectedNftEntity>? userSelectedNfts,
     String? consumeWelcomeNftUrl,
   }) {
     return NftState(
@@ -73,7 +68,6 @@ class NftState extends BaseState {
       errorMessage: errorMessage ?? this.errorMessage,
       selectedChain: selectedChain ?? this.selectedChain,
       welcomeNftEntity: welcomeNftEntity ?? this.welcomeNftEntity,
-      userSelectedNfts: userSelectedNfts ?? this.userSelectedNfts,
       consumeWelcomeNftUrl: consumeWelcomeNftUrl ?? this.consumeWelcomeNftUrl,
     );
   }

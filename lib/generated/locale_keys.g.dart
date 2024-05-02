@@ -43,5 +43,6 @@ abstract class  LocaleKeys {
   static const iWillRevealIt = 'iWillRevealIt';
   static const iWillHideIt = 'iWillHideIt';
   static const locationAgreeInfoText = 'locationAgreeInfoText';
+  static const selectProfileImage = 'selectProfileImage';
 
 }

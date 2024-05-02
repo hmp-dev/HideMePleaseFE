@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
 
 class AgreeTextWidget extends StatelessWidget {
@@ -10,6 +11,7 @@ class AgreeTextWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         GestureDetector(
           onTap: () {
@@ -22,32 +24,23 @@ class AgreeTextWidget extends StatelessWidget {
           child: Text(
             "서비스 이용약관",
             textAlign: TextAlign.center,
-            style: fontRUnderLined(14),
+            style: fontCompactXsUnderline(color: fore3),
           ),
         ),
-        Text(
-          "및 ",
-          textAlign: TextAlign.center,
-          style: fontR(14, color: white),
-        ),
+        const HorizontalSpace(10),
         GestureDetector(
           onTap: () {
             WebViewScreen.push(
               context: context,
-              title: "개인정보 처리방침",
+              title: "개인정보 취급방침",
               url: "https://hidemeplease.xyz/",
             );
           },
           child: Text(
-            "개인정보 처리방침",
+            "개인정보 취급방침",
             textAlign: TextAlign.center,
-            style: fontRUnderLined(14),
+            style: fontCompactXsUnderline(color: fore3),
           ),
-        ),
-        Text(
-          "에 동의합니다.",
-          textAlign: TextAlign.center,
-          style: fontR(14, color: white),
         ),
       ],
     );
