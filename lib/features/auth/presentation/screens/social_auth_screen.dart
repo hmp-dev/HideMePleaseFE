@@ -4,15 +4,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/helpers/target.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/auth/presentation/widgets/agree_text_widget.dart';
+import 'package:mobile/features/auth/presentation/widgets/my_social_login_button.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
+import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -89,8 +92,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                 const Spacer(),
                 DefaultImage(
                   path: "assets/images/noonchi_graphic.png",
-                  width: 94,
-                  height: 99,
+                  width: 158,
+                  height: 136,
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -114,6 +117,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         }
                       },
                     ),
+                    const HorizontalSpace(20),
                     MySocialLoginButton(
                       imagePath: "assets/social-auth-logos/google-logo.png",
                       imgHeightWidth: 32,
@@ -126,18 +130,21 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         }
                       },
                     ),
-                    //if (isIOS())
-                    MySocialLoginButton(
-                      imagePath: "assets/social-auth-logos/apple-logo.png",
-                      onTap: () {
-                        if (isAgreeWithTerms) {
-                          getIt<AuthCubit>().onAppleLogin();
-                        } else {
-                          context
-                              .showSnackBar(LocaleKeys.agreeTermsAlertMSG.tr());
-                        }
-                      },
-                    ),
+                    if (isIOS())
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: MySocialLoginButton(
+                          imagePath: "assets/social-auth-logos/apple-logo.png",
+                          onTap: () {
+                            if (isAgreeWithTerms) {
+                              getIt<AuthCubit>().onAppleLogin();
+                            } else {
+                              context.showSnackBar(
+                                  LocaleKeys.agreeTermsAlertMSG.tr());
+                            }
+                          },
+                        ),
+                      ),
                   ],
                 ),
                 const VerticalSpace(20),
@@ -169,40 +176,5 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
         ),
       ),
     );
-  }
-}
-
-class MySocialLoginButton extends StatelessWidget {
-  const MySocialLoginButton({
-    super.key,
-    required this.imagePath,
-    required this.onTap,
-    this.imgHeightWidth = 36,
-  });
-
-  final String imagePath;
-  final VoidCallback onTap;
-  final double imgHeightWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: const EdgeInsets.only(right: 20),
-          width: 60,
-          height: 60,
-          decoration: const BoxDecoration(
-            color: white,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: DefaultImage(
-              path: imagePath,
-              width: imgHeightWidth,
-              height: imgHeightWidth,
-            ),
-          ),
-        ));
   }
 }

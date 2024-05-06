@@ -135,10 +135,12 @@ class NftCubit extends BaseCubit<NftState> {
         ));
       },
       (selectedNftTokensList) {
+        final resultList =
+            selectedNftTokensList.map((e) => e.toEntity()).toList();
+        resultList.add(const SelectedNFTEntity.empty());
         emit(
           state.copyWith(
-            selectedNftTokensList:
-                selectedNftTokensList.map((e) => e.toEntity()).toList(),
+            selectedNftTokensList: resultList,
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),

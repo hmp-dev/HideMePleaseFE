@@ -1,8 +1,15 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 
 abstract class BaseCubit<BaseState> extends Cubit<BaseState> {
   BaseCubit(super.state);
+
+  @override
+  void onError(Object error, StackTrace stackTrace) {
+    Log.error('$error, $stackTrace');
+    super.onError(error, stackTrace);
+  }
 }
 
 abstract class BaseState extends Equatable {

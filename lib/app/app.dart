@@ -8,6 +8,7 @@ import 'package:mobile/app/core/env/app_env.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key, this.isShowOnBoarding});
@@ -32,7 +33,7 @@ class _MyAppState extends State<MyApp> {
     return RepositoryProvider.value(
       value: navigatorKey,
       child: MaterialApp(
-        navigatorKey: navigatorKey,
+        navigatorKey: StackedService.navigatorKey,
         localizationsDelegates: context.localizationDelegates,
         supportedLocales: context.supportedLocales,
         locale: context.locale,

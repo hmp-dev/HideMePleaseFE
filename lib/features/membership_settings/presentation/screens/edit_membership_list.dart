@@ -13,16 +13,24 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class EditMembershipListScreen extends StatefulWidget {
-  const EditMembershipListScreen({super.key});
+  const EditMembershipListScreen({
+    super.key,
+    required this.isShowMembershipButton,
+  });
 
-  static push(BuildContext context) async {
+  final bool isShowMembershipButton;
+
+  static push(BuildContext context, bool isShowMembershipButton) async {
     return await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const EditMembershipListScreen(),
+        builder: (_) => EditMembershipListScreen(
+            isShowMembershipButton: isShowMembershipButton),
       ),
     );
   }
@@ -82,25 +90,6 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen>
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    // ListView.builder(
-                                    //   shrinkWrap: true,
-                                    //   itemCount:
-                                    //       state.selectedNftTokensList.length,
-                                    //   itemBuilder: (context, index) {
-                                    //     final nft =
-                                    //         state.selectedNftTokensList[index];
-                                    //     final imageUrl = nft.nftImageUrl ?? "";
-                                    //     final name = nft.nftName ?? "";
-                                    //     final chain =
-                                    //         nft.chain?.toLowerCase() ?? "";
-                                    //     return SelectedNftItem(
-                                    //       imageUrl: imageUrl,
-                                    //       name: name,
-                                    //       chain: chain,
-                                    //     );
-                                    //   },
-                                    // ),
-
                                     ReorderableListView.builder(
                                       key: UniqueKey(),
                                       shrinkWrap: true,
@@ -136,6 +125,26 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen>
                                             .insert(newIndex, item);
                                       },
                                     ),
+
+                                    const VerticalSpace(20),
+
+                                    // show Membership Button
+                                    //of if isShowMembershipButton is true
+                                    widget.isShowMembershipButton
+                                        ? HMPCustomButton(
+                                            text: LocaleKeys
+                                                .myMembershipSettings
+                                                .tr(),
+                                            onPressed: () {
+                                              // call to get nft collections
+                                              getIt<NftCubit>()
+                                                  .onGetNftCollections();
+                                              // Navigate to Membership Settings
+                                              MyMembershipSettingsScreen.push(
+                                                  context);
+                                            },
+                                          )
+                                        : const SizedBox.shrink(),
                                   ],
                                 ),
                               ),

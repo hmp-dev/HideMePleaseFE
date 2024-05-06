@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 
 class NFTCardWidgetParent extends StatelessWidget {
@@ -9,11 +10,13 @@ class NFTCardWidgetParent extends StatelessWidget {
     required this.imagePath,
     required this.topWidget,
     required this.bottomWidget,
+    required this.index,
   });
 
   final String imagePath;
   final Widget topWidget;
   final Widget bottomWidget;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +114,15 @@ class NFTCardWidgetParent extends StatelessWidget {
             ],
           ),
         ),
+        Positioned(
+          top: -10,
+          right: -10,
+          child: index == 0
+              ? CustomImageView(
+                  imagePath: "assets/images/free-graphic-text.png",
+                )
+              : const SizedBox.shrink(),
+        )
       ],
     );
   }

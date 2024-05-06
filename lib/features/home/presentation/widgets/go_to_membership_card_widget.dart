@@ -1,0 +1,151 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_rounded_button.dart';
+import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/membership_settings/presentation/screens/edit_membership_list.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
+
+class GoToMemberShipCardWidget extends StatelessWidget {
+  const GoToMemberShipCardWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+            width: 326,
+            height: 486,
+            decoration: BoxDecoration(
+              color: bg1,
+              borderRadius: BorderRadius.circular(4),
+              image: const DecorationImage(
+                image: AssetImage("assets/images/empty-card-bg.png"),
+                fit: BoxFit.fill,
+              ),
+              border: Border.all(
+                color: white,
+                width: 1,
+              ),
+            ),
+            child: Center(
+              child: Container(
+                width: 320,
+                height: 480,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: white,
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Container(
+                    width: 314,
+                    height: 472,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: const Color(0xFF8c8D91),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )),
+        // ClipRRect(
+        //   borderRadius: BorderRadius.circular(4),
+        //   child: Stack(
+        //     alignment: Alignment.center,
+        //     children: [
+        //       DefaultImage(
+        //         path: "assets/images/empty-card-bg.png",
+        //         width: 326,
+        //         height: 486,
+        //         boxFit: BoxFit.fill,
+        //       ),
+        //       ColorFiltered(
+        //         colorFilter: ColorFilter.mode(
+        //           Colors.white.withOpacity(0.5),
+        //           BlendMode.dstATop,
+        //         ),
+        //         child: Container(
+        //           width: 326,
+        //           height: 486,
+        //           color: Colors.white,
+        //         ),
+        //       ),
+        //       ClipRRect(
+        //         borderRadius: BorderRadius.circular(4),
+        //         child: Container(
+        //           width: 322,
+        //           height: 482,
+        //           color: bg1,
+        //           child: Center(
+        //             child: Stack(
+        //               alignment: Alignment.center,
+        //               children: [
+        //                 DefaultImage(
+        //                   path: "assets/images/empty-card-bg.png",
+        //                   width: 318,
+        //                   height: 478,
+        //                   boxFit: BoxFit.fill,
+        //                 ),
+        //                 ColorFiltered(
+        //                   colorFilter: ColorFilter.mode(
+        //                     Colors.white.withOpacity(0.5),
+        //                     BlendMode.dstATop,
+        //                   ),
+        //                   child: Container(
+        //                     width: 318,
+        //                     height: 478,
+        //                     color: Colors.black,
+        //                   ),
+        //                 ),
+        //                 ClipRRect(
+        //                   borderRadius: BorderRadius.circular(4),
+        //                   child: DefaultImage(
+        //                     path: "assets/images/empty-card-bg.png",
+        //                     width: 330,
+        //                     height: 486,
+        //                     boxFit: BoxFit.cover,
+        //                   ),
+        //                 ),
+        //               ],
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        SizedBox(
+          height: 486,
+          width: 326,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DefaultImage(
+                path: "assets/images/memebership-list-image.png",
+                width: 102,
+                height: 85,
+                boxFit: BoxFit.cover,
+              ),
+              const VerticalSpace(40),
+              CustomRoundedButton(
+                title: LocaleKeys.editMembershipList.tr(),
+                onTap: () {
+                  EditMembershipListScreen.push(context, true);
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

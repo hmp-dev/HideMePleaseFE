@@ -52,4 +52,8 @@ class SelectedNFTEntity extends Equatable {
       imageUrl: imageUrl,
     );
   }
+
+  
 }
+
+

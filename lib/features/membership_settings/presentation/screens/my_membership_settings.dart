@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
-import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -10,13 +9,13 @@ import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
-import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
-import 'package:mobile/features/common/presentation/widgets/rounder_button_small.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/edit_membership_list.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/block_chain_select_button.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/collection_title_widget.dart';
+import 'package:mobile/features/membership_settings/presentation/widgets/connected_walletes_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/nft_token_widget.dart';
+import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyMembershipSettingsScreen extends StatefulWidget {
@@ -38,6 +37,7 @@ class MyMembershipSettingsScreen extends StatefulWidget {
 
 class _MyMembershipSettingsScreenState
     extends State<MyMembershipSettingsScreen> {
+  bool _isShowToolTip = false;
   bool _isLoadingMore = false;
   final ScrollController _scrollController = ScrollController();
 
@@ -95,7 +95,9 @@ class _MyMembershipSettingsScreenState
       },
       suffix: GestureDetector(
         onTap: () {
-          Log.info("Info Icon is tapped");
+          setState(() {
+            _isShowToolTip = !_isShowToolTip;
+          });
         },
         child: DefaultImage(
           path: "assets/icons/ic_Info_bold.svg",
@@ -124,7 +126,7 @@ class _MyMembershipSettingsScreenState
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const MembershipSettingsHeaderWidget(),
+                                const ConnectedWalletWidget(),
                                 const SizedBox(height: 20),
                                 Container(
                                   margin: const EdgeInsets.only(left: 20),
@@ -144,6 +146,7 @@ class _MyMembershipSettingsScreenState
                                       ),
                                       BlockChainSelectButton(
                                         title: "Ethereum",
+                                        imagePath: "assets/images/etherium.png",
                                         isSelected: state.selectedChain ==
                                             ChainType.ETHEREUM.name,
                                         onTap: () {
@@ -153,22 +156,25 @@ class _MyMembershipSettingsScreenState
                                         },
                                       ),
                                       BlockChainSelectButton(
-                                        title: "Solana",
-                                        isSelected: state.selectedChain ==
-                                            ChainType.SOLANA.name,
-                                        onTap: () {
-                                          getIt<NftCubit>().onGetNftCollections(
-                                            chain: ChainType.SOLANA.name,
-                                          );
-                                        },
-                                      ),
-                                      BlockChainSelectButton(
                                         title: "Polygon",
+                                        imagePath:
+                                            "assets/images/chain_icon.png",
                                         isSelected: state.selectedChain ==
                                             ChainType.POLYGON.name,
                                         onTap: () {
                                           getIt<NftCubit>().onGetNftCollections(
                                             chain: ChainType.POLYGON.name,
+                                          );
+                                        },
+                                      ),
+                                      BlockChainSelectButton(
+                                        title: "Solana",
+                                        imagePath: "assets/images/solana.png",
+                                        isSelected: state.selectedChain ==
+                                            ChainType.SOLANA.name,
+                                        onTap: () {
+                                          getIt<NftCubit>().onGetNftCollections(
+                                            chain: ChainType.SOLANA.name,
                                           );
                                         },
                                       ),
@@ -204,7 +210,7 @@ class _MyMembershipSettingsScreenState
                                         Container(
                                           margin: const EdgeInsets.only(
                                               left: 20, bottom: 25),
-                                          height: 130,
+                                          height: 190,
                                           child: ListView.builder(
                                             shrinkWrap: true,
                                             scrollDirection: Axis.horizontal,
@@ -259,86 +265,30 @@ class _MyMembershipSettingsScreenState
                       text: LocaleKeys.next.tr(),
                       onPressed: () {
                         getIt<NftCubit>().onGetSelectedNftTokens();
-                        EditMembershipListScreen.push(context);
+                        EditMembershipListScreen.push(context, false);
                       },
                     ),
                   ),
-                )
+                ),
+                if (_isShowToolTip)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: InfoTextToolTipWidget(
+                      title:
+                          "보유한 NFT 컬렉션의 대표 NFT를 설정하세요.설정은 최대 20개 컬렉션에서 각 1개씩 가능합니다. 대표 NFT가 속한 컬렉션은 1개의 혜택을 제공합니다.",
+                      onTap: () {
+                        setState(() {
+                          _isShowToolTip = false;
+                        });
+                      },
+                    ),
+                  )
               ],
             );
           },
         ),
       ),
-    );
-  }
-}
-
-class MembershipSettingsHeaderWidget extends StatelessWidget {
-  const MembershipSettingsHeaderWidget({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocConsumer<NftCubit, NftState>(
-      bloc: getIt<NftCubit>(),
-      listener: (context, state) {},
-      builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: black500,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            LocaleKeys.linkedWallet.tr(),
-                            style: fontSB(16),
-                          ),
-                          const VerticalSpace(10),
-                          DefaultImage(
-                              path: "assets/images/metamask_wallet_icon.svg")
-                        ],
-                      ),
-                      RoundedButtonSmall(
-                          title: LocaleKeys.addWallet.tr(), onTap: () {})
-                    ],
-                  ),
-                ),
-              ),
-              const VerticalSpace(10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    "${formatDate(state.collectionFetchTime)} 기준",
-                    style: fontR(12),
-                  ),
-                  const HorizontalSpace(3),
-                  DefaultImage(
-                    path: "assets/icons/ic_arrow_clockwise.svg",
-                    color: white,
-                    height: 16,
-                  )
-                ],
-              )
-            ],
-          ),
-        );
-      },
     );
   }
 }

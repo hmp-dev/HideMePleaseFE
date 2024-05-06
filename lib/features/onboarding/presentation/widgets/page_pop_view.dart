@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 
 class PagePopup extends StatelessWidget {
-  final PageViewData imageData;
+  final PageViewData onBoardingSlideData;
 
-  const PagePopup({super.key, required this.imageData});
+  const PagePopup({super.key, required this.onBoardingSlideData});
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +23,11 @@ class PagePopup extends StatelessWidget {
               width: MediaQuery.of(context).size.width - 120,
               child: AspectRatio(
                 aspectRatio: 0.5,
-                child: DefaultImage(
-                  path: imageData.imagePath,
-                  boxFit: BoxFit.contain,
+                child: SizedBox(
                   width: 182,
                   height: 158,
+                  child: Lottie.asset(onBoardingSlideData.animationPath,
+                      fit: BoxFit.contain, alignment: Alignment.center),
                 ),
               ),
             ),
@@ -36,13 +37,14 @@ class PagePopup extends StatelessWidget {
           flex: 2,
           child: Column(
             children: [
+              const VerticalSpace(10),
               Text(
-                imageData.titleTextA,
+                onBoardingSlideData.titleTextA,
                 textAlign: TextAlign.center,
                 style: fontTitle03Bold(),
               ),
               Text(
-                imageData.titleTextB,
+                onBoardingSlideData.titleTextB,
                 textAlign: TextAlign.center,
                 style: fontTitle03Bold(color: hmpBlue),
               ),
@@ -54,7 +56,7 @@ class PagePopup extends StatelessWidget {
           child: SizedBox(
             width: 250,
             child: Text(
-              imageData.descText,
+              onBoardingSlideData.descText,
               textAlign: TextAlign.center,
               style: fontCompactMd(color: fore2),
             ),
@@ -73,12 +75,12 @@ class PageViewData {
   final String titleTextA;
   final String titleTextB;
   final String descText;
-  final String imagePath;
+  final String animationPath;
 
   PageViewData({
     required this.titleTextA,
     required this.titleTextB,
     required this.descText,
-    required this.imagePath,
+    required this.animationPath,
   });
 }

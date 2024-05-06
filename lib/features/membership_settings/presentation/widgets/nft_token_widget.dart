@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/domain/entities/nft_token_entity.dart';
@@ -28,8 +29,16 @@ class NftTokenWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+    return Container(
+      margin: const EdgeInsets.only(right: 8.0),
+      decoration: BoxDecoration(
+        border: !nftTokenEntity.selected
+            ? null
+            : Border.all(
+                color: white,
+                width: 1,
+              ),
+      ),
       child: Stack(
         children: [
           Column(
@@ -37,18 +46,18 @@ class NftTokenWidget extends StatelessWidget {
               nftTokenEntity.imageUrl != ""
                   ? CachedNetworkImage(
                       imageUrl: nftTokenEntity.imageUrl,
-                      width: 100,
-                      height: 100,
+                      width: 120,
+                      height: 160,
                     )
                   : DefaultImage(
                       path: "assets/images/home_card_img.png",
-                      width: 100,
-                      height: 100,
+                      width: 120,
+                      height: 160,
                       boxFit: BoxFit.cover,
                     ),
               const VerticalSpace(10),
               SizedBox(
-                width: 100,
+                width: 120,
                 child: Text(
                   nftTokenEntity.name,
                   overflow: TextOverflow.ellipsis,
@@ -57,18 +66,22 @@ class NftTokenWidget extends StatelessWidget {
               )
             ],
           ),
-          GestureDetector(
-            onTap: () {
-              getIt<NftCubit>().onSelectDeselectNftToken(
-                  selectTokenToggleRequestDto: SelectTokenToggleRequestDto(
-                nftId: nftTokenEntity.id,
-                selected: !nftTokenEntity.selected,
-                order: tokenOrder,
-              ));
-            },
-            child: nftTokenEntity.selected
-                ? const SelectedRadio()
-                : const NotSelectedRadio(),
+          Positioned(
+            top: 10,
+            left: 10,
+            child: GestureDetector(
+              onTap: () {
+                getIt<NftCubit>().onSelectDeselectNftToken(
+                    selectTokenToggleRequestDto: SelectTokenToggleRequestDto(
+                  nftId: nftTokenEntity.id,
+                  selected: !nftTokenEntity.selected,
+                  order: tokenOrder,
+                ));
+              },
+              child: nftTokenEntity.selected
+                  ? const SelectedRadio()
+                  : const NotSelectedRadio(),
+            ),
           ),
         ],
       ),

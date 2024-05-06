@@ -44,7 +44,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         titleTextA: LocaleKeys.onBoardingSlide1TitleA.tr(),
         titleTextB: LocaleKeys.onBoardingSlide1TitleB.tr(),
         descText: LocaleKeys.onBoardingSlide1Desc.tr(),
-        imagePath: "assets/images/onboarding_1.svg",
+        animationPath: "assets/lottie/onboarding1.json",
       ),
     );
 
@@ -53,7 +53,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         titleTextA: LocaleKeys.onBoardingSlide2TitleA.tr(),
         titleTextB: LocaleKeys.onBoardingSlide2TitleB.tr(),
         descText: LocaleKeys.onBoardingSlide2Desc.tr(),
-        imagePath: "assets/images/onboarding_2.svg",
+        animationPath: "assets/lottie/onboarding2.json",
       ),
     );
 
@@ -62,7 +62,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           titleTextA: LocaleKeys.onBoardingSlide3TitleA.tr(),
           titleTextB: LocaleKeys.onBoardingSlide3TitleB.tr(),
           descText: LocaleKeys.onBoardingSlide3Desc.tr(),
-          imagePath: "assets/images/onboarding_3.svg"),
+          animationPath: "assets/lottie/onboarding3.json"),
     );
 
     pageViewModelData.add(
@@ -70,7 +70,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           titleTextA: LocaleKeys.onBoardingSlide4TitleA.tr(),
           titleTextB: LocaleKeys.onBoardingSlide4TitleB.tr(),
           descText: LocaleKeys.onBoardingSlide4Desc.tr(),
-          imagePath: "assets/images/onboarding_4.svg"),
+          animationPath: "assets/lottie/onboarding4.json"),
     );
 
     super.initState();
@@ -142,10 +142,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   },
                   scrollDirection: Axis.horizontal,
                   children: <Widget>[
-                    PagePopup(imageData: pageViewModelData[0]),
-                    PagePopup(imageData: pageViewModelData[1]),
-                    PagePopup(imageData: pageViewModelData[2]),
-                    PagePopup(imageData: pageViewModelData[3]),
+                    PagePopup(onBoardingSlideData: pageViewModelData[0]),
+                    PagePopup(onBoardingSlideData: pageViewModelData[1]),
+                    PagePopup(onBoardingSlideData: pageViewModelData[2]),
+                    PagePopup(onBoardingSlideData: pageViewModelData[3]),
                   ],
                 ),
               ),

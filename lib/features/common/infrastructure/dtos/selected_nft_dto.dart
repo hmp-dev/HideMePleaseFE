@@ -46,3 +46,5 @@ class SelectedNFTDto extends Equatable {
         imageUrl: imageUrl ?? "",
       );
 }
+
+

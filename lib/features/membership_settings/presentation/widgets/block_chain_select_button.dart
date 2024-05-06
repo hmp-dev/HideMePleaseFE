@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 
 class BlockChainSelectButton extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
   final bool isSelected;
+  final String? imagePath;
 
   const BlockChainSelectButton({
     super.key,
     required this.title,
     required this.onTap,
     required this.isSelected,
+    this.imagePath,
   });
 
   @override
@@ -27,11 +30,26 @@ class BlockChainSelectButton extends StatelessWidget {
                 isSelected ? null : Border.all(color: const Color(0xFF3D3D3E)),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 10),
+            padding: EdgeInsets.symmetric(
+                horizontal: (imagePath != null) ? 10.0 : 30, vertical: 10),
             child: Center(
-              child: Text(
-                title,
-                style: fontSB(14),
+              child: Row(
+                children: [
+                  imagePath != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 3),
+                          child: CustomImageView(
+                            imagePath: imagePath!,
+                            width: 24,
+                            height: 24,
+                          ),
+                        )
+                      : const SizedBox(width: 0),
+                  Text(
+                    title,
+                    style: fontCompactMdMedium(),
+                  ),
+                ],
               ),
             ),
           ),

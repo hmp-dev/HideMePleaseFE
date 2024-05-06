@@ -46,6 +46,7 @@ class _HomeViewAfterLoginWithOutNFTState
           imagePath: "assets/images/home_card_img.png",
           topWidget: NftCardTopWidget(),
           bottomWidget: NftCardTopWidget(),
+          index: 0,
         )
       ],
     );

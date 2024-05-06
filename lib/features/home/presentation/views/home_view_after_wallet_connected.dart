@@ -11,6 +11,7 @@ import 'package:mobile/features/common/presentation/widgets/button_small.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/home/presentation/widgets/go_to_membership_card_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_bottom_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
@@ -47,14 +48,6 @@ class _HomeViewAfterWalletConnectedState
                   child: Row(
                     children: [
                       // Container(
-                      //   height: 54,
-                      //   width: 54,
-                      //   margin: const EdgeInsets.only(right: 10),
-                      //   decoration: const BoxDecoration(
-                      //     shape: BoxShape.circle,
-                      //     color: cececeColor,
-                      //   ),
-                      // ),
                       DefaultImage(
                         path: "assets/images/metamask_wallet_icon.svg",
                         height: 54,
@@ -120,10 +113,19 @@ class _HomeViewAfterWalletConnectedState
                         });
                       }),
                   items: nftState.selectedNftTokensList.map((item) {
+                    final itemIndex =
+                        nftState.selectedNftTokensList.indexOf(item);
+                    // If itemIndex is last, then return GoToMemberShipCardWidget
+                    // else  return  NFTCardWidgetParent
+                    if (itemIndex ==
+                        nftState.selectedNftTokensList.length - 1) {
+                      return const GoToMemberShipCardWidget();
+                    }
                     return NFTCardWidgetParent(
                       imagePath: item.imageUrl,
                       topWidget: const NftCardTopWidget(),
                       bottomWidget: const NftCardBottomWidget(),
+                      index: itemIndex,
                     );
                   }).toList(),
                 ),

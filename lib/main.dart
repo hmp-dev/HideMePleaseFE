@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/app.dart';
 import 'package:mobile/app/core/env/app_env.dart';
 import 'package:mobile/app/core/helpers/pref_keys.dart';
@@ -27,6 +28,7 @@ void main() async {
   /// Setting an Int value for initScreen
   /// To show the Intro Screens at Start
   final prefs = await SharedPreferences.getInstance();
+
   isShowOnBoarding = prefs.getInt(isShowOnBoardingView);
   Log.info("isShowOnBoarding: $isShowOnBoarding");
 
@@ -89,10 +91,10 @@ Future initApp() async {
     ..indicatorColor = Colors.black54
     ..userInteractions = false
     ..dismissOnTap = false
-    ..indicatorWidget = const SizedBox(
-      width: 50,
-      height: 50,
-      child: CircularProgressIndicator(color: Colors.white),
+    ..indicatorWidget = Container(
+      child: Lottie.asset(
+        'assets/lottie/loader.json',
+      ),
     )
     ..boxShadow = <BoxShadow>[]
     ..indicatorType = EasyLoadingIndicatorType.cubeGrid;

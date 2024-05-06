@@ -60,6 +60,7 @@ dependencies:
   shared_preferences: ^2.2.3
   sign_in_with_apple: ^6.1.0
   smooth_page_indicator: ^1.1.0
+  stacked_services: ^1.5.0
   url_launcher: ^6.2.5
   web3modal_flutter: ^3.1.2
 
@@ -76,8 +77,6 @@ dev_dependencies:
   injectable_generator: ^2.4.2
   isar_generator: ^3.1.0+1
   json_serializable: ^6.7.1
-
-  # dart run change_app_package_name:main com.kr.hideme
 
 flutter:
   uses-material-design: true
