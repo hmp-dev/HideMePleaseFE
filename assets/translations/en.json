@@ -41,6 +41,13 @@
     "iWillRevealIt":"I'll reveal it",
     "iWillHideIt":"I'll hide it",
     "locationAgreeInfoText":"If you agree to visit status, your visit will be included in the number of hidden people. Even if you agree, your personal information will not be revealed.",
-    "selectProfileImage":"Select profile image"
-
+    "selectProfileImage":"Select profile image",
+    "iAgreeToTheAboveTermsAndConditions":"I agree to the above terms and conditions",
+    "openTheDoorsToTheBenefitsWithNFT":"Open the door to benefits with NFT",
+    "termOfServices":"Terms of Service",
+    "privacyPolicy":"Privacy Policy",
+    "benefits":"Benefits",
+    "event":"Event",
+    "member":"Member",
+    "chatting":"Chatting"
 }

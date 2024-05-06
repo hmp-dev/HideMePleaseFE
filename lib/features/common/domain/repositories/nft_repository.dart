@@ -9,9 +9,7 @@ import 'package:mobile/features/common/infrastructure/dtos/welcome_nft_dto.dart'
 abstract class NftRepository {
   Future<Either<HMPError, NftCollectionsGroupDto>> getNftCollections({
     String? chain,
-    String? cursorType,
-    String? nextWalletAddress,
-    String? cursor,
+    String? nextCursor,
   });
 
   Future<Either<HMPError, bool>> postNftSelectDeselectToken({

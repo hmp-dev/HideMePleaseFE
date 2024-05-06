@@ -5,7 +5,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
-import 'package:mobile/features/home/presentation/widgets/nft_card_top_widget.dart';
+import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent_local.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
@@ -57,8 +57,14 @@ class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
         const SizedBox(height: 50),
         const NFTCardWidgetParentLocal(
           imagePath: "assets/images/home_card_img.png",
-          topWidget: NftCardTopWidget(),
-          bottomWidget: NftCardTopWidget(),
+          topWidget: NftCardTopTitleWidget(
+            title: "Ready To Hide",
+            chain: "ETHEREUM",
+          ),
+          bottomWidget: NftCardTopTitleWidget(
+            title: "Ready To Hide",
+            chain: "ETHEREUM",
+          ),
         )
       ],
     );

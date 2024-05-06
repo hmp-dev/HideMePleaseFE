@@ -97,7 +97,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "NFT로 혜택의 문을 열다",
+                  LocaleKeys.openTheDoorsToTheBenefitsWithNFT.tr(),
                   textAlign: TextAlign.center,
                   style: fontTitle05Bold(),
                 ),
@@ -156,6 +156,9 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Checkbox(
+                            side: const BorderSide(color: fore3),
+                            activeColor: hmpBlue,
+                            checkColor: white,
                             value: isAgreeWithTerms,
                             onChanged: (bool? value) {
                               setState(() {
@@ -163,7 +166,10 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                               });
                             },
                           ),
-                          const Text("위 약관 내용에 동의합니다"),
+                          Text(
+                            LocaleKeys.iAgreeToTheAboveTermsAndConditions.tr(),
+                            style: fontCompactSm(),
+                          ),
                         ],
                       ),
                     ],

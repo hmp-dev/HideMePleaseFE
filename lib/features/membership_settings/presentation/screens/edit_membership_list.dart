@@ -40,25 +40,10 @@ class EditMembershipListScreen extends StatefulWidget {
       _EditMembershipListScreenState();
 }
 
-class _EditMembershipListScreenState extends State<EditMembershipListScreen>
-    with TickerProviderStateMixin {
-  late TabController tabViewController;
-
-  List<String> tasks = [
-    "A Task",
-    "B Task",
-    "C Task",
-    "D Task",
-    "E Task",
-    "F Task",
-    "G Task",
-    "H Task"
-  ];
-
+class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
   @override
   void initState() {
     super.initState();
-    tabViewController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -66,7 +51,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen>
     return BaseScaffold(
       title: LocaleKeys.editMembershipList.tr(),
       isCenterTitle: true,
-      backIconPath: "assets/icons/ic_cancel.svg",
+      backIconPath: "assets/icons/ic_close.svg",
       onBack: () {
         Navigator.pop(context);
       },
@@ -165,7 +150,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen>
                             },
                           ),
                         ),
-                        const HorizontalSpace(20),
+                        const HorizontalSpace(10),
                         Expanded(
                           child: HMPCustomButton(
                             text: LocaleKeys.next.tr(),

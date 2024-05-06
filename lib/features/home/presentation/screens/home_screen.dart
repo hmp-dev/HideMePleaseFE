@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/constants/wallet_connects_constants.dart';
-import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';

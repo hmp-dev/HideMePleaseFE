@@ -14,16 +14,12 @@ class NftRemoteDataSource {
 
   Future<NftCollectionsGroupDto> getNftCollections({
     String? chain,
-    String? cursorType,
-    String? nextWalletAddress,
-    String? cursor,
+    String? nextCursor,
   }) async {
     // Construct the query parameters
     final Map<String, String> queryParams = {
       if (chain != null) 'chain': chain,
-      if (cursorType != null) 'cursorType': cursorType,
-      if (nextWalletAddress != null) 'nextWalletAddress': nextWalletAddress,
-      if (cursor != null) 'cursor': cursor,
+      if (nextCursor != null) 'cursor': nextCursor,
     };
 
     final response = await _network.get("nft/collections", queryParams);
@@ -60,16 +56,6 @@ class NftRemoteDataSource {
     final response = await _network.get("nft/welcome", {});
     return WelcomeNftDto.fromJson(response.data as Map<String, dynamic>);
   }
-
-  // Future<List<UserSelectedNftDto>> getUserSelectNfts() async {
-  //   final response = await _network.get("nft/nfts/selected", {});
-  //   return response.data
-  //       .map<UserSelectedNftDto>(
-  //           (e) => UserSelectedNftDto.fromJson(e as Map<String, dynamic>))
-  //       .toList();
-  // }
-
-  //https://testnet.binancefuture.com/en/futures/BTCUSDT
 
   Future<String> getConsumeWelcomeNft(int welcomeNftId) async {
     final response = await _network.get("nft/welcome/$welcomeNftId", {});

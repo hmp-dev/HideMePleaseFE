@@ -23,18 +23,12 @@ class NftCubit extends BaseCubit<NftState> {
   ) : super(NftState.initial());
 
   Future<void> onGetNftCollections(
-      {String? chain,
-      String? cursorType,
-      String? nextWalletAddress,
-      String? cursor,
-      bool? isLoadMoreFetch}) async {
+      {String? chain, String? nextCursor, bool? isLoadMoreFetch}) async {
     EasyLoading.show();
 
     final response = await _nftRepository.getNftCollections(
       chain: chain,
-      cursorType: cursorType,
-      nextWalletAddress: nextWalletAddress,
-      cursor: cursor,
+      nextCursor: nextCursor,
     );
 
     EasyLoading.dismiss();
@@ -138,6 +132,16 @@ class NftCubit extends BaseCubit<NftState> {
         final resultList =
             selectedNftTokensList.map((e) => e.toEntity()).toList();
         resultList.add(const SelectedNFTEntity.empty());
+        resultList.insert(
+            0,
+            const SelectedNFTEntity(
+              id: '',
+              order: 0,
+              name: 'Ready to Hide',
+              symbol: '',
+              chain: 'ETHEREUM',
+              imageUrl: '',
+            ));
         emit(
           state.copyWith(
             selectedNftTokensList: resultList,

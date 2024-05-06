@@ -23,11 +23,11 @@ class BlockChainSelectButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
+          height: 33,
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF3D3D3E) : Colors.transparent,
+            color: isSelected ? bk1 : fore5,
             borderRadius: BorderRadius.circular(50),
-            border:
-                isSelected ? null : Border.all(color: const Color(0xFF3D3D3E)),
+            border: Border.all(color: isSelected ? white : fore5),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -37,18 +37,18 @@ class BlockChainSelectButton extends StatelessWidget {
                 children: [
                   imagePath != null
                       ? Padding(
-                          padding: const EdgeInsets.only(right: 3),
+                          padding: const EdgeInsets.only(right: 7),
                           child: CustomImageView(
-                            imagePath: imagePath!,
+                            svgPath: imagePath!,
                             width: 24,
                             height: 24,
                           ),
                         )
                       : const SizedBox(width: 0),
-                  Text(
-                    title,
-                    style: fontCompactMdMedium(),
-                  ),
+                  Text(title,
+                      style: fontCompactMdMedium(
+                        color: isSelected ? white : fore3,
+                      )),
                 ],
               ),
             ),

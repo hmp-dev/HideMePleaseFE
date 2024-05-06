@@ -15,114 +15,50 @@ class GoToMemberShipCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
+      alignment: Alignment.bottomCenter,
       children: [
         Container(
-            width: 326,
-            height: 486,
-            decoration: BoxDecoration(
-              color: bg1,
-              borderRadius: BorderRadius.circular(4),
-              image: const DecorationImage(
-                image: AssetImage("assets/images/empty-card-bg.png"),
-                fit: BoxFit.fill,
-              ),
-              border: Border.all(
-                color: white,
-                width: 1,
-              ),
+          width: 326,
+          height: 486,
+          decoration: BoxDecoration(
+            color: bg1,
+            borderRadius: BorderRadius.circular(4),
+            image: const DecorationImage(
+              image: AssetImage("assets/images/empty-card-bg.png"),
+              fit: BoxFit.fill,
             ),
-            child: Center(
-              child: Container(
-                width: 320,
-                height: 480,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: white,
-                    width: 1,
-                  ),
+            border: Border.all(
+              color: white,
+              width: 1,
+            ),
+          ),
+          child: Center(
+            child: Container(
+              width: 320,
+              height: 480,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: white,
+                  width: 1,
                 ),
-                child: Center(
-                  child: Container(
-                    width: 314,
-                    height: 472,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: const Color(0xFF8c8D91),
-                        width: 1,
-                      ),
+              ),
+              child: Center(
+                child: Container(
+                  width: 314,
+                  height: 472,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: const Color(0xFF8c8D91),
+                      width: 1,
                     ),
                   ),
                 ),
               ),
-            )),
-        // ClipRRect(
-        //   borderRadius: BorderRadius.circular(4),
-        //   child: Stack(
-        //     alignment: Alignment.center,
-        //     children: [
-        //       DefaultImage(
-        //         path: "assets/images/empty-card-bg.png",
-        //         width: 326,
-        //         height: 486,
-        //         boxFit: BoxFit.fill,
-        //       ),
-        //       ColorFiltered(
-        //         colorFilter: ColorFilter.mode(
-        //           Colors.white.withOpacity(0.5),
-        //           BlendMode.dstATop,
-        //         ),
-        //         child: Container(
-        //           width: 326,
-        //           height: 486,
-        //           color: Colors.white,
-        //         ),
-        //       ),
-        //       ClipRRect(
-        //         borderRadius: BorderRadius.circular(4),
-        //         child: Container(
-        //           width: 322,
-        //           height: 482,
-        //           color: bg1,
-        //           child: Center(
-        //             child: Stack(
-        //               alignment: Alignment.center,
-        //               children: [
-        //                 DefaultImage(
-        //                   path: "assets/images/empty-card-bg.png",
-        //                   width: 318,
-        //                   height: 478,
-        //                   boxFit: BoxFit.fill,
-        //                 ),
-        //                 ColorFiltered(
-        //                   colorFilter: ColorFilter.mode(
-        //                     Colors.white.withOpacity(0.5),
-        //                     BlendMode.dstATop,
-        //                   ),
-        //                   child: Container(
-        //                     width: 318,
-        //                     height: 478,
-        //                     color: Colors.black,
-        //                   ),
-        //                 ),
-        //                 ClipRRect(
-        //                   borderRadius: BorderRadius.circular(4),
-        //                   child: DefaultImage(
-        //                     path: "assets/images/empty-card-bg.png",
-        //                     width: 330,
-        //                     height: 486,
-        //                     boxFit: BoxFit.cover,
-        //                   ),
-        //                 ),
-        //               ],
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
+            ),
+          ),
+        ),
         SizedBox(
           height: 486,
           width: 326,

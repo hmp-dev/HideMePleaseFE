@@ -1,8 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 
 class NFTCardWidgetParent extends StatelessWidget {
   const NFTCardWidgetParent({
@@ -10,118 +8,88 @@ class NFTCardWidgetParent extends StatelessWidget {
     required this.imagePath,
     required this.topWidget,
     required this.bottomWidget,
+    required this.badgeWidget,
     required this.index,
   });
 
   final String imagePath;
   final Widget topWidget;
   final Widget bottomWidget;
+  final Widget badgeWidget;
   final int index;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
+      alignment: Alignment.bottomCenter,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              imagePath.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: imagePath,
-                      width: 326,
-                      height: 486,
-                    )
-                  : DefaultImage(
-                      path: "assets/images/home_card_img.png",
-                      width: 326,
-                      height: 486,
-                    ),
-              ColorFiltered(
-                colorFilter: ColorFilter.mode(
-                  Colors.white.withOpacity(0.5),
-                  BlendMode.dstATop,
-                ),
-                child: Container(
-                  width: 326,
-                  height: 486,
-                  color: Colors.white,
+        Stack(
+          children: [
+            const VerticalSpace(20),
+            Container(
+              width: 326,
+              height: 486,
+              decoration: BoxDecoration(
+                color: black,
+                borderRadius: BorderRadius.circular(4),
+                image: imagePath != ""
+                    ? DecorationImage(
+                        image: NetworkImage(imagePath),
+                        fit: BoxFit.fill,
+                      )
+                    : const DecorationImage(
+                        image: AssetImage("assets/images/home_card_img.png"),
+                        fit: BoxFit.fill,
+                      ),
+                border: Border.all(
+                  color: fore3,
+                  width: 1,
                 ),
               ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
+              child: Center(
                 child: Container(
                   width: 322,
                   height: 482,
-                  color: bg1,
-                  child: Center(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        imagePath.isNotEmpty
-                            ? CachedNetworkImage(
-                                imageUrl: imagePath,
-                                width: 318,
-                                height: 478,
-                              )
-                            : DefaultImage(
-                                path: "assets/images/home_card_img.png",
-                                width: 318,
-                                height: 478,
-                              ),
-                        ColorFiltered(
-                          colorFilter: ColorFilter.mode(
-                            Colors.white.withOpacity(0.5),
-                            BlendMode.dstATop,
-                          ),
-                          child: Container(
-                            width: 318,
-                            height: 478,
-                            color: Colors.white,
-                          ),
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: imagePath.isNotEmpty
-                              ? CachedNetworkImage(
-                                  imageUrl: imagePath,
-                                  width: 316,
-                                  height: 476,
-                                )
-                              : DefaultImage(
-                                  path: "assets/images/home_card_img.png",
-                                  width: 316,
-                                  height: 476,
-                                ),
-                        ),
-                      ],
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: black,
+                      width: 2,
+                    ),
+                  ),
+                  child: Container(
+                    width: 318,
+                    height: 478,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: fore3,
+                        width: 1,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 486,
-          width: 326,
-          child: Column(
-            children: [
-              topWidget,
-              const Spacer(),
-              bottomWidget,
-            ],
-          ),
+            ),
+            SizedBox(
+              height: 486,
+              width: 326,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  topWidget,
+                  const Spacer(),
+                  bottomWidget,
+                ],
+              ),
+            ),
+          ],
         ),
         Positioned(
-          top: -10,
-          right: -10,
-          child: index == 0
-              ? CustomImageView(
-                  imagePath: "assets/images/free-graphic-text.png",
-                )
-              : const SizedBox.shrink(),
+          top: 0,
+          right: 0,
+          child: badgeWidget,
         )
       ],
     );

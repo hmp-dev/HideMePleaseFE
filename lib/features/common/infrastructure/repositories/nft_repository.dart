@@ -19,16 +19,12 @@ class NftRepositoryImpl extends NftRepository {
   @override
   Future<Either<HMPError, NftCollectionsGroupDto>> getNftCollections({
     String? chain,
-    String? cursorType,
-    String? nextWalletAddress,
-    String? cursor,
+    String? nextCursor,
   }) async {
     try {
       final response = await _nftRemoteDataSource.getNftCollections(
         chain: chain,
-        cursorType: cursorType,
-        nextWalletAddress: nextWalletAddress,
-        cursor: cursor,
+        nextCursor: nextCursor,
       );
       return right(response);
     } on DioException catch (e, t) {

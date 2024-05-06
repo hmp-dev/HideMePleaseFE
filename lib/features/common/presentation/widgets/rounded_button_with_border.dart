@@ -22,7 +22,7 @@ class RoundedButtonWithBorder extends StatelessWidget {
           backgroundColor: bg1,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: fore4), // Gray border
+            side: const BorderSide(color: fore4),
             borderRadius: BorderRadius.circular(4),
           ),
         ),

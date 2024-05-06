@@ -88,6 +88,9 @@ flutter:
     - assets/animations/
     - assets/animations/
     - assets/lottie/
+    - assets/fonts/
+    - assets/wallet-logos/
+    - assets/chain-logos/
   fonts:
     - family: Pretendard
       fonts:

@@ -20,18 +20,17 @@ class CollectionTitleWidget extends StatelessWidget {
       child: Row(
         children: [
           DefaultImage(
-            path: "assets/icons/ethereum_chain_icon.svg",
-            width: 40,
-            height: 40,
+            path: "assets/chain-logos/${chainSymbol.toLowerCase()}_chain.svg",
+            width: 30,
+            height: 30,
           ),
-          const HorizontalSpace(15),
+          const HorizontalSpace(10),
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.6,
             child: Text(
               title,
-              //"London Underground Station(LUS) 264 Genesis",
               overflow: TextOverflow.ellipsis,
-              style: fontSB(18),
+              style: fontTitle06Medium(),
             ),
           )
         ],

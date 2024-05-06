@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
+import 'package:mobile/features/common/presentation/widgets/updated_at_time_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/membership_settings/presentation/widgets/plus_icon_round_button.dart';
 
 class ConnectedWalletWidget extends StatelessWidget {
   const ConnectedWalletWidget({
@@ -44,44 +44,34 @@ class ConnectedWalletWidget extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          //TODO show only wallets which are connected
                           CustomImageView(
                             svgPath: "assets/images/wallet.svg",
-                            width: 24,
-                            height: 24,
+                            width: 28,
+                            height: 28,
                           ),
-                          const HorizontalSpace(7),
+                          const HorizontalSpace(8),
                           CustomImageView(
                             imagePath: "assets/images/klip-wallet.png",
-                            width: 24,
-                            height: 24,
+                            width: 28,
+                            height: 28,
                           ),
-                          const HorizontalSpace(7),
+                          const HorizontalSpace(8),
                           CustomImageView(
                             svgPath: "assets/images/phantom-wallet.svg",
-                            width: 24,
-                            height: 24,
+                            width: 28,
+                            height: 28,
                           ),
-                          const HorizontalSpace(7),
+                          const HorizontalSpace(8),
                           CustomImageView(
                             svgPath: "assets/images/wallet-connect-wallet.svg",
-                            width: 24,
-                            height: 24,
+                            width: 28,
+                            height: 28,
                           ),
                         ],
                       ),
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: const BoxDecoration(
-                          color: bgNega4,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(3.0),
-                          child: CustomImageView(
-                            svgPath: "assets/images/ic_plus.svg",
-                          ),
-                        ),
+                      PlusIconRoundButton(
+                        onTap: () {},
                       ),
                     ],
                   ),
@@ -95,21 +85,9 @@ class ConnectedWalletWidget extends StatelessWidget {
                     "대표 NFT 선택",
                     style: fontTitle07Medium(),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        "${formatDate(state.collectionFetchTime)} 기준",
-                        style: fontCompactSm(color: fore3),
-                      ),
-                      const HorizontalSpace(3),
-                      DefaultImage(
-                        path: "assets/icons/ic_arrow_clockwise.svg",
-                        color: white,
-                        height: 16,
-                      )
-                    ],
-                  ),
+                  // create separate widget for this
+
+                  UpdateAtTimeWidget(updatedAt: state.collectionFetchTime),
                 ],
               ),
               const VerticalSpace(10),

@@ -12,14 +12,14 @@ NftCollectionsGroupDto _$NftCollectionsGroupDtoFromJson(
       collections: (json['collections'] as List<dynamic>?)
           ?.map((e) => NftCollectionDto.fromJson(e as Map<String, dynamic>))
           .toList(),
-      next: json['next'] == null
-          ? null
-          : NextCollectionsDto.fromJson(json['next'] as Map<String, dynamic>),
+      selectedNftCount: json['selectedNftCount'] as int?,
+      next: json['next'] as String?,
     );
 
 Map<String, dynamic> _$NftCollectionsGroupDtoToJson(
         NftCollectionsGroupDto instance) =>
     <String, dynamic>{
       'collections': instance.collections,
+      'selectedNftCount': instance.selectedNftCount,
       'next': instance.next,
     };

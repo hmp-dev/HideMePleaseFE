@@ -7,7 +7,6 @@ import 'package:mobile/features/common/domain/entities/nft_token_entity.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/not_selected_radio.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/selected_radio.dart';
 
@@ -31,59 +30,80 @@ class NftTokenWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(right: 8.0),
-      decoration: BoxDecoration(
-        border: !nftTokenEntity.selected
-            ? null
-            : Border.all(
-                color: white,
-                width: 1,
-              ),
-      ),
-      child: Stack(
-        children: [
-          Column(
-            children: [
-              nftTokenEntity.imageUrl != ""
-                  ? CachedNetworkImage(
-                      imageUrl: nftTokenEntity.imageUrl,
-                      width: 120,
-                      height: 160,
-                    )
-                  : DefaultImage(
-                      path: "assets/images/home_card_img.png",
-                      width: 120,
-                      height: 160,
-                      boxFit: BoxFit.cover,
-                    ),
-              const VerticalSpace(10),
-              SizedBox(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                nftTokenEntity.imageUrl != ""
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          border: !nftTokenEntity.selected
+                              ? null
+                              : Border.all(
+                                  color: white,
+                                  width: 2,
+                                ),
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: nftTokenEntity.imageUrl,
+                          width: 120,
+                          height: 160,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          border: !nftTokenEntity.selected
+                              ? null
+                              : Border.all(
+                                  color: white,
+                                  width: 2,
+                                ),
+                        ),
+                        child: DefaultImage(
+                          path: "assets/images/home_card_img.png",
+                          width: 120,
+                          height: 160,
+                          boxFit: BoxFit.cover,
+                        ),
+                      ),
+              ],
+            ),
+            Positioned(
+              bottom: 40,
+              left: 10,
+              child: SizedBox(
                 width: 120,
                 child: Text(
                   nftTokenEntity.name,
                   overflow: TextOverflow.ellipsis,
                   style: fontM(12),
                 ),
-              )
-            ],
-          ),
-          Positioned(
-            top: 10,
-            left: 10,
-            child: GestureDetector(
-              onTap: () {
-                getIt<NftCubit>().onSelectDeselectNftToken(
-                    selectTokenToggleRequestDto: SelectTokenToggleRequestDto(
-                  nftId: nftTokenEntity.id,
-                  selected: !nftTokenEntity.selected,
-                  order: tokenOrder,
-                ));
-              },
-              child: nftTokenEntity.selected
-                  ? const SelectedRadio()
-                  : const NotSelectedRadio(),
+              ),
             ),
-          ),
-        ],
+            Positioned(
+              top: 10,
+              left: 10,
+              child: GestureDetector(
+                onTap: () {
+                  getIt<NftCubit>().onSelectDeselectNftToken(
+                      selectTokenToggleRequestDto: SelectTokenToggleRequestDto(
+                    nftId: nftTokenEntity.id,
+                    selected: !nftTokenEntity.selected,
+                    order: tokenOrder,
+                  ));
+                },
+                child: nftTokenEntity.selected
+                    ? const SelectedRadio()
+                    : const NotSelectedRadio(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

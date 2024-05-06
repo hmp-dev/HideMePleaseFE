@@ -66,7 +66,7 @@ const bgNega4 = Color(0x33FFFFFF);
 // white 5%
 const bgNega5 = Color(0x0DFFFFFF);
 
-// white 100%
+// white 50%
 const bk1 = Color(0x80000000);
 // white 30%
 const bk2 = Color(0x80000000);

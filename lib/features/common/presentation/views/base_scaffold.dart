@@ -156,7 +156,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
                   widget.title!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: fontM(20),
+                  style: fontTitle05Medium(),
                 ),
               ),
           ],

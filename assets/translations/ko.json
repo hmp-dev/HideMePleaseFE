@@ -41,8 +41,15 @@
     "iWillRevealIt":"공개할게요",
     "iWillHideIt":"숨길게요",
     "locationAgreeInfoText":"방문 현황 동의 시, 숨어있는 사람 수에 내 방문이 포함됩니다. 동의해도 개인 정보는 노출되지 않습니다.",
-    "selectProfileImage":"프로필 이미지 선택"
-   
+    "selectProfileImage":"프로필 이미지 선택",
+    "iAgreeToTheAboveTermsAndConditions":"위 약관 내용에 동의합니다",
+    "openTheDoorsToTheBenefitsWithNFT":"NFT로 혜택의 문을 열다",
+    "termOfServices":"서비스 이용약관",
+    "privacyPolicy":"개인정보 취급방침",
+    "benefits":"혜택",
+    "event":"이벤트",
+    "member":"멤버",
+    "chatting":"채팅"
     
     
     

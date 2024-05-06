@@ -151,7 +151,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               ),
               currentSlideIndex + 1 == pageViewModelData.length
                   ? Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.only(bottom: 30),
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
@@ -167,6 +167,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Checkbox(
+                              side: const BorderSide(color: fore3),
+                              activeColor: hmpBlue,
+                              checkColor: white,
                               value: dontShowCheckBox,
                               onChanged: (bool? value) {
                                 setState(() {
@@ -202,7 +205,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               onPressed: _goToPreviousPage,
                             ),
                           ),
-                          const HorizontalSpace(20),
+                          const HorizontalSpace(10),
                           Expanded(
                             child: currentSlideIndex + 1 ==
                                     pageViewModelData.length

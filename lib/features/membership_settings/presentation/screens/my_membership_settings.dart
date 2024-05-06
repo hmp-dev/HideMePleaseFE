@@ -64,16 +64,14 @@ class _MyMembershipSettingsScreenState
     setState(() {
       _isLoadingMore = true;
     });
-    final nextValues = getIt<NftCubit>().state.nftCollectionsGroupEntity.next;
+    final nextCursor = getIt<NftCubit>().state.nftCollectionsGroupEntity.next;
     // get state
-    Log.info("LOAD MORE IS CALLED ${nextValues.cursorType}");
+    Log.info("LOAD MORE IS CALLED $nextCursor");
 
     Log.info("LOAD MORE IS CALLED");
 
     getIt<NftCubit>().onGetNftCollections(
-      cursorType: nextValues.cursorType,
-      nextWalletAddress: nextValues.nextWalletAddress,
-      cursor: nextValues.cursor,
+      nextCursor: nextCursor,
       isLoadMoreFetch: true,
     );
 
@@ -89,7 +87,7 @@ class _MyMembershipSettingsScreenState
     return BaseScaffold(
       title: LocaleKeys.myMembershipSettings.tr(),
       isCenterTitle: true,
-      backIconPath: "assets/icons/ic_cancel.svg",
+      backIconPath: "assets/icons/ic_close.svg",
       onBack: () {
         Navigator.pop(context);
       },
@@ -100,9 +98,9 @@ class _MyMembershipSettingsScreenState
           });
         },
         child: DefaultImage(
-          path: "assets/icons/ic_Info_bold.svg",
-          width: 24,
-          height: 24,
+          path: "assets/icons/ic_info.svg",
+          width: 32,
+          height: 32,
           color: white,
         ),
       ),
@@ -146,7 +144,8 @@ class _MyMembershipSettingsScreenState
                                       ),
                                       BlockChainSelectButton(
                                         title: "Ethereum",
-                                        imagePath: "assets/images/etherium.png",
+                                        imagePath:
+                                            "assets/chain-logos/ethereum_chain.svg",
                                         isSelected: state.selectedChain ==
                                             ChainType.ETHEREUM.name,
                                         onTap: () {
@@ -158,7 +157,7 @@ class _MyMembershipSettingsScreenState
                                       BlockChainSelectButton(
                                         title: "Polygon",
                                         imagePath:
-                                            "assets/images/chain_icon.png",
+                                            "assets/chain-logos/polygon_chain.svg",
                                         isSelected: state.selectedChain ==
                                             ChainType.POLYGON.name,
                                         onTap: () {
@@ -169,7 +168,8 @@ class _MyMembershipSettingsScreenState
                                       ),
                                       BlockChainSelectButton(
                                         title: "Solana",
-                                        imagePath: "assets/images/solana.png",
+                                        imagePath:
+                                            "assets/chain-logos/solana_chain.svg",
                                         isSelected: state.selectedChain ==
                                             ChainType.SOLANA.name,
                                         onTap: () {
@@ -262,7 +262,8 @@ class _MyMembershipSettingsScreenState
                     padding: const EdgeInsets.only(
                         left: 20.0, right: 20, bottom: 20),
                     child: HMPCustomButton(
-                      text: LocaleKeys.next.tr(),
+                      text:
+                          "${LocaleKeys.next.tr()} (${state.nftCollectionsGroupEntity.selectedNftCount}/20)",
                       onPressed: () {
                         getIt<NftCubit>().onGetSelectedNftTokens();
                         EditMembershipListScreen.push(context, false);

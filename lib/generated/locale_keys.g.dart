@@ -44,5 +44,13 @@ abstract class  LocaleKeys {
   static const iWillHideIt = 'iWillHideIt';
   static const locationAgreeInfoText = 'locationAgreeInfoText';
   static const selectProfileImage = 'selectProfileImage';
+  static const iAgreeToTheAboveTermsAndConditions = 'iAgreeToTheAboveTermsAndConditions';
+  static const openTheDoorsToTheBenefitsWithNFT = 'openTheDoorsToTheBenefitsWithNFT';
+  static const termOfServices = 'termOfServices';
+  static const privacyPolicy = 'privacyPolicy';
+  static const benefits = 'benefits';
+  static const event = 'event';
+  static const member = 'member';
+  static const chatting = 'chatting';
 
 }

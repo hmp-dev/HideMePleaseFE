@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class AgreeTextWidget extends StatelessWidget {
   const AgreeTextWidget({
@@ -17,12 +19,12 @@ class AgreeTextWidget extends StatelessWidget {
           onTap: () {
             WebViewScreen.push(
               context: context,
-              title: "서비스 이용약관",
+              title: LocaleKeys.termOfServices.tr(),
               url: "https://hidemeplease.xyz/",
             );
           },
           child: Text(
-            "서비스 이용약관",
+            LocaleKeys.termOfServices.tr(),
             textAlign: TextAlign.center,
             style: fontCompactXsUnderline(color: fore3),
           ),
@@ -32,12 +34,12 @@ class AgreeTextWidget extends StatelessWidget {
           onTap: () {
             WebViewScreen.push(
               context: context,
-              title: "개인정보 취급방침",
+              title: LocaleKeys.privacyPolicy.tr(),
               url: "https://hidemeplease.xyz/",
             );
           },
           child: Text(
-            "개인정보 취급방침",
+            LocaleKeys.privacyPolicy.tr(),
             textAlign: TextAlign.center,
             style: fontCompactXsUnderline(color: fore3),
           ),

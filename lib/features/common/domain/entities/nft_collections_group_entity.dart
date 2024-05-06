@@ -1,14 +1,15 @@
 import 'package:equatable/equatable.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
-import 'package:mobile/features/common/domain/entities/next_collections_entity.dart';
 import 'package:mobile/features/common/domain/entities/nft_collection_entity.dart';
 
 class NftCollectionsGroupEntity extends Equatable {
   final List<NftCollectionEntity> collections;
-  final NextCollectionsEntity next;
+  final int selectedNftCount;
+  final String next;
 
   const NftCollectionsGroupEntity({
     required this.collections,
+    required this.selectedNftCount,
     required this.next,
   });
 
@@ -17,15 +18,18 @@ class NftCollectionsGroupEntity extends Equatable {
 
   NftCollectionsGroupEntity copyWith({
     List<NftCollectionEntity>? collections,
-    NextCollectionsEntity? next,
+    int? selectedNftCount,
+    String? next,
   }) {
     return NftCollectionsGroupEntity(
       collections: collections ?? this.collections,
+      selectedNftCount: selectedNftCount ?? this.selectedNftCount,
       next: next ?? this.next,
     );
   }
 
   NftCollectionsGroupEntity.empty()
       : collections = [],
-        next = const NextCollectionsEntity.empty();
+        selectedNftCount = 0,
+        next = '';
 }
