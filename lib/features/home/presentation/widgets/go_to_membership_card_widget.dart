@@ -28,29 +28,29 @@ class GoToMemberShipCardWidget extends StatelessWidget {
               fit: BoxFit.fill,
             ),
             border: Border.all(
-              color: white,
+              color: fore3,
               width: 1,
             ),
           ),
           child: Center(
             child: Container(
-              width: 320,
-              height: 480,
+              width: 322,
+              height: 482,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
-                  color: white,
+                  color: fore3,
                   width: 1,
                 ),
               ),
               child: Center(
                 child: Container(
-                  width: 314,
-                  height: 472,
+                  width: 316,
+                  height: 476,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                      color: const Color(0xFF8c8D91),
+                      color: black100,
                       width: 1,
                     ),
                   ),

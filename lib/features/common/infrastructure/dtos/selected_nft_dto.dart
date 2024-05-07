@@ -6,20 +6,35 @@ part 'selected_nft_dto.g.dart';
 @JsonSerializable()
 class SelectedNFTDto extends Equatable {
   final String? id;
-  final int? order;
   final String? name;
-  final String? symbol;
-  final String? chain;
   @JsonKey(name: 'imageUrl')
   final String? imageUrl;
+  final int? order;
+  @JsonKey(name: 'tokenAddress')
+  final String? tokenAddress;
+  final String? symbol;
+  final String? chain;
+  @JsonKey(name: 'totalPoints')
+  final int? totalPoints;
+  @JsonKey(name: 'communityRank')
+  final int? communityRank;
+  @JsonKey(name: 'totalMembers')
+  final int? totalMembers;
+  @JsonKey(name: 'pointFluctuation')
+  final int? pointFluctuation;
 
   const SelectedNFTDto({
     this.id,
     this.order,
     this.name,
+    this.tokenAddress,
     this.symbol,
     this.chain,
     this.imageUrl,
+    this.totalPoints,
+    this.communityRank,
+    this.totalMembers,
+    this.pointFluctuation,
   });
 
   factory SelectedNFTDto.fromJson(Map<String, dynamic> json) =>
@@ -35,6 +50,11 @@ class SelectedNFTDto extends Equatable {
         symbol,
         chain,
         imageUrl,
+        tokenAddress,
+        totalPoints,
+        communityRank,
+        totalMembers,
+        pointFluctuation,
       ];
 
   SelectedNFTEntity toEntity() => SelectedNFTEntity(
@@ -44,7 +64,10 @@ class SelectedNFTDto extends Equatable {
         symbol: symbol ?? '',
         chain: chain ?? "",
         imageUrl: imageUrl ?? "",
+        tokenAddress: tokenAddress ?? "",
+        totalPoints: totalPoints ?? 0,
+        communityRank: communityRank ?? 0,
+        totalMembers: totalMembers ?? 0,
+        pointFluctuation: pointFluctuation ?? 0,
       );
 }
-
-

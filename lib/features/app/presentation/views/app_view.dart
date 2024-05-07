@@ -26,56 +26,65 @@ class _AppViewState extends State<AppView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bg,
-      body: SafeArea(
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Column(
-              children: [
-                Expanded(
-                  child: PreloadPageView.builder(
-                    onPageChanged: (value) {},
-                    itemBuilder: (context, index) {
-                      if (index == MenuType.space.menuIndex) {
-                        return const SpaceScreen();
-                      } else if (index == MenuType.events.menuIndex) {
-                        return const EventsScreen();
-                      } else if (index == MenuType.home.menuIndex) {
-                        return const HomeScreen();
-                      } else if (index == MenuType.community.menuIndex) {
-                        return const CommunityScreen();
-                      } else if (index == MenuType.my.menuIndex) {
-                        return const MyScreen();
-                      }
-                      return Container();
-                    },
-                    itemCount: MenuType.values.length,
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    preloadPagesCount: 5,
-                  ),
-                ),
-                Stack(
-                  alignment: Alignment.topCenter,
-                  children: [
-                    BottomBar(
-                      onTap: (type) {
-                        Log.info('type: $type');
-                        if (type == MenuType.my) {
-                          MyScreen.push(context);
-                        } else {
-                          _onChangeMenu(type);
+      backgroundColor: bg1,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0C0C0E), Color(0xCC0C0C0E)],
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                    child: PreloadPageView.builder(
+                      onPageChanged: (value) {},
+                      itemBuilder: (context, index) {
+                        if (index == MenuType.space.menuIndex) {
+                          return const SpaceScreen();
+                        } else if (index == MenuType.events.menuIndex) {
+                          return const EventsScreen();
+                        } else if (index == MenuType.home.menuIndex) {
+                          return const HomeScreen();
+                        } else if (index == MenuType.community.menuIndex) {
+                          return const CommunityScreen();
+                        } else if (index == MenuType.my.menuIndex) {
+                          return const MyScreen();
                         }
+                        return Container();
                       },
-                      selectedType: menuType,
-                      opacity: _opacity,
+                      itemCount: MenuType.values.length,
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      preloadPagesCount: 5,
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                  ),
+                  Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      BottomBar(
+                        onTap: (type) {
+                          Log.info('type: $type');
+                          if (type == MenuType.my) {
+                            MyScreen.push(context);
+                          } else {
+                            _onChangeMenu(type);
+                          }
+                        },
+                        selectedType: menuType,
+                        opacity: _opacity,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

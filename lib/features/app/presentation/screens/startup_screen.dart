@@ -64,6 +64,8 @@ class _StartUpScreenState extends State<StartUpScreen> {
               getIt<WalletsCubit>().onGetAllWallets();
               // d - fetch user selected NFT Tokens
               getIt<NftCubit>().onGetSelectedNftTokens();
+              // e-
+              getIt<NftCubit>().onGetWelcomeNft();
             }
           },
         ),

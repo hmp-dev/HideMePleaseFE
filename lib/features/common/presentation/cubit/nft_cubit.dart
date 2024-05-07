@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/features/common/domain/entities/nft_benefit_entity.dart';
 import 'package:mobile/features/common/domain/entities/nft_collections_group_entity.dart';
 import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
@@ -131,26 +132,26 @@ class NftCubit extends BaseCubit<NftState> {
       (selectedNftTokensList) {
         final resultList =
             selectedNftTokensList.map((e) => e.toEntity()).toList();
-        resultList.add(const SelectedNFTEntity.empty());
-        resultList.insert(
-            0,
-            const SelectedNFTEntity(
-              id: '',
-              order: 0,
-              name: 'Ready to Hide',
-              symbol: '',
-              chain: 'ETHEREUM',
-              imageUrl: '',
-            ));
+
         emit(
           state.copyWith(
             selectedNftTokensList: resultList,
+            nftsListHome: getNftListForHomeWithEmptyAt1stAndLast(resultList),
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),
         );
       },
     );
+  }
+
+  getNftListForHomeWithEmptyAt1stAndLast(List<SelectedNFTEntity> resultList) {
+    List<SelectedNFTEntity> result = resultList;
+    result.add(const SelectedNFTEntity.empty());
+    //
+    result.insert(0, const SelectedNFTEntity.emptyForHome1st());
+
+    return result;
   }
 
   Future<void> onPostCollectionOrderSave({
@@ -233,6 +234,32 @@ class NftCubit extends BaseCubit<NftState> {
         emit(
           state.copyWith(
             consumeWelcomeNftUrl: url,
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetNftBenefits({required String tokenAddress}) async {
+    final response =
+        await _nftRepository.getNftBenefits(tokenAddress: tokenAddress);
+
+    response.fold(
+      (err) {
+        Log.error(err);
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (nftBenefitsList) {
+        final resultList = nftBenefitsList.map((e) => e.toEntity()).toList();
+
+        emit(
+          state.copyWith(
+            nftBenefitList: resultList,
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),

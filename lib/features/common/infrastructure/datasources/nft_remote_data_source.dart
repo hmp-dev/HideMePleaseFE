@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
+import 'package:mobile/features/common/infrastructure/dtos/nft_benefit_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
@@ -12,7 +13,7 @@ class NftRemoteDataSource {
 
   NftRemoteDataSource(this._network);
 
-  Future<NftCollectionsGroupDto> getNftCollections({
+  Future<NftCollectionsGroupDto> requestGetNftCollections({
     String? chain,
     String? nextCursor,
   }) async {
@@ -37,7 +38,7 @@ class NftRemoteDataSource {
     return response.statusCode == 201;
   }
 
-  Future<List<SelectedNFTDto>> getSelectTokens() async {
+  Future<List<SelectedNFTDto>> requestGetSelectTokens() async {
     final response = await _network.get("nft/nfts/selected", {});
     return response.data
         .map<SelectedNFTDto>(
@@ -52,13 +53,23 @@ class NftRemoteDataSource {
     return response.statusCode == 201;
   }
 
-  Future<WelcomeNftDto> getWelcomeNFT() async {
+  Future<WelcomeNftDto> requestGetWelcomeNFT() async {
     final response = await _network.get("nft/welcome", {});
     return WelcomeNftDto.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<String> getConsumeWelcomeNft(int welcomeNftId) async {
+  Future<String> requestGetConsumeWelcomeNft(int welcomeNftId) async {
     final response = await _network.get("nft/welcome/$welcomeNftId", {});
     return response.data;
+  }
+
+  Future<List<NftBenefitDto>> requestGetNftBenefits(
+      {required String tokenAddress}) async {
+    final response =
+        await _network.get("nft/collection/{$tokenAddress}/benefits", {});
+    return response.data
+        .map<NftBenefitDto>(
+            (e) => NftBenefitDto.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

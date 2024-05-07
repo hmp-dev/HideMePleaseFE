@@ -1,0 +1,21 @@
+[
+    {
+      "id": "benefit_id_1",
+      "description": "Benefit description 1",
+      "singleUse": true,
+      "spaceId": "space_id_1",
+      "spaceName": "Space Name 1",
+      "spaceImage": "https://example.com/space_image_1.jpg",
+      "used": true
+    },
+    {
+      "id": "benefit_id_2",
+      "description": "Benefit description 2",
+      "singleUse": false,
+      "spaceId": "space_id_2",
+      "spaceName": "Space Name 2",
+      "spaceImage": "https://example.com/space_image_2.jpg",
+      "used": false
+    }
+  ]
+  

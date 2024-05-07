@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/common/domain/repositories/nft_repository.dart';
 import 'package:mobile/features/common/infrastructure/datasources/nft_remote_data_source.dart';
+import 'package:mobile/features/common/infrastructure/dtos/nft_benefit_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
@@ -22,7 +23,7 @@ class NftRepositoryImpl extends NftRepository {
     String? nextCursor,
   }) async {
     try {
-      final response = await _nftRemoteDataSource.getNftCollections(
+      final response = await _nftRemoteDataSource.requestGetNftCollections(
         chain: chain,
         nextCursor: nextCursor,
       );
@@ -67,7 +68,7 @@ class NftRepositoryImpl extends NftRepository {
   Future<Either<HMPError, List<SelectedNFTDto>>>
       getSelectNftCollections() async {
     try {
-      final response = await _nftRemoteDataSource.getSelectTokens();
+      final response = await _nftRemoteDataSource.requestGetSelectTokens();
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(
@@ -110,7 +111,7 @@ class NftRepositoryImpl extends NftRepository {
   @override
   Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft() async {
     try {
-      final response = await _nftRemoteDataSource.getWelcomeNFT();
+      final response = await _nftRemoteDataSource.requestGetWelcomeNFT();
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(
@@ -131,7 +132,28 @@ class NftRepositoryImpl extends NftRepository {
       {required int welcomeNftId}) async {
     try {
       final response =
-          await _nftRemoteDataSource.getConsumeWelcomeNft(welcomeNftId);
+          await _nftRemoteDataSource.requestGetConsumeWelcomeNft(welcomeNftId);
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, List<NftBenefitDto>>> getNftBenefits(
+      {required String tokenAddress}) async {
+    try {
+      final response = await _nftRemoteDataSource.requestGetNftBenefits(
+          tokenAddress: tokenAddress);
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(

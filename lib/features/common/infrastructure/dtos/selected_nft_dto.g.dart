@@ -11,17 +11,27 @@ SelectedNFTDto _$SelectedNFTDtoFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String?,
       order: json['order'] as int?,
       name: json['name'] as String?,
+      tokenAddress: json['tokenAddress'] as String?,
       symbol: json['symbol'] as String?,
       chain: json['chain'] as String?,
       imageUrl: json['imageUrl'] as String?,
+      totalPoints: json['totalPoints'] as int?,
+      communityRank: json['communityRank'] as int?,
+      totalMembers: json['totalMembers'] as int?,
+      pointFluctuation: json['pointFluctuation'] as int?,
     );
 
 Map<String, dynamic> _$SelectedNFTDtoToJson(SelectedNFTDto instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'order': instance.order,
       'name': instance.name,
+      'imageUrl': instance.imageUrl,
+      'order': instance.order,
+      'tokenAddress': instance.tokenAddress,
       'symbol': instance.symbol,
       'chain': instance.chain,
-      'imageUrl': instance.imageUrl,
+      'totalPoints': instance.totalPoints,
+      'communityRank': instance.communityRank,
+      'totalMembers': instance.totalMembers,
+      'pointFluctuation': instance.pointFluctuation,
     };

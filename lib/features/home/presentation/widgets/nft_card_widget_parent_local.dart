@@ -8,91 +8,108 @@ class NFTCardWidgetParentLocal extends StatelessWidget {
     required this.imagePath,
     required this.topWidget,
     required this.bottomWidget,
+    required this.badgeWidget,
   });
 
   final String imagePath;
   final Widget topWidget;
   final Widget bottomWidget;
+  final Widget badgeWidget;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Stack(
-            alignment: Alignment.center,
+    return SizedBox(
+      height: 510,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Stack(
+            alignment: Alignment.bottomCenter,
             children: [
-              DefaultImage(
-                path: imagePath,
-                width: 326,
-                height: 486,
-              ),
-              ColorFiltered(
-                colorFilter: ColorFilter.mode(
-                  Colors.white.withOpacity(0.5),
-                  BlendMode.dstATop,
-                ),
-                child: Container(
-                  width: 326,
-                  height: 486,
-                  color: Colors.white,
-                ),
-              ),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: Container(
-                  width: 322,
-                  height: 482,
-                  color: bg1,
-                  child: Center(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        DefaultImage(
-                          path: imagePath,
-                          width: 318,
-                          height: 478,
-                        ),
-                        ColorFiltered(
-                          colorFilter: ColorFilter.mode(
-                            Colors.white.withOpacity(0.5),
-                            BlendMode.dstATop,
-                          ),
-                          child: Container(
-                            width: 318,
-                            height: 478,
-                            color: Colors.white,
-                          ),
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: DefaultImage(
-                            path: imagePath,
-                            width: 316,
-                            height: 476,
-                          ),
-                        ),
-                      ],
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    DefaultImage(
+                      path: imagePath,
+                      width: 326,
+                      height: 486,
                     ),
-                  ),
+                    ColorFiltered(
+                      colorFilter: ColorFilter.mode(
+                        Colors.white.withOpacity(0.5),
+                        BlendMode.dstATop,
+                      ),
+                      child: Container(
+                        width: 326,
+                        height: 486,
+                        color: Colors.white,
+                      ),
+                    ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        width: 322,
+                        height: 482,
+                        color: bg1,
+                        child: Center(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              DefaultImage(
+                                path: imagePath,
+                                width: 318,
+                                height: 478,
+                              ),
+                              ColorFiltered(
+                                colorFilter: ColorFilter.mode(
+                                  Colors.white.withOpacity(0.5),
+                                  BlendMode.dstATop,
+                                ),
+                                child: Container(
+                                  width: 318,
+                                  height: 478,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: DefaultImage(
+                                  path: imagePath,
+                                  width: 316,
+                                  height: 476,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 486,
+                width: 326,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    topWidget,
+                    const Spacer(),
+                    bottomWidget,
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-        SizedBox(
-          height: 486,
-          width: 326,
-          child: Column(
-            children: [
-              topWidget,
-              const Spacer(),
-              bottomWidget,
-            ],
-          ),
-        ),
-      ],
+          Positioned(
+            top: 0,
+            right: 0,
+            child: badgeWidget,
+          )
+        ],
+      ),
     );
   }
 }
