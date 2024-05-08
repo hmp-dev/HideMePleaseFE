@@ -48,7 +48,9 @@ class HomeHeaderWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  formatWalletAddress(connectedWallet[0].publicAddress),
+                  connectedWallet.isNotEmpty
+                      ? formatWalletAddress(connectedWallet[0].publicAddress)
+                      : "",
                   textAlign: TextAlign.center,
                   style: fontSB(18, lineHeight: 1.4),
                 ),

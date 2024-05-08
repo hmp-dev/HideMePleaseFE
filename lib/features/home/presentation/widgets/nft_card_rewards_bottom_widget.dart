@@ -1,20 +1,26 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
 import 'package:mobile/features/home/presentation/widgets/glassmorphic_button.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class NftCardRewardsBottomWidget extends StatelessWidget {
-  const NftCardRewardsBottomWidget({
+  NftCardRewardsBottomWidget({
     super.key,
     required this.welcomeNftEntity,
   });
 
   final WelcomeNftEntity welcomeNftEntity;
+
+  final SnackbarService snackBarService = getIt<SnackbarService>();
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +46,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "선착순 홀더",
+                  LocaleKeys.firstComeFirstServed.tr(),
                   style: fontCompactMd(),
                 ),
                 Row(
@@ -63,7 +69,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                   style: fontSB(18),
                 ),
                 Text(
-                  "무료",
+                  LocaleKeys.free.tr(),
                   style: fontSB(18),
                 )
               ],
@@ -73,11 +79,18 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.80,
               height: 60,
               onPressed: () {
-                getIt<NftCubit>()
-                    .onGetConsumeWelcomeNft(welcomeNftId: welcomeNftEntity.id);
+                if (welcomeNftEntity.id != 0) {
+                  getIt<NftCubit>().onGetConsumeWelcomeNft(
+                      welcomeNftId: welcomeNftEntity.id);
+                } else {
+                  Log.info("${welcomeNftEntity.id}");
+                  snackBarService.showSnackbar(
+                      message: "No Free NFT Available",
+                      duration: const Duration(seconds: 2));
+                }
               },
               child: Text(
-                '자세히 보기',
+                LocaleKeys.learnMore.tr(),
                 style: fontM(16),
               ),
             )

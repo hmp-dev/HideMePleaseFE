@@ -16,6 +16,8 @@ class NftTokenDto extends Equatable {
   final String? imageUrl;
   @JsonKey(name: "selected")
   final bool? selected;
+  @JsonKey(name: "updatedAt")
+  final String? updatedAt;
 
   const NftTokenDto({
     this.id,
@@ -23,6 +25,7 @@ class NftTokenDto extends Equatable {
     this.name,
     this.imageUrl,
     this.selected,
+    this.updatedAt,
   });
 
   factory NftTokenDto.fromJson(Map<String, dynamic> json) =>
@@ -39,5 +42,6 @@ class NftTokenDto extends Equatable {
         name: name ?? '',
         imageUrl: imageUrl ?? '',
         selected: selected ?? false,
+        updatedAt: updatedAt ?? '',
       );
 }

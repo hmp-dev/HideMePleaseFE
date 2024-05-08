@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
@@ -10,14 +9,12 @@ class NFTCardWidgetParent extends StatelessWidget {
     required this.imagePath,
     required this.topWidget,
     required this.bottomWidget,
-    required this.badgeWidget,
     required this.index,
   });
 
   final String imagePath;
   final Widget topWidget;
   final Widget bottomWidget;
-  final Widget badgeWidget;
   final int index;
 
   @override
@@ -97,11 +94,6 @@ class NFTCardWidgetParent extends StatelessWidget {
               ),
             ),
           ],
-        ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: badgeWidget,
         ),
       ],
     );

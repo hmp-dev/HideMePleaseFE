@@ -52,5 +52,11 @@ abstract class  LocaleKeys {
   static const event = 'event';
   static const member = 'member';
   static const chatting = 'chatting';
+  static const learnMore = 'learnMore';
+  static const free = 'free';
+  static const firstComeFirstServed = 'firstComeFirstServed';
+  static const memberShipBenefits = 'memberShipBenefits';
+  static const available = 'available';
+  static const used = 'used';
 
 }

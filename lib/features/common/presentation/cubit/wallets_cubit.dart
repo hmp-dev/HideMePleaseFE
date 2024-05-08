@@ -16,6 +16,9 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     this._walletsRepository,
   ) : super(WalletsState.initial());
 
+
+  
+
   Future<void> onGetAllWallets() async {
     emit(state.copyWith(submitStatus: RequestStatus.loading));
 

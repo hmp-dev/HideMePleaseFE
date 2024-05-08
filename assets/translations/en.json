@@ -49,5 +49,11 @@
     "benefits":"Benefits",
     "event":"Event",
     "member":"Member",
-    "chatting":"Chatting"
+    "chatting":"Chatting",
+    "learnMore":"Learn More",
+    "free":"Free",
+    "firstComeFirstServed":"First come, first served",
+    "memberShipBenefits":"Membership Benefits",
+    "available":"Available",
+    "used": "Used"
 }

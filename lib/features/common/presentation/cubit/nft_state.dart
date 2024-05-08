@@ -9,7 +9,7 @@ class NftState extends BaseState {
   final String selectedChain;
   final WelcomeNftEntity welcomeNftEntity;
   final String consumeWelcomeNftUrl;
-  final List<NftBenefitEntity>? nftBenefitList;
+  final List<NftBenefitEntity> nftBenefitList;
 
   @override
   final RequestStatus submitStatus;

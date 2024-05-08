@@ -9,11 +9,13 @@ class FeatureIconWidget extends StatelessWidget {
     required this.title,
     required this.imagePath,
     required this.onTap,
+    this.titleColor = white,
   });
 
   final String title;
   final String imagePath;
   final VoidCallback onTap;
+  final Color titleColor;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,7 @@ class FeatureIconWidget extends StatelessWidget {
           const VerticalSpace(7),
           Text(
             title,
-            style: fontCompactSmMedium(),
+            style: fontCompactSmMedium(color: titleColor),
           )
         ],
       ),

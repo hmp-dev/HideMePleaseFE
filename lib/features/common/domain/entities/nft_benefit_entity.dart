@@ -7,8 +7,8 @@ class NftBenefitEntity extends Equatable {
   final bool singleUse;
   final String spaceId;
   final String spaceName;
-  final String? spaceImage;
-  final bool? used;
+  final String spaceImage;
+  final bool used;
 
   const NftBenefitEntity({
     required this.id,

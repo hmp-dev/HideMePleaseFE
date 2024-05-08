@@ -12,6 +12,7 @@ NftTokenDto _$NftTokenDtoFromJson(Map<String, dynamic> json) => NftTokenDto(
       name: json['name'] as String?,
       imageUrl: json['imageUrl'] as String?,
       selected: json['selected'] as bool?,
+      updatedAt: json['updatedAt'] as String?,
     );
 
 Map<String, dynamic> _$NftTokenDtoToJson(NftTokenDto instance) =>
@@ -21,4 +22,5 @@ Map<String, dynamic> _$NftTokenDtoToJson(NftTokenDto instance) =>
       'name': instance.name,
       'imageUrl': instance.imageUrl,
       'selected': instance.selected,
+      'updatedAt': instance.updatedAt,
     };

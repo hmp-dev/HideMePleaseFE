@@ -6,6 +6,7 @@ class NftTokenEntity extends Equatable {
   final String name;
   final String imageUrl;
   final bool selected;
+  final String updatedAt;
 
   const NftTokenEntity({
     required this.id,
@@ -13,6 +14,7 @@ class NftTokenEntity extends Equatable {
     required this.name,
     required this.imageUrl,
     required this.selected,
+    required this.updatedAt,
   });
 
   const NftTokenEntity.empty()
@@ -20,7 +22,8 @@ class NftTokenEntity extends Equatable {
         tokenId = '',
         name = '',
         imageUrl = '',
-        selected = false;
+        selected = false,
+        updatedAt = '';
 
   @override
   List<Object?> get props => [tokenId, name, imageUrl, selected];
@@ -30,6 +33,7 @@ class NftTokenEntity extends Equatable {
     required String name,
     required String imageUrl,
     required bool selected,
+    required String updatedAt,
   }) {
     return NftTokenEntity(
       id: id,
@@ -37,6 +41,7 @@ class NftTokenEntity extends Equatable {
       name: name,
       imageUrl: imageUrl,
       selected: selected,
+      updatedAt: updatedAt,
     );
   }
 }

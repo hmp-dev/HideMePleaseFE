@@ -50,7 +50,7 @@ class _MyMembershipSettingsScreenState
 
   // Method to handle scrolling
   void _onScroll() {
-    Log.info("_onScroll is called");
+    //Log.info("_onScroll is called");
 
     if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent &&
@@ -236,7 +236,7 @@ class _MyMembershipSettingsScreenState
                                                     .nftCollectionsGroupEntity
                                                     .collections[
                                                         collectionIndex]
-                                                    .walletAddress,
+                                                    .tokenAddress,
                                                 chain: state
                                                     .nftCollectionsGroupEntity
                                                     .collections[

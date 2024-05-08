@@ -7,44 +7,32 @@ part 'nft_collection_dto.g.dart';
 
 @JsonSerializable()
 class NftCollectionDto extends Equatable {
+  @JsonKey(name: "symbol")
+  final String? symbol;
+  @JsonKey(name: "chain")
+  final String? chain;
   @JsonKey(name: "tokenAddress")
   final String? tokenAddress;
-  @JsonKey(name: "possibleSpam")
-  final bool? possibleSpam;
   @JsonKey(name: "contractType")
   final String? contractType;
   @JsonKey(name: "name")
   final String? name;
-  @JsonKey(name: "symbol")
-  final String? symbol;
-  @JsonKey(name: "verifiedCollection")
-  final bool? verifiedCollection;
   @JsonKey(name: "collectionLogo")
   final String? collectionLogo;
-  @JsonKey(name: "collectionBannerImage")
-  final String? collectionBannerImage;
-  @JsonKey(name: "chain")
-  final String? chain;
-  @JsonKey(name: "walletAddress")
-  final String? walletAddress;
-  @JsonKey(name: "tokens")
-  final List<NftTokenDto>? tokens;
   @JsonKey(name: "chainSymbol")
   final String? chainSymbol;
+  @JsonKey(name: "tokens")
+  final List<NftTokenDto>? tokens;
 
   const NftCollectionDto({
+    this.symbol,
+    this.chain,
     this.tokenAddress,
-    this.possibleSpam,
     this.contractType,
     this.name,
-    this.symbol,
-    this.verifiedCollection,
     this.collectionLogo,
-    this.collectionBannerImage,
-    this.chain,
-    this.walletAddress,
-    this.tokens,
     this.chainSymbol,
+    this.tokens,
   });
 
   factory NftCollectionDto.fromJson(Map<String, dynamic> json) =>
@@ -52,38 +40,30 @@ class NftCollectionDto extends Equatable {
 
   Map<String, dynamic> toJson() => _$NftCollectionDtoToJson(this);
 
+  NftCollectionEntity toEntity() {
+    return NftCollectionEntity(
+      symbol: symbol ?? '',
+      chain: chain ?? '',
+      tokenAddress: tokenAddress ?? '',
+      contractType: contractType ?? '',
+      name: name ?? '',
+      collectionLogo: collectionLogo ?? '',
+      chainSymbol: chainSymbol ?? '',
+      tokens: tokens?.map((e) => e.toEntity()).toList() ?? [],
+    );
+  }
+
   @override
   List<Object?> get props {
     return [
+      symbol,
+      chain,
       tokenAddress,
-      possibleSpam,
       contractType,
       name,
-      symbol,
-      verifiedCollection,
       collectionLogo,
-      collectionBannerImage,
-      chain,
-      walletAddress,
-      tokens,
       chainSymbol,
+      tokens,
     ];
-  }
-
-  NftCollectionEntity toEntity() {
-    return NftCollectionEntity(
-      tokenAddress: tokenAddress ?? '',
-      possibleSpam: possibleSpam ?? false,
-      contractType: contractType ?? '',
-      name: name ?? '',
-      symbol: symbol ?? '',
-      verifiedCollection: verifiedCollection ?? false,
-      collectionLogo: collectionLogo ?? "",
-      collectionBannerImage: collectionBannerImage ?? "",
-      chain: chain ?? '',
-      walletAddress: walletAddress ?? '',
-      tokens: tokens?.map((dto) => dto.toEntity()).toList() ?? [],
-      chainSymbol: chainSymbol ?? '',
-    );
   }
 }
