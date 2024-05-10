@@ -3,8 +3,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 
 enum Level {
   BASIC,
@@ -24,7 +23,7 @@ class DioRequestLogger extends Interceptor {
   ) {
     final request = response.requestOptions;
     if (level == Level.BASIC) {
-      Log.info("${request.method} ${request.uri} [${response.statusCode}]\n");
+      ("${request.method} ${request.uri} [${response.statusCode}]\n").log();
     } else {
       final buffer = StringBuffer();
 
@@ -50,7 +49,7 @@ class DioRequestLogger extends Interceptor {
         buffer.write("${jsonEncode(response.data)}\n");
       }
 
-      Log.info(buffer.toString());
+      (buffer.toString()).log();
     }
     return handler.next(response);
   }
@@ -71,8 +70,8 @@ class DioRequestLogger extends Interceptor {
   ) {
     final request = err.requestOptions;
     if (level == Level.BASIC) {
-      Log.info(
-          "${request.method} ${request.uri} [${err.response?.statusCode}]\n");
+      ("${request.method} ${request.uri} [${err.response?.statusCode}]\n")
+          .log();
     } else {
       final buffer = StringBuffer();
 
@@ -99,7 +98,7 @@ class DioRequestLogger extends Interceptor {
         }
         buffer.write("${jsonEncode(err.response?.data)}\n");
       }
-      Log.error(buffer.toString());
+      (buffer.toString()).log();
     }
 
     // FirebaseCrashlytics.instance.recordError(

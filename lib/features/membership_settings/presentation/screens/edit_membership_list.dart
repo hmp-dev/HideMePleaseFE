@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
@@ -158,8 +157,6 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                               for (var nft in state.selectedNftTokensList) {
                                 order.add(nft.id);
                               }
-
-                              Log.info(order);
 
                               getIt<NftCubit>().onPostCollectionOrderSave(
                                   saveSelectedTokensReorderRequestDto:

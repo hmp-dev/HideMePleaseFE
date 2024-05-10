@@ -4,8 +4,8 @@ import 'dart:async';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 
 part 'app_state.dart';
@@ -34,14 +34,14 @@ class AppCubit extends BaseCubit<AppState> {
   }
 
   Future<void> onLogOut() async {
-    Log.info("inside onLogOut");
+    ("inside onLogOut").log();
     EasyLoading.show();
 
     final result = await _authRepository.requestLogOut();
 
     result.fold(
-      (l) => Log.info("inside onLogOut Error"),
-      (r) => Log.info("inside onLogOut Success"),
+      (l) => ("inside onLogOut Error").log(),
+      (r) => ("inside onLogOut Success").log(),
     );
 
     EasyLoading.dismiss();

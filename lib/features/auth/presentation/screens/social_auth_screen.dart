@@ -4,9 +4,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/target.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
@@ -52,14 +52,14 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
 
       if (result != null) {
         // Use result.accessToken for API requests
-        Log.info('Access token: $result');
+        ('Access token: $result').log();
         // Navigate to next screen or perform other actions upon successful login
       } else {
         // Handle null response (possible cancellation or error)
-        Log.info('Login failed: Result is null');
+        ('Login failed: Result is null').log();
       }
     } catch (e) {
-      Log.error('Login failed: $e');
+      ('Login failed: $e').log();
       // Handle login failure, display error message, etc.
     }
   }

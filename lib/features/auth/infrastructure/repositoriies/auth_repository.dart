@@ -5,12 +5,11 @@ import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/app/core/exceptions/login_with_google_failure.dart';
-import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_remote_data_source.dart';
@@ -76,7 +75,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return right(getIdToken ?? "");
     } catch (e, t) {
-      Log.error('inside Apple login Error:$e}');
+      ('inside Apple login Error:$e}').log();
       return left(HMPError.fromUnknown(
         error: e,
         trace: t,
@@ -86,13 +85,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<HMPError, String>> requestGoogleLogin() async {
-    Log.info('AuthRepository > requestGoogleLogin');
     try {
       late final AuthCredential credential;
 
       final googleUser = await GoogleSignIn().signIn();
       final googleAuth = await googleUser!.authentication;
-      
+
       credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -100,28 +98,23 @@ class AuthRepositoryImpl implements AuthRepository {
 
       await FirebaseAuth.instance.signInWithCredential(credential);
 
-      final currentUser = FirebaseAuth.instance.currentUser;
-      Log.info(
-          'displayName:${currentUser?.displayName}\nemail:${currentUser?.email}\nphotoURL:${currentUser?.photoURL}\nuid:${currentUser?.uid}\nproviderData:${currentUser?.providerData}\n');
-
       final getIdToken = await FirebaseAuth.instance.currentUser?.getIdToken();
 
-      Log.info('getIdToken:$getIdToken}');
-      debugPrint(getIdToken);
+      ("$getIdToken").log();
 
       return right(getIdToken ?? "");
 
       //
     } on FirebaseAuthException catch (e) {
-      Log.info('FirebaseAuthException:$e}');
       final errorMsg = LogInWithGoogleFailure.fromCode(e.code);
+
+      ("errorMsg: $errorMsg").log();
       return left(
         HMPError.fromNetwork(
           message: errorMsg.message,
         ),
       );
     } catch (e) {
-      Log.info('Exception:$e}');
       return left(
         HMPError.fromNetwork(
           message: const LogInWithGoogleFailure().message,

@@ -4,10 +4,10 @@ import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/domain/entities/connected_wallet_entity.dart';
-import 'package:mobile/features/common/presentation/widgets/button_small.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
+import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
@@ -55,8 +55,8 @@ class HomeHeaderWidget extends StatelessWidget {
                   style: fontSB(18, lineHeight: 1.4),
                 ),
                 const VerticalSpace(10),
-                ButtonSmall(
-                  title: "연결된 지갑 ${connectedWallet.length}개",
+                LinkedWalletButton(
+                  count: connectedWallet.length,
                   onTap: () {},
                 ),
               ],

@@ -7,6 +7,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/domain/entities/nft_benefit_entity.dart';
 import 'package:mobile/features/common/domain/entities/nft_collections_group_entity.dart';
+import 'package:mobile/features/common/domain/entities/nft_points_entity.dart';
 import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/domain/repositories/nft_repository.dart';
@@ -135,9 +136,6 @@ class NftCubit extends BaseCubit<NftState> {
         final resultList =
             selectedNftTokensList.map((e) => e.toEntity()).toList();
 
-        Log.info(
-            'inside onGetSelectedNftTokens => selectedNftTokensList: ${resultList.length}');
-
         emit(
           state.copyWith(
             selectedNftTokensList: resultList,
@@ -146,9 +144,6 @@ class NftCubit extends BaseCubit<NftState> {
             errorMessage: '',
           ),
         );
-
-        Log.info(
-            'inside STATE => selectedNftTokensList: ${state.selectedNftTokensList.length}');
       },
     );
   }
@@ -273,6 +268,31 @@ class NftCubit extends BaseCubit<NftState> {
         emit(
           state.copyWith(
             nftBenefitList: resultList,
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetNftPoints() async {
+    final response = await _nftRepository.getNftPoints();
+
+    response.fold(
+      (err) {
+        Log.error(err);
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (nftPointsList) {
+        final resultList = nftPointsList.map((e) => e.toEntity()).toList();
+
+        emit(
+          state.copyWith(
+            nftPointsList: resultList,
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),

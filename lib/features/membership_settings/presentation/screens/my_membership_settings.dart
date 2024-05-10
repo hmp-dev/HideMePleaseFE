@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
@@ -50,8 +49,6 @@ class _MyMembershipSettingsScreenState
 
   // Method to handle scrolling
   void _onScroll() {
-    //Log.info("_onScroll is called");
-
     if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent &&
         !_isLoadingMore) {
@@ -65,10 +62,6 @@ class _MyMembershipSettingsScreenState
       _isLoadingMore = true;
     });
     final nextCursor = getIt<NftCubit>().state.nftCollectionsGroupEntity.next;
-    // get state
-    Log.info("LOAD MORE IS CALLED $nextCursor");
-
-    Log.info("LOAD MORE IS CALLED");
 
     getIt<NftCubit>().onGetNftCollections(
       nextCursor: nextCursor,

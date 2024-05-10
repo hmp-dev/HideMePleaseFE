@@ -55,5 +55,13 @@
     "firstComeFirstServed":"First come, first served",
     "memberShipBenefits":"Membership Benefits",
     "available":"Available",
-    "used": "Used"
+    "used": "Used",
+    "myPoints":"My Points",
+    "pointsAccumulationMission":"Point accumulation mission",
+    "spaceVisit":"space Visit",
+    "whenUsingBenefitsAfterVisitingAffiliateSpace":"1P when using benefits after visiting affiliate space",
+    "useTheBenefitAndGet1P":"Use the benefit and get 1P",
+    "communityInvolvement":"community Involvement",
+    "whenParticipatingInConversationsInTheCommunity30Times":"1P when participating in conversations in the community 30 times",
+    "talkAnd1P":"Talk and 1P"
 }

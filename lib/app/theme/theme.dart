@@ -323,6 +323,15 @@ TextStyle fontCompactLg({Color? color = fore1}) => TextStyle(
       height: 1.3,
     );
 
+TextStyle fontCompactLgBold({Color? color = fore1}) => TextStyle(
+      fontSize: 18,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w600,
+      color: color ?? fore1,
+      letterSpacing: -0.1,
+      height: 1.3,
+    );
+
 TextStyle fontCompactMd({Color? color = fore1}) => TextStyle(
       fontSize: 16,
       fontFamily: 'Pretendard',

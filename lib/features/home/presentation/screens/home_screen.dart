@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/constants/wallet_connects_constants.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
@@ -24,11 +24,36 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late W3MService _w3mService;
 
+  late ScrollController _scrollController;
+  bool _isVisible = true;
+
   @override
   void initState() {
     initializeState();
     super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
     getIt<EnableLocationCubit>().onAskDeviceLocation();
+  }
+
+  void _scrollListener() {
+    "ScrollController: ${_scrollController.offset}".log();
+    if (_scrollController.offset >= 100 && _isVisible) {
+      setState(() {
+        _isVisible = false;
+      });
+    } else if (_scrollController.offset < 100 && !_isVisible) {
+      setState(() {
+        _isVisible = true;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   initializeState() async {
@@ -65,7 +90,6 @@ class _HomeScreenState extends State<HomeScreen> {
       bloc: getIt<WalletsCubit>(),
       listener: (context, state) {
         if (state.isSuccess) {
-          Log.info("Wallet: ${state.connectedWallets}");
           // call to get nft collections
           getIt<NftCubit>().onGetNftCollections();
           // show the AfterLoginWithNFT screen
@@ -80,6 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
         listener: (context, state) {},
         builder: (context, state) {
           return SingleChildScrollView(
+            controller: _scrollController,
             child: getHomeView(state.homeViewType),
           );
         },
@@ -88,7 +113,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getHomeView(HomeViewType homeViewType) {
-    Log.info('[$runtimeType] getHomeView $homeViewType');
     if (homeViewType == HomeViewType.afterWalletConnected) {
       return const HomeViewAfterWalletConnected();
     } else {
@@ -97,32 +121,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onSessionEvent(SessionEvent? args) {
-    Log.info('[$runtimeType] onSessionEvent $args');
     if (args?.name == EventsConstants.chainChanged) {
       final chainId = args?.data.toString() ?? '';
       if (W3MChainPresets.chains.containsKey(chainId)) {
         final chain = W3MChainPresets.chains[chainId];
 
-        Log.info('onSessionEvent Chain: $chain');
+        ('onSessionEvent Chain: $chain').log();
       }
     }
   }
 
   void _onSessionUpdate(SessionUpdate? args) {
-    Log.info('[$runtimeType] onSessionUpdate $args');
+    ('[$runtimeType] onSessionUpdate $args').log();
     //getIt<HomeCubit>().onUpdateHomeViewType(HomeViewType.AfterLoginWithNFT);
   }
 
   void _onSessionExpired(SessionExpire? args) {
-    Log.info('[$runtimeType] onSessionExpired $args');
+    ('[$runtimeType] onSessionExpired $args').log();
   }
 
   void _onModalError(ModalError? args) {
-    Log.info('[$runtimeType] onModalError $args');
+    ('[$runtimeType] onModalError $args');
   }
 
   void _onModalConnect(ModalConnect? args) {
-    Log.info('[$runtimeType] onModalConnect ${args?.session.address}');
+    ('[$runtimeType] onModalConnect ${args?.session.address}').log();
     final publicAddress = args?.session.address ?? '';
     final connectedWalletName =
         args?.session.connectedWalletName?.toUpperCase() ?? '';
@@ -135,6 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onModalDisconnect(ModalDisconnect? args) {
-    Log.info('[$runtimeType] onModalDisconnect $args');
+    ('[$runtimeType] onModalDisconnect $args').log();
   }
 }

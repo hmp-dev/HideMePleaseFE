@@ -5,7 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/env/app_env.dart';
-import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    Log.info('FLAVOR: ${AppEnv.flavor}');
+    ('FLAVOR: ${AppEnv.flavor}').log();
     super.initState();
   }
 

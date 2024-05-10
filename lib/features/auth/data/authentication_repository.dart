@@ -5,8 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/app/core/exceptions/log_out_failure.dart';
 import 'package:mobile/app/core/exceptions/login_with_google_failure.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/cache_client.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/auth/data/social_login_response_model.dart';
 
 /// {@template authentication_repository}
@@ -36,7 +36,7 @@ class AuthenticationRepository {
 
       final googleAuth = await googleUser!.authentication;
 
-      Log.info('googleAuth.accessToken: ${googleAuth.accessToken}');
+      ('googleAuth.accessToken: ${googleAuth.accessToken}').log();
 
       final socialLoginResponseModel = SocialLoginResponseModel(
         accessToken: googleAuth.accessToken ?? "",
@@ -47,7 +47,7 @@ class AuthenticationRepository {
     } on FirebaseAuthException catch (e) {
       throw LogInWithGoogleFailure.fromCode(e.code);
     } catch (e) {
-      Log.info("result of google login $e");
+      ("result of google login $e").log();
 
       throw LogInWithGoogleFailure("$e");
     }

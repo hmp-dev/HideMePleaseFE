@@ -11,7 +11,8 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
-import 'package:mobile/features/my/presentation/widgets/my_page.dart';
+import 'package:mobile/features/my/presentation/widgets/my_membership_widget.dart';
+import 'package:mobile/features/my/presentation/widgets/my_points_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyScreen extends StatefulWidget {
@@ -54,7 +55,6 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
           },
           suffix: GestureDetector(
             onTap: () {
-              // Log.info("logout is tapped");
               // getIt<AppCubit>().onLogOut();
 
               MyEditScreen.push(context);
@@ -85,12 +85,12 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                   const SizedBox(height: 32),
                   _buildTabView(context),
                   SizedBox(
-                    height: 496,
+                    height: 800,
                     child: TabBarView(
                       controller: tabViewController,
                       children: const [
-                        MyPage(),
-                        MyPage(),
+                        MyMembershipWidget(),
+                        MyPointsWidget(),
                       ],
                     ),
                   ),

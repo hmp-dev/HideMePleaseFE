@@ -1,8 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/pref_keys.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
@@ -160,8 +159,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
                           // setDontShowAgain value in local storage
                           setDontShowAgain(dontShowCheckBox);
-
-                          Log.info("dontShowAgain: $dontShowCheckBox");
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -246,6 +243,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     }
 
     var isShowOnBoarding = prefs.getInt(isShowOnBoardingView);
-    Log.info("isShowOnBoarding: $isShowOnBoarding");
+    ("isShowOnBoarding: $isShowOnBoarding").log();
   }
 }

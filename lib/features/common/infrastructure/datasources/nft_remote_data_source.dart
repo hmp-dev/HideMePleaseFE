@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/common/infrastructure/dtos/nft_benefit_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group_dto.dart';
+import 'package:mobile/features/common/infrastructure/dtos/nft_points_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/selected_nft_dto.dart';
@@ -70,6 +71,14 @@ class NftRemoteDataSource {
     return response.data
         .map<NftBenefitDto>(
             (e) => NftBenefitDto.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<NftPointsDto>> requestGetNftPoints() async {
+    final response = await _network.get("nft/nfts/selected/points", {});
+    return response.data
+        .map<NftPointsDto>(
+            (e) => NftPointsDto.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 }

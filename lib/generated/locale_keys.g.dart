@@ -58,5 +58,13 @@ abstract class  LocaleKeys {
   static const memberShipBenefits = 'memberShipBenefits';
   static const available = 'available';
   static const used = 'used';
+  static const myPoints = 'myPoints';
+  static const pointsAccumulationMission = 'pointsAccumulationMission';
+  static const spaceVisit = 'spaceVisit';
+  static const whenUsingBenefitsAfterVisitingAffiliateSpace = 'whenUsingBenefitsAfterVisitingAffiliateSpace';
+  static const useTheBenefitAndGet1P = 'useTheBenefitAndGet1P';
+  static const communityInvolvement = 'communityInvolvement';
+  static const whenParticipatingInConversationsInTheCommunity30Times = 'whenParticipatingInConversationsInTheCommunity30Times';
+  static const talkAnd1P = 'talkAnd1P';
 
 }

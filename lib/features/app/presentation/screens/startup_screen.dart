@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
@@ -54,7 +54,7 @@ class _StartUpScreenState extends State<StartUpScreen> {
             }
 
             if (state.isLoggedIn) {
-              Log.info("-------inside state.isLoggedIn: ${state.isLoggedIn}");
+              ("-------inside state.isLoggedIn: ${state.isLoggedIn}").log();
               // User is logged in
               // a - fetch Base User Data
               getIt<ProfileCubit>().onGetBaseUser();
@@ -73,7 +73,7 @@ class _StartUpScreenState extends State<StartUpScreen> {
           bloc: getIt<ProfileCubit>(),
           listener: (context, profileState) {
             if (profileState.isSuccess) {
-              Log.info("Profile: ${profileState.baseUserData}");
+              ("Profile: ${profileState.baseUserData}").log();
             }
           },
         ),
@@ -82,8 +82,8 @@ class _StartUpScreenState extends State<StartUpScreen> {
           listener: (context, walletsState) {
             if (walletsState.isSuccess) {
               //on fetching Tokens navigate to Home
-              Log.info(
-                  "++++++++++++++++++++++++++++++Profile: ${walletsState.connectedWallets}");
+              ("++++++++++++++++++++++++++++++Profile: ${walletsState.connectedWallets}")
+                  .log();
               if (walletsState.connectedWallets.isEmpty) {
                 // If a wallet is NOT Connected
                 // Update Home View to Show with Before Wallet Connected

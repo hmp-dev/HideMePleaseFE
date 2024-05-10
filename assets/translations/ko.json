@@ -55,7 +55,15 @@
     "firstComeFirstServed":"선착순 홀더",
     "memberShipBenefits":"멤버십 혜택",
     "available":"사용가능",
-    "used": "사용완료"
+    "used": "사용완료",
+    "myPoints":"나의 포인트",
+    "pointsAccumulationMission":"포인트 적립 미션",
+    "spaceVisit":"공간 방문",
+    "whenUsingBenefitsAfterVisitingAffiliateSpace":"제휴 공간 방문 후 혜택 이용 시 1P",
+    "useTheBenefitAndGet1P":"혜택 쓰고 1P",
+    "communityInvolvement":"커뮤니티 참여",
+    "whenParticipatingInConversationsInTheCommunity30Times":"커뮤니티에서 대화 참여 30회 달성 시 1P",
+    "talkAnd1P":"대화하고 1P"
     
     
     

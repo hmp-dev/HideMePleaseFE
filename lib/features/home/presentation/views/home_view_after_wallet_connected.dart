@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/animations/fade_indexed_stack.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
@@ -20,8 +20,8 @@ import 'package:mobile/features/home/presentation/widgets/go_to_membership_card_
 import 'package:mobile/features/home/presentation/widgets/home_header_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/icon_nav_widgets.dart';
 import 'package:mobile/features/home/presentation/widgets/members_widget.dart';
-import 'package:mobile/features/home/presentation/widgets/nft_card_rewards_bottom_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_iconnav_row.dart';
+import 'package:mobile/features/home/presentation/widgets/nft_card_rewards_bottom_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
 
@@ -43,6 +43,35 @@ class _HomeViewAfterWalletConnectedState
   bool _isCurrentIndexIsLat = false;
 
   final CarouselController _carouselController = CarouselController();
+  late ScrollController _scrollController;
+  bool _isVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    "ScrollController: ${_scrollController.offset}".log();
+    if (_scrollController.offset >= 100 && _isVisible) {
+      setState(() {
+        _isVisible = false;
+      });
+    } else if (_scrollController.offset < 100 && !_isVisible) {
+      setState(() {
+        _isVisible = true;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,119 +79,127 @@ class _HomeViewAfterWalletConnectedState
       bloc: getIt<NftCubit>(),
       listener: (context, nftState) {},
       builder: (context, nftState) {
-        return BlocConsumer<WalletsCubit, WalletsState>(
-          bloc: getIt<WalletsCubit>(),
-          listener: (context, walletsState) {},
-          builder: (context, walletsState) {
-            final connectedWallet = walletsState.connectedWallets;
-            List<SelectedNFTEntity> selectedNfts = nftState.nftsListHome;
+        return ListView(
+          shrinkWrap: true,
+          controller: _scrollController,
+          children: [
+            BlocConsumer<WalletsCubit, WalletsState>(
+              bloc: getIt<WalletsCubit>(),
+              listener: (context, walletsState) {},
+              builder: (context, walletsState) {
+                final connectedWallet = walletsState.connectedWallets;
+                List<SelectedNFTEntity> selectedNfts = nftState.nftsListHome;
 
-            return Column(
-              children: [
-                const SizedBox(height: 20),
-                HomeHeaderWidget(connectedWallet: connectedWallet),
-                const SizedBox(height: 40),
-                Stack(
-                  alignment: Alignment.bottomCenter,
+                return Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: CarouselSlider(
-                        carouselController: _carouselController,
-                        options: CarouselOptions(
-                          height: 486,
-                          viewportFraction: 0.8,
-                          aspectRatio: 16 / 9,
-                          enableInfiniteScroll: false,
-                          enlargeCenterPage: true,
-                          enlargeFactor: 0.12,
-                          autoPlayInterval: const Duration(seconds: 3),
-                          onPageChanged:
-                              (int index, CarouselPageChangedReason reason) {
-                            setState(() {
-                              _currentIndex = index;
-                              _currentTokenAddress =
-                                  selectedNfts[index].tokenAddress;
-                            });
-                            Log.info(
-                                "${_currentIndex == selectedNfts.length - 1}");
-                            // if index is last item,
-                            // and set _isCurrentIndexIsLat as true
-                            if (_currentIndex == selectedNfts.length - 1) {
-                              setState(() => _isCurrentIndexIsLat = true);
-                            } else {
-                              // else set isItemFirstOrLast as false
-                              setState(() => _isCurrentIndexIsLat = false);
-                              //call NFt Benefits API
-                              getIt<NftCubit>().onGetNftBenefits(
-                                  tokenAddress:
-                                      selectedNfts[index].tokenAddress.trim());
-                            }
-                          },
-                        ),
-                        items: selectedNfts.map((item) {
-                          final itemIndex = selectedNfts.indexOf(item);
+                    const SizedBox(height: 20),
+                    HomeHeaderWidget(connectedWallet: connectedWallet),
+                    const SizedBox(height: 40),
+                    Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: CarouselSlider(
+                            carouselController: _carouselController,
+                            options: CarouselOptions(
+                              height: 486,
+                              viewportFraction: 0.8,
+                              aspectRatio: 16 / 9,
+                              enableInfiniteScroll: false,
+                              enlargeCenterPage: true,
+                              enlargeFactor: 0.12,
+                              autoPlayInterval: const Duration(seconds: 3),
+                              onPageChanged: (int index,
+                                  CarouselPageChangedReason reason) {
+                                setState(() {
+                                  _currentIndex = index;
+                                  _currentTokenAddress =
+                                      selectedNfts[index].tokenAddress;
+                                });
 
-                          // If itemIndex is last, then return GoToMemberShipCardWidget
-                          // else  return  NFTCardWidgetParent
-                          if (itemIndex == selectedNfts.length - 1) {
-                            return const GoToMemberShipCardWidget();
-                          }
-                          return NFTCardWidgetParent(
-                            imagePath: itemIndex == 0
-                                ? nftState.welcomeNftEntity.image
-                                : item.imageUrl,
-                            topWidget: NftCardTopTitleWidget(
-                              title: item.name,
-                              chain: item.chain,
+                                // if index is last item,
+                                // and set _isCurrentIndexIsLat as true
+                                if (_currentIndex == selectedNfts.length - 1) {
+                                  setState(() => _isCurrentIndexIsLat = true);
+                                } else {
+                                  // else set isItemFirstOrLast as false
+                                  setState(() => _isCurrentIndexIsLat = false);
+                                  //call NFt Benefits API
+                                  getIt<NftCubit>().onGetNftBenefits(
+                                      tokenAddress: selectedNfts[index]
+                                          .tokenAddress
+                                          .trim());
+                                }
+                              },
                             ),
-                            bottomWidget: _getBottomWidget(
-                                itemIndex, nftState.welcomeNftEntity),
-                            index: itemIndex,
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      right: 30,
-                      child: _getBadgeWidget(_currentIndex),
-                    ),
-                  ],
-                ),
-                if (!_isCurrentIndexIsLat && _currentIndex != 0)
-                  Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      CustomImageView(
-                        svgPath: "assets/icons/ic_angle_arrow_down.svg",
-                      ),
-                      IconNavWidgets(
-                        selectedIndex: _currentSelectWidgetIndex,
-                        onIndexChanged: (index) {
-                          setState(() {
-                            _currentSelectWidgetIndex = index;
-                          });
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 20, top: 10, right: 20, bottom: 50),
-                        child: FadeIndexedStack(
-                          index: _currentSelectWidgetIndex,
-                          children: const [
-                            BenefitsWidget(),
-                            EventsWidget(),
-                            MemberWidget(),
-                            ChattingWidget(),
-                          ],
+                            items: selectedNfts.map((item) {
+                              final itemIndex = selectedNfts.indexOf(item);
+
+                              // If itemIndex is last, then return GoToMemberShipCardWidget
+                              // else  return  NFTCardWidgetParent
+                              if (itemIndex == selectedNfts.length - 1) {
+                                return const GoToMemberShipCardWidget();
+                              }
+                              return NFTCardWidgetParent(
+                                imagePath: itemIndex == 0
+                                    ? nftState.welcomeNftEntity.image
+                                    : item.imageUrl,
+                                topWidget: NftCardTopTitleWidget(
+                                  title: item.name,
+                                  chain: item.chain,
+                                ),
+                                bottomWidget: _getBottomWidget(
+                                    itemIndex, nftState.welcomeNftEntity),
+                                index: itemIndex,
+                              );
+                            }).toList(),
+                          ),
                         ),
-                      )
-                    ],
-                  ),
-              ],
-            );
-          },
+                        Positioned(
+                          top: 0,
+                          right: 30,
+                          child: _getBadgeWidget(_currentIndex),
+                        ),
+                      ],
+                    ),
+                    if (!_isCurrentIndexIsLat && _currentIndex != 0)
+                      Column(
+                        children: [
+                          const SizedBox(height: 20),
+                          CustomImageView(
+                            svgPath: "assets/icons/ic_angle_arrow_down.svg",
+                          ),
+                          IconNavWidgets(
+                            selectedIndex: _currentSelectWidgetIndex,
+                            onIndexChanged: (index) {
+                              setState(() {
+                                _currentSelectWidgetIndex = index;
+                              });
+                            },
+                          ),
+                          !_isVisible
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20, top: 10, right: 20, bottom: 50),
+                                  child: FadeIndexedStack(
+                                    index: _currentSelectWidgetIndex,
+                                    children: const [
+                                      BenefitsWidget(),
+                                      EventsWidget(),
+                                      MemberWidget(),
+                                      ChattingWidget(),
+                                    ],
+                                  ),
+                                )
+                        ],
+                      ),
+                  ],
+                );
+              },
+            ),
+          ],
         );
       },
     );

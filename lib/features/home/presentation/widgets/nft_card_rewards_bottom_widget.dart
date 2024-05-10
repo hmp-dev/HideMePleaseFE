@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
@@ -83,7 +82,6 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                   getIt<NftCubit>().onGetConsumeWelcomeNft(
                       welcomeNftId: welcomeNftEntity.id);
                 } else {
-                  Log.info("${welcomeNftEntity.id}");
                   snackBarService.showSnackbar(
                       message: "No Free NFT Available",
                       duration: const Duration(seconds: 2));

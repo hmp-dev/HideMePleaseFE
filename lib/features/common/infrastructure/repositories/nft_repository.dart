@@ -6,6 +6,7 @@ import 'package:mobile/features/common/domain/repositories/nft_repository.dart';
 import 'package:mobile/features/common/infrastructure/datasources/nft_remote_data_source.dart';
 import 'package:mobile/features/common/infrastructure/dtos/nft_benefit_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group_dto.dart';
+import 'package:mobile/features/common/infrastructure/dtos/nft_points_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/selected_nft_dto.dart';
@@ -154,6 +155,25 @@ class NftRepositoryImpl extends NftRepository {
     try {
       final response = await _nftRemoteDataSource.requestGetNftBenefits(
           tokenAddress: tokenAddress);
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, List<NftPointsDto>>> getNftPoints() async {
+    try {
+      final response = await _nftRemoteDataSource.requestGetNftPoints();
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(

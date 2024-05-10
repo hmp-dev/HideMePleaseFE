@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/menu_type.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/preload_page_view/preload_page_view.dart';
-import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
+import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_screen.dart';
 import 'package:mobile/features/events/presentation/screens/events_screen.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
@@ -69,8 +71,11 @@ class _AppViewState extends State<AppView> {
                     children: [
                       BottomBar(
                         onTap: (type) {
-                          Log.info('type: $type');
+                          ('type: $type').log();
                           if (type == MenuType.my) {
+                            // fetch Nft Points
+                            getIt<NftCubit>().onGetNftPoints();
+                            // Navigate to My Screen
                             MyScreen.push(context);
                           } else {
                             _onChangeMenu(type);

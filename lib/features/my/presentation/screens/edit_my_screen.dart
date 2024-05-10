@@ -1,9 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
@@ -58,7 +56,6 @@ class _MyEditScreenState extends State<MyEditScreen> {
       },
       suffix: GestureDetector(
         onTap: () {
-          Log.info("logout is tapped");
           getIt<AppCubit>().onLogOut();
         },
         child: const Icon(Icons.logout),
@@ -101,7 +98,6 @@ class _MyEditScreenState extends State<MyEditScreen> {
                           });
                         },
                         onEditingComplete: () {
-                          Log.info("On editing Complete is called");
                           // unfocus and close the Soft Key Board
                           FocusScope.of(context).requestFocus(FocusNode());
                           if (nickName.isNotEmpty) {
@@ -126,7 +122,6 @@ class _MyEditScreenState extends State<MyEditScreen> {
                           });
                         },
                         onEditingComplete: () {
-                          Log.info("On editing Complete is called");
                           // unfocus and close the Soft Key Board
                           FocusScope.of(context).requestFocus(FocusNode());
                           if (introduction.isNotEmpty) {

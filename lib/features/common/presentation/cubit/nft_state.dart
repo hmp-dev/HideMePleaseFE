@@ -10,6 +10,7 @@ class NftState extends BaseState {
   final WelcomeNftEntity welcomeNftEntity;
   final String consumeWelcomeNftUrl;
   final List<NftBenefitEntity> nftBenefitList;
+  final List<NftPointsEntity> nftPointsList;
 
   @override
   final RequestStatus submitStatus;
@@ -25,6 +26,7 @@ class NftState extends BaseState {
     required this.welcomeNftEntity,
     required this.consumeWelcomeNftUrl,
     required this.nftBenefitList,
+    required this.nftPointsList,
   });
 
   factory NftState.initial() => NftState(
@@ -38,6 +40,7 @@ class NftState extends BaseState {
         welcomeNftEntity: const WelcomeNftEntity.empty(),
         consumeWelcomeNftUrl: "",
         nftBenefitList: const [],
+        nftPointsList: const [],
       );
 
   @override
@@ -52,6 +55,7 @@ class NftState extends BaseState {
         welcomeNftEntity,
         consumeWelcomeNftUrl,
         nftBenefitList,
+        nftPointsList,
       ];
 
   @override
@@ -67,6 +71,7 @@ class NftState extends BaseState {
     WelcomeNftEntity? welcomeNftEntity,
     String? consumeWelcomeNftUrl,
     List<NftBenefitEntity>? nftBenefitList,
+    List<NftPointsEntity>? nftPointsList,
   }) {
     return NftState(
       nftCollectionsGroupEntity:
@@ -81,6 +86,7 @@ class NftState extends BaseState {
       welcomeNftEntity: welcomeNftEntity ?? this.welcomeNftEntity,
       consumeWelcomeNftUrl: consumeWelcomeNftUrl ?? this.consumeWelcomeNftUrl,
       nftBenefitList: nftBenefitList ?? this.nftBenefitList,
+      nftPointsList: nftPointsList ?? this.nftPointsList,
     );
   }
 }

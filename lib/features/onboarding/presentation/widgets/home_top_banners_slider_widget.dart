@@ -33,7 +33,7 @@
 //                   enlargeCenterPage: false,
 //                   autoPlayInterval: const Duration(seconds: 3),
 //                   onPageChanged: (int index, CarouselPageChangedReason reason) {
-//                     Log.info('the current Carasoul Index: $index');
+//                    ('the current Carasoul Index: $index').log();
 //                     setState(() {
 //                       _currentIndex = index;
 //                     });
