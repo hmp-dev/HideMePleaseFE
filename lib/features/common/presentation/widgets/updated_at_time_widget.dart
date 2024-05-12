@@ -8,9 +8,11 @@ class UpdateAtTimeWidget extends StatelessWidget {
   const UpdateAtTimeWidget({
     super.key,
     required this.updatedAt,
+    this.isShowIcon = true,
   });
 
   final DateTime updatedAt;
+  final bool isShowIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +23,17 @@ class UpdateAtTimeWidget extends StatelessWidget {
           "${formatDate(updatedAt)} 기준",
           style: fontCompactSm(color: fore3),
         ),
-        const HorizontalSpace(3),
-        DefaultImage(
-          path: "assets/icons/ic_arrow_clockwise.svg",
-          color: white,
-          height: 16,
-        )
+        if (isShowIcon)
+          Row(
+            children: [
+              const HorizontalSpace(3),
+              DefaultImage(
+                path: "assets/icons/ic_arrow_clockwise.svg",
+                color: white,
+                height: 16,
+              ),
+            ],
+          )
       ],
     );
   }

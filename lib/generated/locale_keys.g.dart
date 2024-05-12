@@ -66,5 +66,20 @@ abstract class  LocaleKeys {
   static const communityInvolvement = 'communityInvolvement';
   static const whenParticipatingInConversationsInTheCommunity30Times = 'whenParticipatingInConversationsInTheCommunity30Times';
   static const talkAnd1P = 'talkAnd1P';
+  static const myPointDetails = 'myPointDetails';
+  static const community = 'community';
+  static const entire = 'entire';
+  static const benefitsUsageHistory = 'benefitsUsageHistory';
+  static const earned = 'earned';
+  static const communityPoints = 'communityPoints';
+  static const communityRanking = 'communityRanking';
+  static const people = 'people';
+  static const myMembershipDetails = 'myMembershipDetails';
+  static const usageHistory = 'usageHistory';
+  static const seeMore = 'seeMore';
+  static const moreInformation = 'moreInformation';
+  static const enterTheChatRoom = 'enterTheChatRoom';
+  static const latest = 'latest';
+  static const oldest = 'oldest';
 
 }

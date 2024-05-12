@@ -8,6 +8,7 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
+import 'package:mobile/features/my/presentation/screens/my_points_detail.dart';
 import 'package:mobile/features/my/presentation/widgets/points_info_box_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/points_item_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -78,6 +79,15 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                         return PointsItemWidget(
                           nftPointsEntity: state.nftPointsList[index],
                           isLastItem: index == state.nftPointsList.length - 1,
+                          onTap: () {
+                            //
+                            getIt<NftCubit>().onGetNftUsageHistory(
+                                tokenAddress:
+                                    state.nftPointsList[index].tokenAddress);
+
+                            MyPointsDetailScreen.push(
+                                context, state.nftPointsList[index]);
+                          },
                         );
                       },
                     ),

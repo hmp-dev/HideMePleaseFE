@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 
@@ -17,7 +18,7 @@ class CustomRoundedButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 32,
-        width: 149,
+        width: context.locale == const Locale('en') ? 180 : 149,
         decoration: const BoxDecoration(
           color: black,
           borderRadius: BorderRadius.all(Radius.circular(16)),

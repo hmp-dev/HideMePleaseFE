@@ -39,7 +39,6 @@ class _MyAppState extends State<MyApp> {
         locale: context.locale,
         title: '공유용',
         theme: theme(),
-        //initialRoute: ,
         initialRoute:
             widget.isShowOnBoarding == 0 || widget.isShowOnBoarding == null
                 ? Routes.onboardingScreen

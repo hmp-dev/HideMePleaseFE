@@ -1,87 +1,88 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class MembersItemWidget extends StatelessWidget {
   const MembersItemWidget({
     super.key,
-    required this.imagePath,
     required this.isLastItem,
-    required this.communityPoints,
-    required this.communityRanking,
-    required this.usersCount,
-    required this.name,
+    required this.nft,
+    required this.onTap,
   });
 
-  final String imagePath;
-  final String name;
-  final String communityPoints;
-  final String communityRanking;
-  final int usersCount;
   final bool isLastItem;
+  final SelectedNFTEntity nft;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              buildImageWidget(),
-              const HorizontalSpace(20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: fontTitle04Bold()),
-                  const VerticalSpace(5),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width - 150,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "커뮤니티 포인트",
-                          style: fontCompactSm(color: fore2),
-                        ),
-                        Text(
-                          communityPoints,
-                          style: fontCompactLgBold(),
-                        ),
-                      ],
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                buildImageWidget(),
+                const HorizontalSpace(20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(nft.name, style: fontTitle04Bold()),
+                    const VerticalSpace(5),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 150,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            LocaleKeys.communityPoints.tr(),
+                            style: fontCompactSm(color: fore2),
+                          ),
+                          Text(
+                            "${formatNumberWithCommas('${nft.totalPoints}')} P",
+                            style: fontCompactLgBold(),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const VerticalSpace(5),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width - 150,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "커뮤니티 랭킹",
-                          style: fontCompactSm(color: fore2),
-                        ),
-                        Text(
-                          communityRanking,
-                          style: fontCompactLgBold(),
-                        ),
-                      ],
+                    const VerticalSpace(5),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 150,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            LocaleKeys.communityRanking.tr(),
+                            style: fontCompactSm(color: fore2),
+                          ),
+                          Text(
+                            "${nft.communityRank}위",
+                            style: fontCompactLgBold(),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          isLastItem
-              ? const SizedBox(height: 20)
-              : const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Divider(color: fore5),
-                )
-        ],
+                  ],
+                ),
+              ],
+            ),
+            isLastItem
+                ? const SizedBox(height: 20)
+                : const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Divider(color: fore5),
+                  )
+          ],
+        ),
       ),
     );
   }
@@ -89,7 +90,7 @@ class MembersItemWidget extends StatelessWidget {
   Stack buildImageWidget() {
     return Stack(
       children: [
-        imagePath == ""
+        nft.imageUrl == ""
             ? CustomImageView(
                 imagePath: "assets/images/place_holder_card.png",
                 width: 90,
@@ -98,7 +99,7 @@ class MembersItemWidget extends StatelessWidget {
                 fit: BoxFit.cover,
               )
             : CustomImageView(
-                url: imagePath,
+                url: nft.imageUrl,
                 width: 90,
                 height: 120,
                 radius: BorderRadius.circular(2),
@@ -123,7 +124,7 @@ class MembersItemWidget extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(3.0),
               child: Text(
-                "120명",
+                "${nft.totalPoints}${LocaleKeys.people.tr()}",
                 style: fontCompactXs(),
               ),
             ),

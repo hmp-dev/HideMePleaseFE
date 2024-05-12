@@ -7,7 +7,9 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/domain/entities/nft_benefit_entity.dart';
 import 'package:mobile/features/common/domain/entities/nft_collections_group_entity.dart';
+import 'package:mobile/features/common/domain/entities/nft_network_entity.dart';
 import 'package:mobile/features/common/domain/entities/nft_points_entity.dart';
+import 'package:mobile/features/common/domain/entities/nft_usage_history_entity.dart';
 import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/domain/repositories/nft_repository.dart';
@@ -293,6 +295,63 @@ class NftCubit extends BaseCubit<NftState> {
         emit(
           state.copyWith(
             nftPointsList: resultList,
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetNftNetworkInfo({required String tokenAddress}) async {
+    final response =
+        await _nftRepository.getNftNetworkInfo(tokenAddress: tokenAddress);
+
+    response.fold(
+      (err) {
+        Log.error(err);
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (networkInfo) {
+        emit(
+          state.copyWith(
+            nftNetworkEntity: networkInfo.toEntity(),
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetNftUsageHistory({
+    required String tokenAddress,
+    String? order,
+    String? page,
+    String? type,
+  }) async {
+    final response = await _nftRepository.getNftUsageHistory(
+      tokenAddress: tokenAddress,
+      order: order,
+      page: page,
+      type: type,
+    );
+
+    response.fold(
+      (err) {
+        Log.error(err);
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (usageHistory) {
+        emit(
+          state.copyWith(
+            nftUsageHistoryEntity: usageHistory.toEntity(),
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),

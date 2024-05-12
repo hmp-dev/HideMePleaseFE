@@ -6,8 +6,11 @@ import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
+import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
@@ -82,8 +85,9 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   _buildTitleRow(context, userData),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   _buildTabView(context),
+                  const SizedBox(height: 15),
                   SizedBox(
                     height: 800,
                     child: TabBarView(
@@ -107,6 +111,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
     BuildContext context,
     UserProfileEntity userProfile,
   ) {
+    final connectedWalletsList = getIt<WalletsCubit>().state.connectedWallets;
     return Padding(
       padding: const EdgeInsets.only(
         left: 20,
@@ -145,6 +150,11 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                           color: Colors.white.withOpacity(0.7),
                           lineHeight: 1.3),
                     ),
+                  ),
+                  const VerticalSpace(10),
+                  LinkedWalletButton(
+                    count: connectedWalletsList.length,
+                    onTap: () {},
                   ),
                 ],
               ),

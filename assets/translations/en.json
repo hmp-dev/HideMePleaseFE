@@ -58,10 +58,28 @@
     "used": "Used",
     "myPoints":"My Points",
     "pointsAccumulationMission":"Point accumulation mission",
-    "spaceVisit":"space Visit",
+    "spaceVisit":"Space Visit",
     "whenUsingBenefitsAfterVisitingAffiliateSpace":"1P when using benefits after visiting affiliate space",
     "useTheBenefitAndGet1P":"Use the benefit and get 1P",
     "communityInvolvement":"community Involvement",
     "whenParticipatingInConversationsInTheCommunity30Times":"1P when participating in conversations in the community 30 times",
-    "talkAnd1P":"Talk and 1P"
+    "talkAnd1P":"Talk and 1P",
+    "myPointDetails":"My Point Details",
+    "community":"Community",
+    "entire":"Entire",
+    "benefitsUsageHistory":"Benefit usage history",
+    "earned":"Earned",
+    "communityPoints":"Community Points",
+    "communityRanking":"community Ranking",
+    "people":"People",
+    "myMembershipDetails":"My Membership Details",
+    "usageHistory":"Usage History",
+    "seeMore":"see More",
+    "moreInformation":"More Information",
+    "enterTheChatRoom":"Enter the chat room",
+    "latest":"Latest",
+    "oldest":"Oldest"
+
+    
+    
 }
