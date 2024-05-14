@@ -6,6 +6,7 @@ import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/domain/entities/nft_benefit_entity.dart';
+import 'package:mobile/features/common/domain/entities/nft_collection_entity.dart';
 import 'package:mobile/features/common/domain/entities/nft_collections_group_entity.dart';
 import 'package:mobile/features/common/domain/entities/nft_network_entity.dart';
 import 'package:mobile/features/common/domain/entities/nft_points_entity.dart';
@@ -13,6 +14,7 @@ import 'package:mobile/features/common/domain/entities/nft_usage_history_entity.
 import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/domain/repositories/nft_repository.dart';
+import 'package:mobile/features/common/infrastructure/dtos/nft_collections_group_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/common/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -30,60 +32,141 @@ class NftCubit extends BaseCubit<NftState> {
 
   final SnackbarService snackbarService = getIt<SnackbarService>();
 
+  // Future<void> onGetNftCollections({
+  //   String? chain,
+  //   String? nextCursor,
+  //   bool? isLoadMoreFetch,
+  // }) async {
+  //   EasyLoading.show();
+
+  //   final response = await _nftRepository.getNftCollections(
+  //     chain: chain,
+  //     nextCursor: nextCursor,
+  //   );
+
+  //   EasyLoading.dismiss();
+  //   response.fold(
+  //     (err) {
+  //       Log.error(err);
+  //       emit(state.copyWith(
+  //         submitStatus: RequestStatus.failure,
+  //         errorMessage: LocaleKeys.somethingError.tr(),
+  //       ));
+  //     },
+  //     (nftCollectionsGroup) {
+  //       if (isLoadMoreFetch == true) {
+  //         NftCollectionsGroupEntity result = nftCollectionsGroup.toEntity();
+
+  //         // Create a new instance of NftCollectionsGroupEntity with updated 'next' value
+  //         NftCollectionsGroupEntity updatedGroupEntity =
+  //             state.nftCollectionsGroupEntity.copyWith(next: result.next);
+
+  //         // Add collections to the current list
+  //         updatedGroupEntity.collections.addAll(result.collections);
+
+  //         emit(
+  //           state.copyWith(
+  //             submitStatus: RequestStatus.success,
+  //             errorMessage: '',
+  //             nftCollectionsGroupEntity: updatedGroupEntity,
+  //             collectionFetchTime: DateTime.now(),
+  //             selectedChain: chain ?? ChainType.ALL.name,
+  //           ),
+  //         );
+  //       } else {
+  //         // Reset the nftCollectionsGroupEntity
+  //         emit(
+  //           state.copyWith(
+  //             submitStatus: RequestStatus.success,
+  //             errorMessage: '',
+  //             nftCollectionsGroupEntity: nftCollectionsGroup.toEntity(),
+  //             collectionFetchTime: DateTime.now(),
+  //             selectedChain: chain ?? ChainType.ALL.name,
+  //           ),
+  //         );
+  //       }
+  //     },
+  //   );
+  // }
+
   Future<void> onGetNftCollections({
     String? chain,
     String? nextCursor,
     bool? isLoadMoreFetch,
+    bool? isChainTypeFetchTapped,
+    bool? isLoadingMore,
   }) async {
-    EasyLoading.show();
+    // if isChainTypeFetchTapped is true, then reset the nftCollectionsGroupEntity
+
+    if (isChainTypeFetchTapped == true) {
+      emit(
+        state.copyWith(
+          nftCollectionsGroupEntity: NftCollectionsGroupEntity.empty(),
+        ),
+      );
+    }
+
+    // set isLoadingMore to true
+    emit(state.copyWith(isLoadingMore: true));
 
     final response = await _nftRepository.getNftCollections(
       chain: chain,
       nextCursor: nextCursor,
     );
 
-    EasyLoading.dismiss();
+    // set isLoadingMore to false
+    emit(state.copyWith(isLoadingMore: false));
+
     response.fold(
       (err) {
-        Log.error(err);
+        Log.error(err); // Log the error
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
       (nftCollectionsGroup) {
-        if (isLoadMoreFetch == true) {
-          NftCollectionsGroupEntity result = nftCollectionsGroup.toEntity();
-          // Create a new instance of NftCollectionsGroupEntity with updated 'next' value
-          NftCollectionsGroupEntity updatedGroupEntity =
-              state.nftCollectionsGroupEntity.copyWith(next: result.next);
+        final updatedGroupEntity = isLoadMoreFetch == true
+            ? _updateGroupWithNewCollections(nftCollectionsGroup)
+            : nftCollectionsGroup.toEntity();
 
-          // Add collections to the current list
-          updatedGroupEntity.collections.addAll(result.collections);
-
-          emit(
-            state.copyWith(
-              submitStatus: RequestStatus.success,
-              errorMessage: '',
-              nftCollectionsGroupEntity: updatedGroupEntity,
-              collectionFetchTime: DateTime.now(),
-              selectedChain: chain ?? ChainType.ALL.name,
-            ),
-          );
-        } else {
-          // Reset the nftCollectionsGroupEntity
-          emit(
-            state.copyWith(
-              submitStatus: RequestStatus.success,
-              errorMessage: '',
-              nftCollectionsGroupEntity: nftCollectionsGroup.toEntity(),
-              collectionFetchTime: DateTime.now(),
-              selectedChain: chain ?? ChainType.ALL.name,
-            ),
-          );
-        }
+        emit(
+          state.copyWith(
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+            nftCollectionsGroupEntity: updatedGroupEntity,
+            collectionFetchTime: DateTime.now(),
+            selectedChain: chain ?? ChainType.ALL.name,
+          ),
+        );
       },
     );
+  }
+
+// Helper function to update group entity with new collections
+  NftCollectionsGroupEntity _updateGroupWithNewCollections(
+      NftCollectionsGroupDto nftCollectionsGroup) {
+    final result = nftCollectionsGroup.toEntity();
+
+    if (result.collections.isEmpty) {
+      // If collections list is empty, return the current state without any modifications
+      return state.nftCollectionsGroupEntity;
+    }
+
+// Add collections to the current list
+
+    List<NftCollectionEntity> collections =
+        List.from(state.nftCollectionsGroupEntity.collections);
+    collections.addAll(result.collections);
+
+    // Create a new instance of NftCollectionsGroupEntity with updated 'next' value
+    final updatedGroupEntity = state.nftCollectionsGroupEntity.copyWith(
+      next: result.next,
+      selectedNftCount: result.selectedNftCount,
+      collections: collections,
+    );
+
+    return updatedGroupEntity;
   }
 
   Future<void> onSelectDeselectNftToken({

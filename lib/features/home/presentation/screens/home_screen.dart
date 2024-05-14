@@ -37,15 +37,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _scrollListener() {
-    "ScrollController: ${_scrollController.offset}".log();
-    if (_scrollController.offset >= 100 && _isVisible) {
+    if (_scrollController.offset >= 80 && _isVisible) {
       setState(() {
         _isVisible = false;
       });
-    } else if (_scrollController.offset < 100 && !_isVisible) {
+
+      "ScrollController: ${_scrollController.offset} $_isVisible".log();
+    } else if (_scrollController.offset < 80 && !_isVisible) {
       setState(() {
         _isVisible = true;
       });
+
+      "ScrollController: ${_scrollController.offset} $_isVisible".log();
     }
   }
 
@@ -114,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getHomeView(HomeViewType homeViewType) {
     if (homeViewType == HomeViewType.afterWalletConnected) {
-      return const HomeViewAfterWalletConnected();
+      return HomeViewAfterWalletConnected(isOverIconNavVisible: _isVisible);
     } else {
       return HomeViewBeforeLogin(w3mService: _w3mService);
     }

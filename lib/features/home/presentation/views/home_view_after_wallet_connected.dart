@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
 import 'package:mobile/app/core/animations/fade_indexed_stack.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -13,6 +14,7 @@ import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefits_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/chatting_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/events_widget.dart';
@@ -28,7 +30,10 @@ import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent
 class HomeViewAfterWalletConnected extends StatefulWidget {
   const HomeViewAfterWalletConnected({
     super.key,
+    required this.isOverIconNavVisible,
   });
+
+  final bool isOverIconNavVisible;
 
   @override
   State<HomeViewAfterWalletConnected> createState() =>
@@ -36,52 +41,46 @@ class HomeViewAfterWalletConnected extends StatefulWidget {
 }
 
 class _HomeViewAfterWalletConnectedState
-    extends State<HomeViewAfterWalletConnected> {
+    extends State<HomeViewAfterWalletConnected>
+    with AutomaticKeepAliveClientMixin {
   int _currentIndex = 0;
   int _currentSelectWidgetIndex = 0;
   String _currentTokenAddress = "";
   bool _isCurrentIndexIsLat = false;
 
   final CarouselController _carouselController = CarouselController();
-  late ScrollController _scrollController;
-  bool _isVisible = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-    _scrollController.addListener(_scrollListener);
-  }
-
-  void _scrollListener() {
-    "ScrollController: ${_scrollController.offset}".log();
-    if (_scrollController.offset >= 100 && _isVisible) {
-      setState(() {
-        _isVisible = false;
-      });
-    } else if (_scrollController.offset < 100 && !_isVisible) {
-      setState(() {
-        _isVisible = true;
-      });
-    }
-  }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_scrollListener);
-    _scrollController.dispose();
     super.dispose();
   }
 
   @override
+  void didUpdateWidget(covariant HomeViewAfterWalletConnected oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    "HomeViewAfterWalletConnected: ${widget.isOverIconNavVisible}".log();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    "HomeViewAfterWalletConnected: didChangeDependencies".log();
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocConsumer<NftCubit, NftState>(
       bloc: getIt<NftCubit>(),
       listener: (context, nftState) {},
       builder: (context, nftState) {
         return ListView(
           shrinkWrap: true,
-          controller: _scrollController,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             BlocConsumer<WalletsCubit, WalletsState>(
               bloc: getIt<WalletsCubit>(),
@@ -150,7 +149,9 @@ class _HomeViewAfterWalletConnectedState
                                   chain: item.chain,
                                 ),
                                 bottomWidget: _getBottomWidget(
-                                    itemIndex, nftState.welcomeNftEntity),
+                                    itemIndex,
+                                    nftState.welcomeNftEntity,
+                                    widget.isOverIconNavVisible),
                                 index: itemIndex,
                               );
                             }).toList(),
@@ -163,24 +164,27 @@ class _HomeViewAfterWalletConnectedState
                         ),
                       ],
                     ),
-                    if (!_isCurrentIndexIsLat && _currentIndex != 0)
-                      Column(
-                        children: [
-                          const SizedBox(height: 20),
-                          CustomImageView(
-                            svgPath: "assets/icons/ic_angle_arrow_down.svg",
-                          ),
-                          IconNavWidgets(
-                            selectedIndex: _currentSelectWidgetIndex,
-                            onIndexChanged: (index) {
-                              setState(() {
-                                _currentSelectWidgetIndex = index;
-                              });
-                            },
-                          ),
-                          !_isVisible
-                              ? const SizedBox.shrink()
-                              : Padding(
+                    const SizedBox(height: 20),
+                    CustomImageView(
+                      svgPath: "assets/icons/ic_angle_arrow_down.svg",
+                    ),
+                    (!_isCurrentIndexIsLat &&
+                            _currentIndex != 0 &&
+                            !widget.isOverIconNavVisible)
+                        ? AnimatedSlideFadeIn(
+                            slideIndex: 0,
+                            beginOffset: const Offset(0.0, 0.5),
+                            child: Column(
+                              children: [
+                                IconNavWidgets(
+                                  selectedIndex: _currentSelectWidgetIndex,
+                                  onIndexChanged: (index) {
+                                    setState(() {
+                                      _currentSelectWidgetIndex = index;
+                                    });
+                                  },
+                                ),
+                                Padding(
                                   padding: const EdgeInsets.only(
                                       left: 20, top: 10, right: 20, bottom: 50),
                                   child: FadeIndexedStack(
@@ -193,8 +197,10 @@ class _HomeViewAfterWalletConnectedState
                                     ],
                                   ),
                                 )
-                        ],
-                      ),
+                              ],
+                            ),
+                          )
+                        : const VerticalSpace(400),
                   ],
                 );
               },
@@ -220,11 +226,14 @@ class _HomeViewAfterWalletConnectedState
     }
   }
 
-  Widget _getBottomWidget(int itemIndex, WelcomeNftEntity welcomeNftEntity) {
+  Widget _getBottomWidget(int itemIndex, WelcomeNftEntity welcomeNftEntity,
+      bool isOverIconNavVisible) {
     if (itemIndex == 0) {
       return NftCardRewardsBottomWidget(welcomeNftEntity: welcomeNftEntity);
     } else {
-      return const NftCardIconNavRow();
+      return isOverIconNavVisible
+          ? const NftCardIconNavRow()
+          : const SizedBox.shrink();
     }
   }
 }

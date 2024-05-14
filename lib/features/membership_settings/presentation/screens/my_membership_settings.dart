@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -131,8 +132,8 @@ class _MyMembershipSettingsScreenState
                                         isSelected: state.selectedChain ==
                                             ChainType.ALL.name,
                                         onTap: () {
-                                          getIt<NftCubit>()
-                                              .onGetNftCollections();
+                                          getIt<NftCubit>().onGetNftCollections(
+                                              isChainTypeFetchTapped: true);
                                         },
                                       ),
                                       BlockChainSelectButton(
@@ -144,6 +145,7 @@ class _MyMembershipSettingsScreenState
                                         onTap: () {
                                           getIt<NftCubit>().onGetNftCollections(
                                             chain: ChainType.ETHEREUM.name,
+                                            isChainTypeFetchTapped: true,
                                           );
                                         },
                                       ),
@@ -156,6 +158,7 @@ class _MyMembershipSettingsScreenState
                                         onTap: () {
                                           getIt<NftCubit>().onGetNftCollections(
                                             chain: ChainType.POLYGON.name,
+                                            isChainTypeFetchTapped: true,
                                           );
                                         },
                                       ),
@@ -168,6 +171,7 @@ class _MyMembershipSettingsScreenState
                                         onTap: () {
                                           getIt<NftCubit>().onGetNftCollections(
                                             chain: ChainType.SOLANA.name,
+                                            isChainTypeFetchTapped: true,
                                           );
                                         },
                                       ),
@@ -243,7 +247,11 @@ class _MyMembershipSettingsScreenState
                                     );
                                   },
                                 ),
-                                const SizedBox(height: 100),
+                                (state.isLoadingMore)
+                                    ? Lottie.asset(
+                                        'assets/lottie/loader.json',
+                                      )
+                                    : const SizedBox(height: 100),
                               ],
                             ),
                     ),

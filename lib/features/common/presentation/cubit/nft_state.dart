@@ -13,6 +13,7 @@ class NftState extends BaseState {
   final List<NftPointsEntity> nftPointsList;
   final NftNetworkEntity nftNetworkEntity;
   final NftUsageHistoryEntity nftUsageHistoryEntity;
+  final bool isLoadingMore;
 
   @override
   final RequestStatus submitStatus;
@@ -31,6 +32,7 @@ class NftState extends BaseState {
     required this.nftPointsList,
     required this.nftNetworkEntity,
     required this.nftUsageHistoryEntity,
+    required this.isLoadingMore,
   });
 
   factory NftState.initial() => NftState(
@@ -47,6 +49,7 @@ class NftState extends BaseState {
         nftPointsList: const [],
         nftNetworkEntity: const NftNetworkEntity.empty(),
         nftUsageHistoryEntity: NftUsageHistoryEntity.empty(),
+        isLoadingMore: false,
       );
 
   @override
@@ -64,6 +67,7 @@ class NftState extends BaseState {
         nftPointsList,
         nftNetworkEntity,
         nftUsageHistoryEntity,
+        isLoadingMore,
       ];
 
   @override
@@ -82,6 +86,7 @@ class NftState extends BaseState {
     List<NftPointsEntity>? nftPointsList,
     NftNetworkEntity? nftNetworkEntity,
     NftUsageHistoryEntity? nftUsageHistoryEntity,
+    bool? isLoadingMore,
   }) {
     return NftState(
       nftCollectionsGroupEntity:
@@ -100,6 +105,7 @@ class NftState extends BaseState {
       nftNetworkEntity: nftNetworkEntity ?? this.nftNetworkEntity,
       nftUsageHistoryEntity:
           nftUsageHistoryEntity ?? this.nftUsageHistoryEntity,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     );
   }
 }
