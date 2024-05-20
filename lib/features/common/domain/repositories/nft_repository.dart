@@ -33,8 +33,12 @@ abstract class NftRepository {
     required int welcomeNftId,
   });
 
-  Future<Either<HMPError, List<NftBenefitDto>>> getNftBenefits(
-      {required String tokenAddress});
+  Future<Either<HMPError, List<NftBenefitDto>>> getNftBenefits({
+    required String tokenAddress,
+    String? spaceId,
+    int? pageSize,
+    int? page,
+  });
 
   Future<Either<HMPError, List<NftPointsDto>>> getNftPoints();
 

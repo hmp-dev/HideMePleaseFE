@@ -5,7 +5,17 @@ import 'package:mobile/features/space/infrastructure/dtos/spaces_response_dto.da
 abstract class SpaceRepository {
   Future<Either<HMPError, SpacesResponseDto>> getSpacesData({
     required String tokenAddress,
-    required String latitude,
-    required String longitude,
+    required double latitude,
+    required double longitude,
+  });
+
+  Future<Either<HMPError, String>> getBackdoorToken({
+    required String spaceId,
+  });
+
+  Future<Either<HMPError, bool>> postRedeemBenefit({
+    required String benefitId,
+    required String tokenAddress,
+    required String nfcToken,
   });
 }

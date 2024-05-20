@@ -81,5 +81,8 @@ abstract class  LocaleKeys {
   static const enterTheChatRoom = 'enterTheChatRoom';
   static const latest = 'latest';
   static const oldest = 'oldest';
+  static const redeemYourBenefitsScreenTitle = 'redeemYourBenefitsScreenTitle';
+  static const redeemYourBenefitsBtnTitle = 'redeemYourBenefitsBtnTitle';
+  static const noSpacesFound = 'noSpacesFound';
 
 }

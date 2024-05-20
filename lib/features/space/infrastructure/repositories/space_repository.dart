@@ -15,14 +15,62 @@ class SpaceRepositoryImpl extends SpaceRepository {
   @override
   Future<Either<HMPError, SpacesResponseDto>> getSpacesData({
     required String tokenAddress,
-    required String latitude,
-    required String longitude,
+    required double latitude,
+    required double longitude,
   }) async {
     try {
       final response = await _spaceRemoteDataSource.getNearBySpacesList(
         tokenAddress: tokenAddress,
         latitude: latitude,
         longitude: longitude,
+      );
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, String>> getBackdoorToken({
+    required String spaceId,
+  }) async {
+    try {
+      final response =
+          await _spaceRemoteDataSource.getBackdoorToken(spaceId: spaceId);
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, bool>> postRedeemBenefit(
+      {required String benefitId,
+      required String tokenAddress,
+      required String nfcToken}) async {
+    try {
+      final response = await _spaceRemoteDataSource.postRedeemBenefit(
+        benefitId: benefitId,
+        tokenAddress: tokenAddress,
+        nfcToken: nfcToken,
       );
       return right(response);
     } on DioException catch (e, t) {

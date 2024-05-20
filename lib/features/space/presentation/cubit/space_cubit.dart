@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/features/space/domain/entities/spaces_response_entity.dart';
@@ -17,15 +18,19 @@ class SpaceCubit extends BaseCubit<SpaceState> {
 
   Future<void> onGetSpacesData({
     required String tokenAddress,
-    required String latitude,
-    required String longitude,
+    required double latitude,
+    required double longitude,
   }) async {
     emit(state.copyWith(submitStatus: RequestStatus.loading));
+    EasyLoading.show(dismissOnTap: true);
     final response = await _spaceRepository.getSpacesData(
       tokenAddress: tokenAddress,
       latitude: latitude,
       longitude: longitude,
     );
+
+    EasyLoading.dismiss();
+
     response.fold(
       (err) {
         emit(state.copyWith(
@@ -40,6 +45,74 @@ class SpaceCubit extends BaseCubit<SpaceState> {
             submitStatus: RequestStatus.success,
             errorMessage: '',
             spacesResponseEntity: spacesData.toEntity(),
+            selectedNftTokenAddress: tokenAddress,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetBackdoorToken({
+    required String spaceId,
+  }) async {
+    emit(state.copyWith(submitStatus: RequestStatus.loading));
+    EasyLoading.show(dismissOnTap: true);
+    final response = await _spaceRepository.getBackdoorToken(
+      spaceId: spaceId,
+    );
+
+    EasyLoading.dismiss();
+
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (token) {
+        emit(
+          state.copyWith(
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+            nfcToken: token,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onPostRedeemBenefit({
+    required String benefitId,
+    required String tokenAddress,
+    required String nfcToken,
+  }) async {
+    emit(state.copyWith(
+      submitStatus: RequestStatus.loading,
+      benefitRedeemStatus: false,
+    ));
+    EasyLoading.show(dismissOnTap: true);
+    final response = await _spaceRepository.postRedeemBenefit(
+      benefitId: benefitId,
+      tokenAddress: tokenAddress,
+      nfcToken: nfcToken,
+    );
+
+    EasyLoading.dismiss();
+
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (isSuccess) {
+        emit(
+          state.copyWith(
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+            benefitRedeemStatus: true,
           ),
         );
       },

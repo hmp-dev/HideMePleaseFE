@@ -152,11 +152,19 @@ class NftRepositoryImpl extends NftRepository {
   }
 
   @override
-  Future<Either<HMPError, List<NftBenefitDto>>> getNftBenefits(
-      {required String tokenAddress}) async {
+  Future<Either<HMPError, List<NftBenefitDto>>> getNftBenefits({
+    required String tokenAddress,
+    String? spaceId,
+    int? pageSize,
+    int? page,
+  }) async {
     try {
       final response = await _nftRemoteDataSource.requestGetNftBenefits(
-          tokenAddress: tokenAddress);
+        tokenAddress: tokenAddress,
+        spaceId: spaceId,
+        pageSize: pageSize,
+        page: page,
+      );
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(

@@ -66,10 +66,21 @@ class NftRemoteDataSource {
     return response.data;
   }
 
-  Future<List<NftBenefitDto>> requestGetNftBenefits(
-      {required String tokenAddress}) async {
-    final response =
-        await _network.get("nft/collection/{$tokenAddress}/benefits", {});
+  Future<List<NftBenefitDto>> requestGetNftBenefits({
+    required String tokenAddress,
+    String? spaceId,
+    int? pageSize,
+    int? page,
+  }) async {
+    // Construct the query parameters
+    final Map<String, String> queryParams = {
+      if (spaceId != null) 'spaceId': spaceId,
+      if (pageSize != null) 'pageSize': '$pageSize',
+      if (page != null) 'page': '$page',
+    };
+
+    final response = await _network.get(
+        "nft/collection/{$tokenAddress}/benefits", queryParams);
     return response.data
         .map<NftBenefitDto>(
             (e) => NftBenefitDto.fromJson(e as Map<String, dynamic>))

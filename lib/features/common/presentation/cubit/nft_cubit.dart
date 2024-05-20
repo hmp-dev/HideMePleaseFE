@@ -96,7 +96,7 @@ class NftCubit extends BaseCubit<NftState> {
       return state.nftCollectionsGroupEntity;
     }
 
-// Add collections to the current list
+    // Add collections to the current list
 
     List<NftCollectionEntity> collections =
         List.from(state.nftCollectionsGroupEntity.collections);
@@ -176,11 +176,17 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
-  getNftListForHomeWithEmptyAt1stAndLast(List<SelectedNFTEntity> resultList) {
+  List<SelectedNFTEntity> getNftListForHomeWithEmptyAt1stAndLast(
+      List<SelectedNFTEntity> resultList) {
     List<SelectedNFTEntity> result = List.from(resultList);
     //
-    result.insert(0, const SelectedNFTEntity.emptyForHome1st());
+
     result.add(const SelectedNFTEntity.empty());
+
+    result.insert(0, const SelectedNFTEntity.emptyForHome1st());
+
+    Log.info("result.length: ${result.length}");
+    Log.info("result[0].imageUrl: ${result[0].imageUrl}");
 
     return result;
   }
@@ -279,9 +285,21 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
-  Future<void> onGetNftBenefits({required String tokenAddress}) async {
-    final response =
-        await _nftRepository.getNftBenefits(tokenAddress: tokenAddress);
+  Future<void> onGetNftBenefits({
+    required String tokenAddress,
+    String? spaceId,
+    int? pageSize,
+    int? page,
+  }) async {
+    EasyLoading.show();
+
+    final response = await _nftRepository.getNftBenefits(
+      tokenAddress: tokenAddress,
+      spaceId: spaceId,
+      pageSize: pageSize,
+      page: page,
+    );
+    EasyLoading.dismiss();
 
     response.fold(
       (err) {

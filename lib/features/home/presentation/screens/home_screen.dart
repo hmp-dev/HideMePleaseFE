@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/constants/wallet_connects_constants.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
@@ -8,10 +9,14 @@ import 'package:mobile/features/common/infrastructure/dtos/save_wallet_request_d
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/views/home_view_after_wallet_connected.dart';
 import 'package:mobile/features/home/presentation/views/home_view_before_login.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -89,19 +94,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<WalletsCubit, WalletsState>(
-      bloc: getIt<WalletsCubit>(),
-      listener: (context, state) {
-        if (state.isSuccess) {
-          // call to get nft collections
-          getIt<NftCubit>().onGetNftCollections();
-          // show the AfterLoginWithNFT screen
-          getIt<HomeCubit>()
-              .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
-          // navigate to MyMembershipSettingsScreen
-          MyMembershipSettingsScreen.push(context);
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<WalletsCubit, WalletsState>(
+          bloc: getIt<WalletsCubit>(),
+          listener: (context, state) {
+            if (state.isSuccess) {
+              // call to get nft collections
+              getIt<NftCubit>().onGetNftCollections();
+              // show the AfterLoginWithNFT screen
+              getIt<HomeCubit>()
+                  .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
+              // navigate to MyMembershipSettingsScreen
+              MyMembershipSettingsScreen.push(context);
+            }
+          },
+        ),
+        BlocListener<SpaceCubit, SpaceState>(
+          bloc: getIt<SpaceCubit>(),
+          listener: (context, state) {
+            if (state.isSuccess) {
+              if (state.spacesResponseEntity.spaces.isNotEmpty) {
+                RedeemBenefitScreen.push(
+                  context,
+                  state.spacesResponseEntity.spaces[0],
+                  state.selectedNftTokenAddress,
+                );
+              } else {
+                context.showSnackBar(LocaleKeys.noSpacesFound.tr());
+              }
+            }
+          },
+        ),
+      ],
       child: BlocConsumer<HomeCubit, HomeState>(
         bloc: getIt<HomeCubit>(),
         listener: (context, state) {},

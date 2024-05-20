@@ -23,7 +23,9 @@ class PagePopup extends StatelessWidget {
               width: MediaQuery.of(context).size.width - 120,
               child: AspectRatio(
                 aspectRatio: 0.5,
-                child: SizedBox(
+                child: 
+                
+                SizedBox(
                   width: 182,
                   height: 158,
                   child: Lottie.asset(onBoardingSlideData.animationPath,

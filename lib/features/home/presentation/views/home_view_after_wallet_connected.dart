@@ -4,7 +4,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
 import 'package:mobile/app/core/animations/fade_indexed_stack.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -90,7 +89,8 @@ class _HomeViewAfterWalletConnectedState
               listener: (context, walletsState) {},
               builder: (context, walletsState) {
                 final connectedWallet = walletsState.connectedWallets;
-                List<SelectedNFTEntity> selectedNfts = nftState.nftsListHome;
+                List<SelectedNFTEntity> selectedNftsListForHome =
+                    nftState.nftsListHome;
 
                 return Column(
                   children: [
@@ -117,30 +117,35 @@ class _HomeViewAfterWalletConnectedState
                                 setState(() {
                                   _currentIndex = index;
                                   _currentTokenAddress =
-                                      selectedNfts[index].tokenAddress;
+                                      selectedNftsListForHome[index]
+                                          .tokenAddress;
                                 });
 
                                 // if index is last item,
                                 // and set _isCurrentIndexIsLat as true
-                                if (_currentIndex == selectedNfts.length - 1) {
+                                if (_currentIndex ==
+                                    selectedNftsListForHome.length - 1) {
                                   setState(() => _isCurrentIndexIsLat = true);
                                 } else {
                                   // else set isItemFirstOrLast as false
                                   setState(() => _isCurrentIndexIsLat = false);
                                   //call NFt Benefits API
                                   getIt<NftCubit>().onGetNftBenefits(
-                                      tokenAddress: selectedNfts[index]
-                                          .tokenAddress
-                                          .trim());
+                                      tokenAddress:
+                                          selectedNftsListForHome[index]
+                                              .tokenAddress
+                                              .trim());
                                 }
                               },
                             ),
-                            items: selectedNfts.map((item) {
-                              final itemIndex = selectedNfts.indexOf(item);
+                            items: selectedNftsListForHome.map((item) {
+                              final itemIndex =
+                                  selectedNftsListForHome.indexOf(item);
 
                               // If itemIndex is last, then return GoToMemberShipCardWidget
                               // else  return  NFTCardWidgetParent
-                              if (itemIndex == selectedNfts.length - 1) {
+                              if (itemIndex ==
+                                  selectedNftsListForHome.length - 1) {
                                 return const GoToMemberShipCardWidget();
                               }
                               return GestureDetector(
@@ -152,6 +157,12 @@ class _HomeViewAfterWalletConnectedState
                                       locationState.longitude == 0.0) {
                                     getIt<EnableLocationCubit>()
                                         .onAskDeviceLocation();
+                                  } else {
+                                    getIt<SpaceCubit>().onGetSpacesData(
+                                      tokenAddress: item.tokenAddress,
+                                      latitude: 2.0, //locationState.latitude,
+                                      longitude: 2.0,
+                                    ); //locationState.longitude);
                                   }
 
                                   Log.trace(
