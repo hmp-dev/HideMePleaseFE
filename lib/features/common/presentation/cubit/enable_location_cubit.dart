@@ -87,23 +87,18 @@ class EnableLocationCubit extends BaseCubit<EnableLocationState> {
     if (locationResult.error != null) {
       // Handle the error
       Log.debug(locationResult.error!);
+      emit(state.copyWith(submitStatus: RequestStatus.failure));
     } else {
       // Location obtained successfully, do something with the position
       Position position = locationResult.position!;
       Log.debug(
           'Latitude: ${position.latitude}, Longitude: ${position.longitude}');
 
-      // final response = await _profileRepository.setLocation(
-      //   SetLocationRequestDto(
-      //     latitude: position.latitude,
-      //     longitude: position.longitude,
-      //   ),
-      // );
-
-      // response.fold(
-      //   (err) => emit(state.copyWith(submitStatus: RequestStatus.failure)),
-      //   (success) => emit(state.copyWith(submitStatus: RequestStatus.success)),
-      // );
+      emit(state.copyWith(
+        submitStatus: RequestStatus.success,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      ));
     }
   }
 }

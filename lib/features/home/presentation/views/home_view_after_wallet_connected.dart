@@ -9,8 +9,10 @@ import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
 import 'package:mobile/app/core/animations/fade_indexed_stack.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -26,6 +28,7 @@ import 'package:mobile/features/home/presentation/widgets/nft_card_iconnav_row.d
 import 'package:mobile/features/home/presentation/widgets/nft_card_rewards_bottom_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 
 class HomeViewAfterWalletConnected extends StatefulWidget {
   const HomeViewAfterWalletConnected({
@@ -140,19 +143,36 @@ class _HomeViewAfterWalletConnectedState
                               if (itemIndex == selectedNfts.length - 1) {
                                 return const GoToMemberShipCardWidget();
                               }
-                              return NFTCardWidgetParent(
-                                imagePath: itemIndex == 0
-                                    ? nftState.welcomeNftEntity.image
-                                    : item.imageUrl,
-                                topWidget: NftCardTopTitleWidget(
-                                  title: item.name,
-                                  chain: item.chain,
+                              return GestureDetector(
+                                onTap: () {
+                                  final locationState =
+                                      getIt<EnableLocationCubit>().state;
+
+                                  if (locationState.latitude == 0.0 ||
+                                      locationState.longitude == 0.0) {
+                                    getIt<EnableLocationCubit>()
+                                        .onAskDeviceLocation();
+                                  }
+
+                                  Log.trace(
+                                      "latitude: ${locationState.latitude}");
+                                  Log.trace(
+                                      "longitude: ${locationState.longitude}");
+                                },
+                                child: NFTCardWidgetParent(
+                                  imagePath: itemIndex == 0
+                                      ? nftState.welcomeNftEntity.image
+                                      : item.imageUrl,
+                                  topWidget: NftCardTopTitleWidget(
+                                    title: item.name,
+                                    chain: item.chain,
+                                  ),
+                                  bottomWidget: _getBottomWidget(
+                                      itemIndex,
+                                      nftState.welcomeNftEntity,
+                                      widget.isOverIconNavVisible),
+                                  index: itemIndex,
                                 ),
-                                bottomWidget: _getBottomWidget(
-                                    itemIndex,
-                                    nftState.welcomeNftEntity,
-                                    widget.isOverIconNavVisible),
-                                index: itemIndex,
                               );
                             }).toList(),
                           ),

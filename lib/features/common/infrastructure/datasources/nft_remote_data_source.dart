@@ -23,7 +23,7 @@ class NftRemoteDataSource {
     // Construct the query parameters
     final Map<String, String> queryParams = {
       if (chain != null) 'chain': chain,
-      if (nextCursor != null) 'cursor': nextCursor,
+      if (nextCursor != null) 'next': nextCursor,
     };
 
     final response = await _network.get("nft/collections", queryParams);

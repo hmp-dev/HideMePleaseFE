@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   initializeState() async {
     var w3mService = W3MService(
-      logLevel: LogLevel.info,
+      logLevel: LogLevel.debug,
       featuredWalletIds: Web3Constants.allowedWalletIds,
       includedWalletIds: Web3Constants.allowedWalletIds,
       projectId: Web3Constants.projectId,

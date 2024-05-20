@@ -35,6 +35,13 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
             url: state.consumeWelcomeNftUrl,
           );
         }
+
+        if (state.isFailure) {
+          snackBarService.showSnackbar(
+            message: state.errorMessage,
+            duration: const Duration(seconds: 2),
+          );
+        }
       },
       child: Padding(
         padding: const EdgeInsets.all(20.0),

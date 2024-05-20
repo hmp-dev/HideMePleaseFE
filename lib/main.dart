@@ -9,9 +9,9 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/app.dart';
 import 'package:mobile/app/core/env/app_env.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/pref_keys.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,7 +30,6 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
 
   isShowOnBoarding = prefs.getInt(isShowOnBoardingView);
-  ("isShowOnBoarding: $isShowOnBoarding").log();
 
   await initApp();
 
@@ -77,6 +76,8 @@ Future initApp() async {
     // App
     // getIt<AppCubit>().onStart(),
   ]);
+
+  Log.configureLogger();
 
   EasyLoading.instance
     ..displayDuration = const Duration(milliseconds: 2000)

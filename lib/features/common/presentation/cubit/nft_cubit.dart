@@ -32,63 +32,6 @@ class NftCubit extends BaseCubit<NftState> {
 
   final SnackbarService snackbarService = getIt<SnackbarService>();
 
-  // Future<void> onGetNftCollections({
-  //   String? chain,
-  //   String? nextCursor,
-  //   bool? isLoadMoreFetch,
-  // }) async {
-  //   EasyLoading.show();
-
-  //   final response = await _nftRepository.getNftCollections(
-  //     chain: chain,
-  //     nextCursor: nextCursor,
-  //   );
-
-  //   EasyLoading.dismiss();
-  //   response.fold(
-  //     (err) {
-  //       Log.error(err);
-  //       emit(state.copyWith(
-  //         submitStatus: RequestStatus.failure,
-  //         errorMessage: LocaleKeys.somethingError.tr(),
-  //       ));
-  //     },
-  //     (nftCollectionsGroup) {
-  //       if (isLoadMoreFetch == true) {
-  //         NftCollectionsGroupEntity result = nftCollectionsGroup.toEntity();
-
-  //         // Create a new instance of NftCollectionsGroupEntity with updated 'next' value
-  //         NftCollectionsGroupEntity updatedGroupEntity =
-  //             state.nftCollectionsGroupEntity.copyWith(next: result.next);
-
-  //         // Add collections to the current list
-  //         updatedGroupEntity.collections.addAll(result.collections);
-
-  //         emit(
-  //           state.copyWith(
-  //             submitStatus: RequestStatus.success,
-  //             errorMessage: '',
-  //             nftCollectionsGroupEntity: updatedGroupEntity,
-  //             collectionFetchTime: DateTime.now(),
-  //             selectedChain: chain ?? ChainType.ALL.name,
-  //           ),
-  //         );
-  //       } else {
-  //         // Reset the nftCollectionsGroupEntity
-  //         emit(
-  //           state.copyWith(
-  //             submitStatus: RequestStatus.success,
-  //             errorMessage: '',
-  //             nftCollectionsGroupEntity: nftCollectionsGroup.toEntity(),
-  //             collectionFetchTime: DateTime.now(),
-  //             selectedChain: chain ?? ChainType.ALL.name,
-  //           ),
-  //         );
-  //       }
-  //     },
-  //   );
-  // }
-
   Future<void> onGetNftCollections({
     String? chain,
     String? nextCursor,
@@ -313,6 +256,7 @@ class NftCubit extends BaseCubit<NftState> {
     response.fold(
       (err) {
         Log.error(err);
+
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),

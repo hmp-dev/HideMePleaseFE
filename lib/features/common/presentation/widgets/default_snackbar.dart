@@ -25,7 +25,15 @@ class DefaultSnackBar {
     BuildContext context, {
     required String message,
   }) {
-    init(context.read<GlobalKey<NavigatorState>>().currentContext!);
+    BuildContext? navigatorContext =
+        context.read<GlobalKey<NavigatorState>>().currentContext;
+    if (navigatorContext != null) {
+      Log.info('Success: navigatorContext is NOT null');
+      init(navigatorContext);
+    } else {
+      Log.info('Info: navigatorContext is null');
+      init(context);
+    }
 
     _fToast.showToast(
       child: _snackBar(context, message),
