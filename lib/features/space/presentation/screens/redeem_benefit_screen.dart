@@ -8,12 +8,12 @@ import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/features/common/presentation/widgets/page_dot_indicator.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_card_widget_parent.dart';
-import 'package:mobile/features/home/presentation/widgets/nfc_read_process_widget.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
+import 'package:mobile/features/space/presentation/views/nfc_read_process_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class RedeemBenefitScreen extends StatefulWidget {
   const RedeemBenefitScreen({
@@ -42,8 +42,11 @@ class RedeemBenefitScreen extends StatefulWidget {
 }
 
 class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
-  final _pageController = PageController(initialPage: 0);
   final CarouselController _carouselController = CarouselController();
+
+  String selectedBenefitId = "";
+  int selectedPageIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -53,8 +56,10 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
   fetchBenefits() {
     // get Benefits
     getIt<NftCubit>().onGetNftBenefits(
-        tokenAddress: widget.selectedNftTokenAddress,
-        spaceId: widget.nearBySpaceEntity.id);
+      tokenAddress: widget.selectedNftTokenAddress,
+      spaceId: widget.nearBySpaceEntity.id,
+      isShowLoading: true,
+    );
   }
 
   @override
@@ -113,11 +118,12 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                               enlargeCenterPage: false,
                               enlargeFactor: 0.12,
                               autoPlayInterval: const Duration(seconds: 3),
-                              onPageChanged: (int index,
-                                  CarouselPageChangedReason reason) {
-                                _pageController.animateToPage(index,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeIn);
+                              onPageChanged: (int index, _) {
+                                setState(() {
+                                  selectedPageIndex = index;
+                                  selectedBenefitId =
+                                      state.nftBenefitList[index].id;
+                                });
                               },
                             ),
                             items: state.nftBenefitList.map((item) {
@@ -134,17 +140,9 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                     ),
                   ),
                 const VerticalSpace(20),
-                SmoothPageIndicator(
-                  controller: _pageController, // PageController
-                  count: state.nftBenefitList.length,
-                  effect: const WormEffect(
-                    activeDotColor: hmpBlue,
-                    dotColor: fore4,
-                    dotHeight: 7.0,
-                    dotWidth: 7.0,
-                    spacing: 10.0,
-                  ), // your preferred effect
-                  onDotClicked: (index) {},
+                PageDotIndicator(
+                  length: state.nftBenefitList.length,
+                  selectedIndex: selectedPageIndex,
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
@@ -152,34 +150,19 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   child: HMPCustomButton(
                     text: LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
                     onPressed: () {
-                      _showTopDialog(context);
+                      NfcReadProcessView.push(
+                        context: context,
+                        spaceId: widget.nearBySpaceEntity.id,
+                        benefitId: selectedBenefitId != ""
+                            ? selectedBenefitId
+                            : state.nftBenefitList[0].id,
+                        tokenAddress: widget.selectedNftTokenAddress,
+                      );
                     },
                   ),
                 )
               ],
             )),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showTopDialog(
-    BuildContext context,
-  ) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.black,
-          //insetPadding: EdgeInsets.only(top: 50.0, left: 16.0, right: 16.0),
-          child: Align(
-            alignment: Alignment.center,
-            child: NfcReadProcessWidget(
-              spaceId: widget.nearBySpaceEntity.id,
-              benefitId: "95f7bcab-3141-44df-b406-d50c75decd18",
-              tokenAddress: widget.selectedNftTokenAddress,
-            ),
           ),
         );
       },

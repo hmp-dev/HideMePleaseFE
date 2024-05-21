@@ -84,5 +84,7 @@ abstract class  LocaleKeys {
   static const redeemYourBenefitsScreenTitle = 'redeemYourBenefitsScreenTitle';
   static const redeemYourBenefitsBtnTitle = 'redeemYourBenefitsBtnTitle';
   static const noSpacesFound = 'noSpacesFound';
+  static const benefitRedeemErrorMsg = 'benefitRedeemErrorMsg';
+  static const benefitRedeemSuccessMsg = 'benefitRedeemSuccessMsg';
 
 }

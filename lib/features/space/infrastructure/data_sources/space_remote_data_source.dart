@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/space/infrastructure/dtos/spaces_response_dto.dart';
 
@@ -45,6 +46,9 @@ class SpaceRemoteDataSource {
 
     final response =
         await _network.post("space/benefits/redeem/$benefitId", queryParams);
+
+    "response is: ${response.statusCode}".log();
+    "response is: ${response.data}".log();
 
     if (response.statusCode == 204) {
       return true;

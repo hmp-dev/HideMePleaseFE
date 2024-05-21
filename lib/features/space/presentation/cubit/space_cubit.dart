@@ -55,14 +55,9 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   Future<void> onGetBackdoorToken({
     required String spaceId,
   }) async {
-    emit(state.copyWith(submitStatus: RequestStatus.loading));
-    EasyLoading.show(dismissOnTap: true);
     final response = await _spaceRepository.getBackdoorToken(
       spaceId: spaceId,
     );
-
-    EasyLoading.dismiss();
-
     response.fold(
       (err) {
         emit(state.copyWith(
@@ -87,11 +82,8 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     required String tokenAddress,
     required String nfcToken,
   }) async {
-    emit(state.copyWith(
-      submitStatus: RequestStatus.loading,
-      benefitRedeemStatus: false,
-    ));
     EasyLoading.show(dismissOnTap: true);
+
     final response = await _spaceRepository.postRedeemBenefit(
       benefitId: benefitId,
       tokenAddress: tokenAddress,
@@ -117,5 +109,9 @@ class SpaceCubit extends BaseCubit<SpaceState> {
         );
       },
     );
+  }
+
+  onResetSubmitStatus() {
+    emit(state.copyWith(submitStatus: RequestStatus.initial));
   }
 }

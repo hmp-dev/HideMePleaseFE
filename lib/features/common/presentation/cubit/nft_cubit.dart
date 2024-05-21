@@ -290,8 +290,11 @@ class NftCubit extends BaseCubit<NftState> {
     String? spaceId,
     int? pageSize,
     int? page,
+    bool isShowLoading = false,
   }) async {
-    EasyLoading.show();
+
+    
+    if(isShowLoading) EasyLoading.show();
 
     final response = await _nftRepository.getNftBenefits(
       tokenAddress: tokenAddress,
@@ -299,7 +302,7 @@ class NftCubit extends BaseCubit<NftState> {
       pageSize: pageSize,
       page: page,
     );
-    EasyLoading.dismiss();
+    if(isShowLoading) EasyLoading.dismiss();
 
     response.fold(
       (err) {

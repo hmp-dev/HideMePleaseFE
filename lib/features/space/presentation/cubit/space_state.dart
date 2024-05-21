@@ -57,4 +57,6 @@ class SpaceState extends BaseState {
       benefitRedeemStatus: benefitRedeemStatus ?? this.benefitRedeemStatus,
     );
   }
+
+  
 }

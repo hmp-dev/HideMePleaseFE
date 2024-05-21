@@ -81,8 +81,7 @@
     "oldest":"Oldest",
     "redeemYourBenefitsScreenTitle":"Redeem your benefits",
     "redeemYourBenefitsBtnTitle":"Redeem your benefits",
-    "noSpacesFound":"No spaces found"
-
-    
-    
+    "noSpacesFound":"No spaces found",
+    "benefitRedeemErrorMsg":"Error redeeming benefit.",
+    "benefitRedeemSuccessMsg":"The benefit has been used successfully."
 }
