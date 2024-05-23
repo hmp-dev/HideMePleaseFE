@@ -90,10 +90,13 @@ class _StartUpScreenState extends State<StartUpScreen> {
                 // and then Navigate to Home View
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
+                // pass value to appHome with Navigator.pushNamedAndRemoveUntil to disconnect wallet
+
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   Routes.appHome,
                   (route) => false,
+                  arguments: {'isWalletSavedIntoProfile': false},
                 );
               } else {
                 // If a wallet is Connected

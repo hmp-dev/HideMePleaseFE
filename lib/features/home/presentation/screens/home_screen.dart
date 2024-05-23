@@ -161,7 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onSessionUpdate(SessionUpdate? args) {
     ('[$runtimeType] onSessionUpdate $args').log();
-    //getIt<HomeCubit>().onUpdateHomeViewType(HomeViewType.AfterLoginWithNFT);
+    
+    //getIt<HomeCubit>().onUpdateHomeViewType(HomeViewType.afterWalletConnected);
   }
 
   void _onSessionExpired(SessionExpire? args) {
@@ -183,6 +184,9 @@ class _HomeScreenState extends State<HomeScreen> {
     getIt<WalletsCubit>().onPostWallet(
         saveWalletRequestDto: SaveWalletRequestDto(
             publicAddress: publicAddress, provider: providerName));
+
+    // Update HomeViewType to AfterWalletConnected
+    //getIt<HomeCubit>().onUpdateHomeViewType(HomeViewType.afterWalletConnected);
   }
 
   void _onModalDisconnect(ModalDisconnect? args) {

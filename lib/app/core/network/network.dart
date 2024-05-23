@@ -2,8 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/env/app_env.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/network/dio_request_logger.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
+import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 
 @singleton
 class Network {
@@ -15,8 +17,6 @@ class Network {
 
   @PostConstruct(preResolve: true)
   Future<void> initialize() async {
-    //baseUrl: "http://43.201.148.247/v1/",
-
     _dio = Dio(BaseOptions(
       baseUrl: appEnv.apiUrl,
       connectTimeout: const Duration(seconds: 30),
@@ -64,9 +64,17 @@ class Network {
     DioException error,
     ErrorInterceptorHandler handler,
   ) async {
+    // Logout the User If Token invalid
+    if (error.response?.statusCode == 400 &&
+        error.response?.data['message'] is List &&
+        error.response?.data['message'].contains("Token invalid")) {
+      getIt<AppCubit>().onLogOut();
+    }
+
     if (error.response?.statusCode == 401) {
       try {
-        await _refreshAccessToken();
+        //await _refreshAccessToken();
+        getIt<AppCubit>().onLogOut();
       } on DioException catch (_) {
         // TODO Implement logout
         return;
