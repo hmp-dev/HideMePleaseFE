@@ -1,14 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/home/presentation/widgets/glassmorphic_button.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent_local.dart';
-import 'package:web3modal_flutter/web3modal_flutter.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class HomeViewBeforeLogin extends StatefulWidget {
   const HomeViewBeforeLogin({
@@ -44,13 +45,44 @@ class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
           builder: (context, state) {
             // check if the w3mService is initialized
             if (state.w3mService != null) {
-              return W3MConnectWalletButton(
-                service: state.w3mService!,
+              return ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50.0),
+                  )),
+                  overlayColor:
+                      MaterialStateProperty.all<Color>(Colors.transparent),
+                ),
+                onPressed: () {
+                  state.w3mService!.openModal(context);
+                },
+                child: Text(
+                  LocaleKeys.walletConnection.tr(),
+                  style: fontCompactMdMedium(color: white),
+                ),
               );
+
+              // W3MConnectWalletButton(
+              //   service: state.w3mService!,
+              // );
             } else {
               return ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50.0),
+                  )),
+                  overlayColor:
+                      MaterialStateProperty.all<Color>(Colors.transparent),
+                ),
                 onPressed: () {},
-                child: const Text("Connect Wallet"),
+                child: Text(
+                  LocaleKeys.walletConnection.tr(),
+                  style: fontCompactMdMedium(color: white),
+                ),
               );
             }
           },

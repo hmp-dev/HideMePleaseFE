@@ -87,5 +87,6 @@ abstract class  LocaleKeys {
   static const benefitRedeemErrorMsg = 'benefitRedeemErrorMsg';
   static const benefitRedeemSuccessMsg = 'benefitRedeemSuccessMsg';
   static const save = 'save';
+  static const walletConnection = 'walletConnection';
 
 }

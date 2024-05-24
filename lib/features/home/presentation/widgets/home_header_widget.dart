@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -71,8 +73,8 @@ class HomeHeaderWidget extends StatelessWidget {
             const SizedBox(width: 20),
             GestureDetector(
               onTap: () {
-                // getIt<HomeCubit>()
-                //     .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
+                getIt<HomeCubit>()
+                    .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
 
                 // getIt<ProfileCubit>().onUpdateUserProfile(
                 //     UpdateProfileRequestDto(nickName: "Dave John"));
