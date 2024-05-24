@@ -5,7 +5,7 @@ import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
@@ -13,7 +13,7 @@ import 'package:mobile/features/common/presentation/widgets/vertical_space.dart'
 import 'package:mobile/features/membership_settings/presentation/screens/edit_membership_list.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/block_chain_select_button.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/collection_title_widget.dart';
-import 'package:mobile/features/membership_settings/presentation/widgets/connected_walletes_widget.dart';
+import 'package:mobile/features/membership_settings/presentation/widgets/connected_wallets_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/nft_token_widget.dart';
 import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -118,7 +118,7 @@ class _MyMembershipSettingsScreenState
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const ConnectedWalletWidget(),
+                                const ConnectedWalletsWidget(),
                                 const SizedBox(height: 20),
                                 Container(
                                   margin: const EdgeInsets.only(left: 20),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/domain/entities/nft_points_entity.dart';
+import 'package:mobile/features/nft/domain/entities/nft_points_entity.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/home_member_item_widget.dart';
 

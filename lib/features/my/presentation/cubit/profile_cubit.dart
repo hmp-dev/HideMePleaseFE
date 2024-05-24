@@ -3,7 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/features/my/domain/entities/base_user_entity.dart';
-import 'package:mobile/features/common/infrastructure/dtos/update_profile_request_dto.dart';
+import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';

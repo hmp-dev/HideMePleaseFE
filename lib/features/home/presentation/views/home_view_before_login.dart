@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/home/presentation/widgets/glassmorphic_button.dart';
@@ -10,10 +13,7 @@ import 'package:web3modal_flutter/web3modal_flutter.dart';
 class HomeViewBeforeLogin extends StatefulWidget {
   const HomeViewBeforeLogin({
     super.key,
-    required this.w3mService,
   });
-
-  final W3MService w3mService;
 
   @override
   State<HomeViewBeforeLogin> createState() => _HomeViewBeforeLoginState();
@@ -38,7 +38,23 @@ class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
           ),
         ),
         const SizedBox(height: 20),
-        W3MConnectWalletButton(service: widget.w3mService),
+        BlocConsumer<WalletsCubit, WalletsState>(
+          bloc: getIt<WalletsCubit>(),
+          listener: (context, state) {},
+          builder: (context, state) {
+            // check if the w3mService is initialized
+            if (state.w3mService != null) {
+              return W3MConnectWalletButton(
+                service: state.w3mService!,
+              );
+            } else {
+              return ElevatedButton(
+                onPressed: () {},
+                child: const Text("Connect Wallet"),
+              );
+            }
+          },
+        ),
         const SizedBox(height: 30),
         NFTCardWidgetParentLocal(
           imagePath: "assets/images/home_card_img.png",

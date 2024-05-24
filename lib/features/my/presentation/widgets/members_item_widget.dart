@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
+import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';

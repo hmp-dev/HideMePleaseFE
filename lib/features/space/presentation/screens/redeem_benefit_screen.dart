@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';

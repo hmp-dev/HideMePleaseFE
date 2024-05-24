@@ -5,7 +5,7 @@ import 'package:mobile/app/core/helpers/preload_page_view/preload_page_view.dart
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
-import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_screen.dart';
 import 'package:mobile/features/events/presentation/screens/events_screen.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';

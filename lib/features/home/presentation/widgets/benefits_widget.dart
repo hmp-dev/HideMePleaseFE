@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/home_benefits_item_widget.dart';

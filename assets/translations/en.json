@@ -83,5 +83,7 @@
     "redeemYourBenefitsBtnTitle":"Redeem your benefits",
     "noSpacesFound":"No spaces found",
     "benefitRedeemErrorMsg":"Error redeeming benefit.",
-    "benefitRedeemSuccessMsg":"The benefit has been used successfully."
+    "benefitRedeemSuccessMsg":"The benefit has been used successfully.",
+    "save":"Save"
 }
+

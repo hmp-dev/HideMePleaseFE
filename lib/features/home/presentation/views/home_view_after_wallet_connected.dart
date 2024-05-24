@@ -9,11 +9,11 @@ import 'package:mobile/app/core/animations/fade_indexed_stack.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
-import 'package:mobile/features/common/domain/entities/selected_nft_entity.dart';
-import 'package:mobile/features/common/domain/entities/welcome_nft_entity.dart';
+import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
+import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
-import 'package:mobile/features/common/presentation/cubit/nft_cubit.dart';
-import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefits_widget.dart';
@@ -196,9 +196,12 @@ class _HomeViewAfterWalletConnectedState
                       ],
                     ),
                     const SizedBox(height: 20),
-                    CustomImageView(
-                      svgPath: "assets/icons/ic_angle_arrow_down.svg",
-                    ),
+                    // not show this for first and last index
+                    if (_currentIndex != 0 &&
+                        _currentIndex != selectedNftsListForHome.length - 1)
+                      CustomImageView(
+                        svgPath: "assets/icons/ic_angle_arrow_down.svg",
+                      ),
                     (!_isCurrentIndexIsLat &&
                             _currentIndex != 0 &&
                             !widget.isOverIconNavVisible)

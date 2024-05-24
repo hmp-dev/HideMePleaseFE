@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
-import 'package:mobile/features/common/infrastructure/dtos/update_profile_request_dto.dart';
+import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/infrastructure/dtos/base_user_dto.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/infrastructure/data_sources/profile_remote_data_source.dart';

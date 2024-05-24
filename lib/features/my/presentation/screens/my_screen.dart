@@ -6,7 +6,7 @@ import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
-import 'package:mobile/features/common/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
@@ -58,9 +58,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
           },
           suffix: GestureDetector(
             onTap: () {
-              // getIt<AppCubit>().onLogOut();
-
-              MyEditScreen.push(context);
+              MyEditScreen.push(context, userData);
             },
             child: DefaultImage(
                 path: "assets/icons/img_icon_system.svg",
@@ -135,14 +133,14 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "나는꿈을꾸는문어", //name I am a dreaming octopus
+                    userProfile.nickName, //name I am a dreaming octopus
                     style: fontM(16),
                   ),
                   const SizedBox(height: 7),
                   SizedBox(
                     width: 226,
                     child: Text(
-                      "높은 산에 올라가면 나는 초록색 문어, 장미 꽃밭 숨어들면 나는 빨간색 문어",
+                      userProfile.introduction,
                       // introduction Text
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -153,6 +151,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                   ),
                   const VerticalSpace(10),
                   LinkedWalletButton(
+                    titleText: LocaleKeys.linkedWallet.tr(),
                     count: connectedWalletsList.length,
                     onTap: () {},
                   ),

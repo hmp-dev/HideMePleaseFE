@@ -86,5 +86,6 @@ abstract class  LocaleKeys {
   static const noSpacesFound = 'noSpacesFound';
   static const benefitRedeemErrorMsg = 'benefitRedeemErrorMsg';
   static const benefitRedeemSuccessMsg = 'benefitRedeemSuccessMsg';
+  static const save = 'save';
 
 }

@@ -43,29 +43,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
         Navigator.pop(context);
       },
       body: InAppWebView(
-        initialData: InAppWebViewInitialData(
-          data: """
-      <!DOCTYPE html><html>
-      <head><title>WebPage to Redeem Free NFT Reward</title>
-      <style>
-        body {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          flex-direction: column;
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-      </style>
-      </head>
-      <body>
-      <H1>WebPage to Redeem Free NFT Reward</H1>
-      <p> URL is${widget.url}</p></body>
-      </html>
-    """,
-        ),
         initialUrlRequest: URLRequest(
           url: WebUri.uri(Uri.parse(widget.url)),
         ),

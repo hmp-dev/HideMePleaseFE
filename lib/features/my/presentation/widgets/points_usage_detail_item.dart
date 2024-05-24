@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/domain/entities/nft_usage_history_entity.dart';
+import 'package:mobile/features/nft/domain/entities/nft_usage_history_entity.dart';
 
 class PointsUsageDetailItem extends StatelessWidget {
   const PointsUsageDetailItem({
