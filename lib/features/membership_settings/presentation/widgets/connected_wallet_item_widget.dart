@@ -84,8 +84,8 @@ class ConnectedWalletItemWidget extends StatelessWidget {
 
                       IconButton.outlined(
                         onPressed: () {
-                          getIt<WalletsCubit>().onDeleteConnectedWallet(
-                              walletId: connectedWallet.id);
+                          // getIt<WalletsCubit>().onDeleteConnectedWallet(
+                          //     walletId: connectedWallet.id);
                         },
                         icon: const Icon(Icons.delete),
                       )
