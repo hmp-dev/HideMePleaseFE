@@ -603,7 +603,7 @@ TextStyle fontTitle07Medium({Color? color = fore1}) => TextStyle(
 TextStyle fontTitle07Bold({Color? color = fore1}) => TextStyle(
       fontSize: 16,
       fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
       color: color ?? fore1,
       letterSpacing: -0.1,
       height: 1.4,

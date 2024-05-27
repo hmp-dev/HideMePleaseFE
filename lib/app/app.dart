@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
         localizationsDelegates: context.localizationDelegates,
         supportedLocales: context.supportedLocales,
         locale: context.locale,
-        title: '공유용',
+        title: '하이드미플리즈', //Hyde Me Please
         theme: theme(),
         initialRoute:
             widget.isShowOnBoarding == 0 || widget.isShowOnBoarding == null

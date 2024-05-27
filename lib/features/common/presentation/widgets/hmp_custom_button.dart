@@ -4,11 +4,13 @@ import 'package:mobile/app/theme/theme.dart';
 class HMPCustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+  final Color bgColor;
 
   const HMPCustomButton({
     super.key,
     required this.text,
     required this.onPressed,
+    this.bgColor = backgroundGr1,
   });
 
   @override
@@ -19,7 +21,7 @@ class HMPCustomButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundGr1,
+          backgroundColor: bgColor,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4),

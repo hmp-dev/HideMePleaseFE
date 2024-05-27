@@ -88,5 +88,9 @@ abstract class  LocaleKeys {
   static const benefitRedeemSuccessMsg = 'benefitRedeemSuccessMsg';
   static const save = 'save';
   static const walletConnection = 'walletConnection';
+  static const requiresAgreementToTermsAndConditions = 'requiresAgreementToTermsAndConditions';
+  static const agreeTermDialogMessage = 'agreeTermDialogMessage';
+  static const allowLocationPermission = 'allowLocationPermission';
+  static const locationAlertMessage = 'locationAlertMessage';
 
 }

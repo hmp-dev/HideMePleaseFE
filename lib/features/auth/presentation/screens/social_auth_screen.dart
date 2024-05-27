@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/helpers/target.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
@@ -139,8 +140,16 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                             if (isAgreeWithTerms) {
                               getIt<AuthCubit>().onAppleLogin();
                             } else {
-                              context.showSnackBar(
-                                  LocaleKeys.agreeTermsAlertMSG.tr());
+                              showHmpAlertDialog(
+                                context: context,
+                                title: LocaleKeys
+                                    .requiresAgreementToTermsAndConditions
+                                    .tr(),
+                                content: LocaleKeys.agreeTermDialogMessage.tr(),
+                                onConfirm: () {
+                                  Navigator.pop(context);
+                                },
+                              );
                             }
                           },
                         ),

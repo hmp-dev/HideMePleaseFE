@@ -85,6 +85,10 @@
     "benefitRedeemErrorMsg":"Error redeeming benefit.",
     "benefitRedeemSuccessMsg":"The benefit has been used successfully.",
     "save":"Save",
-    "walletConnection":"Wallet Connection"
+    "walletConnection":"Wallet Connection",
+    "requiresAgreementToTermsAndConditions":"Requires agreement to terms and conditions",
+    "agreeTermDialogMessage":"Terms of Service and Privacy Policy\nYou can use the service after agreeing.",
+    "allowLocationPermission":"Allow location permission",
+    "locationAlertMessage":"Location permission is required.\nYou must agree to allow location permission\nto use the service."
 }
 

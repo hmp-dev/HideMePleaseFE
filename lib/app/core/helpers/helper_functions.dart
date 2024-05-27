@@ -1,5 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
-import 'package:intl/intl.dart';
+import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 String formatWalletAddress(String walletAddress) {
   if (walletAddress.length < 10) {
@@ -49,4 +53,45 @@ String formatNumberWithCommas(String numberString) {
   final number = int.tryParse(numberString) ?? 0;
   final formatter = NumberFormat('#,###');
   return formatter.format(number);
+}
+
+// ============
+
+showHmpAlertDialog({
+  required BuildContext context,
+  required String title,
+  required String content,
+  required Function onConfirm,
+}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        title: Center(
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: fontTitle07Bold(),
+          ),
+        ),
+        content: Text(
+          content,
+          textAlign: TextAlign.center,
+          style: fontBodySm(),
+        ),
+        actions: <Widget>[
+          HMPCustomButton(
+            bgColor: bg4,
+            text: LocaleKeys.confirm.tr(),
+            onPressed: () {
+              onConfirm();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

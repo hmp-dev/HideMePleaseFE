@@ -44,8 +44,8 @@ void main() async {
       useOnlyLangCode: true,
       child: DevicePreview(
         enabled: false,
-        builder: (_) => MyApp(
-          isShowOnBoarding: isShowOnBoarding,
+        builder: (_) => const MyApp(
+          isShowOnBoarding: 0, // isShowOnBoarding,
         ),
       ),
     ),
