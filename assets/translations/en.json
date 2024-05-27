@@ -89,6 +89,7 @@
     "requiresAgreementToTermsAndConditions":"Requires agreement to terms and conditions",
     "agreeTermDialogMessage":"Terms of Service and Privacy Policy\nYou can use the service after agreeing.",
     "allowLocationPermission":"Allow location permission",
-    "locationAlertMessage":"Location permission is required.\nYou must agree to allow location permission\nto use the service."
+    "locationAlertMessage":"Location permission is required.\nYou must agree to allow location permission\nto use the service.",
+    "alarm":"Alarm"
 }
 

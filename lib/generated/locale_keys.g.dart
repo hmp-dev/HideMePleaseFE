@@ -92,5 +92,6 @@ abstract class  LocaleKeys {
   static const agreeTermDialogMessage = 'agreeTermDialogMessage';
   static const allowLocationPermission = 'allowLocationPermission';
   static const locationAlertMessage = 'locationAlertMessage';
+  static const alarm = 'alarm';
 
 }

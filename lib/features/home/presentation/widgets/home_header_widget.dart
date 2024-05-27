@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
-import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
+import 'package:mobile/features/alarm/presentation/screens/alarms_screen.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
+import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
 
 class HomeHeaderWidget extends StatelessWidget {
   const HomeHeaderWidget({
@@ -73,17 +72,7 @@ class HomeHeaderWidget extends StatelessWidget {
             const SizedBox(width: 20),
             GestureDetector(
               onTap: () {
-                getIt<HomeCubit>()
-                    .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
-
-                // getIt<ProfileCubit>().onUpdateUserProfile(
-                //     UpdateProfileRequestDto(nickName: "Dave John"));
-
-                // getIt<NftCubit>().onGetWelcomeNft();
-
-                //getIt<NftCubit>().onGetUserSelectedNfts();
-
-                // getIt<NftCubit>().onGetConsumeWelcomeNft(welcomeNftId: 2);
+                AlarmsScreen.push(context);
               },
               child: DefaultImage(
                 path: "assets/icons/ic_notification.svg",

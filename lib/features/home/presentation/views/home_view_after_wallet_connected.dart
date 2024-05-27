@@ -279,17 +279,19 @@ class _HomeViewAfterWalletConnectedState
               child: SizedBox(
                 width: double.infinity,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      height: 40,
-                      width: 40,
-                      decoration: const BoxDecoration(
-                        color: bg1,
-                        shape: BoxShape.circle,
-                      ),
-                      child: CustomImageView(
-                        svgPath: "assets/icons/ic_angle_arrow_down.svg",
+                    Center(
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: const BoxDecoration(
+                          color: bg1,
+                          shape: BoxShape.circle,
+                        ),
+                        child: CustomImageView(
+                          svgPath: "assets/icons/ic_angle_arrow_down.svg",
+                        ),
                       ),
                     ),
                     NftCardTopTitleWidget(
