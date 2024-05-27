@@ -85,8 +85,6 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/social-auth-logos/
-    - assets/animations/
-    - assets/animations/
     - assets/lottie/
     - assets/fonts/
     - assets/wallet-logos/
