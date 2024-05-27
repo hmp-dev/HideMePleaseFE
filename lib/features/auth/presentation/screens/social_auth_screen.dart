@@ -113,8 +113,16 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         if (isAgreeWithTerms) {
                           getIt<AuthCubit>().onWorldIdLogin();
                         } else {
-                          context
-                              .showSnackBar(LocaleKeys.agreeTermsAlertMSG.tr());
+                          showHmpAlertDialog(
+                            context: context,
+                            title: LocaleKeys
+                                .requiresAgreementToTermsAndConditions
+                                .tr(),
+                            content: LocaleKeys.agreeTermDialogMessage.tr(),
+                            onConfirm: () {
+                              Navigator.pop(context);
+                            },
+                          );
                         }
                       },
                     ),
@@ -126,8 +134,16 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         if (isAgreeWithTerms) {
                           getIt<AuthCubit>().onGoogleLogin();
                         } else {
-                          context
-                              .showSnackBar(LocaleKeys.agreeTermsAlertMSG.tr());
+                          showHmpAlertDialog(
+                            context: context,
+                            title: LocaleKeys
+                                .requiresAgreementToTermsAndConditions
+                                .tr(),
+                            content: LocaleKeys.agreeTermDialogMessage.tr(),
+                            onConfirm: () {
+                              Navigator.pop(context);
+                            },
+                          );
                         }
                       },
                     ),
