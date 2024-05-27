@@ -9,6 +9,7 @@ import 'package:mobile/app/core/animations/fade_indexed_stack.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
@@ -181,7 +182,8 @@ class _HomeViewAfterWalletConnectedState
                                   bottomWidget: _getBottomWidget(
                                       itemIndex,
                                       nftState.welcomeNftEntity,
-                                      widget.isOverIconNavVisible),
+                                      widget.isOverIconNavVisible,
+                                      item),
                                   index: itemIndex,
                                 ),
                               );
@@ -261,13 +263,43 @@ class _HomeViewAfterWalletConnectedState
   }
 
   Widget _getBottomWidget(int itemIndex, WelcomeNftEntity welcomeNftEntity,
-      bool isOverIconNavVisible) {
+      bool isOverIconNavVisible, SelectedNFTEntity item) {
     if (itemIndex == 0) {
       return NftCardRewardsBottomWidget(welcomeNftEntity: welcomeNftEntity);
     } else {
       return isOverIconNavVisible
-          ? const NftCardIconNavRow()
-          : const SizedBox.shrink();
+          ? const AnimatedSlideFadeIn(
+              slideIndex: 0,
+              beginOffset: Offset(0.0, 0.01),
+              child: NftCardIconNavRow(),
+            )
+          : AnimatedSlideFadeIn(
+              slideIndex: 0,
+              beginOffset: const Offset(0.0, 0.01),
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 40,
+                      width: 40,
+                      decoration: const BoxDecoration(
+                        color: bg1,
+                        shape: BoxShape.circle,
+                      ),
+                      child: CustomImageView(
+                        svgPath: "assets/icons/ic_angle_arrow_down.svg",
+                      ),
+                    ),
+                    NftCardTopTitleWidget(
+                      title: item.name,
+                      chain: item.chain,
+                    ),
+                  ],
+                ),
+              ),
+            );
     }
   }
 }
