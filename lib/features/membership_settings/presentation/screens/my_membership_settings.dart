@@ -5,6 +5,7 @@ import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -179,74 +180,89 @@ class _MyMembershipSettingsScreenState
                                   ),
                                 ),
                                 const VerticalSpace(25),
-                                ListView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: state.nftCollectionsGroupEntity
-                                      .collections.length,
-                                  itemBuilder: (context, collectionIndex) {
-                                    final collectionName = state
-                                        .nftCollectionsGroupEntity
-                                        .collections[collectionIndex]
-                                        .name;
+                                (state.nftCollectionsGroupEntity.collections
+                                        .isEmpty)
+                                    ? const Column(
+                                        children: [
+                                          Center(child: EmptyDataWidget()),
+                                        ],
+                                      )
+                                    : ListView.builder(
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: state
+                                            .nftCollectionsGroupEntity
+                                            .collections
+                                            .length,
+                                        itemBuilder:
+                                            (context, collectionIndex) {
+                                          final collectionName = state
+                                              .nftCollectionsGroupEntity
+                                              .collections[collectionIndex]
+                                              .name;
 
-                                    final chainSymbol = state
-                                        .nftCollectionsGroupEntity
-                                        .collections[collectionIndex]
-                                        .chainSymbol;
+                                          final chainSymbol = state
+                                              .nftCollectionsGroupEntity
+                                              .collections[collectionIndex]
+                                              .chainSymbol;
 
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        CollectionTitleWidget(
-                                          title: collectionName,
-                                          chainSymbol: chainSymbol,
-                                        ),
-                                        const VerticalSpace(25),
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                              left: 20, bottom: 25),
-                                          height: 190,
-                                          child: ListView.builder(
-                                            shrinkWrap: true,
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: state
-                                                .nftCollectionsGroupEntity
-                                                .collections[collectionIndex]
-                                                .tokens
-                                                .length,
-                                            itemBuilder: (context, tokenIndex) {
-                                              return NftTokenWidget(
-                                                tokenOrder: collectionIndex,
-                                                nftTokenEntity: state
-                                                    .nftCollectionsGroupEntity
-                                                    .collections[
-                                                        collectionIndex]
-                                                    .tokens[tokenIndex],
-                                                tokenAddress: state
-                                                    .nftCollectionsGroupEntity
-                                                    .collections[
-                                                        collectionIndex]
-                                                    .tokenAddress,
-                                                walletAddress: state
-                                                    .nftCollectionsGroupEntity
-                                                    .collections[
-                                                        collectionIndex]
-                                                    .tokenAddress,
-                                                chain: state
-                                                    .nftCollectionsGroupEntity
-                                                    .collections[
-                                                        collectionIndex]
-                                                    .chain,
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
+                                          return Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              CollectionTitleWidget(
+                                                title: collectionName,
+                                                chainSymbol: chainSymbol,
+                                              ),
+                                              const VerticalSpace(25),
+                                              Container(
+                                                margin: const EdgeInsets.only(
+                                                    left: 20, bottom: 25),
+                                                height: 190,
+                                                child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  itemCount: state
+                                                      .nftCollectionsGroupEntity
+                                                      .collections[
+                                                          collectionIndex]
+                                                      .tokens
+                                                      .length,
+                                                  itemBuilder:
+                                                      (context, tokenIndex) {
+                                                    return NftTokenWidget(
+                                                      tokenOrder:
+                                                          collectionIndex,
+                                                      nftTokenEntity: state
+                                                          .nftCollectionsGroupEntity
+                                                          .collections[
+                                                              collectionIndex]
+                                                          .tokens[tokenIndex],
+                                                      tokenAddress: state
+                                                          .nftCollectionsGroupEntity
+                                                          .collections[
+                                                              collectionIndex]
+                                                          .tokenAddress,
+                                                      walletAddress: state
+                                                          .nftCollectionsGroupEntity
+                                                          .collections[
+                                                              collectionIndex]
+                                                          .tokenAddress,
+                                                      chain: state
+                                                          .nftCollectionsGroupEntity
+                                                          .collections[
+                                                              collectionIndex]
+                                                          .chain,
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
                                 (state.isLoadingMore)
                                     ? Lottie.asset(
                                         'assets/lottie/loader.json',

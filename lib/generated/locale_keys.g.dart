@@ -93,5 +93,7 @@ abstract class  LocaleKeys {
   static const allowLocationPermission = 'allowLocationPermission';
   static const locationAlertMessage = 'locationAlertMessage';
   static const alarm = 'alarm';
+  static const thereIsNoAlarm = 'thereIsNoAlarm';
+  static const noDataAvailable = 'noDataAvailable';
 
 }

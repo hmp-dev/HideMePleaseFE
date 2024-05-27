@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -116,12 +115,10 @@ class _StartUpScreenState extends State<StartUpScreen> {
           },
         ),
       ],
-      child: BaseScaffold(
+      child: const BaseScaffold(
         body: Center(
-          child: Container(
-            child: Lottie.asset(
-              'assets/lottie/loader.json',
-            ),
+          child: CircularProgressIndicator(
+            color: Colors.black,
           ),
         ),
       ),

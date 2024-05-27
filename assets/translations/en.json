@@ -90,6 +90,8 @@
     "agreeTermDialogMessage":"Terms of Service and Privacy Policy\nYou can use the service after agreeing.",
     "allowLocationPermission":"Allow location permission",
     "locationAlertMessage":"Location permission is required.\nYou must agree to allow location permission\nto use the service.",
-    "alarm":"Alarm"
+    "alarm":"Alarm",
+    "thereIsNoAlarm":"There are no notifications",
+    "noDataAvailable":"No Data Available"
 }
 
