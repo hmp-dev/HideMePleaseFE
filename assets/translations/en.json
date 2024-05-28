@@ -92,6 +92,11 @@
     "locationAlertMessage":"Location permission is required.\nYou must agree to allow location permission\nto use the service.",
     "alarm":"Alarm",
     "thereIsNoAlarm":"There are no notifications",
-    "noDataAvailable":"No Data Available"
+    "noDataAvailable":"No Data Available",
+    "highlyVisitedCommunity":"Highly visited community",
+    "pub":"Pub",
+    "cafe":"Cafe",
+    "coworking":"Coworking",
+    "music":"Music"
 }
 

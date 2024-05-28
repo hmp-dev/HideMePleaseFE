@@ -1,69 +1,130 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/space/domain/entities/top_used_nft_entity.dart';
 
-class SpaceNFTListItem extends StatelessWidget {
-  const SpaceNFTListItem({
+class SpaceTopNFTListItem extends StatelessWidget {
+  const SpaceTopNFTListItem({
     super.key,
-    required this.image,
+    required this.topUsedNftEntity,
     required this.score,
-    required this.title,
-    required this.points,
   });
 
-  final String image;
-  final String score;
-  final String title;
-  final String points;
+  final TopUsedNftEntity topUsedNftEntity;
+  final int score;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 108,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10, top: 10),
-                child: DefaultImage(
-                  path: image,
-                  width: score == '1' ? 90 : 84,
-                  height: score == '1' ? 120 : 112,
-                ),
-              ),
-              Positioned(
-                top: 0,
-                left: 0,
-                child: Stack(
-                  alignment: Alignment.center,
+    return Padding(
+      padding: const EdgeInsets.only(right: 20.0),
+      child: SizedBox(
+        width: getWidth(score),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            getImageWidget(score),
+            const VerticalSpace(8),
+            Row(
+              children: [
+                Column(
                   children: [
-                    DefaultImage(
-                      path: "assets/images/ranking_badge.svg",
-                      width: score == '1' ? 36 : 32,
-                      height: score == '1' ? 36 : 32,
-                    ),
-                    Center(child: Text(score, style: fontB(14))),
+                    Text('$score', style: fontCompactLgBold()),
+                    topUsedNftEntity.pointFluctuation > 0
+                        ? CustomImageView(
+                            svgPath: "assets/icons/ic_arrow_up_pink.svg",
+                            width: 10,
+                            height: 10,
+                          )
+                        : CustomImageView(
+                            svgPath: "assets/icons/ic_arrow_blue_down.svg",
+                            width: 10,
+                            height: 10,
+                          )
                   ],
                 ),
-              )
-            ],
-          ),
-          Text(
-            title,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: fontR(14),
-          ),
-          Text(
-            points,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: fontR(14),
-          ),
-        ],
+                const HorizontalSpace(8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: getWidth(score) - 20,
+                      child: Text(
+                        topUsedNftEntity.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: fontCompactMd(),
+                      ),
+                    ),
+                    Text("${topUsedNftEntity.totalPoints} P",
+                        style: fontCompactSmBold()),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  getImageWidget(score) {
+    if (score == 1) {
+      return buildImageWidget(108, 144);
+    }
+
+    if (score == 2) {
+      return buildImageWidget(99, 132);
+    }
+
+    if (score == 3) {
+      return buildImageWidget(90, 120);
+    }
+  }
+
+  double getWidth(score) {
+    if (score == 1) {
+      return 108.0;
+    } else if (score == 2) {
+      return 99.0;
+    } else {
+      return 90.0;
+    }
+  }
+
+  Stack buildImageWidget(
+    double width,
+    double height,
+  ) {
+    return Stack(
+      children: [
+        topUsedNftEntity.collectionLogo == ""
+            ? CustomImageView(
+                imagePath: "assets/images/place_holder_card.png",
+                width: width,
+                height: height,
+                radius: BorderRadius.circular(2),
+                fit: BoxFit.cover,
+              )
+            : CustomImageView(
+                url: topUsedNftEntity.collectionLogo,
+                width: width,
+                height: height,
+                radius: BorderRadius.circular(2),
+                fit: BoxFit.cover,
+              ),
+        Padding(
+          padding: const EdgeInsets.only(left: 4.0, top: 4),
+          child: DefaultImage(
+            path:
+                "assets/chain-logos/${topUsedNftEntity.chain.toLowerCase()}_chain.svg",
+            width: 14,
+            height: 14,
+          ),
+        ),
+      ],
     );
   }
 }

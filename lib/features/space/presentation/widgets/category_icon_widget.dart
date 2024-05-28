@@ -27,7 +27,7 @@ class CategoryIconWidget extends StatelessWidget {
             width: 60,
             margin: const EdgeInsets.only(bottom: 10),
             decoration: const BoxDecoration(
-              color: black100,
+              color: bgNega5,
               shape: BoxShape.circle,
             ),
             child: Padding(

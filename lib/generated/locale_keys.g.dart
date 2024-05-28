@@ -95,5 +95,10 @@ abstract class  LocaleKeys {
   static const alarm = 'alarm';
   static const thereIsNoAlarm = 'thereIsNoAlarm';
   static const noDataAvailable = 'noDataAvailable';
+  static const highlyVisitedCommunity = 'highlyVisitedCommunity';
+  static const pub = 'pub';
+  static const cafe = 'cafe';
+  static const coworking = 'coworking';
+  static const music = 'music';
 
 }

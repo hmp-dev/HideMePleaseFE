@@ -92,7 +92,12 @@
     "locationAlertMessage":"위치 권한이 꼭 필요해요.\n위치 권한 허용에 동의해야 서비스 이용이\n가능합니다.",
     "alarm":"알림",
     "thereIsNoAlarm":"알림이 없어요",
-    "noDataAvailable":"자료 없음"
+    "noDataAvailable":"자료 없음",
+    "highlyVisitedCommunity":"방문률 높은 커뮤니티",
+    "pub":"주점",
+    "cafe":"카페",
+    "coworking":"코워킹",
+    "music":"음악"
 
 }
 

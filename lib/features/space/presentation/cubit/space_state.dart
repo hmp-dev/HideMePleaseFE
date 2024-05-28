@@ -6,6 +6,9 @@ class SpaceState extends BaseState {
   final String selectedNftTokenAddress;
   final String nfcToken;
   final bool benefitRedeemStatus;
+  final List<TopUsedNftEntity> topUsedNfts;
+  final List<NewSpaceEntity> newSpaceList;
+  final List<SpaceEntity> spaceList;
 
   @override
   final RequestStatus submitStatus;
@@ -17,6 +20,9 @@ class SpaceState extends BaseState {
     required this.selectedNftTokenAddress,
     required this.nfcToken,
     required this.benefitRedeemStatus,
+    required this.topUsedNfts,
+    required this.newSpaceList,
+    required this.spaceList,
   });
 
   factory SpaceState.initial() => SpaceState(
@@ -26,6 +32,9 @@ class SpaceState extends BaseState {
         selectedNftTokenAddress: "",
         nfcToken: "",
         benefitRedeemStatus: false,
+        topUsedNfts: const [],
+        newSpaceList: const [],
+        spaceList: const [],
       );
 
   @override
@@ -36,6 +45,9 @@ class SpaceState extends BaseState {
         selectedNftTokenAddress,
         nfcToken,
         benefitRedeemStatus,
+        topUsedNfts,
+        newSpaceList,
+        spaceList,
       ];
 
   @override
@@ -46,6 +58,9 @@ class SpaceState extends BaseState {
     String? selectedNftTokenAddress,
     String? nfcToken,
     bool? benefitRedeemStatus,
+    List<TopUsedNftEntity>? topUsedNfts,
+    List<NewSpaceEntity>? newSpaceList,
+    List<SpaceEntity>? spaceList,
   }) {
     return SpaceState(
       submitStatus: submitStatus ?? this.submitStatus,
@@ -55,8 +70,9 @@ class SpaceState extends BaseState {
           selectedNftTokenAddress ?? this.selectedNftTokenAddress,
       nfcToken: nfcToken ?? this.nfcToken,
       benefitRedeemStatus: benefitRedeemStatus ?? this.benefitRedeemStatus,
+      topUsedNfts: topUsedNfts ?? this.topUsedNfts,
+      newSpaceList: newSpaceList ?? this.newSpaceList,
+      spaceList: spaceList ?? this.spaceList,
     );
   }
-
-  
 }

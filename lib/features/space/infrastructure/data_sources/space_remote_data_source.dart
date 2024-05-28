@@ -1,7 +1,10 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/network/network.dart';
+import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/spaces_response_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/top_used_nft_dto.dart';
 
 @lazySingleton
 class SpaceRemoteDataSource {
@@ -55,5 +58,39 @@ class SpaceRemoteDataSource {
     } else {
       return false;
     }
+  }
+
+  Future<List<TopUsedNftDto>> requestGetTopUsedNfts() async {
+    final response = await _network.get("nft/collections/top", {});
+    return response.data
+        .map<TopUsedNftDto>(
+            (e) => TopUsedNftDto.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  //
+
+  Future<List<NewSpaceDto>> requestGetNewSpaceList() async {
+    final response = await _network.get("space/new-spaces", {});
+    return response.data
+        .map<NewSpaceDto>(
+            (e) => NewSpaceDto.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<SpaceDto>> requestGetSpaceList({
+    String? category,
+    int? page,
+  }) async {
+    // Construct the query parameters
+    final Map<String, String> queryParams = {
+      if (category != null) 'category': category,
+      if (page != null) 'page': page.toString(),
+    };
+
+    final response = await _network.get("space", queryParams);
+    return response.data
+        .map<SpaceDto>((e) => SpaceDto.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

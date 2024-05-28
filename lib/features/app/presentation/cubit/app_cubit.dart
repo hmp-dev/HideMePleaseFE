@@ -51,6 +51,6 @@ class AppCubit extends BaseCubit<AppState> {
     // DI
     await configureDependencies();
 
-    //onStart();
+    onStart();
   }
 }

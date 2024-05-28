@@ -4,7 +4,10 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
+import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/spaces_response_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/top_used_nft_dto.dart';
 
 @LazySingleton(as: SpaceRepository)
 class SpaceRepositoryImpl extends SpaceRepository {
@@ -72,6 +75,67 @@ class SpaceRepositoryImpl extends SpaceRepository {
         benefitId: benefitId,
         tokenAddress: tokenAddress,
         nfcToken: nfcToken,
+      );
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, List<TopUsedNftDto>>> getTopUsedNfts() async {
+    try {
+      final response = await _spaceRemoteDataSource.requestGetTopUsedNfts();
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, List<NewSpaceDto>>> getNewsSpaceList() async {
+    try {
+      final response = await _spaceRemoteDataSource.requestGetNewSpaceList();
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, List<SpaceDto>>> getSpaceList(
+      {String? category, int? page}) async {
+    try {
+      final response = await _spaceRemoteDataSource.requestGetSpaceList(
+        category: category,
+        page: page,
       );
       return right(response);
     } on DioException catch (e, t) {

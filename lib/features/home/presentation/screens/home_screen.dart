@@ -1,19 +1,16 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
-import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
-import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/views/home_view_after_wallet_connected.dart';
 import 'package:mobile/features/home/presentation/views/home_view_before_login.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
-import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -95,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   state.selectedNftTokenAddress,
                 );
               } else {
-                context.showSnackBar(LocaleKeys.noSpacesFound.tr());
+                //context.showSnackBar(LocaleKeys.noSpacesFound.tr());
               }
             }
           },

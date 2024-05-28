@@ -576,7 +576,7 @@ TextStyle fontBody2Medium({Color? color = fore1}) => TextStyle(
       height: 1.7,
     );
 TextStyle fontBody2Bold({Color? color = fore1}) => TextStyle(
-      fontSize: 12,
+      fontSize: 28,
       fontFamily: 'Pretendard',
       fontWeight: FontWeight.w600,
       color: color ?? fore1,

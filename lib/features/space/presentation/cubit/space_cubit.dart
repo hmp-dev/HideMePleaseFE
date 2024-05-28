@@ -2,10 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
+import 'package:mobile/features/space/domain/entities/new_space_entity.dart';
+import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/domain/entities/spaces_response_entity.dart';
+import 'package:mobile/features/space/domain/entities/top_used_nft_entity.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-
 part 'space_state.dart';
 
 @lazySingleton
@@ -113,5 +115,104 @@ class SpaceCubit extends BaseCubit<SpaceState> {
 
   onResetSubmitStatus() {
     emit(state.copyWith(submitStatus: RequestStatus.initial));
+  }
+
+  Future<void> onGetTopUsedNfts() async {
+    final response = await _spaceRepository.getTopUsedNfts();
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (result) {
+        emit(
+          state.copyWith(
+            topUsedNfts: result.map((e) => e.toEntity()).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetNewSpaceList() async {
+    final response = await _spaceRepository.getNewsSpaceList();
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (result) {
+        emit(
+          state.copyWith(
+            newSpaceList: result.map((e) => e.toEntity()).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetSpaceList() async {
+    final response = await _spaceRepository.getSpaceList();
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (result) {
+        emit(
+          state.copyWith(
+            spaceList: result.map((e) => e.toEntity()).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onGetSpaceListByCategory({
+    String? category,
+    int? page,
+  }) async {
+    final response = await _spaceRepository.getSpaceList(
+      category: category,
+      page: page,
+    );
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (result) {
+        emit(
+          state.copyWith(
+            spaceList: result.map((e) => e.toEntity()).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  onFetchAllSpaceViewData() async {
+    EasyLoading.show(dismissOnTap: true);
+    await Future.wait([
+      onGetTopUsedNfts(),
+      onGetNewSpaceList(),
+      onGetSpaceList(),
+    ]);
+
+    EasyLoading.dismiss();
+
+    // Assuming success if no errors were emitted
+    emit(state.copyWith(
+      submitStatus: RequestStatus.success,
+      errorMessage: '',
+    ));
   }
 }
