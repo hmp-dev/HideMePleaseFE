@@ -95,3 +95,22 @@ showHmpAlertDialog({
     },
   );
 }
+
+String getLocalCategoryName(String categoryName) {
+  switch (categoryName) {
+    case 'ENTIRE':
+      return LocaleKeys.entire.tr();
+    case "PUB":
+      return LocaleKeys.entire.tr();
+    case "CAFE":
+      return LocaleKeys.entire.tr();
+    case "COWORKING":
+      return LocaleKeys.entire.tr();
+    case "MUSIC":
+      return LocaleKeys.entire.tr();
+    case "MEAL":
+      return LocaleKeys.entire.tr();
+    default:
+      throw Exception('Unhandled category');
+  }
+}

@@ -5,6 +5,7 @@ import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
 import 'package:mobile/features/space/domain/entities/new_space_entity.dart';
 import 'package:mobile/features/space/domain/entities/recommendation_space_entity.dart';
+import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/domain/entities/spaces_response_entity.dart';
 import 'package:mobile/features/space/domain/entities/top_used_nft_entity.dart';
@@ -240,5 +241,35 @@ class SpaceCubit extends BaseCubit<SpaceState> {
       submitStatus: RequestStatus.success,
       errorMessage: '',
     ));
+  }
+
+  onGetSpaceDetail({required String spaceId}) async {
+    EasyLoading.show(dismissOnTap: true);
+
+    emit(state.copyWith(submitStatus: RequestStatus.loading));
+
+    final response = await _spaceRepository.getSpaceDetail(
+      spaceId: spaceId,
+    );
+
+    EasyLoading.dismiss();
+
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (result) {
+        emit(
+          state.copyWith(
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+            spaceDetailEntity: result.toEntity(),
+          ),
+        );
+      },
+    );
   }
 }

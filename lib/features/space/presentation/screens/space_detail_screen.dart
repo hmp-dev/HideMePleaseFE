@@ -1,0 +1,276 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
+import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/widgets/build_hiding_count_widget.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
+
+class SpaceDetailScreen extends StatefulWidget {
+  const SpaceDetailScreen({super.key});
+
+  static push(BuildContext context) async {
+    return await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SpaceDetailScreen(),
+      ),
+    );
+  }
+
+  @override
+  State<SpaceDetailScreen> createState() => _SpaceDetailScreenState();
+}
+
+class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: BlocConsumer<SpaceCubit, SpaceState>(
+        bloc: getIt<SpaceCubit>(),
+        listener: (context, state) {},
+        builder: (context, state) {
+          return state.submitStatus == RequestStatus.loading
+              ? const Center(child: SizedBox.shrink())
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      children: [
+                        state.spaceDetailEntity.image == ""
+                            ? CustomImageView(
+                                imagePath:
+                                    "assets/images/place_holder_card.png",
+                                width: MediaQuery.of(context).size.width,
+                                height: 250,
+                                radius: BorderRadius.circular(2),
+                                fit: BoxFit.cover,
+                              )
+                            : CustomImageView(
+                                url: state.spaceDetailEntity.image,
+                                width: MediaQuery.of(context).size.width,
+                                height: 250,
+                                radius: BorderRadius.circular(2),
+                                fit: BoxFit.cover,
+                              ),
+                        buildBackArrowIconButton(context),
+                        const BuildHidingCountWidget(hidingCount: 0),
+                      ],
+                    ),
+                    buildNameTypeRow(state),
+                    buildOpenTimeRow(state),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            LocaleKeys.upcomingEvents.tr(),
+                            style: fontTitle06Medium(),
+                          ),
+                          const VerticalSpace(10),
+                          CustomImageView(
+                            imagePath: "assets/images/space_placeholder.png",
+                            width: MediaQuery.of(context).size.width,
+                            height: 250,
+                            radius: BorderRadius.circular(2),
+                            fit: BoxFit.cover,
+                          )
+                        ],
+                      ),
+                    ),
+                    const Divider(
+                      thickness: 8,
+                      color: fore5,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            state.spaceDetailEntity.introduction,
+                            style: fontTitle05(),
+                          ),
+                          const VerticalSpace(10),
+                          Text(
+                            state.spaceDetailEntity.locationDescription,
+                            style: fontBodySm(),
+                          ),
+                          const VerticalSpace(30),
+                          Row(
+                            children: [
+                              Text(
+                                LocaleKeys.location.tr(),
+                                style: fontCompactSm(),
+                              ),
+                              const HorizontalSpace(10),
+                              Text(
+                                state.spaceDetailEntity.address,
+                                style: fontCompactSmBold(),
+                              ),
+                            ],
+                          ),
+                          const VerticalSpace(10),
+                          CustomImageView(
+                            imagePath: "assets/images/map_placeholder.png",
+                            width: MediaQuery.of(context).size.width,
+                            height: 250,
+                            radius: BorderRadius.circular(2),
+                            fit: BoxFit.cover,
+                          ),
+                          const VerticalSpace(30),
+                          Row(
+                            children: [
+                              DefaultImage(
+                                path: "assets/icons/ic_tick_badge.svg",
+                                width: 20,
+                                height: 20,
+                              ),
+                              const HorizontalSpace(8),
+                              Text(
+                                LocaleKeys.benefitInfo.tr(),
+                                style: fontTitle06Medium(),
+                              ),
+                              const HorizontalSpace(8),
+                              Text(
+                                '23',
+                                style: fontTitle07(color: fore2),
+                              )
+                            ],
+                          ),
+                          const VerticalSpace(50),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+        },
+      ),
+    );
+  }
+
+  Padding buildNameTypeRow(SpaceState state) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            state.spaceDetailEntity.name,
+            style: fontTitle05Bold(),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 5),
+            decoration: BoxDecoration(
+              color: fore5,
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child: Row(
+              children: [
+                DefaultImage(
+                  path:
+                      "assets/icons/ic_space_category_${state.spaceDetailEntity.category.toLowerCase()}.svg",
+                  width: 16,
+                  height: 16,
+                ),
+                const HorizontalSpace(3),
+                Text(
+                  getLocalCategoryName(state.spaceDetailEntity.category),
+                  style: fontCompactSm(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Padding buildOpenTimeRow(SpaceState state) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(right: 10),
+            width: 4,
+            height: 4,
+            decoration:
+                const BoxDecoration(color: hmpBlue, shape: BoxShape.circle),
+          ),
+          Text(
+            LocaleKeys.open.tr(),
+            style: fontCompactSm(color: hmpBlue),
+          ),
+          Container(
+            margin: const EdgeInsets.only(right: 10, left: 10),
+            width: 2,
+            height: 2,
+            decoration: const BoxDecoration(
+              color: fore4,
+              shape: BoxShape.circle,
+            ),
+          ),
+          Text(
+            getBusinessHours(state.spaceDetailEntity.businessHoursStart,
+                state.spaceDetailEntity.businessHoursEnd),
+            style: fontCompactSm(color: fore2),
+          )
+        ],
+      ),
+    );
+  }
+
+  Positioned buildBackArrowIconButton(BuildContext context) {
+    return Positioned(
+      top: 40,
+      left: 28,
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 10,
+              blurRadius: 8,
+              offset: const Offset(-2, 0),
+            ),
+          ],
+        ),
+        child: Center(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: DefaultImage(
+              path: "assets/icons/img_icon_arrow.svg",
+              width: 32,
+              height: 32,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String getBusinessHours(String start, String end) {
+    // Parse the input times
+    DateTime businessStart = DateFormat('HH:mm:ss').parse(start);
+    DateTime businessEnd = DateFormat('HH:mm:ss').parse(end);
+
+    // Format the new times back into strings
+    String formattedNewStart = DateFormat('HH:mm').format(businessStart);
+    String formattedNewEnd = DateFormat('HH:mm').format(businessEnd);
+
+    // Return the new time range as a string
+    return "$formattedNewStart ~ $formattedNewEnd";
+  }
+}

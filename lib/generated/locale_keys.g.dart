@@ -102,5 +102,10 @@ abstract class  LocaleKeys {
   static const music = 'music';
   static const peopleRecievedPoints = 'peopleRecievedPoints';
   static const meal = 'meal';
+  static const open = 'open';
+  static const upcomingEvents = 'upcomingEvents';
+  static const location = 'location';
+  static const benefitInfo = 'benefitInfo';
+  static const more = 'more';
 
 }

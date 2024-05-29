@@ -99,7 +99,11 @@
     "coworking":"코워킹",
     "music":"음악",
     "peopleRecievedPoints":"명이 포인트를 받았어요",
-    "meal":"식사"
+    "meal":"식사",
+    "open":"영업 중",
+    "upcomingEvents":"진행 예정 이벤트",
+    "more":"더보기"
+
 
 }
 

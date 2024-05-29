@@ -11,6 +11,7 @@ class SpaceState extends BaseState {
   final List<SpaceEntity> spaceList;
   final List<RecommendationSpaceEntity> recommendationSpaceList;
   final SpaceCategory spaceCategory;
+  final SpaceDetailEntity spaceDetailEntity;
 
   @override
   final RequestStatus submitStatus;
@@ -27,6 +28,7 @@ class SpaceState extends BaseState {
     required this.spaceList,
     required this.recommendationSpaceList,
     required this.spaceCategory,
+    required this.spaceDetailEntity,
   });
 
   factory SpaceState.initial() => SpaceState(
@@ -41,6 +43,7 @@ class SpaceState extends BaseState {
         spaceList: const [],
         recommendationSpaceList: const [],
         spaceCategory: SpaceCategory.ENTIRE,
+        spaceDetailEntity: const SpaceDetailEntity.empty(),
       );
 
   @override
@@ -56,6 +59,7 @@ class SpaceState extends BaseState {
         spaceList,
         recommendationSpaceList,
         spaceCategory,
+        spaceDetailEntity,
       ];
 
   @override
@@ -71,6 +75,7 @@ class SpaceState extends BaseState {
     List<SpaceEntity>? spaceList,
     List<RecommendationSpaceEntity>? recommendationSpaceList,
     SpaceCategory? spaceCategory,
+    SpaceDetailEntity? spaceDetailEntity,
   }) {
     return SpaceState(
       submitStatus: submitStatus ?? this.submitStatus,
@@ -86,6 +91,7 @@ class SpaceState extends BaseState {
       recommendationSpaceList:
           recommendationSpaceList ?? this.recommendationSpaceList,
       spaceCategory: spaceCategory ?? this.spaceCategory,
+      spaceDetailEntity: spaceDetailEntity ?? this.spaceDetailEntity,
     );
   }
 }

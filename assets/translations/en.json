@@ -99,6 +99,11 @@
     "coworking":"Coworking",
     "music":"Music",
     "peopleRecievedPoints":"People received points",
-    "meal":"Meal"
+    "meal":"Meal",
+    "open":"Open",
+    "upcomingEvents":"UpcomingEvents",
+    "location":"Location",
+    "benefitInfo":"Benefit Info",
+    "more":"More"
 }
 

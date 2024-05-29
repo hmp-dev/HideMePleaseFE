@@ -3,6 +3,7 @@ import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/space_detail_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/spaces_response_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/top_used_nft_dto.dart';
@@ -101,5 +102,11 @@ class SpaceRemoteDataSource {
         .map<RecommendationSpaceDto>(
             (e) => RecommendationSpaceDto.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<SpaceDetailDto> requestGetSpaceDetail(
+      {required String spaceId}) async {
+    final response = await _network.get("space/space/$spaceId", {});
+    return SpaceDetailDto.fromJson(response.data as Map<String, dynamic>);
   }
 }

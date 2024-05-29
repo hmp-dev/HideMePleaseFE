@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/space_detail_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/spaces_response_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/top_used_nft_dto.dart';
@@ -34,4 +35,7 @@ abstract class SpaceRepository {
   });
 
   Future<Either<HMPError, List<RecommendationSpaceDto>>> getRecommendedSpaces();
+
+  Future<Either<HMPError, SpaceDetailDto>> getSpaceDetail(
+      {required String spaceId});
 }
