@@ -9,6 +9,8 @@ class SpaceState extends BaseState {
   final List<TopUsedNftEntity> topUsedNfts;
   final List<NewSpaceEntity> newSpaceList;
   final List<SpaceEntity> spaceList;
+  final List<RecommendationSpaceEntity> recommendationSpaceList;
+  final SpaceCategory spaceCategory;
 
   @override
   final RequestStatus submitStatus;
@@ -23,6 +25,8 @@ class SpaceState extends BaseState {
     required this.topUsedNfts,
     required this.newSpaceList,
     required this.spaceList,
+    required this.recommendationSpaceList,
+    required this.spaceCategory,
   });
 
   factory SpaceState.initial() => SpaceState(
@@ -35,6 +39,8 @@ class SpaceState extends BaseState {
         topUsedNfts: const [],
         newSpaceList: const [],
         spaceList: const [],
+        recommendationSpaceList: const [],
+        spaceCategory: SpaceCategory.ENTIRE,
       );
 
   @override
@@ -48,6 +54,8 @@ class SpaceState extends BaseState {
         topUsedNfts,
         newSpaceList,
         spaceList,
+        recommendationSpaceList,
+        spaceCategory,
       ];
 
   @override
@@ -61,6 +69,8 @@ class SpaceState extends BaseState {
     List<TopUsedNftEntity>? topUsedNfts,
     List<NewSpaceEntity>? newSpaceList,
     List<SpaceEntity>? spaceList,
+    List<RecommendationSpaceEntity>? recommendationSpaceList,
+    SpaceCategory? spaceCategory,
   }) {
     return SpaceState(
       submitStatus: submitStatus ?? this.submitStatus,
@@ -73,6 +83,9 @@ class SpaceState extends BaseState {
       topUsedNfts: topUsedNfts ?? this.topUsedNfts,
       newSpaceList: newSpaceList ?? this.newSpaceList,
       spaceList: spaceList ?? this.spaceList,
+      recommendationSpaceList:
+          recommendationSpaceList ?? this.recommendationSpaceList,
+      spaceCategory: spaceCategory ?? this.spaceCategory,
     );
   }
 }

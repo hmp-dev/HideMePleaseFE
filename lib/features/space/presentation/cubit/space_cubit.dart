@@ -2,7 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
+import 'package:mobile/app/core/enum/space_category.dart';
 import 'package:mobile/features/space/domain/entities/new_space_entity.dart';
+import 'package:mobile/features/space/domain/entities/recommendation_space_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/domain/entities/spaces_response_entity.dart';
 import 'package:mobile/features/space/domain/entities/top_used_nft_entity.dart';
@@ -155,6 +157,25 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     );
   }
 
+  Future<void> onGetRecommendSpaceList() async {
+    final response = await _spaceRepository.getRecommendedSpaces();
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (result) {
+        emit(
+          state.copyWith(
+            recommendationSpaceList: result.map((e) => e.toEntity()).toList(),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> onGetSpaceList() async {
     final response = await _spaceRepository.getSpaceList();
     response.fold(
@@ -175,13 +196,16 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   }
 
   Future<void> onGetSpaceListByCategory({
-    String? category,
+    SpaceCategory? category,
     int? page,
   }) async {
+    EasyLoading.show(dismissOnTap: true);
     final response = await _spaceRepository.getSpaceList(
-      category: category,
+      category: category == SpaceCategory.ENTIRE ? null : category?.name,
       page: page,
     );
+    EasyLoading.dismiss();
+
     response.fold(
       (err) {
         emit(state.copyWith(
@@ -192,6 +216,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
       (result) {
         emit(
           state.copyWith(
+            spaceCategory: category,
             spaceList: result.map((e) => e.toEntity()).toList(),
           ),
         );
@@ -204,6 +229,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     await Future.wait([
       onGetTopUsedNfts(),
       onGetNewSpaceList(),
+      onGetRecommendSpaceList(),
       onGetSpaceList(),
     ]);
 

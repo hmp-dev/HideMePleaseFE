@@ -14,6 +14,8 @@ class SpaceDto extends Equatable {
   final String? image;
   @JsonKey(name: "category")
   final String? category;
+  @JsonKey(name: "benefitDescription")
+  final String? benefitDescription;
   @JsonKey(name: "hot")
   final bool? hot;
   @JsonKey(name: "hotPoints")
@@ -26,6 +28,7 @@ class SpaceDto extends Equatable {
     this.name,
     this.image,
     this.category,
+    this.benefitDescription,
     this.hot,
     this.hotPoints,
     this.hidingCount,
@@ -43,6 +46,7 @@ class SpaceDto extends Equatable {
       name,
       image,
       category,
+      benefitDescription,
       hot,
       hotPoints,
       hidingCount,
@@ -54,6 +58,7 @@ class SpaceDto extends Equatable {
         name: name ?? "",
         image: image ?? "",
         category: category ?? "",
+        benefitDescription: benefitDescription ?? "",
         hot: hot ?? false,
         hotPoints: hotPoints ?? 0,
         hidingCount: hidingCount ?? 0,

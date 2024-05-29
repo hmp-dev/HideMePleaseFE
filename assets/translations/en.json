@@ -97,6 +97,8 @@
     "pub":"Pub",
     "cafe":"Cafe",
     "coworking":"Coworking",
-    "music":"Music"
+    "music":"Music",
+    "peopleRecievedPoints":"People received points",
+    "meal":"Meal"
 }
 

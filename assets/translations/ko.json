@@ -97,7 +97,9 @@
     "pub":"주점",
     "cafe":"카페",
     "coworking":"코워킹",
-    "music":"음악"
+    "music":"음악",
+    "peopleRecievedPoints":"명이 포인트를 받았어요",
+    "meal":"식사"
 
 }
 

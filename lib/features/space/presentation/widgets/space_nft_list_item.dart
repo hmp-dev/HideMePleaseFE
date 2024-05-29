@@ -29,6 +29,7 @@ class SpaceTopNFTListItem extends StatelessWidget {
             getImageWidget(score),
             const VerticalSpace(8),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Column(
                   children: [

@@ -100,5 +100,7 @@ abstract class  LocaleKeys {
   static const cafe = 'cafe';
   static const coworking = 'coworking';
   static const music = 'music';
+  static const peopleRecievedPoints = 'peopleRecievedPoints';
+  static const meal = 'meal';
 
 }

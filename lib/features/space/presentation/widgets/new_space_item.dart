@@ -20,14 +20,14 @@ class NewSpaceItem extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(16),
-          margin: const EdgeInsets.only(right: 20, top: 20, left: 20),
-          width: MediaQuery.of(context).size.width * 0.7,
+          margin: const EdgeInsets.only(right: 10, top: 20, left: 20),
+          width: MediaQuery.of(context).size.width * 0.8,
           height: 170,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
               color: hmpBlue,
-              width: 1,
+              width: 0.5,
             ),
           ),
           child: Column(
@@ -61,7 +61,6 @@ class NewSpaceItem extends StatelessWidget {
                           newSpaceEntity.name,
                           style: fontTitle05Bold(),
                         ),
-                        const Spacer(),
                         Text(
                           newSpaceEntity.mainBenefitDescription,
                           style: fontCompactSm(),

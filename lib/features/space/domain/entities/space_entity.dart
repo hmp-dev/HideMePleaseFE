@@ -5,6 +5,7 @@ class SpaceEntity extends Equatable {
   final String name;
   final String image;
   final String category;
+  final String benefitDescription;
   final bool hot;
   final int hotPoints;
   final int hidingCount;
@@ -14,6 +15,7 @@ class SpaceEntity extends Equatable {
     required this.name,
     required this.image,
     required this.category,
+    required this.benefitDescription,
     required this.hot,
     required this.hotPoints,
     required this.hidingCount,
@@ -26,6 +28,7 @@ class SpaceEntity extends Equatable {
       name,
       image,
       category,
+      benefitDescription,
       hot,
       hotPoints,
       hidingCount,
@@ -37,6 +40,7 @@ class SpaceEntity extends Equatable {
     String? name,
     String? image,
     String? category,
+    String? benefitDescription,
     bool? hot,
     int? hotPoints,
     int? hidingCount,
@@ -46,6 +50,7 @@ class SpaceEntity extends Equatable {
       name: name ?? this.name,
       image: image ?? this.image,
       category: category ?? this.category,
+      benefitDescription: benefitDescription ?? this.benefitDescription,
       hot: hot ?? this.hot,
       hotPoints: hotPoints ?? this.hotPoints,
       hidingCount: hidingCount ?? this.hidingCount,
@@ -57,6 +62,7 @@ class SpaceEntity extends Equatable {
         name = '',
         image = '',
         category = '',
+        benefitDescription = '',
         hot = false,
         hotPoints = 0,
         hidingCount = 0;
