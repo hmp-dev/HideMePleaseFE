@@ -5,6 +5,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
+import 'package:mobile/features/common/presentation/widgets/load_more_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/home_benefits_item_widget.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
@@ -63,7 +64,17 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
                     nftBenefitEntity: state.benefitsGroupEntity.benefits[index],
                   );
                 },
-              )
+              ),
+              if (state.benefitsGroupEntity.next != '')
+                LoadMoreIconButton(
+                  onTap: () {
+                    getIt<SpaceCubit>().onGetSpaceBenefits(
+                      spaceId: state.benefitsGroupEntity.benefits[0].spaceId,
+                      isLoadingMore: true,
+                      nextCursor: state.benefitsGroupEntity.next,
+                    );
+                  },
+                ),
             ],
           );
         }

@@ -23,6 +23,8 @@ abstract class SpaceRepository {
     required String benefitId,
     required String tokenAddress,
     required String nfcToken,
+    required double latitude,
+    required double longitude,
   });
 
   Future<Either<HMPError, List<TopUsedNftDto>>> getTopUsedNfts();

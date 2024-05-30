@@ -1,3 +1,3 @@
 // ignore_for_file: constant_identifier_names
 
-enum UsageType { SPACE_VISIT, COMMUNITY }
+enum BenefitUsageType { ENTIRE, SPACE_VISIT, COMMUNITY }

@@ -3,6 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
+import 'package:mobile/app/core/enum/usage_type_enum.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
@@ -292,9 +293,7 @@ class NftCubit extends BaseCubit<NftState> {
     int? page,
     bool isShowLoading = false,
   }) async {
-
-    
-    if(isShowLoading) EasyLoading.show();
+    if (isShowLoading) EasyLoading.show();
 
     final response = await _nftRepository.getNftBenefits(
       tokenAddress: tokenAddress,
@@ -302,7 +301,7 @@ class NftCubit extends BaseCubit<NftState> {
       pageSize: pageSize,
       page: page,
     );
-    if(isShowLoading) EasyLoading.dismiss();
+    if (isShowLoading) EasyLoading.dismiss();
 
     response.fold(
       (err) {
@@ -379,14 +378,23 @@ class NftCubit extends BaseCubit<NftState> {
     required String tokenAddress,
     String? order,
     String? page,
-    String? type,
+    BenefitUsageType? type,
   }) async {
+    EasyLoading.show();
+
+    emit(state.copyWith(
+      submitStatus: RequestStatus.failure,
+      errorMessage: LocaleKeys.somethingError.tr(),
+    ));
+
     final response = await _nftRepository.getNftUsageHistory(
       tokenAddress: tokenAddress,
       order: order,
       page: page,
-      type: type,
+      type: type?.name,
     );
+
+    EasyLoading.dismiss();
 
     response.fold(
       (err) {

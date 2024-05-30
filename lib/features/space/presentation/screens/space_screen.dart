@@ -60,7 +60,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
               : Stack(
                   children: [
                     CustomImageView(
-                      imagePath: "assets/images/confetti.png",
+                      imagePath: "assets/images/recommendation-bg.gif",
                       width: MediaQuery.of(context).size.width,
                       height: 160,
                       radius: BorderRadius.circular(2),

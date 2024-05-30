@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/enum/menu_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/preload_page_view/preload_page_view.dart';
@@ -6,6 +7,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/services/notification_service.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
@@ -27,8 +29,8 @@ class AppView extends StatefulWidget {
 class _AppViewState extends State<AppView> {
   final double _opacity = 1.0;
   MenuType menuType = MenuType.home;
-  final PreloadPageController _pageController =
-      PreloadPageController(initialPage: 2);
+  // final PreloadPageController _pageController =
+  //     PreloadPageController(initialPage: 2);
 
   @override
   void initState() {
@@ -63,56 +65,62 @@ class _AppViewState extends State<AppView> {
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              Column(
-                children: [
-                  Expanded(
-                    child: PreloadPageView.builder(
-                      onPageChanged: (value) {},
-                      itemBuilder: (context, index) {
-                        if (index == MenuType.space.menuIndex) {
-                          return const SpaceScreen();
-                        } else if (index == MenuType.events.menuIndex) {
-                          return const EventsScreen();
-                        } else if (index == MenuType.home.menuIndex) {
-                          return const HomeScreen();
-                        } else if (index == MenuType.community.menuIndex) {
-                          return const CommunityScreen();
-                        } else if (index == MenuType.my.menuIndex) {
-                          return const MyScreen();
-                        }
-                        return Container();
-                      },
-                      itemCount: MenuType.values.length,
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      preloadPagesCount: 5,
-                    ),
-                  ),
-                  Stack(
-                    alignment: Alignment.topCenter,
+              BlocConsumer<PageCubit, PageState>(
+                bloc: getIt<PageCubit>(),
+                listener: (context, state) {},
+                builder: (context, state) {
+                  return Column(
                     children: [
-                      BottomBar(
-                        onTap: (type) {
-                          ('type: $type').log();
-                          if (type == MenuType.my) {
-                            // fetch Nft Points
-                            getIt<NftCubit>().onGetNftPoints();
-                            // Navigate to My Screen
-                            MyScreen.push(context);
-                          } else if (type == MenuType.space) {
-                            // init Cubit function to get all space view data
-                            getIt<SpaceCubit>().onFetchAllSpaceViewData();
-                            _onChangeMenu(type);
-                          } else {
-                            _onChangeMenu(type);
-                          }
-                        },
-                        selectedType: menuType,
-                        opacity: _opacity,
+                      Expanded(
+                        child: PreloadPageView.builder(
+                          onPageChanged: (value) {},
+                          itemBuilder: (context, index) {
+                            if (index == MenuType.space.menuIndex) {
+                              return const SpaceScreen();
+                            } else if (index == MenuType.events.menuIndex) {
+                              return const EventsScreen();
+                            } else if (index == MenuType.home.menuIndex) {
+                              return const HomeScreen();
+                            } else if (index == MenuType.community.menuIndex) {
+                              return const CommunityScreen();
+                            } else if (index == MenuType.my.menuIndex) {
+                              return const MyScreen();
+                            }
+                            return Container();
+                          },
+                          itemCount: MenuType.values.length,
+                          controller: state.pageController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          preloadPagesCount: 5,
+                        ),
+                      ),
+                      Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          BottomBar(
+                            onTap: (type) {
+                              ('type: $type').log();
+                              if (type == MenuType.my) {
+                                // fetch Nft Points
+                                getIt<NftCubit>().onGetNftPoints();
+                                // Navigate to My Screen
+                                MyScreen.push(context);
+                              } else if (type == MenuType.space) {
+                                // init Cubit function to get all space view data
+                                getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                                _onChangeMenu(state, type);
+                              } else {
+                                _onChangeMenu(state, type);
+                              }
+                            },
+                            selectedType: menuType,
+                            opacity: _opacity,
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
             ],
           ),
@@ -121,9 +129,7 @@ class _AppViewState extends State<AppView> {
     );
   }
 
-  void _onChangeMenu(MenuType menuType) {
-    this.menuType = menuType;
-    _pageController.jumpToPage(menuType.menuIndex);
-    setState(() {});
+  void _onChangeMenu(PageState state, MenuType menuType) {
+    state.pageController.jumpToPage(menuType.menuIndex);
   }
 }

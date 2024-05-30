@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/enum/menu_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
@@ -11,6 +12,8 @@ import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
 import 'package:mobile/features/my/presentation/screens/my_points_detail.dart';
 import 'package:mobile/features/my/presentation/widgets/points_info_box_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/points_item_widget.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyPointsWidget extends StatefulWidget {
@@ -113,7 +116,15 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                               .whenUsingBenefitsAfterVisitingAffiliateSpace
                               .tr(),
                           buttonTitle: LocaleKeys.useTheBenefitAndGet1P.tr(),
-                          onPressed: () {},
+                          onPressed: () {
+                            //Navigate Back and go to Space Screen
+                            Navigator.pop(context);
+                            getIt<PageCubit>()
+                                .changePage(MenuType.space.menuIndex);
+                            // fetch Space Related Data
+                            // init Cubit function to get all space view data
+                            getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                          },
                         ),
                         const VerticalSpace(20),
                         PointsInfoBoxWidget(

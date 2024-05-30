@@ -9,6 +9,7 @@ import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/glassmorphism_widgets/glass_container.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/circle_dot_widget.dart';
@@ -99,11 +100,17 @@ class _NfcReadProcessViewState extends State<NfcReadProcessView> {
       listener: (context, state) {
         if (state.submitStatus == RequestStatus.success &&
             state.nfcToken.isNotEmpty) {
-          getIt<SpaceCubit>().onPostRedeemBenefit(
-            benefitId: widget.benefitId,
-            tokenAddress: widget.tokenAddress,
-            nfcToken: state.nfcToken,
-          );
+          final locationState = getIt<EnableLocationCubit>().state;
+
+          if (locationState.latitude == 0.0 || locationState.longitude == 0.0) {
+            getIt<SpaceCubit>().onPostRedeemBenefit(
+              benefitId: widget.benefitId,
+              tokenAddress: widget.tokenAddress,
+              nfcToken: state.nfcToken,
+              latitude: 2.0, //locationState.latitude,
+              longitude: 2.0, //locationState.longitude,
+            );
+          }
         }
 
         if (state.submitStatus == RequestStatus.success &&

@@ -72,12 +72,16 @@ class SpaceRepositoryImpl extends SpaceRepository {
     required String benefitId,
     required String tokenAddress,
     required String nfcToken,
+    required double latitude,
+    required double longitude,
   }) async {
     try {
       final response = await _spaceRemoteDataSource.postRedeemBenefit(
         benefitId: benefitId,
         tokenAddress: tokenAddress,
         nfcToken: nfcToken,
+        latitude: latitude,
+        longitude: longitude,
       );
       return right(response);
     } on DioException catch (e, t) {

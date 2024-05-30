@@ -87,6 +87,8 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     required String benefitId,
     required String tokenAddress,
     required String nfcToken,
+    required double latitude,
+    required double longitude,
   }) async {
     EasyLoading.show(dismissOnTap: true);
 
@@ -94,6 +96,8 @@ class SpaceCubit extends BaseCubit<SpaceState> {
       benefitId: benefitId,
       tokenAddress: tokenAddress,
       nfcToken: nfcToken,
+      latitude: latitude,
+      longitude: longitude,
     );
 
     EasyLoading.dismiss();
@@ -282,31 +286,60 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     String? nextCursor,
     bool? isLoadingMore,
   }) async {
-    // set isLoadingMore to true
-    //emit(state.copyWith(isLoadingMoreFetch: isLoadingMore));
-    EasyLoading.show(dismissOnTap: true);
-    final response = await _spaceRepository.getSpaceBenefits(
-      spaceId: spaceId,
-    );
+    //TODO implement Load more functionality
+    if (isLoadingMore == true) {
+      emit(state.copyWith(isLoadingMoreFetch: isLoadingMore));
+      EasyLoading.show(dismissOnTap: true);
 
-    EasyLoading.dismiss();
+      final response = await _spaceRepository.getSpaceBenefits(
+        spaceId: spaceId,
+      );
 
-    response.fold(
-      (err) {
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
-        ));
-      },
-      (result) {
-        emit(
-          state.copyWith(
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-            benefitsGroupEntity: result.toEntity(),
-          ),
-        );
-      },
-    );
+      EasyLoading.dismiss();
+
+      response.fold(
+        (err) {
+          emit(state.copyWith(
+            submitStatus: RequestStatus.failure,
+            errorMessage: LocaleKeys.somethingError.tr(),
+          ));
+        },
+        (result) {
+          emit(
+            state.copyWith(
+              submitStatus: RequestStatus.success,
+              errorMessage: '',
+              benefitsGroupEntity: result.toEntity(),
+            ),
+          );
+        },
+      );
+    } else {
+      EasyLoading.show(dismissOnTap: true);
+
+      final response = await _spaceRepository.getSpaceBenefits(
+        spaceId: spaceId,
+      );
+
+      EasyLoading.dismiss();
+
+      response.fold(
+        (err) {
+          emit(state.copyWith(
+            submitStatus: RequestStatus.failure,
+            errorMessage: LocaleKeys.somethingError.tr(),
+          ));
+        },
+        (result) {
+          emit(
+            state.copyWith(
+              submitStatus: RequestStatus.success,
+              errorMessage: '',
+              benefitsGroupEntity: result.toEntity(),
+            ),
+          );
+        },
+      );
+    }
   }
 }

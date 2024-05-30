@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/load_more_icon_button.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
@@ -113,19 +115,8 @@ class _MyMembershipNftDetailScreenState
                     },
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      LocaleKeys.seeMore.tr(),
-                      style: fontCompactSm(color: fore2),
-                    ),
-                    CustomImageView(
-                      svgPath: 'assets/icons/ic_angle_arrow_down.svg',
-                      color: fore2,
-                      width: 16,
-                    )
-                  ],
+                LoadMoreIconButton(
+                  onTap: () {},
                 ),
                 const VerticalSpace(20),
                 const Padding(

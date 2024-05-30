@@ -79,7 +79,7 @@ class _MyPointsDetailScreenState extends State<MyPointsDetailScreen> {
                         onTap: () {
                           getIt<NftCubit>().onGetNftUsageHistory(
                             tokenAddress: widget.nftPointsEntity.tokenAddress,
-                            type: UsageType.SPACE_VISIT.name,
+                            type: BenefitUsageType.SPACE_VISIT,
                           );
                         },
                       ),
@@ -89,7 +89,7 @@ class _MyPointsDetailScreenState extends State<MyPointsDetailScreen> {
                         onTap: () {
                           getIt<NftCubit>().onGetNftUsageHistory(
                             tokenAddress: widget.nftPointsEntity.tokenAddress,
-                            type: UsageType.COMMUNITY.name,
+                            type: BenefitUsageType.COMMUNITY,
                           );
                         },
                       ),

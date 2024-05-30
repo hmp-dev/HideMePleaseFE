@@ -231,6 +231,9 @@ class NftRepositoryImpl extends NftRepository {
     try {
       final response = await _nftRemoteDataSource.requestGetNftUsageHistory(
         tokenAddress: tokenAddress,
+        order: order,
+        page: page,
+        type: type,
       );
       return right(response);
     } on DioException catch (e, t) {

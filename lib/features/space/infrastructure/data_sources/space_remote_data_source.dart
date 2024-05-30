@@ -43,9 +43,13 @@ class SpaceRemoteDataSource {
     required String benefitId,
     required String tokenAddress,
     required String nfcToken,
+    required double latitude,
+    required double longitude,
   }) async {
     // Construct the query parameters
-    final Map<String, String> queryParams = {
+    final Map<String, dynamic> queryParams = {
+      "latitude": latitude,
+      "longitude": longitude,
       'token': nfcToken,
       'tokenAddress': tokenAddress,
     };
