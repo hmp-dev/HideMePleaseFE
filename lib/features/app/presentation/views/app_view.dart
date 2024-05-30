@@ -3,8 +3,12 @@ import 'package:mobile/app/core/enum/menu_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/preload_page_view/preload_page_view.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/services/notification_service.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
+import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_screen.dart';
 import 'package:mobile/features/events/presentation/screens/events_screen.dart';
@@ -25,6 +29,23 @@ class _AppViewState extends State<AppView> {
   MenuType menuType = MenuType.home;
   final PreloadPageController _pageController =
       PreloadPageController(initialPage: 2);
+
+  @override
+  void initState() {
+    super.initState();
+    _setUpNotification();
+  }
+
+  _setUpNotification() async {
+    NotificationServices.instance.initialize().then((_) async {
+      final fcmToken = await NotificationServices.instance.getDeviceToken();
+      if (fcmToken != null) {
+        Log.debug("fcmToken: $fcmToken");
+        getIt<ProfileCubit>()
+            .onUpdateUserProfile(UpdateProfileRequestDto(fcmToken: fcmToken));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

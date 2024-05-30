@@ -17,7 +17,7 @@ import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/home/presentation/widgets/benefits_widget.dart';
+import 'package:mobile/features/home/presentation/widgets/benefit_list_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/chatting_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/events_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/go_to_membership_card_widget.dart';
@@ -226,7 +226,7 @@ class _HomeViewAfterWalletConnectedState
                                   child: FadeIndexedStack(
                                     index: _currentSelectWidgetIndex,
                                     children: const [
-                                      BenefitsWidget(),
+                                      BenefitListWidget(),
                                       EventsWidget(),
                                       MemberWidget(),
                                       ChattingWidget(),

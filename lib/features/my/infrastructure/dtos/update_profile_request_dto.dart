@@ -3,12 +3,14 @@ class UpdateProfileRequestDto {
   final String? introduction;
   final bool? locationPublic;
   final String? pfpNftId;
+  final String? fcmToken;
 
   UpdateProfileRequestDto({
     this.nickName,
     this.introduction,
     this.locationPublic,
     this.pfpNftId,
+    this.fcmToken,
   });
 
   Map<String, dynamic> toJson() {
@@ -17,6 +19,7 @@ class UpdateProfileRequestDto {
       'introduction': introduction,
       'locationPublic': locationPublic,
       'pfpNftId': pfpNftId,
+      'fcmToken': fcmToken
     };
     // Remove entries with null values
     json.removeWhere((_, value) => value == null);

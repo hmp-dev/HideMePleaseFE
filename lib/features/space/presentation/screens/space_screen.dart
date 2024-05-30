@@ -8,6 +8,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
 import 'package:mobile/features/space/presentation/widgets/category_icon_widget.dart';
 import 'package:mobile/features/space/presentation/widgets/new_space_item.dart';
 import 'package:mobile/features/space/presentation/widgets/space_list_item.dart';
@@ -45,41 +46,48 @@ class _SpaceScreenState extends State<SpaceScreen> {
     );
   }
 
-  Column buildRecommendedSpaceWidget(SpaceState state, BuildContext context) {
-    return Column(
-      children: [
-        state.recommendationSpaceList.isEmpty
-            ? const SizedBox.shrink()
-            : Stack(
-                children: [
-                  CustomImageView(
-                    imagePath: "assets/images/confetti.png",
-                    width: MediaQuery.of(context).size.width,
-                    height: 160,
-                    radius: BorderRadius.circular(2),
-                    fit: BoxFit.cover,
-                  ),
-                  SizedBox(
-                    height: 160,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            state.recommendationSpaceList[0].spaceName,
-                            style: fontBodyLgMedium(),
-                          ),
-                          Text(
-                            "${state.recommendationSpaceList[0].users}${LocaleKeys.peopleRecievedPoints.tr()}",
-                            style: fontBodyLgMedium(),
-                          )
-                        ],
+  Widget buildRecommendedSpaceWidget(SpaceState state, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        getIt<SpaceCubit>().onGetSpaceDetail(
+            spaceId: state.recommendationSpaceList[0].spaceId);
+        SpaceDetailScreen.push(context);
+      },
+      child: Column(
+        children: [
+          state.recommendationSpaceList.isEmpty
+              ? const SizedBox.shrink()
+              : Stack(
+                  children: [
+                    CustomImageView(
+                      imagePath: "assets/images/confetti.png",
+                      width: MediaQuery.of(context).size.width,
+                      height: 160,
+                      radius: BorderRadius.circular(2),
+                      fit: BoxFit.cover,
+                    ),
+                    SizedBox(
+                      height: 160,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              state.recommendationSpaceList[0].spaceName,
+                              style: fontBodyLgMedium(),
+                            ),
+                            Text(
+                              "${state.recommendationSpaceList[0].users}${LocaleKeys.peopleRecievedPoints.tr()}",
+                              style: fontBodyLgMedium(),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-      ],
+                  ],
+                ),
+        ],
+      ),
     );
   }
 

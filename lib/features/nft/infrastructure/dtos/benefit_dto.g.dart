@@ -1,13 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'nft_benefit_dto.dart';
+part of 'benefit_dto.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-NftBenefitDto _$NftBenefitDtoFromJson(Map<String, dynamic> json) =>
-    NftBenefitDto(
+BenefitDto _$BenefitDtoFromJson(Map<String, dynamic> json) => BenefitDto(
       id: json['id'] as String?,
       description: json['description'] as String?,
       singleUse: json['singleUse'] as bool?,
@@ -15,9 +14,10 @@ NftBenefitDto _$NftBenefitDtoFromJson(Map<String, dynamic> json) =>
       spaceName: json['spaceName'] as String?,
       spaceImage: json['spaceImage'] as String?,
       used: json['used'] as bool?,
+      tokenAddress: json['tokenAddress'] as String?,
     );
 
-Map<String, dynamic> _$NftBenefitDtoToJson(NftBenefitDto instance) =>
+Map<String, dynamic> _$BenefitDtoToJson(BenefitDto instance) =>
     <String, dynamic>{
       'id': instance.id,
       'description': instance.description,
@@ -26,4 +26,5 @@ Map<String, dynamic> _$NftBenefitDtoToJson(NftBenefitDto instance) =>
       'spaceName': instance.spaceName,
       'spaceImage': instance.spaceImage,
       'used': instance.used,
+      'tokenAddress': instance.tokenAddress,
     };

@@ -5,7 +5,7 @@ import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
-import 'package:mobile/features/nft/domain/entities/nft_benefit_entity.dart';
+import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collection_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collections_group_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_network_entity.dart';

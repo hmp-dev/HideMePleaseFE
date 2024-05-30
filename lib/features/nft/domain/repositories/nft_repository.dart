@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:mobile/app/core/error/error.dart';
-import 'package:mobile/features/nft/infrastructure/dtos/nft_benefit_dto.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/benefit_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_collections_group_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_network_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_points_dto.dart';
@@ -33,7 +33,7 @@ abstract class NftRepository {
     required int welcomeNftId,
   });
 
-  Future<Either<HMPError, List<NftBenefitDto>>> getNftBenefits({
+  Future<Either<HMPError, List<BenefitDto>>> getNftBenefits({
     required String tokenAddress,
     String? spaceId,
     int? pageSize,

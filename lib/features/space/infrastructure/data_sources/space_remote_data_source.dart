@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/network/network.dart';
+import 'package:mobile/features/space/infrastructure/dtos/benefits_group_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_detail_dto.dart';
@@ -108,5 +109,13 @@ class SpaceRemoteDataSource {
       {required String spaceId}) async {
     final response = await _network.get("space/space/$spaceId", {});
     return SpaceDetailDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  //
+
+  Future<BenefitsGroupDto> requestGetSpaceBenefits(
+      {required String spaceId}) async {
+    final response = await _network.get("space/space/$spaceId/benefits", {});
+    return BenefitsGroupDto.fromJson(response.data as Map<String, dynamic>);
   }
 }

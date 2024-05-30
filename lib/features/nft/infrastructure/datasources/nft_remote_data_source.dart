@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
-import 'package:mobile/features/nft/infrastructure/dtos/nft_benefit_dto.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/benefit_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_collections_group_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_network_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_points_dto.dart';
@@ -66,7 +66,7 @@ class NftRemoteDataSource {
     return response.data;
   }
 
-  Future<List<NftBenefitDto>> requestGetNftBenefits({
+  Future<List<BenefitDto>> requestGetNftBenefits({
     required String tokenAddress,
     String? spaceId,
     int? pageSize,
@@ -82,8 +82,7 @@ class NftRemoteDataSource {
     final response = await _network.get(
         "nft/collection/{$tokenAddress}/benefits", queryParams);
     return response.data
-        .map<NftBenefitDto>(
-            (e) => NftBenefitDto.fromJson(e as Map<String, dynamic>))
+        .map<BenefitDto>((e) => BenefitDto.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 

@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/nft/domain/entities/nft_benefit_entity.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
-import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_available_text.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_used_text.dart';
+import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 
 class HomeBenefitItemWidget extends StatelessWidget {
-  const HomeBenefitItemWidget({
-    super.key,
-    required this.nftBenefitEntity,
-  });
+  const HomeBenefitItemWidget(
+      {super.key, required this.nftBenefitEntity, this.isShowImage = true});
 
-  final NftBenefitEntity nftBenefitEntity;
+  final BenefitEntity nftBenefitEntity;
+  final bool isShowImage;
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +19,16 @@ class HomeBenefitItemWidget extends StatelessWidget {
       children: [
         Row(
           children: [
-            CustomImageView(
-              url: nftBenefitEntity.spaceImage,
-              width: 54,
-              height: 54,
-              radius: BorderRadius.circular(2),
-            ),
-            const HorizontalSpace(20),
+            if (isShowImage)
+              Padding(
+                padding: const EdgeInsets.only(right: 20.0),
+                child: CustomImageView(
+                  url: nftBenefitEntity.spaceImage,
+                  width: 54,
+                  height: 54,
+                  radius: BorderRadius.circular(2),
+                ),
+              ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

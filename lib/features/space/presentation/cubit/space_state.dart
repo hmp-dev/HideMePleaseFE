@@ -12,6 +12,9 @@ class SpaceState extends BaseState {
   final List<RecommendationSpaceEntity> recommendationSpaceList;
   final SpaceCategory spaceCategory;
   final SpaceDetailEntity spaceDetailEntity;
+  final BenefitsGroupEntity benefitsGroupEntity;
+  final bool isLoadingMoreFetch;
+  final String currentSpaceId;
 
   @override
   final RequestStatus submitStatus;
@@ -29,6 +32,9 @@ class SpaceState extends BaseState {
     required this.recommendationSpaceList,
     required this.spaceCategory,
     required this.spaceDetailEntity,
+    required this.benefitsGroupEntity,
+    required this.isLoadingMoreFetch,
+    required this.currentSpaceId,
   });
 
   factory SpaceState.initial() => SpaceState(
@@ -44,6 +50,9 @@ class SpaceState extends BaseState {
         recommendationSpaceList: const [],
         spaceCategory: SpaceCategory.ENTIRE,
         spaceDetailEntity: const SpaceDetailEntity.empty(),
+        benefitsGroupEntity: BenefitsGroupEntity.empty(),
+        isLoadingMoreFetch: false,
+        currentSpaceId: "",
       );
 
   @override
@@ -60,6 +69,9 @@ class SpaceState extends BaseState {
         recommendationSpaceList,
         spaceCategory,
         spaceDetailEntity,
+        benefitsGroupEntity,
+        isLoadingMoreFetch,
+        currentSpaceId,
       ];
 
   @override
@@ -76,6 +88,9 @@ class SpaceState extends BaseState {
     List<RecommendationSpaceEntity>? recommendationSpaceList,
     SpaceCategory? spaceCategory,
     SpaceDetailEntity? spaceDetailEntity,
+    BenefitsGroupEntity? benefitsGroupEntity,
+    bool? isLoadingMoreFetch,
+    String? currentSpaceId,
   }) {
     return SpaceState(
       submitStatus: submitStatus ?? this.submitStatus,
@@ -92,6 +107,9 @@ class SpaceState extends BaseState {
           recommendationSpaceList ?? this.recommendationSpaceList,
       spaceCategory: spaceCategory ?? this.spaceCategory,
       spaceDetailEntity: spaceDetailEntity ?? this.spaceDetailEntity,
+      benefitsGroupEntity: benefitsGroupEntity ?? this.benefitsGroupEntity,
+      isLoadingMoreFetch: isLoadingMoreFetch ?? this.isLoadingMoreFetch,
+      currentSpaceId: currentSpaceId ?? this.currentSpaceId,
     );
   }
 }

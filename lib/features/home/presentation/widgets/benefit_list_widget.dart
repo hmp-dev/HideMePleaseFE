@@ -9,14 +9,14 @@ import 'package:mobile/features/common/presentation/widgets/vertical_space.dart'
 import 'package:mobile/features/home/presentation/widgets/home_benefits_item_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
-class BenefitsWidget extends StatefulWidget {
-  const BenefitsWidget({super.key});
+class BenefitListWidget extends StatefulWidget {
+  const BenefitListWidget({super.key});
 
   @override
-  State<BenefitsWidget> createState() => _BenefitsWidgetState();
+  State<BenefitListWidget> createState() => _BenefitListWidgetState();
 }
 
-class _BenefitsWidgetState extends State<BenefitsWidget> {
+class _BenefitListWidgetState extends State<BenefitListWidget> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<NftCubit, NftState>(

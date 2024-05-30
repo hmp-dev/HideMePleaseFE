@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobile/features/nft/domain/entities/nft_benefit_entity.dart';
+import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 
-part 'nft_benefit_dto.g.dart';
+part 'benefit_dto.g.dart';
 
 @JsonSerializable()
-class NftBenefitDto extends Equatable {
+class BenefitDto extends Equatable {
   @JsonKey(name: "id")
   final String? id;
   @JsonKey(name: "description")
@@ -20,8 +20,10 @@ class NftBenefitDto extends Equatable {
   final String? spaceImage;
   @JsonKey(name: "used")
   final bool? used;
+  @JsonKey(name: "tokenAddress")
+  final String? tokenAddress;
 
-  const NftBenefitDto({
+  const BenefitDto({
     this.id,
     this.description,
     this.singleUse,
@@ -29,12 +31,13 @@ class NftBenefitDto extends Equatable {
     this.spaceName,
     this.spaceImage,
     this.used,
+    this.tokenAddress,
   });
 
-  factory NftBenefitDto.fromJson(Map<String, dynamic> json) =>
-      _$NftBenefitDtoFromJson(json);
+  factory BenefitDto.fromJson(Map<String, dynamic> json) =>
+      _$BenefitDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$NftBenefitDtoToJson(this);
+  Map<String, dynamic> toJson() => _$BenefitDtoToJson(this);
 
   @override
   List<Object?> get props {
@@ -46,11 +49,12 @@ class NftBenefitDto extends Equatable {
       spaceName,
       spaceImage,
       used,
+      tokenAddress,
     ];
   }
 
-  NftBenefitEntity toEntity() {
-    return NftBenefitEntity(
+  BenefitEntity toEntity() {
+    return BenefitEntity(
       id: id ?? '',
       description: description ?? '',
       singleUse: singleUse ?? false,
@@ -58,6 +62,7 @@ class NftBenefitDto extends Equatable {
       spaceName: spaceName ?? '',
       spaceImage: spaceImage ?? '',
       used: used ?? false,
+      tokenAddress: tokenAddress ?? '',
     );
   }
 }

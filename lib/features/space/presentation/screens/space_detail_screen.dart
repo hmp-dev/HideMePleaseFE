@@ -10,6 +10,7 @@ import 'package:mobile/features/common/presentation/widgets/horizontal_space.dar
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/widgets/build_hiding_count_widget.dart';
+import 'package:mobile/features/space/presentation/widgets/space_benefit_list_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class SpaceDetailScreen extends StatefulWidget {
@@ -34,7 +35,13 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
     return SingleChildScrollView(
       child: BlocConsumer<SpaceCubit, SpaceState>(
         bloc: getIt<SpaceCubit>(),
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state.submitStatus == RequestStatus.success) {
+            // fetch Space related Benefits
+            getIt<SpaceCubit>()
+                .onGetSpaceBenefits(spaceId: state.currentSpaceId);
+          }
+        },
         builder: (context, state) {
           return state.submitStatus == RequestStatus.loading
               ? const Center(child: SizedBox.shrink())
@@ -127,25 +134,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
                             fit: BoxFit.cover,
                           ),
                           const VerticalSpace(30),
-                          Row(
-                            children: [
-                              DefaultImage(
-                                path: "assets/icons/ic_tick_badge.svg",
-                                width: 20,
-                                height: 20,
-                              ),
-                              const HorizontalSpace(8),
-                              Text(
-                                LocaleKeys.benefitInfo.tr(),
-                                style: fontTitle06Medium(),
-                              ),
-                              const HorizontalSpace(8),
-                              Text(
-                                '23',
-                                style: fontTitle07(color: fore2),
-                              )
-                            ],
-                          ),
+                          const SpaceBenefitListWidget(),
                           const VerticalSpace(50),
                         ],
                       ),

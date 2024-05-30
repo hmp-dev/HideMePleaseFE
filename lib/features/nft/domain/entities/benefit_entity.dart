@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class NftBenefitEntity extends Equatable {
+class BenefitEntity extends Equatable {
   // remove all json ket and make required
   final String id;
   final String description;
@@ -9,8 +9,9 @@ class NftBenefitEntity extends Equatable {
   final String spaceName;
   final String spaceImage;
   final bool used;
+  final String tokenAddress;
 
-  const NftBenefitEntity({
+  const BenefitEntity({
     required this.id,
     required this.description,
     required this.singleUse,
@@ -18,6 +19,7 @@ class NftBenefitEntity extends Equatable {
     required this.spaceName,
     required this.spaceImage,
     required this.used,
+    required this.tokenAddress,
   });
 
   @override
@@ -30,10 +32,11 @@ class NftBenefitEntity extends Equatable {
       spaceName,
       spaceImage,
       used,
+      tokenAddress,
     ];
   }
 
-  NftBenefitEntity copyWith({
+  BenefitEntity copyWith({
     String? id,
     String? description,
     bool? singleUse,
@@ -41,8 +44,9 @@ class NftBenefitEntity extends Equatable {
     String? spaceName,
     String? spaceImage,
     bool? used,
+    String? tokenAddress,
   }) {
-    return NftBenefitEntity(
+    return BenefitEntity(
       id: id ?? this.id,
       description: description ?? this.description,
       singleUse: singleUse ?? this.singleUse,
@@ -50,15 +54,17 @@ class NftBenefitEntity extends Equatable {
       spaceName: spaceName ?? this.spaceName,
       spaceImage: spaceImage ?? this.spaceImage,
       used: used ?? this.used,
+      tokenAddress: tokenAddress ?? this.tokenAddress,
     );
   }
 
-  const NftBenefitEntity.empty()
+  const BenefitEntity.empty()
       : id = '',
         description = '',
         singleUse = false,
         spaceId = '',
         spaceName = '',
         spaceImage = '',
-        used = false;
+        used = false,
+        tokenAddress = '';
 }

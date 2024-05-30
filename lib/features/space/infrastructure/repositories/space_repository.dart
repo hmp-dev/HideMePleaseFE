@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
+import 'package:mobile/features/space/infrastructure/dtos/benefits_group_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_detail_dto.dart';
@@ -182,6 +183,29 @@ class SpaceRepositoryImpl extends SpaceRepository {
       {required String spaceId}) async {
     try {
       final response = await _spaceRemoteDataSource.requestGetSpaceDetail(
+        spaceId: spaceId,
+      );
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, BenefitsGroupDto>> getSpaceBenefits({
+    required String spaceId,
+  }) async {
+    try {
+      final response = await _spaceRemoteDataSource.requestGetSpaceBenefits(
         spaceId: spaceId,
       );
       return right(response);

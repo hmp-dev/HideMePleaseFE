@@ -9,7 +9,7 @@ class NftState extends BaseState {
   final String selectedChain;
   final WelcomeNftEntity welcomeNftEntity;
   final String consumeWelcomeNftUrl;
-  final List<NftBenefitEntity> nftBenefitList;
+  final List<BenefitEntity> nftBenefitList;
   final List<NftPointsEntity> nftPointsList;
   final NftNetworkEntity nftNetworkEntity;
   final NftUsageHistoryEntity nftUsageHistoryEntity;
@@ -82,7 +82,7 @@ class NftState extends BaseState {
     String? selectedChain,
     WelcomeNftEntity? welcomeNftEntity,
     String? consumeWelcomeNftUrl,
-    List<NftBenefitEntity>? nftBenefitList,
+    List<BenefitEntity>? nftBenefitList,
     List<NftPointsEntity>? nftPointsList,
     NftNetworkEntity? nftNetworkEntity,
     NftUsageHistoryEntity? nftUsageHistoryEntity,
