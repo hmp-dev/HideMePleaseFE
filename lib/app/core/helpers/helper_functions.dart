@@ -1,9 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
+import 'package:mobile/app/core/helpers/pref_keys.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String formatWalletAddress(String walletAddress) {
   if (walletAddress.length < 10) {
@@ -113,4 +115,9 @@ String getLocalCategoryName(String categoryName) {
     default:
       throw Exception('Unhandled category');
   }
+}
+
+Future<int?> getInitialScreen() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getInt(isShowOnBoardingView);
 }

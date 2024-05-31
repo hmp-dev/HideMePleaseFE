@@ -9,11 +9,10 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/app.dart';
 import 'package:mobile/app/core/env/app_env.dart';
-import 'package:mobile/app/core/helpers/pref_keys.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/firebase_options.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// init Screen bool
 /// check if it is first time App is launched by user
@@ -27,9 +26,7 @@ void main() async {
 
   /// Setting an Int value for initScreen
   /// To show the Intro Screens at Start
-  final prefs = await SharedPreferences.getInstance();
-
-  isShowOnBoarding = prefs.getInt(isShowOnBoardingView);
+  isShowOnBoarding = await getInitialScreen();
 
   await initApp();
 
