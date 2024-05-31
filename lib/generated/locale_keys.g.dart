@@ -109,10 +109,13 @@ abstract class  LocaleKeys {
   static const more = 'more';
   static const evenPeopleWithNftTitle = 'evenPeopleWithNftTitle';
   static const getAFreeNft = 'getAFreeNft';
+  static const allCommunity = 'allCommunity';
   static const byPoints = 'byPoints';
   static const immediatelyJoinableCommunity = 'immediatelyJoinableCommunity';
   static const numberOfPeople = 'numberOfPeople';
   static const remaining = 'remaining';
   static const klipConnectAndGetFreeNft = 'klipConnectAndGetFreeNft';
+  static const floorPrice = 'floorPrice';
+  static const getNftForFree = 'getNftForFree';
 
 }

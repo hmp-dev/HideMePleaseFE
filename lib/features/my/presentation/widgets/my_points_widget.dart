@@ -119,8 +119,8 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                           onPressed: () {
                             //Navigate Back and go to Space Screen
                             Navigator.pop(context);
-                            getIt<PageCubit>()
-                                .changePage(MenuType.space.menuIndex);
+                            getIt<PageCubit>().changePage(
+                                MenuType.space.menuIndex, MenuType.space);
                             // fetch Space Related Data
                             // init Cubit function to get all space view data
                             getIt<SpaceCubit>().onFetchAllSpaceViewData();

@@ -74,12 +74,12 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Floor Price",
-                  style: fontSB(18),
+                  LocaleKeys.floorPrice.tr(),
+                  style: fontCompactMd(),
                 ),
                 Text(
                   LocaleKeys.free.tr(),
-                  style: fontSB(18),
+                  style: fontCompactLgBold(),
                 )
               ],
             ),
@@ -98,8 +98,8 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                 }
               },
               child: Text(
-                LocaleKeys.learnMore.tr(),
-                style: fontM(16),
+                LocaleKeys.getNftForFree.tr(),
+                style: fontCompactLgMedium(),
               ),
             )
           ],

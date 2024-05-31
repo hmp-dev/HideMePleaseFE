@@ -107,10 +107,13 @@
     "more":"More",
     "evenPeopleWithNftTitle":"Even people without NFTs\nAn opportunity to participate in the community!",
     "getAFreeNft":"Get a free NFT",
+    "allCommunity":"All Community",
     "byPoints":"By Points",
     "immediatelyJoinableCommunity":"immediately Joinable Community",
     "numberOfPeople":"Number of people",
     "remaining":"Remaining",
-    "klipConnectAndGetFreeNft":"Connect Klip wallet and get a free NFT"
+    "klipConnectAndGetFreeNft":"Connect Klip wallet and get a free NFT",
+    "floorPrice":"Floor Price",
+    "getNftForFree":"Get NFT for free"
 }
 

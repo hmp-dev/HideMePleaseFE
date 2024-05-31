@@ -14,6 +14,7 @@ class AlarmsIconButton extends StatelessWidget {
       child: DefaultImage(
         path: "assets/icons/ic_notification.svg",
         width: 32,
+        height: 32,
       ),
     );
   }

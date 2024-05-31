@@ -28,7 +28,7 @@ class AppView extends StatefulWidget {
 
 class _AppViewState extends State<AppView> {
   final double _opacity = 1.0;
-  MenuType menuType = MenuType.home;
+
   // final PreloadPageController _pageController =
   //     PreloadPageController(initialPage: 2);
 
@@ -69,6 +69,7 @@ class _AppViewState extends State<AppView> {
                 bloc: getIt<PageCubit>(),
                 listener: (context, state) {},
                 builder: (context, state) {
+                  "state is changed $state".log();
                   return Column(
                     children: [
                       Expanded(
@@ -108,12 +109,12 @@ class _AppViewState extends State<AppView> {
                               } else if (type == MenuType.space) {
                                 // init Cubit function to get all space view data
                                 getIt<SpaceCubit>().onFetchAllSpaceViewData();
-                                _onChangeMenu(state, type);
+                                _onChangeMenu(type);
                               } else {
-                                _onChangeMenu(state, type);
+                                _onChangeMenu(type);
                               }
                             },
-                            selectedType: menuType,
+                            selectedType: state.menuType,
                             opacity: _opacity,
                           ),
                         ],
@@ -129,7 +130,8 @@ class _AppViewState extends State<AppView> {
     );
   }
 
-  void _onChangeMenu(PageState state, MenuType menuType) {
-    state.pageController.jumpToPage(menuType.menuIndex);
+  void _onChangeMenu(MenuType menuType) {
+    //state.pageController.jumpToPage(menuType.menuIndex);
+    getIt<PageCubit>().changePage(menuType.menuIndex, menuType);
   }
 }

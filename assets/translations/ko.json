@@ -111,7 +111,9 @@
     "immediatelyJoinableCommunity":"즉시 가입 가능한 커뮤니티",
     "numberOfPeople":"수량",
     "remaining":"남음",
-    "klipConnectAndGetFreeNft":"Klip 연결하고 무료 NFT 받기"
+    "klipConnectAndGetFreeNft":"Klip 연결하고 무료 NFT 받기",
+    "floorPrice":"층가격",
+    "getNftForFree":"NFT 무료로 받기"
 
 
 }
