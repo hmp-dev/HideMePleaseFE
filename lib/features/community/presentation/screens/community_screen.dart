@@ -1,13 +1,10 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
-import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/rounder_button_small.dart';
 import 'package:mobile/features/community/presentation/screens/temp_data_community_cards.dart';
 import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
-import 'package:mobile/generated/locale_keys.g.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -26,7 +23,18 @@ class _CommunityScreenState extends State<CommunityScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildTopTitleBar(),
+            SizedBox(
+              height: 75,
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Chat me", style: fontB(28)),
+                    DefaultImage(path: "assets/icons/ic_notification.svg"),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -34,37 +42,21 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      child: Text(
-                        LocaleKeys.evenPeopleWithNftTitle.tr(),
-                        style: fontTitle05Medium(),
-                      ),
+                    Text(
+                      "무료 NFT 받고\n커뮤니티에 참여해보세요",
+                      style: fontM(20, lineHeight: 1.4),
                     ),
                     const SizedBox(height: 20),
-                    GestureDetector(
+                    RoundedButtonSmall(
+                      title: "지갑연결하기",
                       onTap: () {},
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            LocaleKeys.getAFreeNft.tr(),
-                            style: fontCompactSm(color: fore2),
-                          ),
-                          CustomImageView(
-                            svgPath: 'assets/icons/ic_angle_arrow_down.svg',
-                            color: fore2,
-                            width: 16,
-                          )
-                        ],
-                      ),
                     ),
                   ],
                 ),
-                CustomImageView(
-                  imagePath: 'assets/images/connect.png',
-                  width: 88,
-                  height: 88,
+                Container(
+                  height: 120,
+                  width: 120,
+                  color: const Color(0xFF55080A),
                 )
               ],
             ),
@@ -76,13 +68,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      LocaleKeys.allCommunity.tr(),
-                      style: fontTitle07Medium(),
+                      "전체 커뮤니티",
+                      style: fontM(16, lineHeight: 1.4),
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      "53",
-                      style: fontTitle07(color: fore2),
+                      "102",
+                      style: fontM(16,
+                          lineHeight: 1.4, color: fore2White70percent),
                     ),
                   ],
                 ),
@@ -90,8 +83,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      LocaleKeys.byPoints.tr(),
-                      style: fontCompactSm(color: fore2),
+                      "포인트 순",
+                      style: fontR(14,
+                          lineHeight: 1.4, color: fore2White70percent),
                     ),
                     const SizedBox(width: 5),
                     DefaultImage(
@@ -121,22 +115,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Container buildTopTitleBar() {
-    return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20),
-      height: 75,
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Chat me", style: fontBody2Bold()),
-            const AlarmsIconButton(),
           ],
         ),
       ),

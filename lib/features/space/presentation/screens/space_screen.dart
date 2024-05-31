@@ -1,19 +1,8 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/cubit/cubit.dart';
-import 'package:mobile/app/core/enum/space_category.dart';
-import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
-import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
-import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
-import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
+import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/space/presentation/widgets/category_icon_widget.dart';
-import 'package:mobile/features/space/presentation/widgets/new_space_item.dart';
-import 'package:mobile/features/space/presentation/widgets/space_list_item.dart';
 import 'package:mobile/features/space/presentation/widgets/space_nft_list_item.dart';
-import 'package:mobile/generated/locale_keys.g.dart';
 
 class SpaceScreen extends StatefulWidget {
   const SpaceScreen({super.key});
@@ -26,244 +15,176 @@ class _SpaceScreenState extends State<SpaceScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: BlocConsumer<SpaceCubit, SpaceState>(
-        bloc: getIt<SpaceCubit>(),
-        listener: (context, state) {},
-        builder: (context, state) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildTopTitleBar(),
-              buildTopUsedNftsRowWidget(state),
-              buildNewSpaceList(state),
-              buildRecommendedSpaceWidget(state, context),
-              buildTypeWiseSpaceList(state),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget buildRecommendedSpaceWidget(SpaceState state, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        getIt<SpaceCubit>().onGetSpaceDetail(
-            spaceId: state.recommendationSpaceList[0].spaceId);
-        SpaceDetailScreen.push(context);
-      },
-      child: Column(
-        children: [
-          state.recommendationSpaceList.isEmpty
-              ? const SizedBox.shrink()
-              : Stack(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 75,
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CustomImageView(
-                      imagePath: "assets/images/recommendation-bg.gif",
-                      width: MediaQuery.of(context).size.width,
-                      height: 160,
-                      radius: BorderRadius.circular(2),
-                      fit: BoxFit.cover,
+                    Text("Hide me", style: fontB(28)),
+                    DefaultImage(path: "assets/icons/ic_notification.svg"),
+                  ],
+                ),
+              ),
+            ),
+            Text("공간 방문 TOP3", style: fontM(16)),
+            const SizedBox(height: 30),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                SpaceNFTListItem(
+                  image: "assets/images/nft-img-2.png",
+                  score: '2',
+                  points: "2,215 P",
+                  title: "Rosentica: Starfall Travelers",
+                ),
+                SpaceNFTListItem(
+                  image: "assets/images/nft-img-1.png",
+                  score: '1',
+                  points: "2,980 P",
+                  title: "M.E.F. MINT",
+                ),
+                SpaceNFTListItem(
+                  image: "assets/images/nft-img-3.png",
+                  score: '3',
+                  points: "1,895 P",
+                  title: "Outcasts",
+                ),
+              ],
+            ),
+            Container(
+              height: 100,
+              margin: const EdgeInsets.symmetric(vertical: 30),
+              color: const Color(0xFF55080A),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "TBD",
+                      style: fontB(24),
                     ),
-                    SizedBox(
-                      height: 160,
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              state.recommendationSpaceList[0].spaceName,
-                              style: fontBodyLgMedium(),
-                            ),
-                            Text(
-                              "${state.recommendationSpaceList[0].users}${LocaleKeys.peopleRecievedPoints.tr()}",
-                              style: fontBodyLgMedium(),
-                            )
-                          ],
-                        ),
-                      ),
+                    Text(
+                      "나의 혜택",
+                      style: fontR(14),
                     ),
                   ],
                 ),
-        ],
+              ),
+            ),
+            SizedBox(
+              height: 90,
+              child: ListView(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                children: const [
+                  CategoryIconWidget(
+                    icon: "assets/icons/ic_category_all.svg",
+                    title: "전체",
+                    isSelected: true,
+                  ),
+                  CategoryIconWidget(
+                    icon: "assets/icons/ic_category_resturants.svg",
+                    title: "주점",
+                    isSelected: false,
+                  ),
+                  CategoryIconWidget(
+                    icon: "assets/icons/category_3.svg",
+                    title: "카페",
+                    isSelected: false,
+                  ),
+                  CategoryIconWidget(
+                    icon: "assets/icons/category-5.svg",
+                    title: "코워킹",
+                    isSelected: false,
+                  ),
+                  CategoryIconWidget(
+                    icon: "assets/icons/category-6.svg",
+                    title: "음악",
+                    isSelected: false,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+            const SpacePropertyListItem(),
+            const SpacePropertyListItem(),
+            const SpacePropertyListItem(),
+            const SpacePropertyListItem(),
+          ],
+        ),
       ),
     );
   }
+}
 
-  Column buildTypeWiseSpaceList(SpaceState state) {
-    return Column(
-      children: [
-        state.isLoading
-            ? const SizedBox.shrink()
-            : Column(
-                children: [
-                  SizedBox(
-                    height: 90,
-                    child: ListView(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
+class SpacePropertyListItem extends StatelessWidget {
+  const SpacePropertyListItem({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              DefaultImage(
+                path: "assets/images/thumbnail.png",
+                width: 90,
+                height: 120,
+              ),
+              const SizedBox(width: 15),
+              SizedBox(
+                height: 120,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(height: 5),
+                    Text(
+                      "에헤야 서울",
+                      style: fontB(18),
+                    ),
+                    const Spacer(),
+                    Text(
+                      "매일 한잔의 커피나 티 음료를 40% 할인",
+                      style: fontR(14),
+                    ),
+                    const Spacer(),
+                    Row(
                       children: [
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_entire.svg",
-                          title: LocaleKeys.entire.tr(),
-                          isSelected:
-                              state.spaceCategory == SpaceCategory.ENTIRE,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.ENTIRE,
-                            );
-                          },
+                        DefaultImage(
+                          path: "assets/icons/eyes-icon.svg",
+                          width: 18,
+                          height: 18,
                         ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_pub.svg",
-                          title: LocaleKeys.pub.tr(),
-                          isSelected: state.spaceCategory == SpaceCategory.PUB,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.PUB,
-                            );
-                          },
-                        ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_cafe.svg",
-                          title: LocaleKeys.cafe.tr(),
-                          isSelected: state.spaceCategory == SpaceCategory.CAFE,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.CAFE,
-                            );
-                          },
-                        ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_pub.svg",
-                          title: LocaleKeys.coworking.tr(),
-                          isSelected:
-                              state.spaceCategory == SpaceCategory.COWORKING,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.COWORKING,
-                            );
-                          },
-                        ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_music.svg",
-                          title: LocaleKeys.music.tr(),
-                          isSelected:
-                              state.spaceCategory == SpaceCategory.MUSIC,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.MUSIC,
-                            );
-                          },
-                        ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_meal.svg",
-                          title: LocaleKeys.meal.tr(),
-                          isSelected: state.spaceCategory == SpaceCategory.MEAL,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.MEAL,
-                            );
-                          },
+                        const SizedBox(width: 5),
+                        Text(
+                          "3명 숨어있어요",
+                          style: fontR(14),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 30),
-                  state.spaceList.isEmpty
-                      ? const SizedBox(height: 50)
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: state.spaceList.length,
-                          itemBuilder: (context, index) {
-                            return SpaceListItem(
-                              spaceEntity: state.spaceList[index],
-                            );
-                          },
-                        ),
-                ],
-              ),
-      ],
-    );
-  }
-
-  Column buildNewSpaceList(SpaceState state) {
-    return Column(
-      children: [
-        state.newSpaceList.isEmpty
-            ? const SizedBox.shrink()
-            : SizedBox(
-                height: 190,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: state.newSpaceList.length,
-                  itemBuilder: (context, index) {
-                    return NewSpaceItem(
-                      newSpaceEntity: state.newSpaceList[index],
-                    );
-                  },
-                ),
-              ),
-        const SizedBox(height: 35),
-      ],
-    );
-  }
-
-  Padding buildTopUsedNftsRowWidget(SpaceState state) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 20.0,
-        right: 20,
-        bottom: 30,
-      ),
-      child: Column(
-        children: [
-          state.topUsedNfts.isEmpty
-              ? const SizedBox.shrink()
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      LocaleKeys.highlyVisitedCommunity.tr(),
-                      style: fontTitle06Medium(),
-                    ),
-                    const SizedBox(height: 30),
-                    SizedBox(
-                      height: 200,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: state.topUsedNfts.length,
-                        itemBuilder: (context, index) {
-                          return SpaceTopNFTListItem(
-                            topUsedNftEntity: state.topUsedNfts[index],
-                            score: index + 1,
-                          );
-                        },
-                      ),
-                    ),
+                    const SizedBox(height: 5),
                   ],
                 ),
+              )
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Divider(
+            color: black200,
+          )
         ],
-      ),
-    );
-  }
-
-  Container buildTopTitleBar() {
-    return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20),
-      height: 75,
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Hide me", style: fontBody2Bold()),
-            const AlarmsIconButton(),
-          ],
-        ),
       ),
     );
   }

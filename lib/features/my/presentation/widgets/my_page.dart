@@ -25,22 +25,6 @@ class MyPageState extends State<MyPage>
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20, top: 20, right: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "총 12개",
-                        style: fontTitle07Medium(),
-                      ),
-                      Text(
-                        "04/15 18:00 기준",
-                        style: fontCompactSm(),
-                      ),
-                    ],
-                  ),
-                ),
                 const SizedBox(height: 29),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
