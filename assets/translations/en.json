@@ -104,6 +104,13 @@
     "upcomingEvents":"UpcomingEvents",
     "location":"Location",
     "benefitInfo":"Benefit Info",
-    "more":"More"
+    "more":"More",
+    "evenPeopleWithNftTitle":"Even people without NFTs\nAn opportunity to participate in the community!",
+    "getAFreeNft":"Get a free NFT",
+    "byPoints":"By Points",
+    "immediatelyJoinableCommunity":"immediately Joinable Community",
+    "numberOfPeople":"Number of people",
+    "remaining":"Remaining",
+    "klipConnectAndGetFreeNft":"Connect Klip wallet and get a free NFT"
 }
 

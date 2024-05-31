@@ -103,7 +103,15 @@
     "open":"영업 중",
     "upcomingEvents":"진행 예정 이벤트",
     "benefitInfo":"혜택 정보",
-    "more":"더보기"
+    "more":"더보기",
+    "evenPeopleWithNftTitle":"NFT가 없는 사람도\n커뮤니티에 참여할 수 있는 기회!",
+    "getAFreeNft":"무료 NFT 받기",
+    "allCommunity":"전체 커뮤니티",
+    "byPoints":"포인트 순",
+    "immediatelyJoinableCommunity":"즉시 가입 가능한 커뮤니티",
+    "numberOfPeople":"수량",
+    "remaining":"남음",
+    "klipConnectAndGetFreeNft":"Klip 연결하고 무료 NFT 받기"
 
 
 }
