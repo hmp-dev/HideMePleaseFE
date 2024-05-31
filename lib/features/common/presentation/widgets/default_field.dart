@@ -21,7 +21,6 @@ class DefaultField extends StatefulWidget {
   final bool? isError;
   final double borderRadius;
   final TextEditingController? controller;
-  final VoidCallback? onEditingComplete;
 
   const DefaultField({
     super.key,
@@ -40,9 +39,8 @@ class DefaultField extends StatefulWidget {
     this.maxLine,
     this.isError = false,
     this.guideMsg,
-    this.borderRadius = 4,
+    this.borderRadius = 6,
     this.controller,
-    this.onEditingComplete,
   });
 
   @override
@@ -88,7 +86,7 @@ class _DefaultFieldState extends State<DefaultField> {
             borderRadius: BorderRadius.circular(widget.borderRadius),
             borderSide: const BorderSide(
               width: 1,
-              color: fore5,
+              color: stroke_02,
               style: BorderStyle.solid,
             ),
           )
@@ -114,8 +112,8 @@ class _DefaultFieldState extends State<DefaultField> {
               focusNode: focusNode,
               maxLines: widget.maxLine,
               controller: _controller,
-              style: widget.textStyle ?? fontCompactMd(color: fore3),
-              cursorColor: hmpBlue,
+              style: widget.textStyle ?? fontR(20),
+              cursorColor: pink,
               onChanged: (text) {
                 this.text = text;
 
@@ -126,10 +124,7 @@ class _DefaultFieldState extends State<DefaultField> {
                 setState(() {});
               },
               inputFormatters: widget.inputFormatters,
-              onEditingComplete: widget.onEditingComplete,
               decoration: InputDecoration(
-                filled: true,
-                fillColor: bgNega5,
                 counterText: "",
                 hintText: widget.hintText ?? "",
                 hintStyle:

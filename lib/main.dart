@@ -1,35 +1,19 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:lottie/lottie.dart';
 import 'package:mobile/app/app.dart';
 import 'package:mobile/app/core/env/app_env.dart';
-import 'package:mobile/app/core/helpers/pref_keys.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
-import 'package:mobile/firebase_options.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-/// init Screen bool
-/// check if it is first time App is launched by user
-
-int? isShowOnBoarding;
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
-  /// Setting an Int value for initScreen
-  /// To show the Intro Screens at Start
-  final prefs = await SharedPreferences.getInstance();
-
-  isShowOnBoarding = prefs.getInt(isShowOnBoardingView);
 
   await initApp();
 
@@ -38,15 +22,12 @@ void main() async {
       supportedLocales: const [Locale('en'), Locale('ko')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
-      startLocale: AppEnv.flavor.isProd && kReleaseMode
-          ? const Locale('ko')
-          : const Locale('ko'),
+      startLocale:
+          AppEnv.flavor.isProd && kReleaseMode ? const Locale('ko') : null,
       useOnlyLangCode: true,
       child: DevicePreview(
         enabled: false,
-        builder: (_) => MyApp(
-          isShowOnBoarding: isShowOnBoarding,
-        ),
+        builder: (_) => const MyApp(),
       ),
     ),
   );
@@ -64,9 +45,6 @@ Future initApp() async {
   await configureDependencies();
 
   await Future.wait([
-    // Firebase
-    Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
-
     // Localization
     EasyLocalization.ensureInitialized(),
 
@@ -90,10 +68,10 @@ Future initApp() async {
     ..indicatorColor = Colors.black54
     ..userInteractions = false
     ..dismissOnTap = false
-    ..indicatorWidget = Container(
-      child: Lottie.asset(
-        'assets/lottie/loader.json',
-      ),
+    ..indicatorWidget = const SizedBox(
+      width: 50,
+      height: 50,
+      child: CircularProgressIndicator(color: Colors.white),
     )
     ..boxShadow = <BoxShadow>[]
     ..indicatorType = EasyLoadingIndicatorType.cubeGrid;

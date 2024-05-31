@@ -1,8 +1,7 @@
-// ignore_for_file: constant_identifier_names
-
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 
 enum Level {
@@ -98,7 +97,7 @@ class DioRequestLogger extends Interceptor {
         }
         buffer.write("${jsonEncode(err.response?.data)}\n");
       }
-      Log.info(buffer.toString());
+      Log.error(buffer.toString());
     }
 
     // FirebaseCrashlytics.instance.recordError(
