@@ -31,10 +31,16 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
   final FlutterAppAuth appAuth = const FlutterAppAuth();
 
   bool isAgreeWithTerms = false;
+  int? isShowOnBoarding;
 
   @override
   void initState() {
     super.initState();
+    checkIsShowOnBoarding();
+  }
+
+  checkIsShowOnBoarding() async {
+    isShowOnBoarding = await getInitialScreen();
   }
 
   Future<void> _login(BuildContext context) async {
@@ -74,8 +80,11 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
             previous.isLogInSuccessful != current.isLogInSuccessful,
         listener: (context, state) {
           if (state.isSubmitSuccess && state.isLogInSuccessful) {
-            Navigator.pushNamedAndRemoveUntil(
-                context, Routes.startUpScreen, (route) => false);
+            isShowOnBoarding == 0 || isShowOnBoarding == null
+                ? Navigator.pushNamedAndRemoveUntil(
+                    context, Routes.onboardingScreen, (route) => false)
+                : Navigator.pushNamedAndRemoveUntil(
+                    context, Routes.startUpScreen, (route) => false);
           }
 
           if (state.isSubmitFailure) {

@@ -7,6 +7,7 @@ class EnableLocationState extends BaseState {
   final int submitCount;
   final double latitude;
   final double longitude;
+  final bool isLocationDenied;
 
   @override
   final RequestStatus submitStatus;
@@ -17,6 +18,7 @@ class EnableLocationState extends BaseState {
     required this.isAskToOpenLocationSettings,
     required this.latitude,
     required this.longitude,
+    required this.isLocationDenied,
     this.submitStatus = RequestStatus.initial,
     this.submitCount = 0,
   });
@@ -29,6 +31,7 @@ class EnableLocationState extends BaseState {
         submitCount: 0,
         latitude: 0.0,
         longitude: 0.0,
+        isLocationDenied: false,
       );
 
   @override
@@ -40,6 +43,7 @@ class EnableLocationState extends BaseState {
         submitCount,
         latitude,
         longitude,
+        isLocationDenied,
       ];
 
   @override
@@ -51,6 +55,7 @@ class EnableLocationState extends BaseState {
     int? submitCount,
     double? latitude,
     double? longitude,
+    bool? isLocationDenied,
   }) {
     return EnableLocationState(
       hasLocationPermission:
@@ -62,6 +67,7 @@ class EnableLocationState extends BaseState {
       submitCount: submitCount ?? this.submitCount,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      isLocationDenied: isLocationDenied ?? this.isLocationDenied,
     );
   }
 }

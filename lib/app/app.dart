@@ -39,10 +39,10 @@ class _MyAppState extends State<MyApp> {
         locale: context.locale,
         title: '하이드미플리즈', //Hyde Me Please
         theme: theme(),
-        initialRoute:
-            widget.isShowOnBoarding == 0 || widget.isShowOnBoarding == null
-                ? Routes.onboardingScreen
-                : Routes.startUpScreen,
+        initialRoute: Routes.startUpScreen,
+        // widget.isShowOnBoarding == 0 || widget.isShowOnBoarding == null
+        //     ? Routes.onboardingScreen
+        //     : Routes.startUpScreen,
         onGenerateRoute: generateRoute,
         navigatorObservers: const [
           //FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),

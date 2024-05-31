@@ -87,7 +87,8 @@ class EnableLocationCubit extends BaseCubit<EnableLocationState> {
     if (locationResult.error != null) {
       // Handle the error
       Log.debug(locationResult.error!);
-      emit(state.copyWith(submitStatus: RequestStatus.failure));
+      emit(state.copyWith(
+          submitStatus: RequestStatus.failure, isLocationDenied: true));
     } else {
       // Location obtained successfully, do something with the position
       Position position = locationResult.position!;

@@ -124,6 +124,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               (route) => false,
             );
           }
+
+          if (state.isFailure && state.isLocationDenied) {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              Routes.startUpScreen,
+              (route) => false,
+            );
+          }
         },
         child: Stack(
           children: [
