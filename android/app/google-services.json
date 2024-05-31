@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "125892280544",
+    "project_id": "hidemeplease2024-dev",
+    "storage_bucket": "hidemeplease2024-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125892280544:android:d475ae2e943e8ecf1ad085",
+        "android_client_info": {
+          "package_name": "com.kr.hideme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "125892280544-e08040me4mkli7rvrsrueu63qp08omhu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kr.hideme",
+            "certificate_hash": "4dd99cb629ca6eb9eb4bdd362deb0d7bc7563618"
+          }
+        },
+        {
+          "client_id": "125892280544-rjf7f4jt6u5qpledlfgj5go9hobt7spe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC34ZypssIyxhziS2uMnGeJ3etF8fv8GWk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "125892280544-rjf7f4jt6u5qpledlfgj5go9hobt7spe.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "125892280544-gf2eq6ekng6053cqr3hnpvgfa6ug9h0t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.kr.hideme"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

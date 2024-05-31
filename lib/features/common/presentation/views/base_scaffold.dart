@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -16,6 +18,8 @@ class BaseScaffold extends StatefulWidget {
   final bool onLoading;
   final bool isFirstPage;
   final bool safeArea;
+  final String backIconPath;
+  final Widget? bottomNavigationBar;
 
   const BaseScaffold({
     super.key,
@@ -28,6 +32,8 @@ class BaseScaffold extends StatefulWidget {
     required this.body,
     this.onLoading = false,
     this.isFirstPage = false,
+    this.backIconPath = "assets/icons/img_icon_arrow.svg",
+    this.bottomNavigationBar,
   });
 
   @override
@@ -67,6 +73,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
       children: [
         Scaffold(
           backgroundColor: widget.backgroundColor ?? bg,
+          bottomNavigationBar: widget.bottomNavigationBar,
           body: GestureDetector(
             onTap: () {
               FocusScope.of(context).unfocus();
@@ -126,9 +133,10 @@ class _BaseScaffoldState extends State<BaseScaffold> {
                             color: Colors.transparent,
                             alignment: Alignment.centerLeft,
                             child: DefaultImage(
-                              path: "assets/icons/img_icon_arrow.svg",
+                              path: widget.backIconPath,
                               width: 32,
                               height: 32,
+                              color: white,
                             ),
                           ),
                         )
@@ -148,7 +156,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
                   widget.title!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: fontM(20),
+                  style: fontTitle05Medium(),
                 ),
               ),
           ],

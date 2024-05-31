@@ -5,12 +5,15 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/env/app_env.dart';
-import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, this.isShowOnBoarding});
+
+  final int? isShowOnBoarding;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -21,7 +24,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    Log.info('FLAVOR: ${AppEnv.flavor}');
+    ('FLAVOR: ${AppEnv.flavor}').log();
     super.initState();
   }
 
@@ -30,13 +33,16 @@ class _MyAppState extends State<MyApp> {
     return RepositoryProvider.value(
       value: navigatorKey,
       child: MaterialApp(
-        navigatorKey: navigatorKey,
+        navigatorKey: StackedService.navigatorKey,
         localizationsDelegates: context.localizationDelegates,
         supportedLocales: context.supportedLocales,
         locale: context.locale,
-        title: '공유용',
+        title: '하이드미플리즈', //Hyde Me Please
         theme: theme(),
-        initialRoute: Routes.app,
+        initialRoute:
+            widget.isShowOnBoarding == 0 || widget.isShowOnBoarding == null
+                ? Routes.onboardingScreen
+                : Routes.startUpScreen,
         onGenerateRoute: generateRoute,
         navigatorObservers: const [
           //FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),

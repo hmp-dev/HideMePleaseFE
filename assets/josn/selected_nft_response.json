@@ -1,0 +1,28 @@
+[
+  {
+    "id": "0xfe89a6d67aa416774f5944954b3f66b4b90ed3d7_1132",
+    "name": "RRMAYC",
+    "imageUrl": "",
+    "order": 0,
+    "tokenAddress": "0xfe89a6d67aa416774f5944954b3f66b4b90ed3d7",
+    "symbol": "RRMAYC",
+    "chain": "ETHEREUM",
+    "totalPoints": 0,
+    "communityRank": 1,
+    "totalMembers": 1,
+    "pointFluctuation": 0
+  },
+  {
+    "id": "0xfda5ae1ae3499fbb2b7601f1d9cd61cecc6534f3_93410320605367039050097770411840912767215319845709084397920798201742998110210",
+    "name": "Ukraine UN Ape",
+    "imageUrl": "https://nft-preview-media.s3.us-east-1.amazonaws.com/evm/0x1/0xfda5ae1ae3499fbb2b7601f1d9cd61cecc6534f3/0x61e24b4a3474aaeb537af09b936d3749c68724e2368cdc1e66e6c278f18808da/medium.jpeg",
+    "order": 1,
+    "tokenAddress": "0xfda5ae1ae3499fbb2b7601f1d9cd61cecc6534f3",
+    "symbol": "U.U.A.",
+    "chain": "ETHEREUM",
+    "totalPoints": 0,
+    "communityRank": 328,
+    "totalMembers": 1,
+    "pointFluctuation": 0
+  }
+]

@@ -13,6 +13,8 @@ class DefaultButton extends StatefulWidget {
   final double? borderRadius;
   final bool loading;
   final double? height;
+  final TextStyle textStyle;
+  final Widget? iconWidget;
 
   const DefaultButton({
     super.key,
@@ -25,6 +27,8 @@ class DefaultButton extends StatefulWidget {
     this.borderRadius,
     this.loading = false,
     this.height = 56,
+    required this.textStyle,
+    this.iconWidget,
   });
 
   @override
@@ -80,9 +84,14 @@ class DefaultButtonState extends State<DefaultButton> {
                         height: 20,
                       ),
                     ),
+                  if (widget.iconWidget != null)
+                    Container(
+                      margin: const EdgeInsets.only(right: 4),
+                      child: widget.iconWidget,
+                    ),
                   BoldMsgGenerator.toRichText(
                     text: "*${widget.title}",
-                    style: fontM(16, color: textColor),
+                    style: widget.textStyle,
                     boldStyle: fontB(16, color: textColor),
                     textAlign: TextAlign.center,
                   ),

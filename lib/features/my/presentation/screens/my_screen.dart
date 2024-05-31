@@ -1,11 +1,21 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/router/router.dart';
+import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/my/presentation/widgets/my_page.dart';
+import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
+import 'package:mobile/features/my/presentation/widgets/my_membership_widget.dart';
+import 'package:mobile/features/my/presentation/widgets/my_points_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyScreen extends StatefulWidget {
@@ -30,50 +40,76 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    tabViewController = TabController(length: 3, vsync: this);
+    tabViewController = TabController(length: 2, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BaseScaffold(
-      title: LocaleKeys.myPage.tr(),
-      isCenterTitle: true,
-      onBack: () {
-        Navigator.pop(context);
-      },
-      suffix: GestureDetector(
-        onTap: () {},
-        child: DefaultImage(
-            path: "assets/icons/img_icon_system.svg", width: 32, height: 32),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _buildRow(context),
-              const SizedBox(height: 32),
-              _buildTabView(context),
-              SizedBox(
-                height: 496,
-                child: TabBarView(
-                  controller: tabViewController,
-                  children: const [
-                    MyPage(),
-                    MyPage(),
-                    MyPage(),
-                  ],
-                ),
-              ),
-            ],
+    return BlocConsumer<ProfileCubit, ProfileState>(
+      bloc: getIt<ProfileCubit>(),
+      listener: (context, state) {},
+      builder: (context, state) {
+        final userData = state.userProfileEntity;
+        return BaseScaffold(
+          title: LocaleKeys.myPage.tr(),
+          isCenterTitle: true,
+          onBack: () {
+            Navigator.pop(context);
+          },
+          suffix: GestureDetector(
+            onTap: () {
+              MyEditScreen.push(context, userData);
+            },
+            child: DefaultImage(
+                path: "assets/icons/img_icon_system.svg",
+                width: 32,
+                height: 32),
           ),
-        ),
-      ),
+          body: SafeArea(
+            child: BlocListener<AppCubit, AppState>(
+              bloc: getIt<AppCubit>(),
+              listener: (context, appState) {
+                if (!appState.isLoggedIn) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    Routes.startUpScreen,
+                    (route) => false,
+                  );
+                }
+              },
+              child: SingleChildScrollView(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildTitleRow(context, userData),
+                  const SizedBox(height: 24),
+                  _buildTabView(context),
+                  const SizedBox(height: 15),
+                  SizedBox(
+                    height: 800,
+                    child: TabBarView(
+                      controller: tabViewController,
+                      children: const [
+                        MyMembershipWidget(),
+                        MyPointsWidget(),
+                      ],
+                    ),
+                  ),
+                ],
+              )),
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildRow(BuildContext context) {
+  Widget _buildTitleRow(
+    BuildContext context,
+    UserProfileEntity userProfile,
+  ) {
+    final connectedWalletsList = getIt<WalletsCubit>().state.connectedWallets;
     return Padding(
       padding: const EdgeInsets.only(
         left: 20,
@@ -97,20 +133,27 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "나는꿈을꾸는문어",
+                    userProfile.nickName, //name I am a dreaming octopus
                     style: fontM(16),
                   ),
                   const SizedBox(height: 7),
                   SizedBox(
                     width: 226,
                     child: Text(
-                      "높은 산에 올라가면 나는 초록색 문어, 장미 꽃밭 숨어들면 나는 빨간색 문어",
+                      userProfile.introduction,
+                      // introduction Text
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: fontR(14,
                           color: Colors.white.withOpacity(0.7),
                           lineHeight: 1.3),
                     ),
+                  ),
+                  const VerticalSpace(10),
+                  LinkedWalletButton(
+                    titleText: LocaleKeys.linkedWallet.tr(),
+                    count: connectedWalletsList.length,
+                    onTap: () {},
                   ),
                 ],
               ),
@@ -132,64 +175,54 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
           width: deviceWidth,
           decoration: const BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: whiteWithOpacityOne, width: 1),
+              bottom: BorderSide(
+                color: whiteWithOpacityOne,
+                width: 0.7,
+              ),
             ),
           ),
         ),
-        SizedBox(
-          height: 60,
-          width: deviceWidth,
-          child: Expanded(
-            child: TabBar(
-              controller: tabViewController,
-              isScrollable: true,
-              labelColor: white,
-              labelStyle: fontM(16),
-              unselectedLabelColor: white.withOpacity(0.5),
-              dividerColor: Colors.transparent,
-              unselectedLabelStyle: fontM(16),
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicatorColor: white,
-              indicatorWeight: 1,
-              indicator: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: white, width: 0.5),
+        Padding(
+          padding: const EdgeInsets.only(top: 7.0),
+          child: TabBar(
+            controller: tabViewController,
+            isScrollable: true,
+            labelColor: white,
+            labelStyle: fontM(16),
+            unselectedLabelColor: white.withOpacity(0.5),
+            dividerColor: Colors.transparent,
+            unselectedLabelStyle: fontM(16),
+            indicatorSize: TabBarIndicatorSize.tab,
+            indicatorColor: white,
+            indicatorWeight: 1,
+            indicator: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: white, width: 0.5),
+              ),
+            ),
+            tabAlignment: TabAlignment.center,
+            tabs: [
+              Tab(
+                child: SizedBox(
+                  width: deviceWidth * 0.45,
+                  child: Center(
+                    child: Text(
+                      LocaleKeys.membership.tr(),
+                    ),
+                  ),
                 ),
               ),
-              tabAlignment: TabAlignment.center,
-              tabs: [
-                Tab(
-                  child: SizedBox(
-                    width: deviceWidth * 0.25,
-                    child: const Center(
-                      child: Text(
-                        "NFT",
-                      ),
+              Tab(
+                child: SizedBox(
+                  width: deviceWidth * 0.45,
+                  child: Center(
+                    child: Text(
+                      LocaleKeys.points.tr(),
                     ),
                   ),
                 ),
-                Tab(
-                  child: SizedBox(
-                    width: deviceWidth * 0.25,
-                    child: const Center(
-                      child: Text(
-                        "커뮤니티",
-                      ),
-                    ),
-                  ),
-                ),
-                Tab(
-                  child: SizedBox(
-                    width: deviceWidth * 0.25,
-                    child: const Center(
-                      child: Text(
-                        "포인트",
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],

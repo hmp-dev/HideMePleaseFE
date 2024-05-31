@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
-import 'package:mobile/features/home/presentation/views/home_view_after_login_with_nft.dart';
-import 'package:mobile/features/home/presentation/views/home_view_after_login_without_nft.dart';
+import 'package:mobile/features/home/presentation/views/home_view_after_wallet_connected.dart';
 import 'package:mobile/features/home/presentation/views/home_view_before_login.dart';
+import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,24 +20,100 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late ScrollController _scrollController;
+  bool _isVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+
+    // initialize the w3mService
+    getIt<WalletsCubit>().initW3MService();
+    // Ask for device location
+    getIt<EnableLocationCubit>().onAskDeviceLocation();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset >= 80 && _isVisible) {
+      setState(() {
+        _isVisible = false;
+      });
+
+      "ScrollController: ${_scrollController.offset} $_isVisible".log();
+    } else if (_scrollController.offset < 80 && !_isVisible) {
+      setState(() {
+        _isVisible = true;
+      });
+
+      "ScrollController: ${_scrollController.offset} $_isVisible".log();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeCubit, HomeState>(
-      bloc: getIt<HomeCubit>(),
-      listener: (context, state) {},
-      builder: (context, state) {
-        return SingleChildScrollView(
-          child: getHomeView(state.homeViewType),
-        );
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<WalletsCubit, WalletsState>(
+          // only listen to navigate to MyMembershipSettingsScreen
+          // when a new wallet is connected
+          listenWhen: (previous, current) =>
+              previous.connectedWallets.length <
+              current.connectedWallets.length,
+          bloc: getIt<WalletsCubit>(),
+          listener: (context, state) {
+            if (state.isSuccess) {
+              // call to get nft collections
+              getIt<NftCubit>().onGetNftCollections();
+              // show the AfterLoginWithNFT screen
+              getIt<HomeCubit>()
+                  .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
+              // navigate to MyMembershipSettingsScreen
+              MyMembershipSettingsScreen.push(context);
+            }
+          },
+        ),
+        BlocListener<SpaceCubit, SpaceState>(
+          bloc: getIt<SpaceCubit>(),
+          listener: (context, state) {
+            if (state.isSuccess) {
+              if (state.spacesResponseEntity.spaces.isNotEmpty) {
+                RedeemBenefitScreen.push(
+                  context,
+                  state.spacesResponseEntity.spaces[0],
+                  state.selectedNftTokenAddress,
+                );
+              } else {
+                //context.showSnackBar(LocaleKeys.noSpacesFound.tr());
+              }
+            }
+          },
+        ),
+      ],
+      child: BlocConsumer<HomeCubit, HomeState>(
+        bloc: getIt<HomeCubit>(),
+        listener: (context, state) {},
+        builder: (context, state) {
+          return SingleChildScrollView(
+            controller: _scrollController,
+            child: getHomeView(state.homeViewType),
+          );
+        },
+      ),
     );
   }
 
   getHomeView(HomeViewType homeViewType) {
-    if (homeViewType == HomeViewType.AfterLoginWithOutNFT) {
-      return const HomeViewAfterLoginWithOutNFT();
-    } else if (homeViewType == HomeViewType.AfterLoginWithNFT) {
-      return const HomeViewAfterLoginWithNFT();
+    if (homeViewType == HomeViewType.afterWalletConnected) {
+      return HomeViewAfterWalletConnected(isOverIconNavVisible: _isVisible);
     } else {
       return const HomeViewBeforeLogin();
     }

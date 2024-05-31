@@ -1,22 +1,31 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/enum/home_view_type.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/common/presentation/widgets/rounder_button_small.dart';
-import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
-import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
+import 'package:mobile/features/home/presentation/widgets/glassmorphic_button.dart';
+import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
+import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent_local.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
-class HomeViewBeforeLogin extends StatelessWidget {
+class HomeViewBeforeLogin extends StatefulWidget {
   const HomeViewBeforeLogin({
     super.key,
   });
 
   @override
+  State<HomeViewBeforeLogin> createState() => _HomeViewBeforeLoginState();
+}
+
+class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 100),
+        const SizedBox(height: 50),
         DefaultImage(
           path: "assets/images/hide-me-please-logo.png",
           width: 200,
@@ -30,32 +39,74 @@ class HomeViewBeforeLogin extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        RoundedButtonSmall(
-          title: "지갑연결하기",
-          onTap: () {
-            getIt<HomeCubit>()
-                .onUpdateHomeViewType(HomeViewType.AfterLoginWithOutNFT);
+        BlocConsumer<WalletsCubit, WalletsState>(
+          bloc: getIt<WalletsCubit>(),
+          listener: (context, state) {},
+          builder: (context, state) {
+            // check if the w3mService is initialized
+            if (state.w3mService != null) {
+              return ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50.0),
+                  )),
+                  overlayColor:
+                      MaterialStateProperty.all<Color>(Colors.transparent),
+                ),
+                onPressed: () {
+                  state.w3mService!.openModal(context);
+                },
+                child: Text(
+                  LocaleKeys.walletConnection.tr(),
+                  style: fontCompactMdMedium(color: white),
+                ),
+              );
+
+              // W3MConnectWalletButton(
+              //   service: state.w3mService!,
+              // );
+            } else {
+              return ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50.0),
+                  )),
+                  overlayColor:
+                      MaterialStateProperty.all<Color>(Colors.transparent),
+                ),
+                onPressed: () {},
+                child: Text(
+                  LocaleKeys.walletConnection.tr(),
+                  style: fontCompactMdMedium(color: white),
+                ),
+              );
+            }
           },
         ),
-        const SizedBox(height: 50),
-        NFTCardWidgetParent(
+        const SizedBox(height: 30),
+        NFTCardWidgetParentLocal(
           imagePath: "assets/images/home_card_img.png",
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DefaultImage(
-                  path: "assets/icons/chainIcon_x2.svg",
-                  width: 40,
-                  height: 40,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Ready To Hide",
-                  style: fontB(32),
-                ),
-              ],
+          topWidget: const NftCardTopTitleWidget(
+            title: "Ready To Hide",
+            chain: "ETHEREUM",
+          ),
+          badgeWidget: CustomImageView(
+            imagePath: "assets/images/free-graphic-text.png",
+          ),
+          bottomWidget: Padding(
+            padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
+            child: GlassmorphicButton(
+              width: MediaQuery.of(context).size.width * 0.80,
+              height: 60,
+              onPressed: () {},
+              child: Text(
+                'Klip 연결하고 무료 NFT 받기',
+                style: fontCompactMdMedium(),
+              ),
             ),
           ),
         )
