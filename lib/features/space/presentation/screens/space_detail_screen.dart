@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -30,6 +31,42 @@ class SpaceDetailScreen extends StatefulWidget {
 }
 
 class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
+  List<Marker> allMarkers = [];
+
+  late GoogleMapController _controller;
+
+  String transactionNote = "";
+  String receiptImgUrl = "";
+
+  static const CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(37.5518911, 126.9917937),
+    zoom: 12,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> moveAnimateToAddress(LatLng position) async {
+    await _controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          bearing: 92.8334901395799,
+          target: position,
+          tilt: 9.440717697143555,
+          zoom: 8.151926040649414,
+        ),
+      ),
+    );
+  }
+
+  Future<void> addMarker(LatLng position) async {
+    allMarkers
+        .add(Marker(markerId: const MarkerId('myMarker'), position: position));
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -125,17 +162,36 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
                               ),
                             ],
                           ),
-                          const VerticalSpace(10),
-                          CustomImageView(
-                            imagePath: "assets/images/map_placeholder.png",
-                            width: MediaQuery.of(context).size.width,
-                            height: 250,
-                            radius: BorderRadius.circular(2),
-                            fit: BoxFit.cover,
-                          ),
-                          const VerticalSpace(30),
-                          const SpaceBenefitListWidget(),
-                          const VerticalSpace(50),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 250,
+                      child: GoogleMap(
+                        initialCameraPosition: _kGooglePlex,
+                        markers: Set.from(allMarkers),
+                        onMapCreated: (GoogleMapController controller) async {
+                          setState(() {
+                            _controller = controller;
+                          });
+
+                          final latLong = LatLng(
+                              state.spaceDetailEntity.latitude,
+                              state.spaceDetailEntity.longitude);
+                          await moveAnimateToAddress(latLong);
+                          await addMarker(latLong);
+                        },
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          VerticalSpace(30),
+                          SpaceBenefitListWidget(),
+                          VerticalSpace(50),
                         ],
                       ),
                     ),
@@ -250,16 +306,25 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
     );
   }
 
-  String getBusinessHours(String start, String end) {
-    // Parse the input times
-    DateTime businessStart = DateFormat('HH:mm:ss').parse(start);
-    DateTime businessEnd = DateFormat('HH:mm:ss').parse(end);
+  String getBusinessHours(String? start, String? end) {
+    // Check for null values
+    if (start == null || end == null) {
+      return "Invalid input: start or end time is null";
+    }
 
-    // Format the new times back into strings
-    String formattedNewStart = DateFormat('HH:mm').format(businessStart);
-    String formattedNewEnd = DateFormat('HH:mm').format(businessEnd);
+    try {
+      // Parse the input times
+      DateTime businessStart = DateFormat('HH:mm:ss').parse(start);
+      DateTime businessEnd = DateFormat('HH:mm:ss').parse(end);
 
-    // Return the new time range as a string
-    return "$formattedNewStart ~ $formattedNewEnd";
+      // Format the new times back into strings
+      String formattedNewStart = DateFormat('HH:mm').format(businessStart);
+      String formattedNewEnd = DateFormat('HH:mm').format(businessEnd);
+
+      // Return the new time range as a string
+      return "$formattedNewStart ~ $formattedNewEnd";
+    } catch (e) {
+      return "$start ~ $end";
+    }
   }
 }

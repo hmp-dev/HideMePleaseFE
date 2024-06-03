@@ -28,6 +28,8 @@
         android:label="HideMePlease"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyAhzhtbuw8UD22Fs_SXuelDmKgNNzJd7YY"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
