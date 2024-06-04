@@ -653,7 +653,7 @@ TextStyle fontTitle05Medium({Color? color = fore1}) => TextStyle(
 TextStyle fontTitle05Bold({Color? color = fore1}) => TextStyle(
       fontSize: 20,
       fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
       color: color ?? fore1,
       letterSpacing: -0.1,
       height: 1.4,

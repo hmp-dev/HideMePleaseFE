@@ -5,8 +5,6 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
-import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_field.dart';
@@ -17,8 +15,10 @@ import 'package:mobile/features/common/presentation/widgets/horizontal_space.dar
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
+import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/screens/select_profile_image_screen.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyEditScreen extends StatefulWidget {
@@ -63,12 +63,6 @@ class _MyEditScreenState extends State<MyEditScreen> {
       onBack: () {
         Navigator.pop(context);
       },
-      suffix: GestureDetector(
-        onTap: () {
-          getIt<AppCubit>().onLogOut();
-        },
-        child: const Icon(Icons.logout),
-      ),
       body: SafeArea(
         child: BlocListener<AppCubit, AppState>(
           bloc: getIt<AppCubit>(),

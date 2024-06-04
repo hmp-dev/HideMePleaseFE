@@ -69,6 +69,7 @@ showHmpAlertDialog({
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
+        backgroundColor: const Color(0xFF4E4E55),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -81,6 +82,55 @@ showHmpAlertDialog({
         ),
         content: Text(
           content,
+          textAlign: TextAlign.center,
+          style: fontBodySm(),
+        ),
+        actions: <Widget>[
+          HMPCustomButton(
+            bgColor: bg4,
+            text: LocaleKeys.confirm.tr(),
+            onPressed: () {
+              onConfirm();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+showCompletedWithdrawAlertDialog({
+  required BuildContext context,
+  required String title,
+  required String content,
+  required Function onConfirm,
+}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: const Color(0xFF4E4E55),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        title: Center(
+          child: Container(
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: bg4,
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(12.0),
+              child: Icon(
+                Icons.check,
+                color: fore1,
+                size: 25,
+              ),
+            ),
+          ),
+        ),
+        content: Text(
+          title,
           textAlign: TextAlign.center,
           style: fontBodySm(),
         ),

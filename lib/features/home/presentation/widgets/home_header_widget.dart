@@ -9,6 +9,7 @@ import 'package:mobile/features/common/presentation/widgets/horizontal_space.dar
 import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/my/presentation/screens/my_screen.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
 
@@ -25,7 +26,8 @@ class HomeHeaderWidget extends StatelessWidget {
     final userProfile = getIt<ProfileCubit>().state.userProfileEntity;
     return GestureDetector(
       onTap: () {
-        ConnectedWalletsListScreen.push(context);
+        // Navigate to Settings Screen
+        MyScreen.push(context);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),

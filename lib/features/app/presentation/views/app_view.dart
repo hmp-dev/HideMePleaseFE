@@ -16,6 +16,7 @@ import 'package:mobile/features/community/presentation/screens/community_screen.
 import 'package:mobile/features/events/presentation/screens/events_screen.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/my/presentation/screens/my_screen.dart';
+import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
 
@@ -104,8 +105,8 @@ class _AppViewState extends State<AppView> {
                               if (type == MenuType.my) {
                                 // fetch Nft Points
                                 getIt<NftCubit>().onGetNftPoints();
-                                // Navigate to My Screen
-                                MyScreen.push(context);
+                                // Navigate to Settings Screen
+                                SettingsScreen.push(context);
                               } else if (type == MenuType.space) {
                                 // init Cubit function to get all space view data
                                 getIt<SpaceCubit>().onFetchAllSpaceViewData();

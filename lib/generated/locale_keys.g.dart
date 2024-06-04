@@ -117,5 +117,29 @@ abstract class  LocaleKeys {
   static const klipConnectAndGetFreeNft = 'klipConnectAndGetFreeNft';
   static const floorPrice = 'floorPrice';
   static const getNftForFree = 'getNftForFree';
+  static const settings = 'settings';
+  static const communityNeedsSpace = 'communityNeedsSpace';
+  static const spacePartnershipApplication = 'spacePartnershipApplication';
+  static const userSettings = 'userSettings';
+  static const notificationSettings = 'notificationSettings';
+  static const locationInfoAgreement = 'locationInfoAgreement';
+  static const permit = 'permit';
+  static const deny = 'deny';
+  static const etc = 'etc';
+  static const announcement = 'announcement';
+  static const termsOfUse = 'termsOfUse';
+  static const versionInfo = 'versionInfo';
+  static const latestVersion = 'latestVersion';
+  static const logout = 'logout';
+  static const membershipWithdrawal = 'membershipWithdrawal';
+  static const privacyPolicyTitle = 'privacyPolicyTitle';
+  static const appTermsOfUse = 'appTermsOfUse';
+  static const spacePartnershipApplicationTitle = 'spacePartnershipApplicationTitle';
+  static const applyForMembershipWithdrawal = 'applyForMembershipWithdrawal';
+  static const applyForWithdrawal = 'applyForWithdrawal';
+  static const keepMembershipBenefits = 'keepMembershipBenefits';
+  static const areYouSureYouWantToWithdraw = 'areYouSureYouWantToWithdraw';
+  static const withdrawalMessage = 'withdrawalMessage';
+  static const withdrawalCompleted = 'withdrawalCompleted';
 
 }
