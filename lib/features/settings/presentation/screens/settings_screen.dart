@@ -67,7 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             bloc: getIt<SettingsCubit>(),
             listener: (context, state) {
               "the state is changed $state".log();
-              if (state.isSuccess && state.cmsLinkEntity.link != 'null') {
+              if (state.isSuccess && state.cmsLinkEntity.link.isNotEmpty) {
                 WebViewScreen.push(
                   context: context,
                   title: LocaleKeys.spacePartnershipApplicationTitle.tr(),
@@ -115,6 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     FeatureTile(
                       title: LocaleKeys.announcement.tr(),
                       onTap: () {
+                        getIt<SettingsCubit>().onGetAnnouncements();
                         AnnouncementScreen.push(context);
                       },
                     ),

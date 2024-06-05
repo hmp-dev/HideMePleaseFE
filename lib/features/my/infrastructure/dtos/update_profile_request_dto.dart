@@ -2,6 +2,7 @@ class UpdateProfileRequestDto {
   final String? nickName;
   final String? introduction;
   final bool? locationPublic;
+  final bool? notificationsEnabled;
   final String? pfpNftId;
   final String? fcmToken;
 
@@ -9,6 +10,7 @@ class UpdateProfileRequestDto {
     this.nickName,
     this.introduction,
     this.locationPublic,
+    this.notificationsEnabled,
     this.pfpNftId,
     this.fcmToken,
   });
@@ -18,6 +20,7 @@ class UpdateProfileRequestDto {
       'nickName': nickName,
       'introduction': introduction,
       'locationPublic': locationPublic,
+      'notificationsEnabled': notificationsEnabled,
       'pfpNftId': pfpNftId,
       'fcmToken': fcmToken
     };

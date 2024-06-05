@@ -134,19 +134,16 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                 children: [
                   Text(
                     userProfile.nickName, //name I am a dreaming octopus
-                    style: fontM(16),
+                    style: fontCompactLgBold(),
                   ),
                   const SizedBox(height: 7),
                   SizedBox(
                     width: 226,
                     child: Text(
                       userProfile.introduction,
-                      // introduction Text
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: fontR(14,
-                          color: Colors.white.withOpacity(0.7),
-                          lineHeight: 1.3),
+                      style: fontCompactSm(color: fore2),
                     ),
                   ),
                   const VerticalSpace(10),
@@ -188,10 +185,10 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
             controller: tabViewController,
             isScrollable: true,
             labelColor: white,
-            labelStyle: fontM(16),
+            labelStyle: fontCompactMdBold(),
             unselectedLabelColor: white.withOpacity(0.5),
             dividerColor: Colors.transparent,
-            unselectedLabelStyle: fontM(16),
+            unselectedLabelStyle: fontCompactMdBold(color: fore2),
             indicatorSize: TabBarIndicatorSize.tab,
             indicatorColor: white,
             indicatorWeight: 1,

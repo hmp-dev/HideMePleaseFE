@@ -62,9 +62,10 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                   children: [
                     Text(
                       "${welcomeNftEntity.usedCount}",
-                      style: fontSB(18),
+                      style: fontCompactLgBold(),
                     ),
-                    Text('/${welcomeNftEntity.totalCount}', style: fontR(18))
+                    Text('/${welcomeNftEntity.totalCount}',
+                        style: fontCompactLg())
                   ],
                 )
               ],

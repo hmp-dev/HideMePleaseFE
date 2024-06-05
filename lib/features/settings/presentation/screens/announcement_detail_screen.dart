@@ -1,17 +1,19 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/settings/infrastructure/dtos/announcement_dto.dart';
+import 'package:mobile/features/settings/domain/entities/announcement_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class AnnouncementDetailScreen extends StatefulWidget {
   const AnnouncementDetailScreen({super.key, required this.announcement});
 
-  final Announcement announcement;
+  final AnnouncementEntity announcement;
 
-  static push(BuildContext context, Announcement announcement) async {
+  static push(BuildContext context, AnnouncementEntity announcement) async {
     return await Navigator.push(
       context,
       MaterialPageRoute(
@@ -55,12 +57,16 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                       ),
                       const VerticalSpace(3),
                       Text(
-                        widget.announcement.date,
+                        getCreatedAt(widget.announcement.createdAt),
                         style: fontCompactXs(color: fore3),
                       ),
                     ],
                   ),
-                  const AnnouncementInfoWidget(),
+                  const VerticalSpace(20),
+                  HtmlWidget(
+                    widget.announcement.description,
+                    textStyle: fontBodySm(color: fore2),
+                  ),
                 ],
               ),
             ),
@@ -69,49 +75,4 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
       ),
     );
   }
-}
-
-class AnnouncementInfoWidget extends StatelessWidget {
-  const AnnouncementInfoWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '홀덤을 사랑하는 사람들을 위한 바 아지트! 맛있는 음식과 와인, 위스키를 마실 수 있으며 홀덤 러버들을 위한 테이블까지!',
-            style: fontBodySm(color: fore2),
-          ),
-          const SizedBox(height: 16.0),
-          buildUnorderedListItem('위치: 서울 서초구 강남대로 99길 25, 2층'),
-          buildUnorderedListItem('영업시간: 20:00~01:00 오늘도 숨어로 오세요!'),
-        ],
-      ),
-    );
-  }
-}
-
-Widget buildUnorderedListItem(String text) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 8.0, left: 16),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          '•',
-          style: TextStyle(fontSize: 16.0, color: fore2),
-        ),
-        const SizedBox(width: 8.0),
-        Expanded(
-          child: Text(
-            text,
-            style: fontBodySm(color: fore2),
-          ),
-        ),
-      ],
-    ),
-  );
 }

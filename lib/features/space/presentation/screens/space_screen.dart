@@ -1,12 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
 import 'package:mobile/features/space/presentation/widgets/category_icon_widget.dart';
@@ -30,16 +32,46 @@ class _SpaceScreenState extends State<SpaceScreen> {
         bloc: getIt<SpaceCubit>(),
         listener: (context, state) {},
         builder: (context, state) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildTopTitleBar(),
-              buildTopUsedNftsRowWidget(state),
-              buildNewSpaceList(state),
-              buildRecommendedSpaceWidget(state, context),
-              buildTypeWiseSpaceList(state),
-            ],
+          return SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Stack(
+              children: [
+                FractionallySizedBox(
+                  heightFactor: 0.55555,
+                  widthFactor: 1.0,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color.fromRGBO(39, 12, 54, 0.29),
+                          Colors.transparent, // Fade out to transparent
+                        ],
+                        stops: [
+                          0.75,
+                          1.0
+                        ], // Adjust the stops to control the gradient spread
+                      ),
+                    ),
+                  ),
+                ),
+                SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VerticalSpace(100),
+                      buildTopTitleBar(),
+                      buildTopUsedNftsRowWidget(state),
+                      buildNewSpaceList(state),
+                      buildRecommendedSpaceWidget(state, context),
+                      buildTypeWiseSpaceList(state),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

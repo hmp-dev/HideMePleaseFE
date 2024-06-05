@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/pref_keys.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
@@ -33,28 +34,64 @@ String getWalletProvider(String inputString) {
 }
 
 String formatDate(DateTime dateTime) {
-  // Define the desired date format
-  final dateFormat = DateFormat('MM/dd HH:mm');
+  try {
+    // Define the desired date format
+    final dateFormat = DateFormat('MM/dd HH:mm');
 
-  // Format the DateTime object using the defined format
-  return dateFormat.format(dateTime);
+    // Format the DateTime object using the defined format
+    return dateFormat.format(dateTime);
+  } catch (e) {
+    "$e".log();
+
+    "error formatting passed date: $dateTime".log();
+    return '';
+  }
+}
+
+String getCreatedAt(String dateString) {
+  try {
+    // Parse the input date string to a DateTime object
+    DateTime dateTime = DateTime.parse(dateString);
+
+    // Format the DateTime object to the desired format
+    String formattedDate = DateFormat('yyyy/MM/dd').format(dateTime);
+
+    return formattedDate;
+  } catch (e) {
+    "$e".log();
+
+    "error formatting passed date: $dateString".log();
+    return '';
+  }
 }
 
 String formatDateGetMonthYear(String dateTimeString) {
-  // Parse the string into a DateTime object
-  DateTime dateTime = DateTime.parse(dateTimeString);
+  try {
+    // Parse the string into a DateTime object
+    DateTime dateTime = DateTime.parse(dateTimeString);
 
-  // Define the desired date format
-  final dateFormat = DateFormat('MM/yy');
+    // Define the desired date format
+    final dateFormat = DateFormat('MM/yy');
 
-  // Format the DateTime object using the defined format
-  return dateFormat.format(dateTime);
+    // Format the DateTime object using the defined format
+    return dateFormat.format(dateTime);
+  } catch (e) {
+    "$e".log();
+    "error formatting passed date: $dateTimeString".log();
+    return '';
+  }
 }
 
 String formatNumberWithCommas(String numberString) {
-  final number = int.tryParse(numberString) ?? 0;
-  final formatter = NumberFormat('#,###');
-  return formatter.format(number);
+  try {
+    final number = int.tryParse(numberString) ?? 0;
+    final formatter = NumberFormat('#,###');
+    return formatter.format(number);
+  } catch (e) {
+    "$e".log();
+    "error formatting passed Number String: $numberString".log();
+    return '';
+  }
 }
 
 // ============

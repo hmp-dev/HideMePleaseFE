@@ -93,12 +93,9 @@ class _MyEditScreenState extends State<MyEditScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildTitleRow(context, userProfile),
+                            _buildProfileImageWidget(context, userProfile),
                             const SizedBox(height: 32),
-                            Text(
-                              LocaleKeys.nickName.tr(),
-                              style: fontBodySmMedium(),
-                            ),
+                            buildInputLabelText(LocaleKeys.nickName.tr()),
                             const SizedBox(height: 8),
                             DefaultField(
                               initialValue: userProfile.nickName,
@@ -116,10 +113,7 @@ class _MyEditScreenState extends State<MyEditScreen> {
                               },
                             ),
                             const SizedBox(height: 16),
-                            Text(
-                              LocaleKeys.introduction.tr(),
-                              style: fontBodySmMedium(),
-                            ),
+                            buildInputLabelText(LocaleKeys.introduction.tr()),
                             const SizedBox(height: 8),
                             DefaultField(
                               initialValue: userProfile.introduction,
@@ -134,11 +128,6 @@ class _MyEditScreenState extends State<MyEditScreen> {
                                 // unfocus and close the Soft Key Board
                                 FocusScope.of(context)
                                     .requestFocus(FocusNode());
-                                // if (introduction.isNotEmpty) {
-                                //   getIt<ProfileCubit>().onUpdateUserProfile(
-                                //       UpdateProfileRequestDto(
-                                //           introduction: introduction));
-                                // }
                               },
                             ),
                             const VerticalSpace(16),
@@ -254,30 +243,56 @@ class _MyEditScreenState extends State<MyEditScreen> {
     );
   }
 
-  Column buildDividerEditMembershipLink(BuildContext context) {
-    return Column(
+  Row buildInputLabelText(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
-          child: Divider(color: bgNega5),
+        Text(
+          text,
+          style: fontBodySmMedium(),
         ),
-        GestureDetector(
-          onTap: () {
-            getIt<NftCubit>().onGetNftCollections();
-            MyMembershipSettingsScreen.push(context);
-          },
-          child: Center(
-            child: Text(
-              LocaleKeys.editMembershipList.tr(),
-              style: fontCompactMd(),
-            ),
-          ),
+        const SizedBox(width: 5),
+        // A 4 by 4 hmpBlue Color Dot,
+        Container(
+          margin: const EdgeInsets.only(top: 3),
+          width: 4,
+          height: 4,
+          decoration:
+              const BoxDecoration(color: hmpBlue, shape: BoxShape.circle),
         ),
       ],
     );
   }
 
-  Widget _buildTitleRow(BuildContext context, UserProfileEntity userProfile) {
+  Widget buildDividerEditMembershipLink(BuildContext context) {
+    return Container(
+      color: Colors.transparent,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Divider(color: bgNega5),
+          ),
+          GestureDetector(
+            onTap: () {
+              getIt<NftCubit>().onGetNftCollections();
+              MyMembershipSettingsScreen.push(context);
+            },
+            child: Text(
+              LocaleKeys.myMembershipSettings.tr(),
+              style: fontCompactMd(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileImageWidget(
+    BuildContext context,
+    UserProfileEntity userProfile,
+  ) {
     return GestureDetector(
       onTap: () {
         getIt<NftCubit>().onGetSelectedNftTokens();
