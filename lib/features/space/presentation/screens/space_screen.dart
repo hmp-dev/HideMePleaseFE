@@ -1,14 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
-import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
 import 'package:mobile/features/space/presentation/widgets/category_icon_widget.dart';
@@ -61,7 +58,6 @@ class _SpaceScreenState extends State<SpaceScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const VerticalSpace(100),
                       buildTopTitleBar(),
                       buildTopUsedNftsRowWidget(state),
                       buildNewSpaceList(state),
@@ -262,7 +258,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
                       LocaleKeys.highlyVisitedCommunity.tr(),
                       style: fontTitle06Medium(),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
                     SizedBox(
                       height: 200,
                       child: ListView.builder(

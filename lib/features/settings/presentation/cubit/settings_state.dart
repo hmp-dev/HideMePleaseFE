@@ -1,46 +1,64 @@
 part of 'settings_cubit.dart';
 
 class SettingsState extends BaseState {
-  final CmsLinkEntity cmsLinkEntity;
+  final SettingsBannerEntity settingsBannerEntity;
   final List<AnnouncementEntity> announcements;
   final String errorMessage;
+  final String storeVersion;
+  final String installedVersion;
+  final String buildNumber;
 
   @override
   final RequestStatus submitStatus;
 
   const SettingsState({
-    required this.cmsLinkEntity,
+    required this.settingsBannerEntity,
     required this.announcements,
     required this.errorMessage,
+    required this.storeVersion,
+    required this.installedVersion,
+    required this.buildNumber,
     this.submitStatus = RequestStatus.initial,
   });
 
   factory SettingsState.initial() => const SettingsState(
-        cmsLinkEntity: CmsLinkEntity.empty(),
+        settingsBannerEntity: SettingsBannerEntity.empty(),
         announcements: [],
         errorMessage: "",
+        storeVersion: "",
+        installedVersion: "",
+        buildNumber: "",
       );
 
   @override
   List<Object?> get props => [
         submitStatus,
-        cmsLinkEntity,
+        settingsBannerEntity,
         announcements,
         errorMessage,
+        storeVersion,
+        installedVersion,
+        buildNumber,
       ];
 
   @override
   SettingsState copyWith({
-    CmsLinkEntity? cmsLinkEntity,
+    SettingsBannerEntity? settingsBannerEntity,
     List<AnnouncementEntity>? announcements,
     RequestStatus? submitStatus,
     String? errorMessage,
+    String? storeVersion,
+    String? installedVersion,
+    String? buildNumber,
   }) {
     return SettingsState(
-      cmsLinkEntity: cmsLinkEntity ?? this.cmsLinkEntity,
+      settingsBannerEntity: settingsBannerEntity ?? this.settingsBannerEntity,
       announcements: announcements ?? this.announcements,
       submitStatus: submitStatus ?? this.submitStatus,
       errorMessage: errorMessage ?? this.errorMessage,
+      storeVersion: storeVersion ?? this.storeVersion,
+      installedVersion: installedVersion ?? this.installedVersion,
+      buildNumber: buildNumber ?? this.buildNumber,
     );
   }
 }

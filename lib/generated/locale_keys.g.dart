@@ -141,5 +141,6 @@ abstract class  LocaleKeys {
   static const areYouSureYouWantToWithdraw = 'areYouSureYouWantToWithdraw';
   static const withdrawalMessage = 'withdrawalMessage';
   static const withdrawalCompleted = 'withdrawalCompleted';
+  static const allowed = 'allowed';
 
 }

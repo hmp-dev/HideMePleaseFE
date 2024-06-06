@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
@@ -96,93 +98,101 @@ String formatNumberWithCommas(String numberString) {
 
 // ============
 
-showHmpAlertDialog({
+Future<bool> showHmpAlertDialog({
   required BuildContext context,
   required String title,
   required String content,
   required Function onConfirm,
-}) {
-  showDialog(
+}) async {
+  return await showDialog(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: const Color(0xFF4E4E55),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        title: Center(
-          child: Text(
-            title,
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF4E4E55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          title: Center(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: fontTitle07Bold(),
+            ),
+          ),
+          content: Text(
+            content,
             textAlign: TextAlign.center,
-            style: fontTitle07Bold(),
+            style: fontBodySm(),
           ),
+          actions: <Widget>[
+            HMPCustomButton(
+              bgColor: bg4,
+              text: LocaleKeys.confirm.tr(),
+              onPressed: () {
+                onConfirm();
+              },
+            ),
+          ],
         ),
-        content: Text(
-          content,
-          textAlign: TextAlign.center,
-          style: fontBodySm(),
-        ),
-        actions: <Widget>[
-          HMPCustomButton(
-            bgColor: bg4,
-            text: LocaleKeys.confirm.tr(),
-            onPressed: () {
-              onConfirm();
-            },
-          ),
-        ],
       );
     },
   );
 }
 
-showCompletedWithdrawAlertDialog({
+Future<bool> showCompletedWithdrawAlertDialog({
   required BuildContext context,
   required String title,
   required String content,
   required Function onConfirm,
-}) {
-  showDialog(
+}) async {
+  bool? result = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: const Color(0xFF4E4E55),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        title: Center(
-          child: Container(
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: bg4,
-            ),
-            child: const Padding(
-              padding: EdgeInsets.all(12.0),
-              child: Icon(
-                Icons.check,
-                color: fore1,
-                size: 25,
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF4E4E55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          title: Center(
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: bg4,
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Icon(
+                  Icons.check,
+                  color: fore1,
+                  size: 25,
+                ),
               ),
             ),
           ),
-        ),
-        content: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: fontBodySm(),
-        ),
-        actions: <Widget>[
-          HMPCustomButton(
-            bgColor: bg4,
-            text: LocaleKeys.confirm.tr(),
-            onPressed: () {
-              onConfirm();
-            },
+          content: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: fontBodySm(),
           ),
-        ],
+          actions: <Widget>[
+            HMPCustomButton(
+              bgColor: bg4,
+              text: LocaleKeys.confirm.tr(),
+              onPressed: () {
+                onConfirm();
+              },
+            ),
+          ],
+        ),
       );
     },
   );
+
+  return result ?? false;
 }
 
 String getLocalCategoryName(String categoryName) {

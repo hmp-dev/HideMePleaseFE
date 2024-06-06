@@ -138,6 +138,7 @@
     "keepMembershipBenefits":"Keep membership benefits",
     "areYouSureYouWantToWithdraw":"Are you sure you want to withdraw?",
     "withdrawalMessage":"You will lose your benefits and points information",
-    "withdrawalCompleted":"Withdrawal completed"
+    "withdrawalCompleted":"Withdrawal completed",
+    "allowed":"Allowed"
 }
 

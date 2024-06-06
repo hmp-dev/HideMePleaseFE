@@ -1,16 +1,17 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_toggle.dart';
 import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
+import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/announcement_screen.dart';
 import 'package:mobile/features/settings/presentation/screens/membership_withdrawal_screen.dart';
@@ -52,101 +53,92 @@ class _SettingsScreenState extends State<SettingsScreen> {
       onBack: () {
         Navigator.pop(context);
       },
-      body: MultiBlocListener(
-        listeners: [
-          BlocListener<AppCubit, AppState>(
-            bloc: getIt<AppCubit>(),
-            listener: (context, state) {
-              if (!state.isLoggedIn) {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, Routes.startUpScreen, (route) => false);
-              }
-            },
-          ),
-          BlocListener<SettingsCubit, SettingsState>(
-            bloc: getIt<SettingsCubit>(),
-            listener: (context, state) {
-              "the state is changed $state".log();
-              if (state.isSuccess && state.cmsLinkEntity.link.isNotEmpty) {
-                WebViewScreen.push(
-                  context: context,
-                  title: LocaleKeys.spacePartnershipApplicationTitle.tr(),
-                  url: state.cmsLinkEntity.link,
-                );
-              }
-            },
-          ),
-        ],
+      body: BlocListener<AppCubit, AppState>(
+        bloc: getIt<AppCubit>(),
+        listener: (context, state) {
+          if (!state.isLoggedIn) {
+            Navigator.pushNamedAndRemoveUntil(
+                context, Routes.startUpScreen, (route) => false);
+          }
+        },
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    buildTopHmpBlueBox(),
-                    const VerticalSpace(10),
-                    Fore3TextButton(
-                      title: LocaleKeys.userSettings.tr(),
-                      onTap: () {},
-                    ),
-                    buildNotificationsSettingsToggleRow(),
-                    buildLocationConcent(),
-                  ],
-                ),
-              ),
-              const ThickDivider(paddingTop: 5, paddingBottom: 10),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Fore3TextButton(
-                      title: LocaleKeys.etc.tr(),
-                      onTap: () {},
-                    ),
-                    FeatureTile(
-                      title: LocaleKeys.announcement.tr(),
-                      onTap: () {
-                        getIt<SettingsCubit>().onGetAnnouncements();
-                        AnnouncementScreen.push(context);
-                      },
-                    ),
-                    const VerticalSpace(10),
-                    FeatureTile(
-                      title: LocaleKeys.termsOfUse.tr(),
-                      onTap: () {
-                        TermsOfUseMainScreen.push(context);
-                      },
-                    ),
-                    const VerticalSpace(10),
-                    const VersionInfoTile(),
-                    FeatureTile(
-                      isShowArrowIcon: false,
-                      title: LocaleKeys.logout.tr(),
-                      onTap: () {
-                        getIt<AppCubit>().onLogOut();
-                      },
-                    ),
-                    const VerticalSpace(10),
-                    FeatureTile(
-                      isShowArrowIcon: false,
-                      title: LocaleKeys.membershipWithdrawal.tr(),
-                      onTap: () {
-                        MembershipWithdrawalScreen.push(context);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          child: BlocConsumer<SettingsCubit, SettingsState>(
+            bloc: getIt<SettingsCubit>(),
+            listener: (context, state) {},
+            builder: (context, state) {
+              return state.submitStatus == RequestStatus.loading
+                  ? const SizedBox.shrink()
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              buildTopHmpBlueBannerBox(state),
+                              const VerticalSpace(10),
+                              Fore3TextButton(
+                                title: LocaleKeys.userSettings.tr(),
+                                onTap: () {},
+                              ),
+                              buildNotificationsSettingsToggleRow(),
+                              buildLocationConcent(),
+                            ],
+                          ),
+                        ),
+                        const ThickDivider(paddingTop: 5, paddingBottom: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Fore3TextButton(
+                                title: LocaleKeys.etc.tr(),
+                                onTap: () {},
+                              ),
+                              FeatureTile(
+                                title: LocaleKeys.announcement.tr(),
+                                onTap: () {
+                                  getIt<SettingsCubit>().onGetAnnouncements();
+                                  AnnouncementScreen.push(context);
+                                },
+                              ),
+                              const VerticalSpace(10),
+                              FeatureTile(
+                                title: LocaleKeys.termsOfUse.tr(),
+                                onTap: () {
+                                  TermsOfUseMainScreen.push(context);
+                                },
+                              ),
+                              const VerticalSpace(10),
+                              const VersionInfoTile(),
+                              FeatureTile(
+                                isShowArrowIcon: false,
+                                title: LocaleKeys.logout.tr(),
+                                onTap: () {
+                                  getIt<AppCubit>().onLogOut();
+                                },
+                              ),
+                              const VerticalSpace(10),
+                              FeatureTile(
+                                isShowArrowIcon: false,
+                                title: LocaleKeys.membershipWithdrawal.tr(),
+                                onTap: () {
+                                  MembershipWithdrawalScreen.push(context);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+            },
           ),
         ),
       ),
@@ -154,33 +146,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget buildNotificationsSettingsToggleRow() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 15, bottom: 20),
-      child: Row(
-        children: [
-          Text(
-            LocaleKeys.notificationSettings.tr(),
-            style: fontCompactSm(),
+    return BlocConsumer<ProfileCubit, ProfileState>(
+      bloc: getIt<ProfileCubit>(),
+      listener: (context, state) {},
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 15, bottom: 20),
+          child: Row(
+            children: [
+              Text(
+                LocaleKeys.notificationSettings.tr(),
+                style: fontCompactSm(),
+              ),
+              const Spacer(),
+              CustomToggle(
+                initialValue: state.userProfileEntity.notificationsEnabled,
+                onTap: (bool value) {
+                  getIt<ProfileCubit>().onUpdateUserProfile(
+                      UpdateProfileRequestDto(notificationsEnabled: value));
+                },
+                toggleColor: Colors.black,
+              ),
+            ],
           ),
-          const Spacer(),
-          CustomToggle(
-            initialValue: isNotificationEnabled,
-            onTap: (bool value) {
-              setState(() {
-                isNotificationEnabled = value;
-              });
-            },
-            toggleColor: Colors.black,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget buildTopHmpBlueBox() {
+  Widget buildTopHmpBlueBannerBox(SettingsState state) {
     return GestureDetector(
       onTap: () {
-        getIt<SettingsCubit>().onGetCMSlink();
+        if (state.isSuccess &&
+            state.settingsBannerEntity.settingsBannerLink.isNotEmpty) {
+          WebViewScreen.push(
+            context: context,
+            title: LocaleKeys.spacePartnershipApplicationTitle.tr(),
+            url: state.settingsBannerEntity.settingsBannerLink,
+          );
+        }
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -194,12 +198,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                LocaleKeys.communityNeedsSpace.tr(),
+                state.settingsBannerEntity.settingsBannerHeading,
                 style: fontCompactSmMedium(color: fore2),
               ),
               const VerticalSpace(7),
               Text(
-                LocaleKeys.spacePartnershipApplication.tr(),
+                state.settingsBannerEntity.settingsBannerDescription,
                 style: fontCompactMdBold(),
               ),
             ],
@@ -210,33 +214,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget buildLocationConcent() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            isLocationInfoEnabled = !isLocationInfoEnabled;
-          });
-        },
-        child: Row(
-          children: [
-            Text(
-              LocaleKeys.locationInfoAgreement.tr(),
-              style: fontCompactSm(),
+    return BlocConsumer<EnableLocationCubit, EnableLocationState>(
+      bloc: getIt<EnableLocationCubit>(),
+      listener: (context, state) {},
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          child: GestureDetector(
+            onTap: () {
+              getIt<EnableLocationCubit>().onAskDeviceLocation();
+            },
+            child: Row(
+              children: [
+                Text(
+                  LocaleKeys.locationInfoAgreement.tr(),
+                  style: fontCompactSm(),
+                ),
+                const Spacer(),
+                state.isLocationEnabled
+                    ? Text(
+                        LocaleKeys.permit.tr(),
+                        style: fontCompactSmMedium(color: hmpBlue),
+                      )
+                    : Text(
+                        LocaleKeys.allowed.tr(),
+                        style: fontCompactSmMedium(color: hmpBlue),
+                      ),
+              ],
             ),
-            const Spacer(),
-            isLocationInfoEnabled
-                ? Text(
-                    LocaleKeys.permit.tr(),
-                    style: fontCompactSmMedium(color: hmpBlue),
-                  )
-                : Text(
-                    LocaleKeys.deny.tr(),
-                    style: fontCompactSmMedium(color: hmpBlue),
-                  ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
