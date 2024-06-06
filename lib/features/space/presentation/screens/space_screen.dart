@@ -45,10 +45,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
                           Color.fromRGBO(39, 12, 54, 0.29),
                           Colors.transparent, // Fade out to transparent
                         ],
-                        stops: [
-                          0.75,
-                          1.0
-                        ], // Adjust the stops to control the gradient spread
+                        // Adjust the stops to control the gradient spread
                       ),
                     ),
                   ),
@@ -260,17 +257,26 @@ class _SpaceScreenState extends State<SpaceScreen> {
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
-                      height: 200,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: state.topUsedNfts.length,
-                        itemBuilder: (context, index) {
-                          return SpaceTopNFTListItem(
-                            topUsedNftEntity: state.topUsedNfts[index],
-                            score: index + 1,
-                          );
-                        },
+                      width: double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10, right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SpaceTopNFTListItem(
+                              topUsedNftEntity: state.topUsedNfts[0],
+                              score: 1,
+                            ),
+                            SpaceTopNFTListItem(
+                              topUsedNftEntity: state.topUsedNfts[1],
+                              score: 2,
+                            ),
+                            SpaceTopNFTListItem(
+                              topUsedNftEntity: state.topUsedNfts[2],
+                              score: 3,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
