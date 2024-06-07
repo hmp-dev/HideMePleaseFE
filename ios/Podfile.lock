@@ -9,6 +9,8 @@ PODS:
     - AppAuth/Core
   - appcheck (1.0.3):
     - Flutter
+  - audio_session (0.0.1):
+    - Flutter
   - coinbase_wallet_sdk (0.0.1):
     - CoinbaseWalletSDK/CrossPlatform (= 1.0.4)
     - Flutter
@@ -245,6 +247,8 @@ PODS:
     - AppAuth/Core (~> 1.6)
     - GTMSessionFetcher/Core (< 4.0, >= 1.5)
   - GTMSessionFetcher/Core (3.3.1)
+  - just_audio (0.0.1):
+    - Flutter
   - location (0.0.1):
     - Flutter
   - nanopb (2.30910.0):
@@ -278,12 +282,18 @@ PODS:
   - Toast (4.1.0)
   - url_launcher_ios (0.0.1):
     - Flutter
+  - video_player_avfoundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - wakelock_plus (0.0.1):
+    - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - app_settings (from `.symlinks/plugins/app_settings/ios`)
   - appcheck (from `.symlinks/plugins/appcheck/ios`)
+  - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - coinbase_wallet_sdk (from `.symlinks/plugins/coinbase_wallet_sdk/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/darwin`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -304,6 +314,7 @@ DEPENDENCIES:
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
+  - just_audio (from `.symlinks/plugins/just_audio/ios`)
   - location (from `.symlinks/plugins/location/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -313,6 +324,8 @@ DEPENDENCIES:
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
+  - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
 SPEC REPOS:
@@ -354,6 +367,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/app_settings/ios"
   appcheck:
     :path: ".symlinks/plugins/appcheck/ios"
+  audio_session:
+    :path: ".symlinks/plugins/audio_session/ios"
   coinbase_wallet_sdk:
     :path: ".symlinks/plugins/coinbase_wallet_sdk/ios"
   connectivity_plus:
@@ -394,6 +409,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
   google_sign_in_ios:
     :path: ".symlinks/plugins/google_sign_in_ios/darwin"
+  just_audio:
+    :path: ".symlinks/plugins/just_audio/ios"
   location:
     :path: ".symlinks/plugins/location/ios"
   package_info_plus:
@@ -412,6 +429,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite/darwin"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
+  video_player_avfoundation:
+    :path: ".symlinks/plugins/video_player_avfoundation/darwin"
+  wakelock_plus:
+    :path: ".symlinks/plugins/wakelock_plus/ios"
   webview_flutter_wkwebview:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
@@ -419,6 +440,7 @@ SPEC CHECKSUMS:
   app_settings: 017320c6a680cdc94c799949d95b84cb69389ebc
   AppAuth: 182c5b88630569df5acb672720534756c29b3358
   appcheck: e1ab9d4e03736f03e0401554a134d1ed502d7629
+  audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
   coinbase_wallet_sdk: 7ccd4e1a7940deba6ba9bd81beece999a2268c15
   CoinbaseWalletSDK: ea1f37512bbc69ebe07416e3b29bf840f5cc3152
   connectivity_plus: e2dad488011aeb593e219360e804c43cc1af5770
@@ -462,6 +484,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: d053d902a8edaa9904e1bd00c37535385b8ed152
   GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
   GTMSessionFetcher: 8a1b34ad97ebe6f909fb8b9b77fba99943007556
+  just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   location: d5cf8598915965547c3f36761ae9cc4f4e87d22e
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
@@ -478,6 +501,8 @@ SPEC CHECKSUMS:
   sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
   Toast: ec33c32b8688982cecc6348adeae667c1b9938da
   url_launcher_ios: 6116280ddcfe98ab8820085d8d76ae7449447586
+  video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
+  wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
   webview_flutter_wkwebview: be0f0d33777f1bfd0c9fdcb594786704dbf65f36
 
 PODFILE CHECKSUM: 1959d098c91d8a792531a723c4a9d7e9f6a01e38
