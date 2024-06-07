@@ -1,5 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:mobile/app/core/error/error.dart';
+import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
+import 'package:mobile/features/community/infrastructure/dtos/nft_community_member_dto.dart';
+import 'package:mobile/features/community/infrastructure/dtos/top_collection_nft_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/benefit_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_collections_group_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_network_dto.dart';
@@ -33,7 +36,7 @@ abstract class NftRepository {
     required int welcomeNftId,
   });
 
-  Future<Either<HMPError, List<BenefitDto>>> getNftBenefits({
+  Future<Either<HMPError, NftBenefitsResponseDto>> getNftBenefits({
     required String tokenAddress,
     String? spaceId,
     int? pageSize,
@@ -45,12 +48,26 @@ abstract class NftRepository {
   Future<Either<HMPError, NftNetworkDto>> getNftNetworkInfo(
       {required String tokenAddress});
 
-  //
-
   Future<Either<HMPError, NftUsageHistoryDto>> getNftUsageHistory({
     required String tokenAddress,
     String? order,
     String? page,
     String? type,
   });
+
+  Future<Either<HMPError, NftCommunityResponseDto>> getNftCommunities(
+      {required GetNftCommunityOrderBy order, int? page});
+
+  Future<Either<HMPError, List<NftCommunitytDto>>> getHotNftCommunities();
+
+  Future<Either<HMPError, List<NftCommunitytDto>>> getUserNftCommunities();
+
+  Future<Either<HMPError, NftCommunityMemberResponseDto>> getNftMembers(
+      {required String tokenAddress, int? page});
+
+  Future<Either<HMPError, TopCollectionNftDto>> getNftCollectionInfo(
+      {required String tokenAddress});
+
+  Future<Either<HMPError, List<TopCollectionNftDto>>> getTopNftColletions(
+      {int? pageSize, int? page});
 }

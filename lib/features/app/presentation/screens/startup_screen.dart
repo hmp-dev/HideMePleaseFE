@@ -72,7 +72,7 @@ class _StartUpScreenState extends State<StartUpScreen> {
         BlocListener<ProfileCubit, ProfileState>(
           bloc: getIt<ProfileCubit>(),
           listener: (context, profileState) {
-            if (profileState.isSuccess) {
+            if (profileState.isSubmitSuccess) {
               ("Profile: ${profileState.baseUserData}").log();
             }
           },
@@ -80,7 +80,7 @@ class _StartUpScreenState extends State<StartUpScreen> {
         BlocListener<WalletsCubit, WalletsState>(
           bloc: getIt<WalletsCubit>(),
           listener: (context, walletsState) {
-            if (walletsState.isSuccess) {
+            if (walletsState.isSubmitSuccess) {
               //on fetching Tokens navigate to Home
               ("++++++++++++++++++++++++++++++Profile: ${walletsState.connectedWallets}")
                   .log();

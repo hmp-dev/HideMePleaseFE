@@ -5,10 +5,9 @@ import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/edit_membership_list.dart';
@@ -17,6 +16,7 @@ import 'package:mobile/features/membership_settings/presentation/widgets/collect
 import 'package:mobile/features/membership_settings/presentation/widgets/connected_wallets_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/nft_token_widget.dart';
 import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyMembershipSettingsScreen extends StatefulWidget {
@@ -113,7 +113,7 @@ class _MyMembershipSettingsScreenState
                     controller: _scrollController,
                     child: SizedBox(
                       width: MediaQuery.of(context).size.width,
-                      child: state.isLoading
+                      child: state.isSubmitLoading
                           ? const SizedBox.shrink()
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.center,

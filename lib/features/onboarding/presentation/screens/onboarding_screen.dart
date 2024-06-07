@@ -130,7 +130,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             );
           }
 
-          if (state.isFailure && state.isLocationDenied) {
+          if (state.isSubmitFailure && state.isLocationDenied) {
             Navigator.pushNamedAndRemoveUntil(
               context,
               Routes.startUpScreen,
