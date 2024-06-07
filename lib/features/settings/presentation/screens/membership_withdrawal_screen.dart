@@ -3,6 +3,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
@@ -76,7 +77,6 @@ class _MembershipWithdrawalScreenState
                 var result = await showCompletedWithdrawAlertDialog(
                   context: context,
                   title: LocaleKeys.withdrawalCompleted.tr(),
-                  content: LocaleKeys.agreeTermDialogMessage.tr(),
                   onConfirm: () {
                     Navigator.pop(context);
                     getIt<AppCubit>().onLogOut();
@@ -85,11 +85,11 @@ class _MembershipWithdrawalScreenState
 
                 if (result) {
                   // Handle the case where the dialog was shown and a confirmation action was taken
-                  print("User confirmed the action.");
+                  ("User confirmed the action.").log();
                   getIt<AppCubit>().onLogOut();
                 } else {
                   // Handle the case where the dialog was dismissed without confirmation
-                  print("Dialog was dismissed.");
+                  ("Dialog was dismissed.").log();
                   getIt<AppCubit>().onLogOut();
                 }
               }
@@ -139,7 +139,17 @@ class _MembershipWithdrawalScreenState
                       RoundedButtonWithBorder(
                         text: LocaleKeys.applyForWithdrawal.tr(),
                         onPressed: () {
-                          getIt<SettingsCubit>().onRequestDeleteUser();
+                          showWithdrawConfirmationAlertDialog(
+                            context: context,
+                            title: LocaleKeys.areYouSureYouWantToWithdraw.tr(),
+                            onConfirm: () {
+                              Navigator.pop(context);
+                              getIt<SettingsCubit>().onRequestDeleteUser();
+                            },
+                            onCancel: () {
+                              Navigator.pop(context);
+                            },
+                          );
                         },
                       )
                     ],

@@ -4,11 +4,13 @@ import 'package:mobile/app/theme/theme.dart';
 class RoundedButtonWithBorder extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+  final Color bgColor;
 
   const RoundedButtonWithBorder({
     super.key,
     required this.text,
     required this.onPressed,
+    this.bgColor = bg1,
   });
 
   @override
@@ -19,7 +21,7 @@ class RoundedButtonWithBorder extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: bg1,
+          backgroundColor: bgColor,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
             side: const BorderSide(color: fore4),

@@ -6,7 +6,9 @@ import 'package:mobile/app/core/enum/wallet_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/pref_keys.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -144,7 +146,6 @@ Future<bool> showHmpAlertDialog({
 Future<bool> showCompletedWithdrawAlertDialog({
   required BuildContext context,
   required String title,
-  required String content,
   required Function onConfirm,
 }) async {
   bool? result = await showDialog<bool>(
@@ -163,12 +164,67 @@ Future<bool> showCompletedWithdrawAlertDialog({
                 shape: BoxShape.circle,
                 color: bg4,
               ),
-              child: const Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Icon(
-                  Icons.check,
-                  color: fore1,
-                  size: 25,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: CustomImageView(
+                  svgPath: "assets/icons/ic_check_tik.svg",
+                  width: 20,
+                  height: 20,
+                ),
+                //
+              ),
+            ),
+          ),
+          content: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: fontBodySm(),
+          ),
+          actions: <Widget>[
+            HMPCustomButton(
+              bgColor: bg4,
+              text: LocaleKeys.confirm.tr(),
+              onPressed: () {
+                onConfirm();
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
+  return result ?? false;
+}
+
+Future<bool> showWithdrawConfirmationAlertDialog({
+  required BuildContext context,
+  required String title,
+  required Function onConfirm,
+  required Function onCancel,
+}) async {
+  bool? result = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF4E4E55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          title: Center(
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: bg4,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: CustomImageView(
+                  svgPath: "assets/icons/ic_info_icon.svg",
+                  width: 20,
+                  height: 20,
                 ),
               ),
             ),
@@ -186,6 +242,16 @@ Future<bool> showCompletedWithdrawAlertDialog({
                 onConfirm();
               },
             ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: RoundedButtonWithBorder(
+                bgColor: const Color(0xFF4E4E55),
+                text: LocaleKeys.cancel.tr(),
+                onPressed: () {
+                  onCancel();
+                },
+              ),
+            )
           ],
         ),
       );
