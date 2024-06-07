@@ -41,7 +41,7 @@ void main() async {
       fallbackLocale: const Locale('en'),
       startLocale: AppEnv.flavor.isProd && kReleaseMode
           ? const Locale('ko')
-          : const Locale('en'),
+          : const Locale('ko'),
       useOnlyLangCode: true,
       child: DevicePreview(
         enabled: false,

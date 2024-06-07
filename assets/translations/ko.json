@@ -113,8 +113,32 @@
     "remaining":"남음",
     "klipConnectAndGetFreeNft":"Klip 연결하고 무료 NFT 받기",
     "floorPrice":"층가격",
-    "getNftForFree":"NFT 무료로 받기"
-
-
+    "getNftForFree":"NFT 무료로 받기",
+    "settings":"설정",
+    "communityNeedsSpace":"커뮤니티가 필요한 공간이라면",
+    "spacePartnershipApplication":"공간 제휴 신청을 통해 생태계에 참여해보세요",
+    "userSettings":"사용자 설정",
+    "notificationSettings":"알림 설정",
+    "locationInfoAgreement":"위치 정보 동의",
+    "permit":"허용",
+    "deny":"거부",
+    "etc":"기타",
+    "announcement":"공지사항",
+    "termsOfUse":"이용약관",
+    "versionInfo":"버전 정보",
+    "latestVersion":"최신버전",
+    "logout":"로그아웃",
+    "membershipWithdrawal":"회원 탈퇴",
+    "termsOfService":"서비스 이용 약관",
+    "privacyPolicyTitle":"개인정보 처리방침",
+    "appTermsOfUse":"App 이용약관",
+    "spacePartnershipApplicationTitle":"우주 파트너십 신청",
+    "applyForMembershipWithdrawal":"회원 탈퇴 신청",
+    "applyForWithdrawal":"탈퇴 신청하기",
+    "keepMembershipBenefits":"멤버십 혜택 유지하기",
+    "areYouSureYouWantToWithdraw":"정말 탈퇴하시겠어요?",
+    "withdrawalMessage":"지금까지 이용한 혜택 및\n획득한 포인트 정보가 삭제됩니다",
+    "withdrawalCompleted":"탈퇴 신청이 완료되었습니다",
+    "allowed":"허용된"
 }
 

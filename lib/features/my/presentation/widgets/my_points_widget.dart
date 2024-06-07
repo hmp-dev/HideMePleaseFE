@@ -75,6 +75,7 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: ListView.builder(
                       shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: state.nftPointsList.length,
                       itemBuilder: (context, index) {
                         // get a value true if the index is the last one in state.nftPointsList

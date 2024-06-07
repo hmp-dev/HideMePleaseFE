@@ -11,6 +11,7 @@ UserProfileDto _$UserProfileDtoFromJson(Map<String, dynamic> json) =>
       nickName: json['nickName'] as String?,
       introduction: json['introduction'] as String?,
       locationPublic: json['locationPublic'] as bool?,
+      notificationsEnabled: json['notificationsEnabled'] as bool?,
       pfpNftId: json['pfpNftId'] as String?,
       pfpImageUrl: json['pfpImageUrl'] as String?,
     );
@@ -20,6 +21,7 @@ Map<String, dynamic> _$UserProfileDtoToJson(UserProfileDto instance) =>
       'nickName': instance.nickName,
       'introduction': instance.introduction,
       'locationPublic': instance.locationPublic,
+      'notificationsEnabled': instance.notificationsEnabled,
       'pfpNftId': instance.pfpNftId,
       'pfpImageUrl': instance.pfpImageUrl,
     };

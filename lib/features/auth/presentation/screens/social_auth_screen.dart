@@ -14,7 +14,7 @@ import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/auth/presentation/widgets/agree_text_widget.dart';
 import 'package:mobile/features/auth/presentation/widgets/my_social_login_button.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
@@ -100,10 +100,9 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(),
-                DefaultImage(
-                  path: "assets/images/noonchi_graphic.png",
-                  width: 158,
-                  height: 136,
+                CustomImageView(
+                  imagePath: "assets/images/splash2.png",
+                  width: 188,
                 ),
                 const SizedBox(height: 12),
                 Text(

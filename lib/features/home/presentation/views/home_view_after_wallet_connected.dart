@@ -191,10 +191,10 @@ class _HomeViewAfterWalletConnectedState
                           ),
                         ),
                         Positioned(
-                          top: 0,
-                          right: 30,
-                          child: _getBadgeWidget(_currentIndex),
-                        ),
+                            top: 0,
+                            right: 30,
+                            child: _getBadgeWidget(_currentIndex,
+                                selectedNftsListForHome.isEmpty)),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -247,16 +247,18 @@ class _HomeViewAfterWalletConnectedState
     );
   }
 
-  Widget _getBadgeWidget(int itemIndex) {
+  Widget _getBadgeWidget(int itemIndex, bool isSelectedNftsListEmpty) {
     if (itemIndex == 0) {
       return CustomImageView(
         imagePath: "assets/images/free-graphic-text.png",
       );
     } else if (itemIndex == 1) {
-      return CustomImageView(
-        svgPath: "assets/images/nfc-illustration.svg",
-        height: 100,
-      );
+      return isSelectedNftsListEmpty
+          ? CustomImageView(
+              svgPath: "assets/images/nfc-illustration.svg",
+              height: 100,
+            )
+          : const SizedBox.shrink();
     } else {
       return const SizedBox.shrink();
     }

@@ -2,7 +2,7 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 1.8.3+5
+version: 1.8.5+7
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
@@ -41,6 +41,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   flutter_slidable: ^3.1.0
   flutter_svg: ^2.0.10+1
+  flutter_widget_from_html: ^0.15.0
   fluttertoast: ^8.2.4
   geolocator: ^11.0.0
   get_it: ^7.6.7
@@ -56,6 +57,7 @@ dependencies:
   location: ^5.0.3
   logger: ^2.3.0
   lottie: ^3.1.0
+  package_info_plus: ^7.0.0
   permission_handler: ^11.3.1
   share_plus: ^8.0.2
   shared_preferences: ^2.2.3
@@ -63,6 +65,7 @@ dependencies:
   smooth_page_indicator: ^1.1.0
   stacked_services: ^1.5.0
   timeago: ^3.6.1
+  upgrader: ^10.3.0
   url_launcher: ^6.2.5
   web3modal_flutter: ^3.2.0
 

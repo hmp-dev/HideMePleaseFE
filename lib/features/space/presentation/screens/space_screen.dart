@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
@@ -30,16 +29,42 @@ class _SpaceScreenState extends State<SpaceScreen> {
         bloc: getIt<SpaceCubit>(),
         listener: (context, state) {},
         builder: (context, state) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildTopTitleBar(),
-              buildTopUsedNftsRowWidget(state),
-              buildNewSpaceList(state),
-              buildRecommendedSpaceWidget(state, context),
-              buildTypeWiseSpaceList(state),
-            ],
+          return SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Stack(
+              children: [
+                FractionallySizedBox(
+                  heightFactor: 0.55555,
+                  widthFactor: 1.0,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color.fromRGBO(39, 12, 54, 0.29),
+                          Colors.transparent, // Fade out to transparent
+                        ],
+                        // Adjust the stops to control the gradient spread
+                      ),
+                    ),
+                  ),
+                ),
+                SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildTopTitleBar(),
+                      buildTopUsedNftsRowWidget(state),
+                      buildNewSpaceList(state),
+                      buildRecommendedSpaceWidget(state, context),
+                      buildTypeWiseSpaceList(state),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -183,6 +208,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
                             );
                           },
                         ),
+                  const SizedBox(height: 100),
                 ],
               ),
       ],
@@ -230,19 +256,28 @@ class _SpaceScreenState extends State<SpaceScreen> {
                       LocaleKeys.highlyVisitedCommunity.tr(),
                       style: fontTitle06Medium(),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
                     SizedBox(
-                      height: 200,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: state.topUsedNfts.length,
-                        itemBuilder: (context, index) {
-                          return SpaceTopNFTListItem(
-                            topUsedNftEntity: state.topUsedNfts[index],
-                            score: index + 1,
-                          );
-                        },
+                      width: double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10, right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SpaceTopNFTListItem(
+                              topUsedNftEntity: state.topUsedNfts[0],
+                              score: 1,
+                            ),
+                            SpaceTopNFTListItem(
+                              topUsedNftEntity: state.topUsedNfts[1],
+                              score: 2,
+                            ),
+                            SpaceTopNFTListItem(
+                              topUsedNftEntity: state.topUsedNfts[2],
+                              score: 3,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
