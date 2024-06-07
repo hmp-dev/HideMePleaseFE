@@ -15,6 +15,8 @@ abstract class BaseCubit<BaseState> extends Cubit<BaseState> {
 abstract class BaseState extends Equatable {
   const BaseState();
 
+  RequestStatus get status => throw UnimplementedError();
+
   RequestStatus get submitStatus => throw UnimplementedError();
 
   bool get isLoading =>

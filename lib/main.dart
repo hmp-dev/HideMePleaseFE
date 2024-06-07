@@ -11,8 +11,10 @@ import 'package:mobile/app/app.dart';
 import 'package:mobile/app/core/env/app_env.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/localisation/ko_timeago_messages.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/firebase_options.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 /// init Screen bool
 /// check if it is first time App is launched by user
@@ -27,6 +29,8 @@ void main() async {
   /// Setting an Int value for initScreen
   /// To show the Intro Screens at Start
   isShowOnBoarding = await getInitialScreen();
+
+  timeago.setLocaleMessages('ko', KoTimeAgoMessages());
 
   await initApp();
 

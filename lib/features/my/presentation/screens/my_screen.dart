@@ -6,8 +6,8 @@ import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
-import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
@@ -16,6 +16,7 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
 import 'package:mobile/features/my/presentation/widgets/my_membership_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/my_points_widget.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyScreen extends StatefulWidget {
@@ -120,8 +121,9 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(34),
-            child: DefaultImage(
-              path: "assets/images/profile_img.png",
+            child: CustomImageView(
+              url: userProfile.pfpImageUrl,
+              fit: BoxFit.cover,
               width: 68,
               height: 68,
             ),

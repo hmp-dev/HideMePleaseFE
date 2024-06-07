@@ -119,7 +119,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
   Column buildTypeWiseSpaceList(SpaceState state) {
     return Column(
       children: [
-        state.isLoading
+        state.isSubmitLoading
             ? const SizedBox.shrink()
             : Column(
                 children: [

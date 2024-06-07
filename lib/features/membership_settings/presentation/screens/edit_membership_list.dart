@@ -62,9 +62,9 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                 SingleChildScrollView(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
-                    child: state.isLoading
+                    child: state.isSubmitLoading
                         ? const SizedBox.shrink()
-                        : state.isFailure
+                        : state.isSubmitFailure
                             ? const Center(child: Text("Something went wrong"))
                             : Padding(
                                 padding: const EdgeInsets.all(20.0),

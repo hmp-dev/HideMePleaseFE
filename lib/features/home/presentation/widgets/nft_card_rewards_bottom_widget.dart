@@ -39,7 +39,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
           }
         }
 
-        if (state.isFailure) {
+        if (state.isSubmitFailure) {
           snackBarService.showSnackbar(
             message: state.errorMessage,
             duration: const Duration(seconds: 2),

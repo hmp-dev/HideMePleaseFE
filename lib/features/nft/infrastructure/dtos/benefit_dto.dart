@@ -5,22 +5,38 @@ import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 part 'benefit_dto.g.dart';
 
 @JsonSerializable()
+class NftBenefitsResponseDto extends Equatable {
+  final List<BenefitDto>? benefits;
+  final int benefitCount;
+
+  const NftBenefitsResponseDto({
+    this.benefits,
+    required this.benefitCount,
+  });
+
+  factory NftBenefitsResponseDto.fromJson(Map<String, dynamic> json) =>
+      _$NftBenefitsResponseDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$NftBenefitsResponseDtoToJson(this);
+
+  @override
+  List<Object?> get props {
+    return [
+      benefits,
+      benefitCount,
+    ];
+  }
+}
+
+@JsonSerializable()
 class BenefitDto extends Equatable {
-  @JsonKey(name: "id")
   final String? id;
-  @JsonKey(name: "description")
   final String? description;
-  @JsonKey(name: "singleUse")
   final bool? singleUse;
-  @JsonKey(name: "spaceId")
   final String? spaceId;
-  @JsonKey(name: "spaceName")
   final String? spaceName;
-  @JsonKey(name: "spaceImage")
   final String? spaceImage;
-  @JsonKey(name: "used")
   final bool? used;
-  @JsonKey(name: "tokenAddress")
   final String? tokenAddress;
 
   const BenefitDto({
