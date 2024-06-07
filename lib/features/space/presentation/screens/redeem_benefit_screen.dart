@@ -100,7 +100,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                if (state.isSuccess)
+                if (state.isSubmitSuccess)
                   SizedBox(
                     height: 436,
                     child: Stack(

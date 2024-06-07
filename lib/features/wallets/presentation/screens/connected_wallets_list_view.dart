@@ -58,7 +58,7 @@ class _ConnectedWalletsListScreenState
                   child: SingleChildScrollView(
                     child: SizedBox(
                       width: MediaQuery.of(context).size.width,
-                      child: state.isLoading
+                      child: state.isSubmitLoading
                           ? const SizedBox.shrink()
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
