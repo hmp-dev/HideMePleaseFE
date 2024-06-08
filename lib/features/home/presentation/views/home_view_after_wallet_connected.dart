@@ -159,11 +159,12 @@ class _HomeViewAfterWalletConnectedState
                                     getIt<EnableLocationCubit>()
                                         .onAskDeviceLocation();
                                   } else {
+                                    //TODO change the hard coded latitude with the device location
                                     getIt<SpaceCubit>().onGetSpacesData(
                                       tokenAddress: item.tokenAddress,
                                       latitude: 2.0, //locationState.latitude,
-                                      longitude: 2.0,
-                                    ); //locationState.longitude);
+                                      longitude: 2.0, //locationState.longitude,
+                                    );
                                   }
 
                                   Log.trace(
@@ -175,10 +176,12 @@ class _HomeViewAfterWalletConnectedState
                                   imagePath: itemIndex == 0
                                       ? nftState.welcomeNftEntity.image
                                       : item.imageUrl,
-                                  topWidget: NftCardTopTitleWidget(
-                                    title: item.name,
-                                    chain: item.chain,
-                                  ),
+                                  topWidget: widget.isOverIconNavVisible
+                                      ? NftCardTopTitleWidget(
+                                          title: item.name,
+                                          chain: item.chain,
+                                        )
+                                      : const SizedBox.shrink(),
                                   bottomWidget: _getBottomWidget(
                                       itemIndex,
                                       nftState.welcomeNftEntity,
@@ -252,8 +255,8 @@ class _HomeViewAfterWalletConnectedState
       return CustomImageView(
         imagePath: "assets/images/free-graphic-text.png",
       );
-    } else if (itemIndex == 1) {
-      return isSelectedNftsListEmpty
+    } else if (itemIndex > 0) {
+      return !isSelectedNftsListEmpty
           ? CustomImageView(
               svgPath: "assets/images/nfc-illustration.svg",
               height: 100,

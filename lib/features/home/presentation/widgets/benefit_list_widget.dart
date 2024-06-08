@@ -44,6 +44,7 @@ class _BenefitListWidgetState extends State<BenefitListWidget> {
               const VerticalSpace(20),
               ListView.builder(
                 shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: state.nftBenefitList.length,
                 itemBuilder: (context, index) {
                   return HomeBenefitItemWidget(

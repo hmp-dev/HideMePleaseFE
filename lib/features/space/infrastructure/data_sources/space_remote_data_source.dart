@@ -42,7 +42,7 @@ class SpaceRemoteDataSource {
   Future<bool> postRedeemBenefit({
     required String benefitId,
     required String tokenAddress,
-    required String nfcToken,
+    required String spaceId,
     required double latitude,
     required double longitude,
   }) async {
@@ -50,7 +50,7 @@ class SpaceRemoteDataSource {
     final Map<String, dynamic> queryParams = {
       "latitude": latitude,
       "longitude": longitude,
-      'token': nfcToken,
+      'spaceId': spaceId,
       'tokenAddress': tokenAddress,
     };
 
