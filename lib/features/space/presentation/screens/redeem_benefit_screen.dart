@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -12,7 +13,7 @@ import 'package:mobile/features/common/presentation/widgets/page_dot_indicator.d
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_card_widget_parent.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
-import 'package:mobile/features/space/presentation/views/nfc_read_process_view.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class RedeemBenefitScreen extends StatefulWidget {
@@ -150,14 +151,22 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   child: HMPCustomButton(
                     text: LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
                     onPressed: () {
-                      NfcReadProcessView.push(
-                        context: context,
-                        spaceId: widget.nearBySpaceEntity.id,
-                        benefitId: selectedBenefitId != ""
-                            ? selectedBenefitId
-                            : state.nftBenefitList[0].id,
-                        tokenAddress: widget.selectedNftTokenAddress,
-                      );
+                      final iDOfFirstBenefit =
+                          getIt<NftCubit>().state.nftBenefitList[0].id;
+                      final locationState = getIt<EnableLocationCubit>().state;
+                      // call the benefit redeem api here
+                      if (locationState.latitude != 0.0 ||
+                          locationState.longitude != 0.0) {
+                        getIt<SpaceCubit>().onPostRedeemBenefit(
+                          benefitId: (selectedBenefitId == "")
+                              ? iDOfFirstBenefit
+                              : selectedBenefitId,
+                          tokenAddress: widget.selectedNftTokenAddress,
+                          spaceId: widget.nearBySpaceEntity.id,
+                          latitude: 2.0, //locationState.latitude,
+                          longitude: 2.0, //locationState.longitude,
+                        );
+                      }
                     },
                   ),
                 )
