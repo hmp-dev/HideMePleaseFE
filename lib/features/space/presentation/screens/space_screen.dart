@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
+import 'package:mobile/app/core/helpers/glassmorphism_widgets/glass_container.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
@@ -24,50 +27,56 @@ class SpaceScreen extends StatefulWidget {
 class _SpaceScreenState extends State<SpaceScreen> {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: BlocConsumer<SpaceCubit, SpaceState>(
-        bloc: getIt<SpaceCubit>(),
-        listener: (context, state) {},
-        builder: (context, state) {
-          return SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: Stack(
-              children: [
-                FractionallySizedBox(
-                  heightFactor: 0.55555,
-                  widthFactor: 1.0,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Color.fromRGBO(39, 12, 54, 0.29),
-                          Colors.transparent, // Fade out to transparent
-                        ],
-                        // Adjust the stops to control the gradient spread
-                      ),
+    return BlocConsumer<SpaceCubit, SpaceState>(
+      bloc: getIt<SpaceCubit>(),
+      listener: (context, state) {},
+      builder: (context, state) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Stack(
+            children: [
+              FractionallySizedBox(
+                heightFactor: 0.45555,
+                widthFactor: 1.0,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Color.fromRGBO(39, 12, 54, 0.29),
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/space_screen_bg.png"),
+                      fit: BoxFit.fill,
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color.fromRGBO(39, 12, 54, 0.29),
+                        Colors.black, // Fade out to transparent
+                      ],
                     ),
                   ),
-                ),
-                SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildTopTitleBar(),
-                      buildTopUsedNftsRowWidget(state),
-                      buildNewSpaceList(state),
-                      buildRecommendedSpaceWidget(state, context),
-                      buildTypeWiseSpaceList(state),
-                    ],
+                  child: const GlassContainer(
+                    borderRadius: BorderRadius.zero,
+                    blur: 20,
                   ),
                 ),
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+              SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildTopTitleBar(),
+                    buildTopUsedNftsRowWidget(state),
+                    buildNewSpaceList(state),
+                    buildRecommendedSpaceWidget(state, context),
+                    buildTypeWiseSpaceList(state),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -221,7 +230,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
         state.newSpaceList.isEmpty
             ? const SizedBox.shrink()
             : SizedBox(
-                height: 190,
+                height: 192,
                 child: ListView.builder(
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
@@ -263,6 +272,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
                         padding: const EdgeInsets.only(left: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             SpaceTopNFTListItem(
                               topUsedNftEntity: state.topUsedNfts[0],
@@ -297,6 +307,26 @@ class _SpaceScreenState extends State<SpaceScreen> {
           children: [
             Text("Hide me", style: fontBody2Bold()),
             const AlarmsIconButton(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Stack(
+          children: <Widget>[
+            // Your main content goes here
+            Center(
+              child: Text('Main Content'),
+            ),
           ],
         ),
       ),

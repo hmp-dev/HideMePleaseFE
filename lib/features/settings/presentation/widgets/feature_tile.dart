@@ -26,7 +26,7 @@ class FeatureTile extends StatelessWidget {
           children: [
             Text(
               title,
-              style: fontCompactSmMedium(),
+              style: fontCompactMd(),
             ),
             if (isShowArrowIcon)
               DefaultImage(

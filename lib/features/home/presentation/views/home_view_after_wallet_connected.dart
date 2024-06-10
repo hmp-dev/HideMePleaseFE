@@ -196,8 +196,10 @@ class _HomeViewAfterWalletConnectedState
                         Positioned(
                             top: 0,
                             right: 30,
-                            child: _getBadgeWidget(_currentIndex,
-                                selectedNftsListForHome.isEmpty)),
+                            child: _getBadgeWidget(
+                                _currentIndex,
+                                selectedNftsListForHome.isEmpty,
+                                selectedNftsListForHome.length - 1)),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -250,12 +252,13 @@ class _HomeViewAfterWalletConnectedState
     );
   }
 
-  Widget _getBadgeWidget(int itemIndex, bool isSelectedNftsListEmpty) {
+  Widget _getBadgeWidget(
+      int itemIndex, bool isSelectedNftsListEmpty, int itemsLength) {
     if (itemIndex == 0) {
       return CustomImageView(
         imagePath: "assets/images/free-graphic-text.png",
       );
-    } else if (itemIndex > 0) {
+    } else if (itemIndex > 0 && itemIndex < itemsLength) {
       return !isSelectedNftsListEmpty
           ? CustomImageView(
               svgPath: "assets/images/nfc-illustration.svg",
