@@ -22,7 +22,7 @@ abstract class SpaceRepository {
   Future<Either<HMPError, bool>> postRedeemBenefit({
     required String benefitId,
     required String tokenAddress,
-    required String nfcToken,
+    required String spaceId,
     required double latitude,
     required double longitude,
   });

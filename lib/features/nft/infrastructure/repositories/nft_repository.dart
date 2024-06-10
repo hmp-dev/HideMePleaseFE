@@ -2,6 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
+import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
+import 'package:mobile/features/community/infrastructure/dtos/nft_community_member_dto.dart';
+import 'package:mobile/features/community/infrastructure/dtos/top_collection_nft_dto.dart';
 import 'package:mobile/features/nft/domain/repositories/nft_repository.dart';
 import 'package:mobile/features/nft/infrastructure/datasources/nft_remote_data_source.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/benefit_dto.dart';
@@ -152,7 +155,7 @@ class NftRepositoryImpl extends NftRepository {
   }
 
   @override
-  Future<Either<HMPError, List<BenefitDto>>> getNftBenefits({
+  Future<Either<HMPError, NftBenefitsResponseDto>> getNftBenefits({
     required String tokenAddress,
     String? spaceId,
     int? pageSize,
@@ -242,6 +245,127 @@ class NftRepositoryImpl extends NftRepository {
         error: e,
         trace: t,
       ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, NftCommunityResponseDto>> getNftCommunities(
+      {required GetNftCommunityOrderBy order, int? page}) async {
+    try {
+      final response = await _nftRemoteDataSource.getNftCommunities(
+        order: order,
+        page: page,
+      );
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, List<NftCommunitytDto>>>
+      getHotNftCommunities() async {
+    try {
+      final response = await _nftRemoteDataSource.getHotNftCommunities();
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(
+        HMPError.fromNetwork(message: e.message, error: e, trace: t),
+      );
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, List<NftCommunitytDto>>>
+      getUserNftCommunities() async {
+    try {
+      final response = await _nftRemoteDataSource.getUserNftCommunities();
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(
+        HMPError.fromNetwork(message: e.message, error: e, trace: t),
+      );
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, NftCommunityMemberResponseDto>> getNftMembers(
+      {required String tokenAddress, int? page}) async {
+    try {
+      final response = await _nftRemoteDataSource.getNftMembers(
+        tokenAddress: tokenAddress,
+        page: page,
+      );
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(
+        HMPError.fromNetwork(message: e.message, error: e, trace: t),
+      );
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, TopCollectionNftDto>> getNftCollectionInfo(
+      {required String tokenAddress}) async {
+    try {
+      final response = await _nftRemoteDataSource.getNftCollectionInfo(
+        tokenAddress: tokenAddress,
+      );
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(
+        HMPError.fromNetwork(message: e.message, error: e, trace: t),
+      );
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, List<TopCollectionNftDto>>> getTopNftColletions(
+      {int? pageSize, int? page}) async {
+    try {
+      final response = await _nftRemoteDataSource.getTopNftColletions(
+        pageSize: pageSize,
+        page: page,
+      );
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(
+        HMPError.fromNetwork(message: e.message, error: e, trace: t),
+      );
     } catch (e, t) {
       return left(HMPError.fromUnknown(
         error: e,

@@ -24,6 +24,13 @@ class EnableLocationCubit extends BaseCubit<EnableLocationState> {
   EnableLocationCubit(this._profileRepository)
       : super(EnableLocationState.initial());
 
+  // write a function to check if location is enabled and emit state for value isLocationEnabled
+  Future<void> checkLocationEnabled() async {
+    bool serviceEnabled;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    emit(state.copyWith(isLocationEnabled: serviceEnabled));
+  }
+
   Future<LocationResult> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;

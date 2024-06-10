@@ -4,6 +4,7 @@ class UserProfileEntity extends Equatable {
   final String nickName;
   final String introduction;
   final bool locationPublic;
+  final bool notificationsEnabled;
   final String pfpNftId;
   final String pfpImageUrl;
 
@@ -11,6 +12,7 @@ class UserProfileEntity extends Equatable {
     required this.nickName,
     required this.introduction,
     required this.locationPublic,
+    required this.notificationsEnabled,
     required this.pfpNftId,
     required this.pfpImageUrl,
   });
@@ -19,6 +21,7 @@ class UserProfileEntity extends Equatable {
       : nickName = '',
         introduction = '',
         locationPublic = false,
+        notificationsEnabled = false,
         pfpNftId = '',
         pfpImageUrl = '';
 
@@ -28,6 +31,7 @@ class UserProfileEntity extends Equatable {
       nickName,
       introduction,
       locationPublic,
+      notificationsEnabled,
       pfpNftId,
       pfpImageUrl,
     ];
@@ -37,6 +41,7 @@ class UserProfileEntity extends Equatable {
     String? nickName,
     String? introduction,
     bool? locationPublic,
+    bool? notificationsEnabled,
     String? pfpNftId,
     String? pfpImageUrl,
   }) {
@@ -44,6 +49,7 @@ class UserProfileEntity extends Equatable {
       nickName: nickName ?? this.nickName,
       introduction: introduction ?? this.introduction,
       locationPublic: locationPublic ?? this.locationPublic,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       pfpNftId: pfpNftId ?? this.pfpNftId,
       pfpImageUrl: pfpImageUrl ?? this.pfpImageUrl,
     );

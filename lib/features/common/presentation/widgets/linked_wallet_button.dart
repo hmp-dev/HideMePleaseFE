@@ -20,21 +20,26 @@ class LinkedWalletButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 20,
-        width: 101,
+        padding: const EdgeInsets.symmetric(horizontal: 6.0),
         decoration: const BoxDecoration(
           color: black200,
           borderRadius: BorderRadius.all(Radius.circular(2)),
         ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Text(
                 titleText,
                 textAlign: TextAlign.center,
                 style: fontCompactXsMedium(),
+                maxLines: 1,
               ),
-              Row(
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left:8.0),
+              child: Row(
                 children: [
                   Text(
                     "$count",
@@ -48,8 +53,8 @@ class LinkedWalletButton extends StatelessWidget {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -21,7 +21,7 @@ enum MenuType {
     deactivateIconPath: "assets/icons/ic_community_disabled.svg",
     menuIndex: 3,
   ),
-  my(
+  settings(
     activeIconPath: "assets/icons/ic_more_enabled.svg",
     deactivateIconPath: "assets/icons/ic_more_disabled.svg",
     menuIndex: 4,
@@ -47,8 +47,8 @@ enum MenuType {
         return "Home";
       case MenuType.community:
         return "Community";
-      case MenuType.my:
-        return "My";
+      case MenuType.settings:
+        return "Settings";
     }
   }
 }

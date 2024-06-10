@@ -11,11 +11,12 @@ import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_screen.dart';
 import 'package:mobile/features/events/presentation/screens/events_screen.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/my/presentation/screens/my_screen.dart';
+import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
+import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
 
@@ -84,7 +85,7 @@ class _AppViewState extends State<AppView> {
                               return const HomeScreen();
                             } else if (index == MenuType.community.menuIndex) {
                               return const CommunityScreen();
-                            } else if (index == MenuType.my.menuIndex) {
+                            } else if (index == MenuType.settings.menuIndex) {
                               return const MyScreen();
                             }
                             return Container();
@@ -101,11 +102,11 @@ class _AppViewState extends State<AppView> {
                           BottomBar(
                             onTap: (type) {
                               ('type: $type').log();
-                              if (type == MenuType.my) {
-                                // fetch Nft Points
-                                getIt<NftCubit>().onGetNftPoints();
-                                // Navigate to My Screen
-                                MyScreen.push(context);
+                              if (type == MenuType.settings) {
+                                // fetch SettingBannerInfo and AppVersionInfo
+                                getIt<SettingsCubit>().onGetSettingBannerInfo();
+                                // Navigate to Settings Screen
+                                SettingsScreen.push(context);
                               } else if (type == MenuType.space) {
                                 // init Cubit function to get all space view data
                                 getIt<SpaceCubit>().onFetchAllSpaceViewData();

@@ -2,15 +2,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 
-// ignore: must_be_immutable
 class NftCommunityCardWidget extends StatelessWidget {
   const NftCommunityCardWidget(
-      {super.key, required this.title, required this.imagePath});
+      {super.key,
+      required this.title,
+      required this.imagePath,
+      required this.timeAgo,
+      required this.rank,
+      required this.people});
 
   final String title;
   final String imagePath;
+  final String timeAgo;
+  final String rank;
+  final String people;
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +29,20 @@ class NftCommunityCardWidget extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          DefaultImage(
-            path: imagePath,
-            width: screenSize.width * 0.40,
-            height: 250,
-            boxFit: BoxFit.fitHeight,
-          ),
+          if (imagePath.isEmpty)
+            CustomImageView(
+              width: 60,
+              height: 60,
+              fit: BoxFit.fitHeight,
+              svgPath: "assets/images/hmp_eyes_up.svg",
+            )
+          else
+            CustomImageView(
+              url: imagePath,
+              width: screenSize.width * 0.40,
+              height: 250,
+              fit: BoxFit.fitHeight,
+            ),
           Container(
             width: screenSize.width * 0.40,
             height: 250,
@@ -57,14 +73,19 @@ class NftCommunityCardWidget extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: fontB(18, lineHeight: 1.4),
                   ),
-                  RoundedButtonSmallWithOpacity(title: "120명", onTap: () {}),
+                  RoundedButtonSmallWithOpacity(
+                      title: people, // "120명"
+                      onTap: () {}),
                   const Spacer(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      RectangleButtonSmall(title: "12위", onTap: () {}),
+                      RectangleButtonSmall(
+                          title: rank,
+                          // "12위",
+                          onTap: () {}),
                       Text(
-                        "3초 전",
+                        timeAgo, // "3초 전",
                         style: fontR(12, color: whiteWithOpacityOne),
                       ),
                     ],
@@ -139,7 +160,6 @@ class RectangleButtonSmall extends StatelessWidget {
       onTap: onTap,
       child: SizedBox(
         height: 20,
-        width: 46,
         child: Stack(
           children: [
             Container(

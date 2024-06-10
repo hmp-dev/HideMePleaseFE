@@ -11,6 +11,7 @@ import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:upgrader/upgrader.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -70,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
               current.connectedWallets.length,
           bloc: getIt<WalletsCubit>(),
           listener: (context, state) {
-            if (state.isSuccess) {
+            if (state.isSubmitSuccess) {
               // call to get nft collections
               getIt<NftCubit>().onGetNftCollections();
               // show the AfterLoginWithNFT screen
@@ -84,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
         BlocListener<SpaceCubit, SpaceState>(
           bloc: getIt<SpaceCubit>(),
           listener: (context, state) {
-            if (state.isSuccess) {
+            if (state.isSubmitSuccess) {
               if (state.spacesResponseEntity.spaces.isNotEmpty) {
                 RedeemBenefitScreen.push(
                   context,
@@ -102,9 +103,11 @@ class _HomeScreenState extends State<HomeScreen> {
         bloc: getIt<HomeCubit>(),
         listener: (context, state) {},
         builder: (context, state) {
-          return SingleChildScrollView(
-            controller: _scrollController,
-            child: getHomeView(state.homeViewType),
+          return UpgradeAlert(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: getHomeView(state.homeViewType),
+            ),
           );
         },
       ),

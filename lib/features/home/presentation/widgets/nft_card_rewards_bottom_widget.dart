@@ -39,7 +39,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
           }
         }
 
-        if (state.isFailure) {
+        if (state.isSubmitFailure) {
           snackBarService.showSnackbar(
             message: state.errorMessage,
             duration: const Duration(seconds: 2),
@@ -62,9 +62,10 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                   children: [
                     Text(
                       "${welcomeNftEntity.usedCount}",
-                      style: fontSB(18),
+                      style: fontCompactLgBold(),
                     ),
-                    Text('/${welcomeNftEntity.totalCount}', style: fontR(18))
+                    Text('/${welcomeNftEntity.totalCount}',
+                        style: fontCompactLg())
                   ],
                 )
               ],

@@ -18,80 +18,77 @@ class SpaceTopNFTListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 20.0),
-      child: SizedBox(
-        width: getWidth(score),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            getImageWidget(score),
-            const VerticalSpace(8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  children: [
-                    Text('$score', style: fontCompactLgBold()),
-                    topUsedNftEntity.pointFluctuation > 0
-                        ? CustomImageView(
-                            svgPath: "assets/icons/ic_arrow_up_pink.svg",
-                            width: 10,
-                            height: 10,
-                          )
-                        : CustomImageView(
-                            svgPath: "assets/icons/ic_arrow_blue_down.svg",
-                            width: 10,
-                            height: 10,
-                          )
-                  ],
-                ),
-                const HorizontalSpace(8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: getWidth(score) - 20,
-                      child: Text(
-                        topUsedNftEntity.name,
-                        overflow: TextOverflow.ellipsis,
-                        style: fontCompactMd(),
-                      ),
+    return SizedBox(
+      width: getWidth(score),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          getImageWidget(score),
+          const VerticalSpace(8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  Text('$score', style: fontCompactLgBold()),
+                  topUsedNftEntity.pointFluctuation > 0
+                      ? CustomImageView(
+                          svgPath: "assets/icons/ic_arrow_up_pink.svg",
+                          width: 10,
+                          height: 10,
+                        )
+                      : CustomImageView(
+                          svgPath: "assets/icons/ic_arrow_blue_down.svg",
+                          width: 10,
+                          height: 10,
+                        )
+                ],
+              ),
+              const HorizontalSpace(8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: getWidth(score) - 20,
+                    child: Text(
+                      topUsedNftEntity.name,
+                      overflow: TextOverflow.ellipsis,
+                      style: fontCompactMd(),
                     ),
-                    Text("${topUsedNftEntity.totalPoints} P",
-                        style: fontCompactSmBold()),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
+                  ),
+                  Text("${topUsedNftEntity.totalPoints} P",
+                      style: fontCompactSmBold()),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   getImageWidget(score) {
     if (score == 1) {
-      return buildImageWidget(108, 144);
+      return buildImageWidget(117, 156);
     }
 
     if (score == 2) {
-      return buildImageWidget(99, 132);
+      return buildImageWidget(108, 143);
     }
 
     if (score == 3) {
-      return buildImageWidget(90, 120);
+      return buildImageWidget(98, 130);
     }
   }
 
   double getWidth(score) {
     if (score == 1) {
-      return 108.0;
+      return 117.0;
     } else if (score == 2) {
-      return 99.0;
+      return 108.0;
     } else {
-      return 90.0;
+      return 98.0;
     }
   }
 
