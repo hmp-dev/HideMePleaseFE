@@ -139,6 +139,8 @@
     "areYouSureYouWantToWithdraw":"Are you sure you want to withdraw?",
     "withdrawalMessage":"You will lose your benefits and points information",
     "withdrawalCompleted":"Withdrawal completed",
-    "allowed":"Allowed"
+    "allowed":"Allowed",
+    "youHaveBenefited":"You have benefited.",
+    "employeeConfirmation":"Employee confirmation"
 }
 

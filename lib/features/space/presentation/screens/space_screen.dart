@@ -208,7 +208,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
                             );
                           },
                         ),
-                  const SizedBox(height: 100),
+                  const SizedBox(height: 140),
                 ],
               ),
       ],

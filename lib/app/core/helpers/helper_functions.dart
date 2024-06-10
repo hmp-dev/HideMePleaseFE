@@ -143,6 +143,60 @@ Future<bool> showHmpAlertDialog({
   );
 }
 
+Future<bool> showBenefitRedeemSuccessAlertDialog({
+  required BuildContext context,
+  required String title,
+  required Function onConfirm,
+}) async {
+  bool? result = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF4E4E55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          title: Center(
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: bg4,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: CustomImageView(
+                  svgPath: "assets/icons/ic_check_tik.svg",
+                  width: 20,
+                  height: 20,
+                ),
+                //
+              ),
+            ),
+          ),
+          content: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: fontBodySm(),
+          ),
+          actions: <Widget>[
+            HMPCustomButton(
+              bgColor: bg4,
+              text: LocaleKeys.confirm.tr(),
+              onPressed: () {
+                onConfirm();
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
+  return result ?? false;
+}
+
 Future<bool> showCompletedWithdrawAlertDialog({
   required BuildContext context,
   required String title,

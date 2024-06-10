@@ -142,5 +142,7 @@ abstract class  LocaleKeys {
   static const withdrawalMessage = 'withdrawalMessage';
   static const withdrawalCompleted = 'withdrawalCompleted';
   static const allowed = 'allowed';
+  static const youHaveBenefited = 'youHaveBenefited';
+  static const employeeConfirmation = 'employeeConfirmation';
 
 }
