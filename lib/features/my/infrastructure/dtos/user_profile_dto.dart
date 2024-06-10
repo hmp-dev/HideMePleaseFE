@@ -16,6 +16,8 @@ class UserProfileDto extends Equatable {
   final String? introduction;
   @JsonKey(name: "locationPublic")
   final bool? locationPublic;
+  @JsonKey(name: "notificationsEnabled")
+  final bool? notificationsEnabled;
   @JsonKey(name: "pfpNftId")
   final String? pfpNftId;
   @JsonKey(name: "pfpImageUrl")
@@ -25,6 +27,7 @@ class UserProfileDto extends Equatable {
     this.nickName,
     this.introduction,
     this.locationPublic,
+    this.notificationsEnabled,
     this.pfpNftId,
     this.pfpImageUrl,
   });
@@ -40,6 +43,7 @@ class UserProfileDto extends Equatable {
         locationPublic: locationPublic ?? false,
         pfpNftId: pfpNftId ?? "",
         pfpImageUrl: pfpImageUrl ?? "",
+        notificationsEnabled: notificationsEnabled ?? false,
       );
 
 //
@@ -50,6 +54,7 @@ class UserProfileDto extends Equatable {
       nickName,
       introduction,
       locationPublic,
+      notificationsEnabled,
       pfpNftId,
       pfpImageUrl,
     ];

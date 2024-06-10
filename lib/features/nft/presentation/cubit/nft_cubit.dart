@@ -312,7 +312,8 @@ class NftCubit extends BaseCubit<NftState> {
         ));
       },
       (nftBenefitsList) {
-        final resultList = nftBenefitsList.map((e) => e.toEntity()).toList();
+        final resultList =
+            nftBenefitsList.benefits?.map((e) => e.toEntity()).toList() ?? [];
 
         emit(
           state.copyWith(

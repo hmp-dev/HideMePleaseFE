@@ -5,6 +5,7 @@ import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/load_more_icon_button.dart';
+import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
@@ -119,14 +120,7 @@ class _MyMembershipNftDetailScreenState
                   onTap: () {},
                 ),
                 const VerticalSpace(20),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Divider(
-                    color: bgNega5,
-                    height: 8,
-                    thickness: 8,
-                  ),
-                ),
+                const ThickDivider(),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
@@ -199,3 +193,5 @@ class _MyMembershipNftDetailScreenState
     );
   }
 }
+
+

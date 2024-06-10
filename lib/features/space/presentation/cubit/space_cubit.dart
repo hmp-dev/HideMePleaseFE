@@ -86,7 +86,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   Future<void> onPostRedeemBenefit({
     required String benefitId,
     required String tokenAddress,
-    required String nfcToken,
+    required String spaceId,
     required double latitude,
     required double longitude,
   }) async {
@@ -95,7 +95,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     final response = await _spaceRepository.postRedeemBenefit(
       benefitId: benefitId,
       tokenAddress: tokenAddress,
-      nfcToken: nfcToken,
+      spaceId: spaceId,
       latitude: latitude,
       longitude: longitude,
     );

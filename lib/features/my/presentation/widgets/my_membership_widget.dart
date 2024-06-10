@@ -52,6 +52,7 @@ class _MyMembershipWidgetState extends State<MyMembershipWidget> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: ListView.builder(
                       shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: state.selectedNftTokensList.length,
                       itemBuilder: (context, index) {
                         return MembersItemWidget(

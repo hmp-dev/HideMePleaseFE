@@ -81,7 +81,7 @@ class NftTokenWidget extends StatelessWidget {
                 child: Text(
                   nftTokenEntity.name,
                   overflow: TextOverflow.ellipsis,
-                  style: fontM(12),
+                  style: fontCompactSm(),
                 ),
               ),
             ),

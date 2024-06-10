@@ -6,6 +6,22 @@ part of 'benefit_dto.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+NftBenefitsResponseDto _$NftBenefitsResponseDtoFromJson(
+        Map<String, dynamic> json) =>
+    NftBenefitsResponseDto(
+      benefits: (json['benefits'] as List<dynamic>?)
+          ?.map((e) => BenefitDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      benefitCount: json['benefitCount'] as int,
+    );
+
+Map<String, dynamic> _$NftBenefitsResponseDtoToJson(
+        NftBenefitsResponseDto instance) =>
+    <String, dynamic>{
+      'benefits': instance.benefits,
+      'benefitCount': instance.benefitCount,
+    };
+
 BenefitDto _$BenefitDtoFromJson(Map<String, dynamic> json) => BenefitDto(
       id: json['id'] as String?,
       description: json['description'] as String?,

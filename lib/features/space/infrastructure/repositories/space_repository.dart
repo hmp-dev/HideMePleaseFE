@@ -71,7 +71,7 @@ class SpaceRepositoryImpl extends SpaceRepository {
   Future<Either<HMPError, bool>> postRedeemBenefit({
     required String benefitId,
     required String tokenAddress,
-    required String nfcToken,
+    required String spaceId,
     required double latitude,
     required double longitude,
   }) async {
@@ -79,7 +79,7 @@ class SpaceRepositoryImpl extends SpaceRepository {
       final response = await _spaceRemoteDataSource.postRedeemBenefit(
         benefitId: benefitId,
         tokenAddress: tokenAddress,
-        nfcToken: nfcToken,
+        spaceId: spaceId,
         latitude: latitude,
         longitude: longitude,
       );

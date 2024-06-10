@@ -1,5 +1,8 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
+import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
+import 'package:mobile/features/community/infrastructure/dtos/nft_community_member_dto.dart';
+import 'package:mobile/features/community/infrastructure/dtos/top_collection_nft_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/benefit_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_collections_group_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_network_dto.dart';
@@ -26,7 +29,8 @@ class NftRemoteDataSource {
       if (nextCursor != null) 'next': nextCursor,
     };
 
-    final response = await _network.get("nft/collections", queryParams);
+    final response =
+        await _network.get("nft/collections/populated", queryParams);
     return NftCollectionsGroupDto.fromJson(
         response.data as Map<String, dynamic>);
   }
@@ -66,7 +70,7 @@ class NftRemoteDataSource {
     return response.data;
   }
 
-  Future<List<BenefitDto>> requestGetNftBenefits({
+  Future<NftBenefitsResponseDto> requestGetNftBenefits({
     required String tokenAddress,
     String? spaceId,
     int? pageSize,
@@ -81,9 +85,8 @@ class NftRemoteDataSource {
 
     final response = await _network.get(
         "nft/collection/{$tokenAddress}/benefits", queryParams);
-    return response.data
-        .map<BenefitDto>((e) => BenefitDto.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return NftBenefitsResponseDto.fromJson(
+        response.data as Map<String, dynamic>);
   }
 
   Future<List<NftPointsDto>> requestGetNftPoints() async {
@@ -117,5 +120,69 @@ class NftRemoteDataSource {
     final response = await _network.get(
         "nft/collection/$tokenAddress/usage-history", queryParams);
     return NftUsageHistoryDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<NftCommunityResponseDto> getNftCommunities(
+      {required GetNftCommunityOrderBy order, int? page}) async {
+    final response = await _network.get(
+      '/nft/collections/communities',
+      {
+        'orderBy': order.toString().split('.').last,
+        if (page != null) 'page': page.toString(),
+      },
+    );
+    return NftCommunityResponseDto.fromJson(response.data);
+  }
+
+  Future<List<NftCommunitytDto>> getHotNftCommunities() async {
+    final response = await _network.get(
+      '/nft/collections/communities/hot',
+      {},
+    );
+    return (response.data as List)
+        .map((e) => NftCommunitytDto.fromJson(e))
+        .toList();
+  }
+
+  Future<List<NftCommunitytDto>> getUserNftCommunities() async {
+    final response = await _network.get(
+      '/nft/collections/communities/me',
+      {},
+    );
+    return (response.data as List)
+        .map((e) => NftCommunitytDto.fromJson(e))
+        .toList();
+  }
+
+  Future<NftCommunityMemberResponseDto> getNftMembers(
+      {required String tokenAddress, int? page}) async {
+    final response = await _network.get(
+      '/nft/collections/$tokenAddress/members',
+      {
+        if (page != null) 'page': page.toString(),
+      },
+    );
+    return NftCommunityMemberResponseDto.fromJson(response.data);
+  }
+
+  Future<TopCollectionNftDto> getNftCollectionInfo(
+      {required String tokenAddress}) async {
+    final response =
+        await _network.get('/nft/collections/$tokenAddress/info', {});
+    return TopCollectionNftDto.fromJson(response.data);
+  }
+
+  Future<List<TopCollectionNftDto>> getTopNftColletions(
+      {int? pageSize, int? page}) async {
+    final response = await _network.get(
+      '/nft/collections/top',
+      {
+        if (pageSize != null) 'pageSize': pageSize.toString(),
+        if (page != null) 'page': page.toString(),
+      },
+    );
+    return (response.data as List)
+        .map((e) => TopCollectionNftDto.fromJson(e))
+        .toList();
   }
 }

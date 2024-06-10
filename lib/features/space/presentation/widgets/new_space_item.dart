@@ -30,7 +30,7 @@ class NewSpaceItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             margin: const EdgeInsets.only(right: 10, top: 20, left: 20),
-            width: MediaQuery.of(context).size.width * 0.8,
+            width: MediaQuery.of(context).size.width * 0.92,
             height: 170,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),

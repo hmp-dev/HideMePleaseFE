@@ -1,5 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
@@ -9,8 +9,10 @@ import 'package:mobile/features/common/presentation/widgets/horizontal_space.dar
 import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/my/presentation/screens/my_screen.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class HomeHeaderWidget extends StatelessWidget {
   const HomeHeaderWidget({
@@ -25,7 +27,8 @@ class HomeHeaderWidget extends StatelessWidget {
     final userProfile = getIt<ProfileCubit>().state.userProfileEntity;
     return GestureDetector(
       onTap: () {
-        ConnectedWalletsListScreen.push(context);
+        // Navigate to Settings Screen
+        MyScreen.push(context);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -52,15 +55,13 @@ class HomeHeaderWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    connectedWallet.isNotEmpty
-                        ? formatWalletAddress(connectedWallet[0].publicAddress)
-                        : "",
+                    userProfile.nickName,
                     textAlign: TextAlign.center,
-                    style: fontSB(18, lineHeight: 1.4),
+                    style: fontCompactLgBold(),
                   ),
                   const VerticalSpace(10),
                   LinkedWalletButton(
-                    titleText: userProfile.nickName,
+                    titleText: LocaleKeys.linkedWallet.tr(),
                     count: connectedWallet.length,
                     onTap: () {
                       ConnectedWalletsListScreen.push(context);

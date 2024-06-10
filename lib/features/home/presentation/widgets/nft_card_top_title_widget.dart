@@ -27,7 +27,7 @@ class NftCardTopTitleWidget extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             title,
-            style: fontB(32),
+            style: fontTitle01Bold(),
           ),
         ],
       ),

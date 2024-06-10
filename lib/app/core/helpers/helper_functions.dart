@@ -1,9 +1,14 @@
+import 'dart:ui';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/pref_keys.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,69 +38,227 @@ String getWalletProvider(String inputString) {
 }
 
 String formatDate(DateTime dateTime) {
-  // Define the desired date format
-  final dateFormat = DateFormat('MM/dd HH:mm');
+  try {
+    // Define the desired date format
+    final dateFormat = DateFormat('MM/dd HH:mm');
 
-  // Format the DateTime object using the defined format
-  return dateFormat.format(dateTime);
+    // Format the DateTime object using the defined format
+    return dateFormat.format(dateTime);
+  } catch (e) {
+    "$e".log();
+
+    "error formatting passed date: $dateTime".log();
+    return '';
+  }
+}
+
+String getCreatedAt(String dateString) {
+  try {
+    // Parse the input date string to a DateTime object
+    DateTime dateTime = DateTime.parse(dateString);
+
+    // Format the DateTime object to the desired format
+    String formattedDate = DateFormat('yyyy/MM/dd').format(dateTime);
+
+    return formattedDate;
+  } catch (e) {
+    "$e".log();
+
+    "error formatting passed date: $dateString".log();
+    return '';
+  }
 }
 
 String formatDateGetMonthYear(String dateTimeString) {
-  // Parse the string into a DateTime object
-  DateTime dateTime = DateTime.parse(dateTimeString);
+  try {
+    // Parse the string into a DateTime object
+    DateTime dateTime = DateTime.parse(dateTimeString);
 
-  // Define the desired date format
-  final dateFormat = DateFormat('MM/yy');
+    // Define the desired date format
+    final dateFormat = DateFormat('MM/yy');
 
-  // Format the DateTime object using the defined format
-  return dateFormat.format(dateTime);
+    // Format the DateTime object using the defined format
+    return dateFormat.format(dateTime);
+  } catch (e) {
+    "$e".log();
+    "error formatting passed date: $dateTimeString".log();
+    return '';
+  }
 }
 
 String formatNumberWithCommas(String numberString) {
-  final number = int.tryParse(numberString) ?? 0;
-  final formatter = NumberFormat('#,###');
-  return formatter.format(number);
+  try {
+    final number = int.tryParse(numberString) ?? 0;
+    final formatter = NumberFormat('#,###');
+    return formatter.format(number);
+  } catch (e) {
+    "$e".log();
+    "error formatting passed Number String: $numberString".log();
+    return '';
+  }
 }
 
 // ============
 
-showHmpAlertDialog({
+Future<bool> showHmpAlertDialog({
   required BuildContext context,
   required String title,
   required String content,
   required Function onConfirm,
-}) {
-  showDialog(
+}) async {
+  return await showDialog(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        title: Center(
-          child: Text(
-            title,
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF4E4E55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          title: Center(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: fontTitle07Bold(),
+            ),
+          ),
+          content: Text(
+            content,
             textAlign: TextAlign.center,
-            style: fontTitle07Bold(),
+            style: fontBodySm(),
           ),
+          actions: <Widget>[
+            HMPCustomButton(
+              bgColor: bg4,
+              text: LocaleKeys.confirm.tr(),
+              onPressed: () {
+                onConfirm();
+              },
+            ),
+          ],
         ),
-        content: Text(
-          content,
-          textAlign: TextAlign.center,
-          style: fontBodySm(),
-        ),
-        actions: <Widget>[
-          HMPCustomButton(
-            bgColor: bg4,
-            text: LocaleKeys.confirm.tr(),
-            onPressed: () {
-              onConfirm();
-            },
-          ),
-        ],
       );
     },
   );
+}
+
+Future<bool> showCompletedWithdrawAlertDialog({
+  required BuildContext context,
+  required String title,
+  required Function onConfirm,
+}) async {
+  bool? result = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF4E4E55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          title: Center(
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: bg4,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: CustomImageView(
+                  svgPath: "assets/icons/ic_check_tik.svg",
+                  width: 20,
+                  height: 20,
+                ),
+                //
+              ),
+            ),
+          ),
+          content: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: fontBodySm(),
+          ),
+          actions: <Widget>[
+            HMPCustomButton(
+              bgColor: bg4,
+              text: LocaleKeys.confirm.tr(),
+              onPressed: () {
+                onConfirm();
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
+  return result ?? false;
+}
+
+Future<bool> showWithdrawConfirmationAlertDialog({
+  required BuildContext context,
+  required String title,
+  required Function onConfirm,
+  required Function onCancel,
+}) async {
+  bool? result = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF4E4E55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          title: Center(
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: bg4,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: CustomImageView(
+                  svgPath: "assets/icons/ic_info_icon.svg",
+                  width: 20,
+                  height: 20,
+                ),
+              ),
+            ),
+          ),
+          content: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: fontBodySm(),
+          ),
+          actions: <Widget>[
+            HMPCustomButton(
+              bgColor: bg4,
+              text: LocaleKeys.confirm.tr(),
+              onPressed: () {
+                onConfirm();
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: RoundedButtonWithBorder(
+                bgColor: const Color(0xFF4E4E55),
+                text: LocaleKeys.cancel.tr(),
+                onPressed: () {
+                  onCancel();
+                },
+              ),
+            )
+          ],
+        ),
+      );
+    },
+  );
+
+  return result ?? false;
 }
 
 String getLocalCategoryName(String categoryName) {

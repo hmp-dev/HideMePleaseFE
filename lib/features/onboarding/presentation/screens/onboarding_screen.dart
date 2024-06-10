@@ -75,6 +75,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           animationPath: "assets/lottie/onboarding4.json"),
     );
 
+    // call function to check if location is enabled
+    getIt<EnableLocationCubit>().checkLocationEnabled();
+
     super.initState();
   }
 
@@ -114,7 +117,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       backgroundColor: bg1,
-      body: BlocListener<EnableLocationCubit, EnableLocationState>(
+      // convert BlocListener to BlocConsumer
+
+      body: BlocConsumer<EnableLocationCubit, EnableLocationState>(
         bloc: getIt<EnableLocationCubit>(),
         listener: (context, state) {
           if (state.isSubmitSuccess) {
@@ -125,7 +130,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             );
           }
 
-          if (state.isFailure && state.isLocationDenied) {
+          if (state.isSubmitFailure && state.isLocationDenied) {
             Navigator.pushNamedAndRemoveUntil(
               context,
               Routes.startUpScreen,
@@ -133,138 +138,150 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             );
           }
         },
-        child: Stack(
-          children: [
-            Column(
-              children: <Widget>[
-                SizedBox(
-                  height: MediaQuery.of(context).padding.top +
-                      (MediaQuery.of(context).size.height * 0.10),
-                ),
-                SmoothPageIndicator(
-                  controller: _pageController, // PageController
-                  count: pageViewModelData.length,
-                  effect: const WormEffect(
-                      activeDotColor: hmpBlue,
-                      dotColor: fore4,
-                      dotHeight: 7.0,
-                      dotWidth: 7.0,
-                      spacing: 5.0), // your preferred effect
-                  onDotClicked: (index) {},
-                ),
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    pageSnapping: true,
-                    onPageChanged: (index) {
-                      setState(() {
-                        currentSlideIndex = index;
-                      });
-                    },
-                    scrollDirection: Axis.horizontal,
-                    children: <Widget>[
-                      PagePopup(onBoardingSlideData: pageViewModelData[0]),
-                      PagePopup(onBoardingSlideData: pageViewModelData[1]),
-                      PagePopup(onBoardingSlideData: pageViewModelData[2]),
-                      PagePopup(onBoardingSlideData: pageViewModelData[3]),
-                    ],
+        builder: (context, state) {
+          return Stack(
+            children: [
+              Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: MediaQuery.of(context).padding.top +
+                        (MediaQuery.of(context).size.height * 0.10),
                   ),
-                ),
-                currentSlideIndex + 1 == pageViewModelData.length
-                    ? Padding(
-                        padding: const EdgeInsets.only(bottom: 30),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              dontShowCheckBox = !dontShowCheckBox;
-                            });
+                  SmoothPageIndicator(
+                    controller: _pageController, // PageController
+                    count: pageViewModelData.length,
+                    effect: const WormEffect(
+                        activeDotColor: hmpBlue,
+                        dotColor: fore4,
+                        dotHeight: 7.0,
+                        dotWidth: 7.0,
+                        spacing: 5.0), // your preferred effect
+                    onDotClicked: (index) {},
+                  ),
+                  Expanded(
+                    child: PageView(
+                      controller: _pageController,
+                      pageSnapping: true,
+                      onPageChanged: (index) {
+                        setState(() {
+                          currentSlideIndex = index;
+                        });
+                      },
+                      scrollDirection: Axis.horizontal,
+                      children: <Widget>[
+                        PagePopup(onBoardingSlideData: pageViewModelData[0]),
+                        PagePopup(onBoardingSlideData: pageViewModelData[1]),
+                        PagePopup(onBoardingSlideData: pageViewModelData[2]),
+                        PagePopup(onBoardingSlideData: pageViewModelData[3]),
+                      ],
+                    ),
+                  ),
+                  currentSlideIndex + 1 == pageViewModelData.length
+                      ? Padding(
+                          padding: const EdgeInsets.only(bottom: 30),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                dontShowCheckBox = !dontShowCheckBox;
+                              });
 
-                            // setDontShowAgain value in local storage
-                            setDontShowAgain(dontShowCheckBox);
-                          },
+                              // setDontShowAgain value in local storage
+                              setDontShowAgain(dontShowCheckBox);
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Checkbox(
+                                  side: const BorderSide(color: fore3),
+                                  activeColor: hmpBlue,
+                                  checkColor: white,
+                                  value: dontShowCheckBox,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      dontShowCheckBox = value ?? false;
+                                    });
+
+                                    setDontShowAgain(dontShowCheckBox);
+                                  },
+                                ),
+                                Text(LocaleKeys.dontShowNextTimeMsg.tr(),
+                                    style: fontCompactSm(color: fore3)),
+                              ],
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                  currentSlideIndex == 0
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: HMPCustomButton(
+                            text: LocaleKeys.next.tr(),
+                            onPressed: _goToNextPage,
+                          ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Checkbox(
-                                side: const BorderSide(color: fore3),
-                                activeColor: hmpBlue,
-                                checkColor: white,
-                                value: dontShowCheckBox,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    dontShowCheckBox = value ?? false;
-                                  });
-
-                                  setDontShowAgain(dontShowCheckBox);
-                                },
+                              Expanded(
+                                child: RoundedButtonWithBorder(
+                                  text: LocaleKeys.previous.tr(),
+                                  onPressed: _goToPreviousPage,
+                                ),
                               ),
-                              Text(LocaleKeys.dontShowNextTimeMsg.tr(),
-                                  style: fontCompactSm(color: fore3)),
+                              const HorizontalSpace(10),
+                              Expanded(
+                                child: currentSlideIndex + 1 ==
+                                        pageViewModelData.length
+                                    ? HMPCustomButton(
+                                        text: LocaleKeys.confirm.tr(),
+                                        onPressed: () {
+                                          // check if Location is already enabled
+
+                                          if (state.isLocationEnabled) {
+                                            Navigator.pushNamedAndRemoveUntil(
+                                              context,
+                                              Routes.startUpScreen,
+                                              (route) => false,
+                                            );
+                                          } else {
+                                            "onBoardingScreen tapped on Confirm Button"
+                                                .log();
+                                            showHmpAlertDialog(
+                                              context: context,
+                                              title: LocaleKeys
+                                                  .allowLocationPermission
+                                                  .tr(),
+                                              content: LocaleKeys
+                                                  .locationAlertMessage
+                                                  .tr(),
+                                              onConfirm: () {
+                                                Navigator.pop(context);
+                                                // Ask for device location
+                                                getIt<EnableLocationCubit>()
+                                                    .onAskDeviceLocation();
+                                              },
+                                            );
+                                          }
+                                        },
+                                      )
+                                    : HMPCustomButton(
+                                        text: LocaleKeys.next.tr(),
+                                        onPressed: _goToNextPage,
+                                      ),
+                              ),
                             ],
                           ),
                         ),
-                      )
-                    : const SizedBox.shrink(),
-                currentSlideIndex == 0
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: HMPCustomButton(
-                          text: LocaleKeys.next.tr(),
-                          onPressed: _goToNextPage,
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: RoundedButtonWithBorder(
-                                text: LocaleKeys.previous.tr(),
-                                onPressed: _goToPreviousPage,
-                              ),
-                            ),
-                            const HorizontalSpace(10),
-                            Expanded(
-                              child: currentSlideIndex + 1 ==
-                                      pageViewModelData.length
-                                  ? HMPCustomButton(
-                                      text: LocaleKeys.confirm.tr(),
-                                      onPressed: () {
-                                        "onBoardingScreen tapped on Confirm Button"
-                                            .log();
-                                        showHmpAlertDialog(
-                                          context: context,
-                                          title: LocaleKeys
-                                              .allowLocationPermission
-                                              .tr(),
-                                          content: LocaleKeys
-                                              .locationAlertMessage
-                                              .tr(),
-                                          onConfirm: () {
-                                            Navigator.pop(context);
-                                            // Ask for device location
-                                            getIt<EnableLocationCubit>()
-                                                .onAskDeviceLocation();
-                                          },
-                                        );
-                                      },
-                                    )
-                                  : HMPCustomButton(
-                                      text: LocaleKeys.next.tr(),
-                                      onPressed: _goToNextPage,
-                                    ),
-                            ),
-                          ],
-                        ),
-                      ),
-                SizedBox(
-                  height: MediaQuery.of(context).padding.bottom + 30,
-                ),
-              ],
-            ),
-          ],
-        ),
+                  SizedBox(
+                    height: MediaQuery.of(context).padding.bottom + 30,
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }

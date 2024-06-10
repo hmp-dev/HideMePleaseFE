@@ -31,7 +31,7 @@ class SpaceListItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.only(right: 20, top: 20, left: 20),
-                width: MediaQuery.of(context).size.width * 0.7,
+                width: MediaQuery.of(context).size.width * 0.9,
                 height: 170,
                 child: Column(
                   children: [
@@ -83,6 +83,7 @@ class SpaceListItem extends StatelessWidget {
                               ),
                               Text(
                                 spaceEntity.benefitDescription,
+                                overflow: TextOverflow.ellipsis,
                                 style: fontCompactSm(),
                               ),
                               const Spacer(),
