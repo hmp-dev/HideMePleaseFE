@@ -90,6 +90,8 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     required double latitude,
     required double longitude,
   }) async {
+    emit(state.copyWith(submitStatus: RequestStatus.loading));
+
     EasyLoading.show(dismissOnTap: true);
 
     final response = await _spaceRepository.postRedeemBenefit(
@@ -106,7 +108,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
       (err) {
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
+          errorMessage: err.message,
         ));
       },
       (isSuccess) {
