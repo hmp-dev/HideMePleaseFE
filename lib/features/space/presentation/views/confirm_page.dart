@@ -3,14 +3,16 @@ import 'package:lottie/lottie.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 
-class ConfirmationPage extends StatefulWidget {
-  const ConfirmationPage({super.key});
+class BenefitRedeemConfirmationTickAnimationPage extends StatefulWidget {
+  const BenefitRedeemConfirmationTickAnimationPage({super.key});
 
   @override
-  State<ConfirmationPage> createState() => _ConfirmationPageState();
+  State<BenefitRedeemConfirmationTickAnimationPage> createState() =>
+      _BenefitRedeemConfirmationTickAnimationPageState();
 }
 
-class _ConfirmationPageState extends State<ConfirmationPage>
+class _BenefitRedeemConfirmationTickAnimationPageState
+    extends State<BenefitRedeemConfirmationTickAnimationPage>
     with TickerProviderStateMixin {
   late final AnimationController _controller;
 

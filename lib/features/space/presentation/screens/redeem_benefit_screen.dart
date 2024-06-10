@@ -216,7 +216,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
       context,
       PageTransition(
         type: PageTransitionType.fade,
-        child: const ConfirmationPage(),
+        child: const BenefitRedeemConfirmationTickAnimationPage(),
       ),
     );
 

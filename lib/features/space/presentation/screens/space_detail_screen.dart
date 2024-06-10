@@ -69,135 +69,145 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: BlocConsumer<SpaceCubit, SpaceState>(
-        bloc: getIt<SpaceCubit>(),
-        listener: (context, state) {
-          if (state.submitStatus == RequestStatus.success) {
-            // fetch Space related Benefits
-            getIt<SpaceCubit>()
-                .onGetSpaceBenefits(spaceId: state.currentSpaceId);
-          }
-        },
-        builder: (context, state) {
-          return state.submitStatus == RequestStatus.loading
-              ? const Center(child: SizedBox.shrink())
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(
-                      children: [
-                        state.spaceDetailEntity.image == ""
-                            ? CustomImageView(
-                                imagePath:
-                                    "assets/images/place_holder_card.png",
-                                width: MediaQuery.of(context).size.width,
-                                height: 250,
-                                radius: BorderRadius.circular(2),
-                                fit: BoxFit.cover,
-                              )
-                            : CustomImageView(
-                                url: state.spaceDetailEntity.image,
-                                width: MediaQuery.of(context).size.width,
-                                height: 250,
-                                radius: BorderRadius.circular(2),
-                                fit: BoxFit.cover,
-                              ),
-                        buildBackArrowIconButton(context),
-                        const BuildHidingCountWidget(hidingCount: 0),
-                      ],
-                    ),
-                    buildNameTypeRow(state),
-                    buildOpenTimeRow(state),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: BlocConsumer<SpaceCubit, SpaceState>(
+          bloc: getIt<SpaceCubit>(),
+          listener: (context, state) {
+            if (state.submitStatus == RequestStatus.success) {
+              // fetch Space related Benefits
+              getIt<SpaceCubit>()
+                  .onGetSpaceBenefits(spaceId: state.currentSpaceId);
+            }
+          },
+          builder: (context, state) {
+            return state.submitStatus == RequestStatus.loading
+                ? const Center(child: SizedBox.shrink())
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
                         children: [
-                          Text(
-                            LocaleKeys.upcomingEvents.tr(),
-                            style: fontTitle06Medium(),
-                          ),
-                          const VerticalSpace(10),
-                          CustomImageView(
-                            imagePath: "assets/images/space_placeholder.png",
-                            width: MediaQuery.of(context).size.width,
-                            height: 250,
-                            radius: BorderRadius.circular(2),
-                            fit: BoxFit.cover,
-                          )
+                          state.spaceDetailEntity.image == ""
+                              ? CustomImageView(
+                                  imagePath:
+                                      "assets/images/place_holder_card.png",
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 250,
+                                  radius: BorderRadius.circular(2),
+                                  fit: BoxFit.cover,
+                                )
+                              : CustomImageView(
+                                  url: state.spaceDetailEntity.image,
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 250,
+                                  radius: BorderRadius.circular(2),
+                                  fit: BoxFit.cover,
+                                ),
+                          buildBackArrowIconButton(context),
+                          const BuildHidingCountWidget(hidingCount: 0),
                         ],
                       ),
-                    ),
-                    const Divider(
-                      thickness: 8,
-                      color: fore5,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            state.spaceDetailEntity.introduction,
-                            style: fontTitle05(),
-                          ),
-                          const VerticalSpace(10),
-                          Text(
-                            state.spaceDetailEntity.locationDescription,
-                            style: fontBodySm(),
-                          ),
-                          const VerticalSpace(30),
-                          Row(
-                            children: [
-                              Text(
-                                LocaleKeys.location.tr(),
-                                style: fontCompactSm(),
-                              ),
-                              const HorizontalSpace(10),
-                              Text(
-                                state.spaceDetailEntity.address,
-                                style: fontCompactSmBold(),
-                              ),
-                            ],
-                          ),
-                        ],
+                      buildNameTypeRow(state),
+                      buildOpenTimeRow(state),
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              LocaleKeys.upcomingEvents.tr(),
+                              style: fontTitle06Medium(),
+                            ),
+                            const VerticalSpace(10),
+                            CustomImageView(
+                              imagePath: "assets/images/space_placeholder.png",
+                              width: MediaQuery.of(context).size.width,
+                              height: 250,
+                              radius: BorderRadius.circular(2),
+                              fit: BoxFit.fill,
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 250,
-                      child: GoogleMap(
-                        initialCameraPosition: _kGooglePlex,
-                        markers: Set.from(allMarkers),
-                        onMapCreated: (GoogleMapController controller) async {
-                          setState(() {
-                            _controller = controller;
-                          });
+                      const Divider(
+                        thickness: 8,
+                        color: fore5,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              state.spaceDetailEntity.introduction,
+                              style: fontTitle05(),
+                            ),
+                            const VerticalSpace(10),
+                            Text(
+                              state.spaceDetailEntity.locationDescription,
+                              style: fontBodySm(),
+                            ),
+                            const VerticalSpace(30),
+                            Row(
+                              children: [
+                                Text(
+                                  LocaleKeys.location.tr(),
+                                  style: fontCompactSm(),
+                                ),
+                                const HorizontalSpace(10),
+                                Text(
+                                  state.spaceDetailEntity.address,
+                                  style: fontCompactSmBold(),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: 250,
+                        child: GoogleMap(
+                          initialCameraPosition: _kGooglePlex,
+                          markers: Set.from(allMarkers),
+                          onMapCreated: (GoogleMapController controller) async {
+                            setState(() {
+                              _controller = controller;
+                            });
 
-                          final latLong = LatLng(
-                              state.spaceDetailEntity.latitude,
-                              state.spaceDetailEntity.longitude);
-                          await moveAnimateToAddress(latLong);
-                          await addMarker(latLong);
-                        },
+                            final latLong = LatLng(
+                                state.spaceDetailEntity.latitude,
+                                state.spaceDetailEntity.longitude);
+                            await moveAnimateToAddress(latLong);
+                            await addMarker(latLong);
+                          },
+                          mapType: MapType.normal,
+                          myLocationEnabled: true,
+                          myLocationButtonEnabled: true,
+                          zoomGesturesEnabled: true,
+                          scrollGesturesEnabled: true,
+                          tiltGesturesEnabled: true,
+                          rotateGesturesEnabled: true,
+                          indoorViewEnabled: true,
+                        ),
                       ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          VerticalSpace(30),
-                          SpaceBenefitListWidget(),
-                          VerticalSpace(50),
-                        ],
+                      const Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            VerticalSpace(30),
+                            SpaceBenefitListWidget(),
+                            VerticalSpace(50),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                );
-        },
+                    ],
+                  );
+          },
+        ),
       ),
     );
   }
@@ -283,7 +293,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withOpacity(0.001),
               spreadRadius: 10,
               blurRadius: 8,
               offset: const Offset(-2, 0),

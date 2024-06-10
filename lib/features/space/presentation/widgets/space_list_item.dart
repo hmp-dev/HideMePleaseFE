@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -46,13 +47,7 @@ class SpaceListItem extends StatelessWidget {
                                 radius: BorderRadius.circular(2),
                                 fit: BoxFit.cover,
                               )
-                            : CustomImageView(
-                                url: spaceEntity.image,
-                                width: 102,
-                                height: 136,
-                                radius: BorderRadius.circular(2),
-                                fit: BoxFit.cover,
-                              ),
+                            : getImageWidget(spaceEntity.image),
                         const SizedBox(width: 15),
                         SizedBox(
                           height: 136,
@@ -81,6 +76,7 @@ class SpaceListItem extends StatelessWidget {
                                 spaceEntity.name,
                                 style: fontTitle05Bold(),
                               ),
+
                               Text(
                                 spaceEntity.benefitDescription,
                                 overflow: TextOverflow.ellipsis,
@@ -131,5 +127,25 @@ class SpaceListItem extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget getImageWidget(String imagePath) {
+    return isSvg(imagePath)
+        ? SvgPicture.network(
+            imagePath,
+            height: 136, // Set appropriate height
+            width: 102,
+          )
+        : CustomImageView(
+            url: spaceEntity.image,
+            width: 102,
+            height: 136,
+            radius: BorderRadius.circular(2),
+            fit: BoxFit.cover,
+          );
+  }
+
+  bool isSvg(String url) {
+    return url.toLowerCase().endsWith('.svg');
   }
 }

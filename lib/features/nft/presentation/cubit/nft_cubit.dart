@@ -146,12 +146,18 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
-  Future<void> onGetSelectedNftTokens() async {
-    EasyLoading.show();
+  Future<void> onGetSelectedNftTokens({
+    bool isShowLoader = true,
+  }) async {
+    if (isShowLoader) {
+      EasyLoading.show();
+    }
 
     final response = await _nftRepository.getSelectNftCollections();
 
-    EasyLoading.dismiss();
+    if (EasyLoading.isShow) {
+      EasyLoading.dismiss();
+    }
 
     response.fold(
       (err) {
@@ -223,12 +229,16 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
-  Future<void> onGetWelcomeNft() async {
-    EasyLoading.show();
+  Future<void> onGetWelcomeNft({bool isShowLoader = true}) async {
+    if (isShowLoader) {
+      EasyLoading.show();
+    }
 
     final response = await _nftRepository.getWelcomeNft();
 
-    EasyLoading.dismiss();
+    if (EasyLoading.isShow) {
+      EasyLoading.dismiss();
+    }
 
     response.fold(
       (err) {
