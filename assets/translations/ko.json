@@ -14,7 +14,7 @@
     "linkedWallet":"연결된 지갑",
     "addWallet":"지갑 추가",
     "standard":"기준",
-    "All":"전체",
+    "all":"전체",
     "selecting":"선택중",
     "editMembershipList":"멤버십 리스트 편집",
     "cancel":"취소",
@@ -141,6 +141,7 @@
     "withdrawalCompleted":"탈퇴 신청이 완료되었습니다",
     "allowed":"허용된",
     "youHaveBenefited":"혜택을 받으셨습니다.",
-    "employeeConfirmation":"직원확인"
+    "employeeConfirmation":"직원확인",
+    "saveTitle":"저장하기"
 }
 

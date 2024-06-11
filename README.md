@@ -55,3 +55,9 @@ dart run flutter_native_splash:create --path=flutter_native_splash.yaml
 ```console
 adb shell setprop debug.firebase.analytics.app packagename
 ```
+
+## change theme for web3modal_flutter
+
+## packages/web3modal_flutter/lib/widgets/web3modal.dart
+
+##

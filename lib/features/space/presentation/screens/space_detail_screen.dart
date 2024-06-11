@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
+import 'package:mobile/app/core/helpers/map_utils.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -186,11 +187,16 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
                           mapType: MapType.normal,
                           myLocationEnabled: true,
                           myLocationButtonEnabled: true,
-                          zoomGesturesEnabled: true,
-                          scrollGesturesEnabled: true,
-                          tiltGesturesEnabled: true,
-                          rotateGesturesEnabled: true,
+                          zoomGesturesEnabled: false,
+                          scrollGesturesEnabled: false,
+                          tiltGesturesEnabled: false,
+                          rotateGesturesEnabled: false,
                           indoorViewEnabled: true,
+                          onTap: (argument) {
+                            MapUtils.navigateTo(
+                                state.spaceDetailEntity.latitude,
+                                state.spaceDetailEntity.longitude);
+                          },
                         ),
                       ),
                       const Padding(

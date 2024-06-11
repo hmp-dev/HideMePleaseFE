@@ -12,20 +12,26 @@ class TopUsedNftDto extends Equatable {
   final int? totalPoints;
   @JsonKey(name: "tokenAddress")
   final String? tokenAddress;
+  @JsonKey(name: "totalMembers")
+  final int? totalMembers;
   @JsonKey(name: "collectionLogo")
   final String? collectionLogo;
   @JsonKey(name: "name")
   final String? name;
   @JsonKey(name: "chain")
   final String? chain;
+  @JsonKey(name: "ownedCollection")
+  final bool? ownedCollection;
 
   const TopUsedNftDto({
     this.pointFluctuation,
     this.totalPoints,
     this.tokenAddress,
+    this.totalMembers,
     this.collectionLogo,
     this.name,
     this.chain,
+    this.ownedCollection,
   });
 
   factory TopUsedNftDto.fromJson(Map<String, dynamic> json) =>
@@ -39,9 +45,11 @@ class TopUsedNftDto extends Equatable {
       pointFluctuation,
       totalPoints,
       tokenAddress,
+      totalMembers,
       collectionLogo,
       name,
       chain,
+      ownedCollection,
     ];
   }
 
@@ -49,8 +57,10 @@ class TopUsedNftDto extends Equatable {
         pointFluctuation: pointFluctuation ?? 0,
         totalPoints: totalPoints ?? 0,
         tokenAddress: tokenAddress ?? '',
+        totalMembers: totalMembers ?? 0,
         collectionLogo: collectionLogo ?? '',
         name: name ?? '',
         chain: chain ?? '',
+        ownedCollection: ownedCollection ?? false,
       );
 }

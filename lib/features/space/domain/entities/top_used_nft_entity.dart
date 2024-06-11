@@ -4,17 +4,21 @@ class TopUsedNftEntity extends Equatable {
   final int pointFluctuation;
   final int totalPoints;
   final String tokenAddress;
+  final int totalMembers;
   final String collectionLogo;
   final String name;
   final String chain;
+  final bool ownedCollection;
 
   const TopUsedNftEntity({
     required this.pointFluctuation,
     required this.totalPoints,
     required this.tokenAddress,
+    required this.totalMembers,
     required this.collectionLogo,
     required this.name,
     required this.chain,
+    required this.ownedCollection,
   });
 
   @override
@@ -23,9 +27,11 @@ class TopUsedNftEntity extends Equatable {
       pointFluctuation,
       totalPoints,
       tokenAddress,
+      totalMembers,
       collectionLogo,
       name,
       chain,
+      ownedCollection
     ];
   }
 
@@ -36,26 +42,32 @@ class TopUsedNftEntity extends Equatable {
       : pointFluctuation = 0,
         totalPoints = 0,
         tokenAddress = '',
+        totalMembers = 0,
         collectionLogo = '',
         name = '',
-        chain = '';
+        chain = '',
+        ownedCollection = false;
 
   //create copy with new values
   TopUsedNftEntity copyWith({
     int? pointFluctuation,
     int? totalPoints,
     String? tokenAddress,
+    int? totalMembers,
     String? collectionLogo,
     String? name,
     String? chain,
+    bool? ownedCollection,
   }) {
     return TopUsedNftEntity(
       pointFluctuation: pointFluctuation ?? this.pointFluctuation,
       totalPoints: totalPoints ?? this.totalPoints,
       tokenAddress: tokenAddress ?? this.tokenAddress,
+      totalMembers: totalMembers ?? this.totalMembers,
       collectionLogo: collectionLogo ?? this.collectionLogo,
       name: name ?? this.name,
       chain: chain ?? this.chain,
+      ownedCollection: ownedCollection ?? this.ownedCollection,
     );
   }
 }

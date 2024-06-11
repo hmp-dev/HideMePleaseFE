@@ -156,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Text(
                 LocaleKeys.notificationSettings.tr(),
-                style: fontCompactSm(),
+                style: fontCompactMd(),
               ),
               const Spacer(),
               CustomToggle(
@@ -228,7 +228,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   LocaleKeys.locationInfoAgreement.tr(),
-                  style: fontCompactSm(),
+                  style: fontCompactMd(),
                 ),
                 const Spacer(),
                 state.isLocationEnabled

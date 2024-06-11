@@ -112,7 +112,7 @@ class _MembershipWithdrawalScreenState
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "${userProfile.nickName},\n${LocaleKeys.areYouSureYouWantToWithdraw.tr()}",
+                  "${userProfile.nickName}님,\n${LocaleKeys.areYouSureYouWantToWithdraw.tr()}",
                   textAlign: TextAlign.center,
                   style: fontCompactLgMedium(),
                 ),
@@ -139,17 +139,20 @@ class _MembershipWithdrawalScreenState
                       RoundedButtonWithBorder(
                         text: LocaleKeys.applyForWithdrawal.tr(),
                         onPressed: () {
-                          showWithdrawConfirmationAlertDialog(
-                            context: context,
-                            title: LocaleKeys.areYouSureYouWantToWithdraw.tr(),
-                            onConfirm: () {
-                              Navigator.pop(context);
-                              getIt<SettingsCubit>().onRequestDeleteUser();
-                            },
-                            onCancel: () {
-                              Navigator.pop(context);
-                            },
-                          );
+                          Navigator.pop(context);
+                          getIt<SettingsCubit>().onRequestDeleteUser();
+
+                          // showWithdrawConfirmationAlertDialog(
+                          //   context: context,
+                          //   title: LocaleKeys.areYouSureYouWantToWithdraw.tr(),
+                          //   onConfirm: () {
+                          //     Navigator.pop(context);
+                          //     getIt<SettingsCubit>().onRequestDeleteUser();
+                          //   },
+                          //   onCancel: () {
+                          //     Navigator.pop(context);
+                          //   },
+                          // );
                         },
                       )
                     ],
