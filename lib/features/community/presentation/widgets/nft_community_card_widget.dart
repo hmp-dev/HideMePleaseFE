@@ -8,12 +8,14 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 class NftCommunityCardWidget extends StatelessWidget {
   const NftCommunityCardWidget(
       {super.key,
+      required this.onTap,
       required this.title,
       required this.imagePath,
       required this.timeAgo,
       required this.rank,
       required this.people});
 
+  final VoidCallback onTap;
   final String title;
   final String imagePath;
   final String timeAgo;
@@ -26,72 +28,76 @@ class NftCommunityCardWidget extends StatelessWidget {
     return SizedBox(
       width: screenSize.width * 0.40,
       height: 250,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (imagePath.isEmpty)
-            CustomImageView(
-              width: 60,
-              height: 60,
-              fit: BoxFit.fitHeight,
-              svgPath: "assets/images/hmp_eyes_up.svg",
-            )
-          else
-            CustomImageView(
-              url: imagePath,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (imagePath.isEmpty)
+              CustomImageView(
+                width: 60,
+                height: 60,
+                fit: BoxFit.fitHeight,
+                svgPath: "assets/images/hmp_eyes_up.svg",
+              )
+            else
+              CustomImageView(
+                url: imagePath,
+                width: screenSize.width * 0.40,
+                height: 250,
+                fit: BoxFit.fitHeight,
+              ),
+            Container(
               width: screenSize.width * 0.40,
               height: 250,
-              fit: BoxFit.fitHeight,
-            ),
-          Container(
-            width: screenSize.width * 0.40,
-            height: 250,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: const Alignment(0.5, 0),
-                end: const Alignment(0.5, 1),
-                colors: [
-                  black900.withOpacity(0),
-                  black900.withOpacity(0.6),
-                ],
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: const Alignment(0.5, 0),
+                  end: const Alignment(0.5, 1),
+                  colors: [
+                    black900.withOpacity(0),
+                    black900.withOpacity(0.6),
+                  ],
+                ),
               ),
             ),
-          ),
-          SizedBox(
-            width: screenSize.width * 0.40,
-            height: 250,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: fontB(18, lineHeight: 1.4),
-                  ),
-                  RoundedButtonSmallWithOpacity(
-                      title: people, // "120명"
-                      onTap: () {}),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RectangleButtonSmall(title: rank, onTap: () {}),
-                      Text(
-                        timeAgo, // "3초 전",
-                        style: fontR(12, color: whiteWithOpacityOne),
-                      ),
-                    ],
-                  )
-                ],
+            SizedBox(
+              width: screenSize.width * 0.40,
+              height: 250,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: fontB(18, lineHeight: 1.4),
+                    ),
+                    RoundedButtonSmallWithOpacity(
+                        title: people, // "120명"
+                        onTap: () {}),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        RectangleButtonSmall(title: rank, onTap: () {}),
+                        Text(
+                          timeAgo, // "3초 전",
+                          style: fontR(12, color: whiteWithOpacityOne),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

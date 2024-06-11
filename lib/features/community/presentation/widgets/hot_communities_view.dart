@@ -7,9 +7,11 @@ import 'package:mobile/features/community/presentation/widgets/nft_community_car
 class HotCommunitiesView extends StatelessWidget {
   const HotCommunitiesView({
     super.key,
+    required this.onCommunityTap,
     required this.hotNftCommunities,
   });
 
+  final void Function(NftCommunityEntity) onCommunityTap;
   final List<NftCommunityEntity> hotNftCommunities;
 
   @override
@@ -45,6 +47,7 @@ class HotCommunitiesView extends StatelessWidget {
             separatorBuilder: (_, __) => const SizedBox(width: 20),
             itemBuilder: (context, index) {
               return NftCommunityCardWidget(
+                onTap: () => onCommunityTap(hotNftCommunities[index]),
                 title: hotNftCommunities[index].name,
                 imagePath: hotNftCommunities[index].collectionLogo,
                 people: hotNftCommunities[index].people,

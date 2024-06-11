@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/community/presentation/cubit/community_cubit.dart';
+import 'package:mobile/features/community/presentation/screens/community_details_screen.dart';
 import 'package:mobile/features/community/presentation/views/community_view.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 
@@ -32,6 +32,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
             builder: (context, homeState) {
               return CommunityView(
                 onRefresh: () => getIt<CommunityCubit>().onStart(),
+                onCommunityTap: (community) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const CommunityDetailsScreen()));
+                },
+                onEnterChat: (community) {},
                 onConnectWallet: () {},
                 onGetFreeNft: () {},
                 totalFreeNfts: '2,000',

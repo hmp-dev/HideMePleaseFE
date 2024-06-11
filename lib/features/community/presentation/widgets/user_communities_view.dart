@@ -8,11 +8,11 @@ import 'package:mobile/features/community/presentation/widgets/participated_comm
 class UserCommunitiesView extends StatelessWidget {
   const UserCommunitiesView({
     super.key,
-    required this.onTap,
+    required this.onEnterChat,
     required this.userNftCommunities,
   });
 
-  final VoidCallback onTap;
+  final void Function(NftCommunityEntity) onEnterChat;
   final List<NftCommunityEntity> userNftCommunities;
 
   @override
@@ -68,12 +68,12 @@ class UserCommunitiesView extends StatelessWidget {
                     ? MediaQuery.of(context).size.width - 40.0
                     : MediaQuery.of(context).size.width * 0.75,
                 child: ParticipatedCommunityNftView(
+                  onTap: () => onEnterChat(userNftCommunities[index]),
                   communityPeoples: userNftCommunities[index].people,
                   recentMsgs: recentDummyMsgs,
                   communityName: userNftCommunities[index].name,
                   networkLogo: userNftCommunities[index].collectionLogo,
                   unreadMsgCount: 99,
-                  onTap: onTap,
                 ),
               );
             },

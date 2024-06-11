@@ -8,6 +8,7 @@ class TopCollectionNftEntity extends Equatable {
   final String name;
   final String chain;
   final bool ownedCollection;
+  final int communityRank;
 
   const TopCollectionNftEntity({
     required this.pointFluctuation,
@@ -17,6 +18,7 @@ class TopCollectionNftEntity extends Equatable {
     required this.name,
     required this.chain,
     required this.ownedCollection,
+    required this.communityRank,
   });
 
   @override
@@ -29,6 +31,7 @@ class TopCollectionNftEntity extends Equatable {
       name,
       chain,
       ownedCollection,
+      communityRank,
     ];
   }
 
@@ -42,7 +45,8 @@ class TopCollectionNftEntity extends Equatable {
         collectionLogo = '',
         name = '',
         chain = '',
-        ownedCollection = false;
+        ownedCollection = false,
+        communityRank = 0;
 
   //create copy with new values
   TopCollectionNftEntity copyWith({
@@ -53,6 +57,7 @@ class TopCollectionNftEntity extends Equatable {
     String? name,
     String? chain,
     bool? ownedCollection,
+    int? communityRank,
   }) {
     return TopCollectionNftEntity(
       pointFluctuation: pointFluctuation ?? this.pointFluctuation,
@@ -62,6 +67,7 @@ class TopCollectionNftEntity extends Equatable {
       name: name ?? this.name,
       chain: chain ?? this.chain,
       ownedCollection: ownedCollection ?? this.ownedCollection,
+      communityRank: communityRank ?? this.communityRank,
     );
   }
 }
