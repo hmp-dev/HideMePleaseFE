@@ -30,7 +30,7 @@ class NftRemoteDataSource {
     };
 
     final response =
-        await _network.get("nft/collections/populated", queryParams);
+        await _network.get("user/collections/populated", queryParams);
     return NftCollectionsGroupDto.fromJson(
         response.data as Map<String, dynamic>);
   }
@@ -39,14 +39,14 @@ class NftRemoteDataSource {
     required SelectTokenToggleRequestDto selectTokenToggleRequestDto,
   }) async {
     final response = await _network.post(
-      "nft/token/select",
+      "user/nft/select",
       selectTokenToggleRequestDto.toJson(),
     );
     return response.statusCode == 201;
   }
 
   Future<List<SelectedNFTDto>> requestGetSelectTokens() async {
-    final response = await _network.get("nft/nfts/selected", {});
+    final response = await _network.get("user/collections/selected", {});
     return response.data
         .map<SelectedNFTDto>(
             (e) => SelectedNFTDto.fromJson(e as Map<String, dynamic>))
@@ -55,8 +55,8 @@ class NftRemoteDataSource {
 
   Future<bool> saveCollectionsSelectedOrder(
       SaveSelectedTokensReorderRequestDto saveOrderDto) async {
-    final response = await _network.post(
-        "nft/collections/selected/order", saveOrderDto.toJson());
+    final response =
+        await _network.post("user/nft/selected/order", saveOrderDto.toJson());
     return response.statusCode == 201;
   }
 
@@ -66,7 +66,7 @@ class NftRemoteDataSource {
   }
 
   Future<String> requestGetConsumeWelcomeNft(int welcomeNftId) async {
-    final response = await _network.get("nft/welcome/$welcomeNftId", {});
+    final response = await _network.post("nft/welcome/$welcomeNftId", {});
     return response.data;
   }
 
@@ -90,7 +90,7 @@ class NftRemoteDataSource {
   }
 
   Future<List<NftPointsDto>> requestGetNftPoints() async {
-    final response = await _network.get("nft/nfts/selected/points", {});
+    final response = await _network.get("user/collections/selected/points", {});
     return response.data
         .map<NftPointsDto>(
             (e) => NftPointsDto.fromJson(e as Map<String, dynamic>))
@@ -118,7 +118,7 @@ class NftRemoteDataSource {
     };
 
     final response = await _network.get(
-        "nft/collection/$tokenAddress/usage-history", queryParams);
+        "user/collection/$tokenAddress/usage-history", queryParams);
     return NftUsageHistoryDto.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -146,7 +146,7 @@ class NftRemoteDataSource {
 
   Future<List<NftCommunitytDto>> getUserNftCommunities() async {
     final response = await _network.get(
-      '/nft/collections/communities/me',
+      'user/collections/communities',
       {},
     );
     return (response.data as List)
@@ -172,10 +172,10 @@ class NftRemoteDataSource {
     return TopCollectionNftDto.fromJson(response.data);
   }
 
-  Future<List<TopCollectionNftDto>> getTopNftColletions(
+  Future<List<TopCollectionNftDto>> getTopNftCollections(
       {int? pageSize, int? page}) async {
     final response = await _network.get(
-      '/nft/collections/top',
+      'nft/collections',
       {
         if (pageSize != null) 'pageSize': pageSize.toString(),
         if (page != null) 'page': page.toString(),
