@@ -80,10 +80,7 @@ class NftCommunityCardWidget extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      RectangleButtonSmall(
-                          title: rank,
-                          // "12위",
-                          onTap: () {}),
+                      RectangleButtonSmall(title: rank, onTap: () {}),
                       Text(
                         timeAgo, // "3초 전",
                         style: fontR(12, color: whiteWithOpacityOne),
@@ -179,6 +176,7 @@ class RectangleButtonSmall extends StatelessWidget {
                       path: "assets/icons/ic_triangle_arrow_up.svg",
                       width: 12,
                       height: 12,
+                      color: pink,
                       boxFit: BoxFit.fitHeight,
                     ),
                   ),

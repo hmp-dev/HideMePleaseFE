@@ -11,6 +11,7 @@ import 'package:mobile/features/nft/domain/entities/nft_collection_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collections_group_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_network_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_points_entity.dart';
+import 'package:mobile/features/nft/domain/entities/nft_token_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_usage_history_entity.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
@@ -40,8 +41,8 @@ class NftCubit extends BaseCubit<NftState> {
     bool? isChainTypeFetchTapped,
     bool? isLoadingMore,
   }) async {
+    emit(state.copyWith(selectedChain: chain ?? ChainType.ALL.name));
     // if isChainTypeFetchTapped is true, then reset the nftCollectionsGroupEntity
-
     if (isChainTypeFetchTapped == true) {
       emit(
         state.copyWith(
@@ -114,14 +115,14 @@ class NftCubit extends BaseCubit<NftState> {
   }
 
   Future<void> onSelectDeselectNftToken({
-    required SelectTokenToggleRequestDto selectTokenToggleRequestDto,
+    required SelectTokenToggleRequestDto requestDto,
+    required NftTokenEntity selectedNft,
   }) async {
-    EasyLoading.show();
-
+    //  emit(
+    //       state.copyWith(
+    //         selectedNftTokensList: state.selectedNftTokensList..add(value),));
     final response = await _nftRepository.postNftSelectDeselectToken(
-        selectTokenToggleRequestDto: selectTokenToggleRequestDto);
-
-    EasyLoading.dismiss();
+        selectTokenToggleRequestDto: requestDto);
 
     response.fold(
       (err) {
@@ -149,15 +150,7 @@ class NftCubit extends BaseCubit<NftState> {
   Future<void> onGetSelectedNftTokens({
     bool isShowLoader = true,
   }) async {
-    if (isShowLoader) {
-      EasyLoading.show();
-    }
-
     final response = await _nftRepository.getSelectNftCollections();
-
-    if (EasyLoading.isShow) {
-      EasyLoading.dismiss();
-    }
 
     response.fold(
       (err) {
