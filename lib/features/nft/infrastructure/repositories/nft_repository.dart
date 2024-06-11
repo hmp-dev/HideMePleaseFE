@@ -357,7 +357,7 @@ class NftRepositoryImpl extends NftRepository {
   Future<Either<HMPError, List<TopCollectionNftDto>>> getTopNftColletions(
       {int? pageSize, int? page}) async {
     try {
-      final response = await _nftRemoteDataSource.getTopNftColletions(
+      final response = await _nftRemoteDataSource.getTopNftCollections(
         pageSize: pageSize,
         page: page,
       );
