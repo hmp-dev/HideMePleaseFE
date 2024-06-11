@@ -13,6 +13,7 @@ class TopCollectionNftDto extends Equatable {
   final String? name;
   final String? chain;
   final bool? ownedCollection;
+  final int? communityRank;
 
   const TopCollectionNftDto({
     this.pointFluctuation,
@@ -22,6 +23,7 @@ class TopCollectionNftDto extends Equatable {
     this.name,
     this.chain,
     this.ownedCollection,
+    this.communityRank,
   });
 
   factory TopCollectionNftDto.fromJson(Map<String, dynamic> json) =>
@@ -39,6 +41,7 @@ class TopCollectionNftDto extends Equatable {
       name,
       chain,
       ownedCollection,
+      communityRank,
     ];
   }
 
@@ -50,5 +53,6 @@ class TopCollectionNftDto extends Equatable {
         name: name ?? '',
         chain: chain ?? '',
         ownedCollection: ownedCollection ?? false,
+        communityRank: communityRank ?? 0,
       );
 }

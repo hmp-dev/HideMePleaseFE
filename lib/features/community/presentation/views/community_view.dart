@@ -14,6 +14,8 @@ import 'package:mobile/generated/locale_keys.g.dart';
 
 class CommunityView extends StatefulWidget {
   final Future<void> Function() onRefresh;
+  final void Function(NftCommunityEntity) onCommunityTap;
+  final void Function(NftCommunityEntity) onEnterChat;
   final VoidCallback onConnectWallet;
   final VoidCallback onGetFreeNft;
   final String totalFreeNfts;
@@ -31,6 +33,8 @@ class CommunityView extends StatefulWidget {
   const CommunityView({
     super.key,
     required this.onRefresh,
+    required this.onCommunityTap,
+    required this.onEnterChat,
     required this.onConnectWallet,
     required this.onGetFreeNft,
     required this.totalFreeNfts,
@@ -73,7 +77,7 @@ class _CommunityViewState extends State<CommunityView> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: UserCommunitiesView(
-                    onTap: () {},
+                    onEnterChat: widget.onEnterChat,
                     userNftCommunities: widget.userNftCommunities,
                   ),
                 ),
@@ -102,7 +106,9 @@ class _CommunityViewState extends State<CommunityView> {
             if (widget.hotNftCommunities.isNotEmpty)
               SliverToBoxAdapter(
                 child: HotCommunitiesView(
-                    hotNftCommunities: widget.hotNftCommunities),
+                  onCommunityTap: widget.onCommunityTap,
+                  hotNftCommunities: widget.hotNftCommunities,
+                ),
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
             SliverToBoxAdapter(
@@ -126,6 +132,8 @@ class _CommunityViewState extends State<CommunityView> {
                       ? const EdgeInsets.only(left: 20)
                       : const EdgeInsets.only(right: 20),
                   child: NftCommunityCardWidget(
+                    onTap: () =>
+                        widget.onCommunityTap(widget.allNftCommunities[index]),
                     title: widget.allNftCommunities[index].name,
                     imagePath: widget.allNftCommunities[index].collectionLogo,
                     people: widget.allNftCommunities[index].people,
