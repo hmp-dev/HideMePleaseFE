@@ -72,7 +72,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
       alignment: Alignment.bottomRight,
       children: [
         Scaffold(
-          backgroundColor: widget.backgroundColor ?? bg,
+          backgroundColor: widget.backgroundColor ?? scaffoldBg,
           bottomNavigationBar: widget.bottomNavigationBar,
           body: GestureDetector(
             onTap: () {
@@ -89,7 +89,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
                     height: widget.safeArea
                         ? MediaQuery.of(context).padding.top
                         : 0,
-                    color: widget.backgroundColor ?? bg,
+                    color: widget.backgroundColor ?? scaffoldBg,
                   ),
                   _appBar(),
                   Expanded(child: widget.body),
@@ -111,7 +111,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     if (enableBack || enableSuffix || enableTitle) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        color: widget.backgroundColor ?? bg,
+        color: widget.backgroundColor ?? scaffoldBg,
         height: APPBAR_HEIGHT,
         alignment: Alignment.center,
         child: Stack(

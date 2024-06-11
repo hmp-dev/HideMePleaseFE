@@ -92,7 +92,7 @@ class _DefaultDialogState extends State<DefaultDialog> {
           padding: const EdgeInsets.all(20),
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: bg,
+            color: scaffoldBg,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(

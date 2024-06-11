@@ -31,7 +31,7 @@ class HalfBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
-      ..color = Colors.black
+      ..color = scaffoldBg
       ..style = PaintingStyle.fill;
 
     final Paint borderPaint = Paint()

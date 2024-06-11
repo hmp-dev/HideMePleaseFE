@@ -7,13 +7,12 @@ import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
-import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
-import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
 class StartUpScreen extends StatefulWidget {
   const StartUpScreen({super.key});
@@ -24,16 +23,11 @@ class StartUpScreen extends StatefulWidget {
 
 class _StartUpScreenState extends State<StartUpScreen>
     with TickerProviderStateMixin {
-  late final AnimationController _controller;
-  bool _isFirstPlayCompleted = false;
-
   @override
   void initState() {
     getIt<AppCubit>().onStart();
     //getIt<ProfileCubit>().onStart();
     super.initState();
-
-    _controller = AnimationController(vsync: this);
   }
 
   // start UP Logic
@@ -42,12 +36,6 @@ class _StartUpScreenState extends State<StartUpScreen>
   //---->  If logged in get userConnected Wallets
   //----> If no wallet Connected -> goto Home with showing Connect a Wallet View
   //----> If Wallet Connected -> fetch list for selected Tokens and  go to home view with  showing view connected wallets and Tokens as slider
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,12 +83,6 @@ class _StartUpScreenState extends State<StartUpScreen>
           bloc: getIt<WalletsCubit>(),
           listener: (context, walletsState) async {
             if (walletsState.isSubmitSuccess) {
-              if (!_isFirstPlayCompleted) {
-                await Future.delayed(const Duration(seconds: 2));
-              }
-
-              _controller.stop();
-
               //on fetching Tokens navigate to Home
               ("++++++++++++++++++++++++++++++Profile: ${walletsState.connectedWallets}")
                   .log();
@@ -119,11 +101,6 @@ class _StartUpScreenState extends State<StartUpScreen>
                   arguments: {'isWalletSavedIntoProfile': false},
                 );
               } else {
-                if (!_isFirstPlayCompleted) {
-                  await Future.delayed(const Duration(seconds: 2));
-                }
-                _controller.stop();
-
                 // If a wallet is Connected
                 // Update Home View to Show with Wallet Connected
                 // and then Navigate to Home View
@@ -141,20 +118,9 @@ class _StartUpScreenState extends State<StartUpScreen>
         ),
       ],
       child: BaseScaffold(
-        backgroundColor: black,
-        body: Center(
+        body: Container(
           child: Lottie.asset(
-            "assets/lottie/splash.json",
-            controller: _controller,
-            onLoaded: (composition) {
-              "composition.duration: ${composition.duration.inMilliseconds}"
-                  .log();
-              _controller
-                ..duration = composition.duration
-                ..forward().whenComplete(() => setState(() {
-                      _isFirstPlayCompleted = true;
-                    }));
-            },
+            'assets/lottie/loader.json',
           ),
         ),
       ),

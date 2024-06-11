@@ -39,7 +39,7 @@ class _MyAppState extends State<MyApp> {
         locale: context.locale,
         title: '하이드미플리즈', //Hyde Me Please
         theme: theme(),
-        initialRoute: Routes.startUpScreen,
+        initialRoute: Routes.splashScreen,
         onGenerateRoute: generateRoute,
         navigatorObservers: const [
           //FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),

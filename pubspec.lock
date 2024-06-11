@@ -2389,10 +2389,9 @@ packages:
   web3modal_flutter:
     dependency: "direct main"
     description:
-      name: web3modal_flutter
-      sha256: "3a4b742a55087dfd3ea71462509235af18855cb9d74f17f77870955ec6d9bec2"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/web3modal_flutter"
+      relative: true
+    source: path
     version: "3.2.0"
   web_socket_channel:
     dependency: transitive

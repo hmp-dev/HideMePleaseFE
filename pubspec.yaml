@@ -68,7 +68,8 @@ dependencies:
   timeago: ^3.6.1
   upgrader: ^10.3.0
   url_launcher: ^6.2.5
-  web3modal_flutter: ^3.2.0
+  web3modal_flutter:
+    path: ./packages/web3modal_flutter
 
 dev_dependencies:
   build_runner: ^2.4.9

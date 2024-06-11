@@ -68,7 +68,7 @@ class SpaceRemoteDataSource {
   }
 
   Future<List<TopUsedNftDto>> requestGetTopUsedNfts() async {
-    final response = await _network.get("nft/collections/top", {});
+    final response = await _network.get("nft/collections", {});
     return response.data
         .map<TopUsedNftDto>(
             (e) => TopUsedNftDto.fromJson(e as Map<String, dynamic>))
