@@ -10,10 +10,12 @@ class CommunityCubit extends BaseCubit<CommunityState> {
   final NftRepository _nftRepository;
   CommunityCubit(this._nftRepository) : super(CommunityState.initial());
 
-  void onStart() {
-    onGetAllNftCommunities();
-    onGetHotNftCommunities();
-    onGetUserNftCommunities();
+  Future<void> onStart() {
+    return Future.wait([
+      onGetAllNftCommunities(),
+      onGetHotNftCommunities(),
+      onGetUserNftCommunities(),
+    ]);
   }
 
   Future<void> onGetAllNftCommunities() async {
@@ -33,21 +35,23 @@ class CommunityCubit extends BaseCubit<CommunityState> {
   }
 
   Future<void> onGetHotNftCommunities() async {
-    final allNftCommsRes = await _nftRepository.getHotNftCommunities();
-    allNftCommsRes.fold(
-      (l) => emit(state.copyWith(status: RequestStatus.failure)),
+    final hotNftCommsRes = await _nftRepository.getHotNftCommunities();
+    hotNftCommsRes.fold(
+      (_) {},
       (data) => emit(state.copyWith(
-        hotNftCommunities: data.map((e) => e.toEntity()).toList(),
+        hotNftCommunities:
+            state.allNftCommunities, // data.map((e) => e.toEntity()).toList(),
       )),
     );
   }
 
   Future<void> onGetUserNftCommunities() async {
-    final allNftCommsRes = await _nftRepository.getUserNftCommunities();
-    allNftCommsRes.fold(
-      (l) => emit(state.copyWith(status: RequestStatus.failure)),
+    final userNftCommsRes = await _nftRepository.getUserNftCommunities();
+    userNftCommsRes.fold(
+      (_) {},
       (data) => emit(state.copyWith(
-        hotNftCommunities: data.map((e) => e.toEntity()).toList(),
+        userNftCommunities:
+            state.allNftCommunities, // data.map((e) => e.toEntity()).toList(),
       )),
     );
   }
