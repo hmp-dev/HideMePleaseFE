@@ -58,7 +58,7 @@ class SpaceRemoteDataSource {
         await _network.post("space/benefits/redeem/$benefitId", queryParams);
 
     "response is: ${response.statusCode}".log();
-    "response is: ${response.data}".log();
+    "response is: ${response.data['code']}".log();
 
     if (response.statusCode == 204) {
       return true;

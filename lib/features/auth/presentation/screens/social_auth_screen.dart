@@ -142,16 +142,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         if (isAgreeWithTerms) {
                           getIt<AuthCubit>().onGoogleLogin();
                         } else {
-                          showHmpAlertDialog(
-                            context: context,
-                            title: LocaleKeys
-                                .requiresAgreementToTermsAndConditions
-                                .tr(),
-                            content: LocaleKeys.agreeTermDialogMessage.tr(),
-                            onConfirm: () {
-                              Navigator.pop(context);
-                            },
-                          );
+                          showAgreeTermsDialogue(context);
                         }
                       },
                     ),
@@ -164,16 +155,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                             if (isAgreeWithTerms) {
                               getIt<AuthCubit>().onAppleLogin();
                             } else {
-                              showHmpAlertDialog(
-                                context: context,
-                                title: LocaleKeys
-                                    .requiresAgreementToTermsAndConditions
-                                    .tr(),
-                                content: LocaleKeys.agreeTermDialogMessage.tr(),
-                                onConfirm: () {
-                                  Navigator.pop(context);
-                                },
-                              );
+                              showAgreeTermsDialogue(context);
                             }
                           },
                         ),
@@ -214,6 +196,17 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void showAgreeTermsDialogue(BuildContext context) {
+    showHmpAlertDialog(
+      context: context,
+      title: LocaleKeys.requiresAgreementToTermsAndConditions.tr(),
+      content: LocaleKeys.agreeTermDialogMessage.tr(),
+      onConfirm: () {
+        Navigator.pop(context);
+      },
     );
   }
 }

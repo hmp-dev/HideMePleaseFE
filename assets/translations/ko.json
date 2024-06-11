@@ -139,6 +139,8 @@
     "areYouSureYouWantToWithdraw":"정말 탈퇴하시겠어요?",
     "withdrawalMessage":"지금까지 이용한 혜택 및\n획득한 포인트 정보가 삭제됩니다",
     "withdrawalCompleted":"탈퇴 신청이 완료되었습니다",
-    "allowed":"허용된"
+    "allowed":"허용된",
+    "youHaveBenefited":"혜택을 받으셨습니다.",
+    "employeeConfirmation":"직원확인"
 }
 

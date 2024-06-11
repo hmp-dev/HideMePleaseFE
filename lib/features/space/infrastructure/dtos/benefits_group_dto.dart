@@ -31,3 +31,5 @@ class BenefitsGroupDto extends Equatable {
         next: next ?? '',
       );
 }
+
+
