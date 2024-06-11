@@ -85,7 +85,7 @@ const blue = Color(0xFF1877F4);
 const purple = Color(0xFF5200FF);
 const black = Color(0xFF000000);
 
-const bg = Color(0xff0E0D0D);
+const scaffoldBg = Color(0xFF0C0C0E);
 const white = Color(0xFFFFFFFF);
 const extraLightGray = Color(0xFFE4E3E3);
 const lightGray = Color(0xFFF4F4F4);

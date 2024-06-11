@@ -22,6 +22,7 @@ class DefaultField extends StatefulWidget {
   final double borderRadius;
   final TextEditingController? controller;
   final VoidCallback? onEditingComplete;
+  final Function(bool isFocused) onFocus;
 
   const DefaultField({
     super.key,
@@ -43,6 +44,7 @@ class DefaultField extends StatefulWidget {
     this.borderRadius = 4,
     this.controller,
     this.onEditingComplete,
+    required this.onFocus,
   });
 
   @override
@@ -51,6 +53,7 @@ class DefaultField extends StatefulWidget {
 
 class _DefaultFieldState extends State<DefaultField> {
   late TextEditingController _controller;
+  
   late FocusNode focusNode;
 
   @override
@@ -70,6 +73,7 @@ class _DefaultFieldState extends State<DefaultField> {
   void _onFocusChange() {
     onFocus = focusNode.hasFocus;
     setState(() {});
+    widget.onFocus(focusNode.hasFocus);
   }
 
   @override

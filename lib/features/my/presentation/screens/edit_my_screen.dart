@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -40,6 +41,7 @@ class MyEditScreen extends StatefulWidget {
 }
 
 class _MyEditScreenState extends State<MyEditScreen> {
+  late ScrollController _scrollController;
   String nickName = "";
   String introduction = "";
   bool _isShowToolTip = false;
@@ -48,6 +50,7 @@ class _MyEditScreenState extends State<MyEditScreen> {
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     setIsLocationPublic();
   }
 
@@ -82,139 +85,146 @@ class _MyEditScreenState extends State<MyEditScreen> {
             builder: (context, state) {
               final userProfile = state.userProfileEntity;
               return SingleChildScrollView(
+                controller: _scrollController,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height - 170,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildProfileImageWidget(context, userProfile),
-                            const SizedBox(height: 32),
-                            buildInputLabelText(LocaleKeys.nickName.tr()),
-                            const SizedBox(height: 8),
-                            DefaultField(
-                              initialValue: userProfile.nickName,
-                              hintText: LocaleKeys.nickName.tr(),
-                              isBorderType: true,
-                              onChange: (text) {
-                                setState(() {
-                                  nickName = text;
-                                });
-                              },
-                              onEditingComplete: () {
-                                // unfocus and close the Soft Key Board
-                                FocusScope.of(context)
-                                    .requestFocus(FocusNode());
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            buildInputLabelText(LocaleKeys.introduction.tr()),
-                            const SizedBox(height: 8),
-                            DefaultField(
-                              initialValue: userProfile.introduction,
-                              hintText: LocaleKeys.introduction.tr(),
-                              isBorderType: true,
-                              onChange: (text) {
-                                setState(() {
-                                  introduction = text;
-                                });
-                              },
-                              onEditingComplete: () {
-                                // unfocus and close the Soft Key Board
-                                FocusScope.of(context)
-                                    .requestFocus(FocusNode());
-                              },
-                            ),
-                            const VerticalSpace(16),
-                            Stack(
-                              children: [
-                                Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              LocaleKeys.visitStatusDisclosure
-                                                  .tr(),
-                                              style: fontCompactMd(),
-                                            ),
-                                            const HorizontalSpace(5),
-                                            GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  _isShowToolTip =
-                                                      !_isShowToolTip;
-                                                });
-                                              },
-                                              child: DefaultImage(
-                                                path:
-                                                    "assets/icons/ic_Info_bold.svg",
-                                                width: 20,
-                                                height: 20,
-                                                color: white,
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            isLocationPublic
-                                                ? Text(
-                                                    LocaleKeys.iWillRevealIt
-                                                        .tr(),
-                                                    style: fontCompactSm(),
-                                                  )
-                                                : Text(
-                                                    LocaleKeys.iWillHideIt.tr(),
-                                                    style: fontCompactSm(),
-                                                  ),
-                                            const HorizontalSpace(5),
-                                            CustomToggle(
-                                              initialValue: isLocationPublic,
-                                              onTap: (bool value) {
-                                                setState(() {
-                                                  isLocationPublic = value;
-                                                });
-                                              },
-                                              toggleColor: Colors.black,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    buildDividerEditMembershipLink(context),
-                                    const VerticalSpace(25),
-                                  ],
-                                ),
-                                if (_isShowToolTip)
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: InfoTextToolTipWidget(
-                                      title:
-                                          LocaleKeys.locationAgreeInfoText.tr(),
-                                      onTap: () {
-                                        setState(() {
-                                          _isShowToolTip = false;
-                                        });
-                                      },
-                                    ),
-                                  )
-                              ],
-                            ),
-                          ],
-                        ),
+                      _buildProfileImageWidget(context, userProfile),
+                      const SizedBox(height: 32),
+                      buildInputLabelText(LocaleKeys.nickName.tr()),
+                      const SizedBox(height: 8),
+                      DefaultField(
+                        onFocus: (isFocused) {
+                          "isFocused: value is $isFocused".log();
+
+                          if (isFocused) {
+                            _scrollController.animateTo(
+                              _scrollController.position.minScrollExtent,
+                              duration: const Duration(milliseconds: 100),
+                              curve: Curves.easeIn,
+                            );
+                          }
+                        },
+                        initialValue: userProfile.nickName,
+                        hintText: LocaleKeys.pleaseEnterYourName.tr(),
+                        isBorderType: true,
+                        onChange: (text) {
+                          setState(() {
+                            nickName = text;
+                          });
+                        },
+                        onEditingComplete: () {
+                          // unfocus and close the Soft Key Board
+                          FocusScope.of(context).requestFocus(FocusNode());
+                        },
                       ),
+                      const SizedBox(height: 16),
+                      buildInputLabelText(LocaleKeys.introduction.tr()),
+                      const SizedBox(height: 8),
+                      DefaultField(
+                        onFocus: (isFocused) {
+                          "isFocused: value is $isFocused".log();
+                          if (isFocused) {
+                            _scrollController.animateTo(
+                              _scrollController.position.minScrollExtent,
+                              duration: const Duration(milliseconds: 100),
+                              curve: Curves.easeIn,
+                            );
+                          }
+                        },
+                        initialValue: userProfile.introduction,
+                        hintText: LocaleKeys.enterYourIntroduction.tr(),
+                        isBorderType: true,
+                        onChange: (text) {
+                          setState(() {
+                            introduction = text;
+                          });
+                        },
+                        onEditingComplete: () {
+                          // unfocus and close the Soft Key Board
+                          FocusScope.of(context).requestFocus(FocusNode());
+                        },
+                      ),
+                      const VerticalSpace(25),
+                      Stack(
+                        children: [
+                          Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        LocaleKeys.visitStatusDisclosure.tr(),
+                                        style: fontCompactMd(),
+                                      ),
+                                      const HorizontalSpace(5),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _isShowToolTip = !_isShowToolTip;
+                                          });
+                                        },
+                                        child: DefaultImage(
+                                          path: "assets/icons/ic_Info_bold.svg",
+                                          width: 20,
+                                          height: 20,
+                                          color: white,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      isLocationPublic
+                                          ? Text(
+                                              LocaleKeys.iWillRevealIt.tr(),
+                                              style: fontCompactSm(),
+                                            )
+                                          : Text(
+                                              LocaleKeys.iWillHideIt.tr(),
+                                              style: fontCompactSm(),
+                                            ),
+                                      const HorizontalSpace(5),
+                                      CustomToggle(
+                                        initialValue: isLocationPublic,
+                                        onTap: (bool value) {
+                                          setState(() {
+                                            isLocationPublic = value;
+                                          });
+                                        },
+                                        toggleColor: Colors.black,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              buildDividerEditMembershipLink(context),
+                              const VerticalSpace(25),
+                            ],
+                          ),
+                          if (_isShowToolTip)
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: InfoTextToolTipWidget(
+                                title: LocaleKeys.locationAgreeInfoText.tr(),
+                                onTap: () {
+                                  setState(() {
+                                    _isShowToolTip = false;
+                                  });
+                                },
+                              ),
+                            )
+                        ],
+                      ),
+                      const SizedBox(height: 50),
                       HMPCustomButton(
-                        text: LocaleKeys.save.tr(),
+                        text: LocaleKeys.saveTitle.tr(),
                         onPressed: () {
                           getIt<ProfileCubit>().onUpdateUserProfile(
                             UpdateProfileRequestDto(
@@ -307,8 +317,8 @@ class _MyEditScreenState extends State<MyEditScreen> {
                   ? CustomImageView(
                       url: userProfile.pfpImageUrl,
                       fit: BoxFit.fill,
-                      width: 80,
-                      height: 80,
+                      width: 88,
+                      height: 88,
                     )
                   : DefaultImage(
                       path: "assets/images/profile_img.png",

@@ -20,6 +20,16 @@ import 'package:mobile/features/space/presentation/views/confirm_page.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:page_transition/page_transition.dart';
 
+class CalculatorStyles {
+  static const double headerPadding = 50;
+  static const double innerPadding = 5;
+  static const Color titleColor = Colors.white;
+  static const Color subColor = Color.fromRGBO(225, 225, 225, 1);
+  static const Color descriptionColor = Color.fromRGBO(160, 160, 160, 1);
+  static const Color foregroundColor = Color.fromRGBO(16, 16, 16, 1);
+  static const Color foregroundColor2 = Color.fromRGBO(32, 32, 32, 1);
+}
+
 class RedeemBenefitScreen extends StatefulWidget {
   const RedeemBenefitScreen({
     super.key,
@@ -119,11 +129,10 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                             carouselController: _carouselController,
                             options: CarouselOptions(
                               height: 436,
-                              viewportFraction: 0.72,
+                              viewportFraction: 0.9,
                               aspectRatio: 16 / 9,
                               enableInfiniteScroll: false,
                               enlargeCenterPage: false,
-                              enlargeFactor: 0.12,
                               autoPlayInterval: const Duration(seconds: 3),
                               onPageChanged: (int index, _) {
                                 setState(() {
@@ -151,6 +160,34 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   length: state.nftBenefitList.length,
                   selectedIndex: selectedPageIndex,
                 ),
+                // Padding(
+                //   padding:
+                //       const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                //   child: TouchRipple(
+                //     onTap: () {},
+                //     rippleColor: hmpBlue,
+                //     longTapBehavior: const TouchRippleBehavior(
+                //         spreadDuration: Duration(milliseconds: 2500),
+                //         spreadCurve: Curves.easeInOutCubic),
+                //     borderRadius: BorderRadius.circular(10),
+                //     behavior: const TouchRippleBehavior(
+                //       fadeInDuration: Duration(milliseconds: 250),
+                //     ),
+                //     child: Container(
+                //       height: 54,
+                //       width: double.infinity,
+                //       decoration: BoxDecoration(
+                //           color: backgroundGr1,
+                //           borderRadius: BorderRadius.circular(4)),
+                //       child: Center(
+                //         child: Text(
+                //           LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
+                //           style: fontCompactMd(),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 Padding(
                   padding: const EdgeInsets.only(
                       left: 20.0, right: 20, top: 50, bottom: 20),
@@ -167,7 +204,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                       }
 
                       if (spaceState.isSuccess) {
-                        onBenefitRedeemSuccess(state);
+                        //onBenefitRedeemSuccess(state);
                       }
                     },
                     builder: (context, spaceState) {

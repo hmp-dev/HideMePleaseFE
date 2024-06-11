@@ -107,11 +107,11 @@ class _HomeViewAfterWalletConnectedState
                             carouselController: _carouselController,
                             options: CarouselOptions(
                               height: 486,
-                              viewportFraction: 0.8,
+                              viewportFraction: 0.85,
                               aspectRatio: 16 / 9,
                               enableInfiniteScroll: false,
                               enlargeCenterPage: true,
-                              enlargeFactor: 0.12,
+                              enlargeFactor: 0.15,
                               autoPlayInterval: const Duration(seconds: 3),
                               onPageChanged: (int index,
                                   CarouselPageChangedReason reason) {
