@@ -49,7 +49,7 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
                   ),
                   const HorizontalSpace(8),
                   Text(
-                    '${state.benefitsGroupEntity.benefits.length}',
+                    "${state.benefitsGroupEntity.benefitCount}",
                     style: fontTitle07(color: fore2),
                   )
                 ],
@@ -57,6 +57,7 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
               const VerticalSpace(20),
               ListView.builder(
                 shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: state.benefitsGroupEntity.benefits.length,
                 itemBuilder: (context, index) {
                   return HomeBenefitItemWidget(

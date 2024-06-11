@@ -10,11 +10,14 @@ part 'benefits_group_dto.g.dart';
 class BenefitsGroupDto extends Equatable {
   @JsonKey(name: "benefits")
   final List<BenefitDto>? benefits;
+  @JsonKey(name: "benefitCount")
+  final int? benefitCount;
   @JsonKey(name: "next")
   final String? next;
 
   const BenefitsGroupDto({
     this.benefits,
+    this.benefitCount,
     this.next,
   });
 
@@ -24,12 +27,11 @@ class BenefitsGroupDto extends Equatable {
   Map<String, dynamic> toJson() => _$BenefitsGroupDtoToJson(this);
 
   @override
-  List<Object?> get props => [benefits, next];
+  List<Object?> get props => [benefits, benefitCount, next];
 
   BenefitsGroupEntity toEntity() => BenefitsGroupEntity(
         benefits: benefits?.map((e) => e.toEntity()).toList() ?? [],
+        benefitCount: benefitCount ?? 0,
         next: next ?? '',
       );
 }
-
-

@@ -11,11 +11,13 @@ BenefitsGroupDto _$BenefitsGroupDtoFromJson(Map<String, dynamic> json) =>
       benefits: (json['benefits'] as List<dynamic>?)
           ?.map((e) => BenefitDto.fromJson(e as Map<String, dynamic>))
           .toList(),
+      benefitCount: json['benefitCount'] as int?,
       next: json['next'] as String?,
     );
 
 Map<String, dynamic> _$BenefitsGroupDtoToJson(BenefitsGroupDto instance) =>
     <String, dynamic>{
       'benefits': instance.benefits,
+      'benefitCount': instance.benefitCount,
       'next': instance.next,
     };
