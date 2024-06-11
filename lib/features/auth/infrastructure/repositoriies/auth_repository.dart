@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
@@ -109,6 +110,15 @@ class AuthRepositoryImpl implements AuthRepository {
       final errorMsg = LogInWithGoogleFailure.fromCode(e.code);
 
       ("errorMsg: $errorMsg").log();
+
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        e.stackTrace,
+        information: [
+          'errorMsg: $errorMsg',
+        ],
+      );
+
       return left(
         HMPError.fromNetwork(
           message: errorMsg.message,

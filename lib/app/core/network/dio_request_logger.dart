@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 
 enum Level {
@@ -101,17 +102,17 @@ class DioRequestLogger extends Interceptor {
       Log.info(buffer.toString());
     }
 
-    // FirebaseCrashlytics.instance.recordError(
-    //   err,
-    //   err.stackTrace,
-    //   information: [
-    //     'METHOD: ${request.method}',
-    //     'URI: ${request.uri}',
-    //     'STATUS: ${err.response?.statusCode}',
-    //     'HEADERS: ${stringifyHeaders(request.headers)}',
-    //     'DATA: ${request.data}',
-    //   ],
-    // );
+    FirebaseCrashlytics.instance.recordError(
+      err,
+      err.stackTrace,
+      information: [
+        'METHOD: ${request.method}',
+        'URI: ${request.uri}',
+        'STATUS: ${err.response?.statusCode}',
+        'HEADERS: ${stringifyHeaders(request.headers)}',
+        'DATA: ${request.data}',
+      ],
+    );
 
     return handler.next(err);
   }

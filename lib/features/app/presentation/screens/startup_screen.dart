@@ -2,10 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
+import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
@@ -20,14 +22,18 @@ class StartUpScreen extends StatefulWidget {
   State<StartUpScreen> createState() => _StartUpScreenState();
 }
 
-class _StartUpScreenState extends State<StartUpScreen> {
+class _StartUpScreenState extends State<StartUpScreen>
+    with TickerProviderStateMixin {
+  late final AnimationController _controller;
+  bool _isFirstPlayCompleted = false;
+
   @override
   void initState() {
     getIt<AppCubit>().onStart();
     //getIt<ProfileCubit>().onStart();
     super.initState();
 
-    // _navigateToNextScreen();
+    _controller = AnimationController(vsync: this);
   }
 
   // start UP Logic
@@ -38,13 +44,21 @@ class _StartUpScreenState extends State<StartUpScreen> {
   //----> If Wallet Connected -> fetch list for selected Tokens and  go to home view with  showing view connected wallets and Tokens as slider
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
         BlocListener<AppCubit, AppState>(
           bloc: getIt<AppCubit>(),
-          listener: (context, state) {
+          listener: (context, state) async {
             if (!state.isLoggedIn) {
+              // wait to complete the SPlash Animation
+              await Future.delayed(const Duration(milliseconds: 3800));
               // User is not logged in navigate to Social Login View
               Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -63,9 +77,9 @@ class _StartUpScreenState extends State<StartUpScreen> {
               // c - fetch user connected Wallets
               getIt<WalletsCubit>().onGetAllWallets();
               // d - fetch user selected NFT Tokens
-              getIt<NftCubit>().onGetSelectedNftTokens();
+              getIt<NftCubit>().onGetSelectedNftTokens(isShowLoader: false);
               // e-
-              getIt<NftCubit>().onGetWelcomeNft();
+              getIt<NftCubit>().onGetWelcomeNft(isShowLoader: false);
             }
           },
         ),
@@ -79,8 +93,14 @@ class _StartUpScreenState extends State<StartUpScreen> {
         ),
         BlocListener<WalletsCubit, WalletsState>(
           bloc: getIt<WalletsCubit>(),
-          listener: (context, walletsState) {
+          listener: (context, walletsState) async {
             if (walletsState.isSubmitSuccess) {
+              if (!_isFirstPlayCompleted) {
+                await Future.delayed(const Duration(seconds: 2));
+              }
+
+              _controller.stop();
+
               //on fetching Tokens navigate to Home
               ("++++++++++++++++++++++++++++++Profile: ${walletsState.connectedWallets}")
                   .log();
@@ -99,6 +119,11 @@ class _StartUpScreenState extends State<StartUpScreen> {
                   arguments: {'isWalletSavedIntoProfile': false},
                 );
               } else {
+                if (!_isFirstPlayCompleted) {
+                  await Future.delayed(const Duration(seconds: 2));
+                }
+                _controller.stop();
+
                 // If a wallet is Connected
                 // Update Home View to Show with Wallet Connected
                 // and then Navigate to Home View
@@ -115,10 +140,21 @@ class _StartUpScreenState extends State<StartUpScreen> {
           },
         ),
       ],
-      child: const BaseScaffold(
+      child: BaseScaffold(
+        backgroundColor: black,
         body: Center(
-          child: CircularProgressIndicator(
-            color: Colors.black,
+          child: Lottie.asset(
+            "assets/lottie/splash.json",
+            controller: _controller,
+            onLoaded: (composition) {
+              "composition.duration: ${composition.duration.inMilliseconds}"
+                  .log();
+              _controller
+                ..duration = composition.duration
+                ..forward().whenComplete(() => setState(() {
+                      _isFirstPlayCompleted = true;
+                    }));
+            },
           ),
         ),
       ),

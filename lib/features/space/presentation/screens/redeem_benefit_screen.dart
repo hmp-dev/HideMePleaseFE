@@ -1,20 +1,24 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/helpers/animated_swipe/swipeable_button_view.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/page_dot_indicator.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_card_widget_parent.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/views/confirm_page.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:page_transition/page_transition.dart';
 
 class RedeemBenefitScreen extends StatefulWidget {
   const RedeemBenefitScreen({
@@ -47,6 +51,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
 
   String selectedBenefitId = "";
   int selectedPageIndex = 0;
+
+  bool isFinished = false;
 
   @override
   void initState() {
@@ -148,33 +154,87 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                 Padding(
                   padding: const EdgeInsets.only(
                       left: 20.0, right: 20, top: 50, bottom: 20),
-                  child: HMPCustomButton(
-                    text: LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
-                    onPressed: () {
-                      final iDOfFirstBenefit =
-                          getIt<NftCubit>().state.nftBenefitList[0].id;
-                      final locationState = getIt<EnableLocationCubit>().state;
-                      // call the benefit redeem api here
-                      if (locationState.latitude != 0.0 ||
-                          locationState.longitude != 0.0) {
-                        getIt<SpaceCubit>().onPostRedeemBenefit(
-                          benefitId: (selectedBenefitId == "")
-                              ? iDOfFirstBenefit
-                              : selectedBenefitId,
-                          tokenAddress: widget.selectedNftTokenAddress,
-                          spaceId: widget.nearBySpaceEntity.id,
-                          latitude: 2.0, //locationState.latitude,
-                          longitude: 2.0, //locationState.longitude,
-                        );
+                  child: BlocConsumer<SpaceCubit, SpaceState>(
+                    bloc: getIt<SpaceCubit>(),
+                    listener: (context, spaceState) async {
+                      if (spaceState.isFailure) {
+                        // Show Error Snackbar If Error in Redeeming Benefit
+                        // context.showErrorSnackBar(spaceState.errorMessage);
+                        // await Future.delayed(const Duration(seconds: 2));
+                        // setState(() => isFinished = true);
+
+                        onBenefitRedeemSuccess(state);
+                      }
+
+                      if (spaceState.isSuccess) {
+                        onBenefitRedeemSuccess(state);
                       }
                     },
+                    builder: (context, spaceState) {
+                      return SwipeableButtonView(
+                        onFinish: () {},
+                        onWaitingProcessError: () async {},
+                        onWaitingProcessSuccess: () async {},
+                        activeColor: backgroundGr1,
+                        buttonTextStyle: fontCompactMd(),
+                        buttonWidget: const SizedBox.shrink(),
+                        buttonText: LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
+                        isFinished: isFinished,
+                        onPressed: () {
+                          setState(() => isFinished = false);
+                          final selectedBenefitId =
+                              state.nftBenefitList[selectedPageIndex].id;
+                          final locationState =
+                              getIt<EnableLocationCubit>().state;
+                          // call the benefit redeem api here
+                          if (locationState.latitude != 0.0 ||
+                              locationState.longitude != 0.0) {
+                            getIt<SpaceCubit>().onPostRedeemBenefit(
+                              benefitId: selectedBenefitId,
+                              tokenAddress: widget.selectedNftTokenAddress,
+                              spaceId: widget.nearBySpaceEntity.id,
+                              latitude: 2.0, //locationState.latitude,
+                              longitude: 2.0, //locationState.longitude,
+                            );
+                          }
+                        },
+                      );
+                    },
                   ),
-                )
+                ),
               ],
             )),
           ),
         );
       },
     );
+  }
+
+  onBenefitRedeemSuccess(NftState state) async {
+    //=====
+    final result = await Navigator.push(
+      context,
+      PageTransition(
+        type: PageTransitionType.fade,
+        child: const BenefitRedeemConfirmationTickAnimationPage(),
+      ),
+    );
+
+    setState(() => isFinished = true);
+
+    // Handle the result
+    if (result != null) {
+      // refetch all benefits
+      fetchBenefits();
+
+      showBenefitRedeemSuccessAlertDialog(
+        context: context,
+        title:
+            "@${state.nftBenefitList[selectedPageIndex].spaceName}\n${LocaleKeys.youHaveBenefited.tr()}",
+        onConfirm: () {
+          Navigator.pop(context);
+        },
+      );
+    }
   }
 }

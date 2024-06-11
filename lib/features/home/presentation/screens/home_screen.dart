@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // initialize the w3mService
     getIt<WalletsCubit>().initW3MService();
     // Ask for device location
-    //getIt<EnableLocationCubit>().onAskDeviceLocation();
+    getIt<EnableLocationCubit>().onAskDeviceLocation();
   }
 
   void _scrollListener() {
