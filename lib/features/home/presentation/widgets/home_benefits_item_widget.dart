@@ -7,9 +7,14 @@ import 'package:mobile/features/home/presentation/widgets/benefit_used_text.dart
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 
 class HomeBenefitItemWidget extends StatelessWidget {
-  const HomeBenefitItemWidget(
-      {super.key, required this.nftBenefitEntity, this.isShowImage = true});
+  const HomeBenefitItemWidget({
+    super.key,
+    required this.nftBenefitEntity,
+    this.isShowImage = true,
+    //required this.nearBySpaceEntity,
+  });
 
+  //final NearBySpaceEntity nearBySpaceEntity;
   final BenefitEntity nftBenefitEntity;
   final bool isShowImage;
 
@@ -42,7 +47,18 @@ class HomeBenefitItemWidget extends StatelessWidget {
             const Spacer(),
             nftBenefitEntity.used
                 ? const BenefitUsedText()
-                : const BenefitAvailableText(),
+                : GestureDetector(
+                    onTap: () {
+                      //  NearBySpaceEntity nearBySpaceEntity,
+                      //  String selectedNftTokenAddress,
+                      // RedeemBenefitScreen.push(
+                      //   context,
+                      //   widget.spacesResponseEntity.spaces[0],
+                      //   nftBenefitEntity.tokenAddress,
+                      // );
+                    },
+                    child: const BenefitAvailableText(),
+                  ),
           ],
         ),
         const Padding(

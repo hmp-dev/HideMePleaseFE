@@ -145,5 +145,6 @@ abstract class  LocaleKeys {
   static const youHaveBenefited = 'youHaveBenefited';
   static const employeeConfirmation = 'employeeConfirmation';
   static const saveTitle = 'saveTitle';
+  static const peopleAreHiding = 'peopleAreHiding';
 
 }

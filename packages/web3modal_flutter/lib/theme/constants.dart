@@ -1,4 +1,4 @@
-const kListItemHeight = 56.0;
+const kListItemHeight = 66.0;
 
 const kGridItemWidth = 76.0;
 const kGridItemHeight = 96.0;

@@ -54,26 +54,37 @@ class Web3ModalNavbar extends StatelessWidget {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widgetStack.instance.canPop()
-                          ? NavbarActionButton(
-                              asset: 'assets/icons/chevron_left.svg',
-                              action: onBack ?? widgetStack.instance.pop,
-                            )
-                          : (leftAction ??
-                              const SizedBox.square(dimension: kNavbarHeight)),
-                      Expanded(
+                      // widgetStack.instance.canPop()
+                      //     ? NavbarActionButton(
+                      //         asset: 'assets/icons/chevron_left.svg',
+                      //         action: onBack ?? widgetStack.instance.pop,
+                      //       )
+                      //     : (leftAction ??
+                      //         const SizedBox.square(dimension: kNavbarHeight)),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
                         child: GestureDetector(
                           onTap: () => onTapTitle?.call(),
                           child: Center(
                             child: Text(
                               title,
-                              style: themeData.textStyles.paragraph600.copyWith(
-                                color: themeColors.foreground100,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                letterSpacing: -0.1,
+                                height: 1.4,
                               ),
+
+                              // themeData.textStyles.paragraph600.copyWith(
+                              //   color: themeColors.foreground100,
+                              // ),
                             ),
                           ),
                         ),
                       ),
+
                       noClose
                           ? const SizedBox.square(dimension: kNavbarHeight)
                           : NavbarActionButton(

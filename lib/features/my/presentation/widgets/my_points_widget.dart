@@ -6,6 +6,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
@@ -36,13 +37,10 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
           listener: (context, state) {},
           builder: (context, state) {
             if (state.nftPointsList.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Text(LocaleKeys.myPoints.tr(), style: fontTitle07Medium()),
-                  ],
-                ),
+              return const Column(
+                children: [
+                  Center(child: EmptyDataWidget()),
+                ],
               );
             } else {
               return Column(

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -9,6 +10,7 @@ import 'dart:math' as math;
 
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class NewSpaceItem extends StatelessWidget {
   const NewSpaceItem({
@@ -75,20 +77,26 @@ class NewSpaceItem extends StatelessWidget {
                             style: fontCompactSm(),
                           ),
                           const Spacer(),
-                          Row(
-                            children: [
-                              DefaultImage(
-                                path: "assets/icons/eyes-icon.svg",
-                                width: 18,
-                                height: 18,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                "${newSpaceEntity.hidingCount}명 숨어있어요",
-                                style: fontCompactSm(color: fore2),
-                              ),
-                            ],
-                          ),
+                          //[4.1] Space
+// 2.2 {{N}} people in hiding
+// Default: {{N}} people are hiding
+// N people: Counting users who are currently visiting the space and have their location disclosure set to ‘public’.
+// If there are 0 or less people, the tag is not exposed.
+                          if (newSpaceEntity.hidingCount > 0)
+                            Row(
+                              children: [
+                                DefaultImage(
+                                  path: "assets/icons/eyes-icon.svg",
+                                  width: 18,
+                                  height: 18,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  "${newSpaceEntity.hidingCount}${LocaleKeys.peopleAreHiding.tr()}",
+                                  style: fontCompactSm(color: fore2),
+                                ),
+                              ],
+                            ),
                           // const SizedBox(height: 5),
                         ],
                       ),

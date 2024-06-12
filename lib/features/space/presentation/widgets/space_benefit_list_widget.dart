@@ -12,7 +12,9 @@ import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class SpaceBenefitListWidget extends StatefulWidget {
-  const SpaceBenefitListWidget({super.key});
+  const SpaceBenefitListWidget({
+    super.key,
+  });
 
   @override
   State<SpaceBenefitListWidget> createState() => _SpaceBenefitListWidgetState();

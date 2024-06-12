@@ -132,50 +132,51 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                               ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: RoundedButtonWithBorder(
-                            text: LocaleKeys.previous.tr(),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
+                if (!widget.isShowMembershipButton)
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: RoundedButtonWithBorder(
+                              text: LocaleKeys.previous.tr(),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
                           ),
-                        ),
-                        const HorizontalSpace(10),
-                        Expanded(
-                          child: HMPCustomButton(
-                            text: LocaleKeys.next.tr(),
-                            onPressed: () {
-                              List<String> order = [];
+                          const HorizontalSpace(10),
+                          Expanded(
+                            child: HMPCustomButton(
+                              text: LocaleKeys.next.tr(),
+                              onPressed: () {
+                                List<String> order = [];
 
-                              for (var nft in state.selectedNftTokensList) {
-                                order.add(nft.id);
-                              }
+                                for (var nft in state.selectedNftTokensList) {
+                                  order.add(nft.id);
+                                }
 
-                              getIt<NftCubit>().onPostCollectionOrderSave(
-                                  saveSelectedTokensReorderRequestDto:
-                                      SaveSelectedTokensReorderRequestDto(
-                                          order: order));
+                                getIt<NftCubit>().onPostCollectionOrderSave(
+                                    saveSelectedTokensReorderRequestDto:
+                                        SaveSelectedTokensReorderRequestDto(
+                                            order: order));
 
-                              // Navigate to Home
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                Routes.appHome,
-                                (route) => false,
-                              );
-                            },
+                                // Navigate to Home
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  Routes.appHome,
+                                  (route) => false,
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                )
+                  )
               ],
             );
           },
