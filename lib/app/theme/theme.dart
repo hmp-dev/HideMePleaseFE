@@ -600,6 +600,14 @@ TextStyle fontTitle07Medium({Color? color = fore1}) => TextStyle(
       letterSpacing: -0.1,
       height: 1.4,
     );
+TextStyle fontTitle07SemiBold({Color? color = fore1}) => TextStyle(
+      fontSize: 16,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w600,
+      color: color ?? fore1,
+      letterSpacing: -0.1,
+      height: 1.4,
+    );
 TextStyle fontTitle07Bold({Color? color = fore1}) => TextStyle(
       fontSize: 16,
       fontFamily: 'Pretendard',

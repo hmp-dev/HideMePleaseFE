@@ -15,6 +15,7 @@ TopCollectionNftDto _$TopCollectionNftDtoFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String?,
       chain: json['chain'] as String?,
       ownedCollection: json['ownedCollection'] as bool?,
+      communityRank: json['communityRank'] as int?,
     );
 
 Map<String, dynamic> _$TopCollectionNftDtoToJson(
@@ -27,4 +28,5 @@ Map<String, dynamic> _$TopCollectionNftDtoToJson(
       'name': instance.name,
       'chain': instance.chain,
       'ownedCollection': instance.ownedCollection,
+      'communityRank': instance.communityRank,
     };

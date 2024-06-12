@@ -53,6 +53,16 @@ class NftRemoteDataSource {
         .toList();
   }
 
+  Future<List<SelectedNFTDto>> requestGetSelectTokensByUser(
+      {required String userId}) async {
+    final response =
+        await _network.get("users/$userId/collections/selected", {});
+    return response.data
+        .map<SelectedNFTDto>(
+            (e) => SelectedNFTDto.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<bool> saveCollectionsSelectedOrder(
       SaveSelectedTokensReorderRequestDto saveOrderDto) async {
     final response =
@@ -91,6 +101,16 @@ class NftRemoteDataSource {
 
   Future<List<NftPointsDto>> requestGetNftPoints() async {
     final response = await _network.get("user/collections/selected/points", {});
+    return response.data
+        .map<NftPointsDto>(
+            (e) => NftPointsDto.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<NftPointsDto>> requestGetNftPointsByUser(
+      {required String userId}) async {
+    final response =
+        await _network.get("users/$userId/collections/selected/points", {});
     return response.data
         .map<NftPointsDto>(
             (e) => NftPointsDto.fromJson(e as Map<String, dynamic>))
@@ -157,7 +177,7 @@ class NftRemoteDataSource {
   Future<NftCommunityMemberResponseDto> getNftMembers(
       {required String tokenAddress, int? page}) async {
     final response = await _network.get(
-      '/nft/collections/$tokenAddress/members',
+      '/nft/collection/$tokenAddress/members',
       {
         if (page != null) 'page': page.toString(),
       },
@@ -168,7 +188,7 @@ class NftRemoteDataSource {
   Future<TopCollectionNftDto> getNftCollectionInfo(
       {required String tokenAddress}) async {
     final response =
-        await _network.get('/nft/collections/$tokenAddress/info', {});
+        await _network.get('/nft/collection/$tokenAddress/info', {});
     return TopCollectionNftDto.fromJson(response.data);
   }
 
