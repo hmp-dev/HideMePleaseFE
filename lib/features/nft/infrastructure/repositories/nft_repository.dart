@@ -71,10 +71,13 @@ class NftRepositoryImpl extends NftRepository {
   }
 
   @override
-  Future<Either<HMPError, List<SelectedNFTDto>>>
-      getSelectNftCollections() async {
+  Future<Either<HMPError, List<SelectedNFTDto>>> getSelectNftCollections(
+      {String? userId}) async {
     try {
-      final response = await _nftRemoteDataSource.requestGetSelectTokens();
+      final response = userId != null
+          ? await _nftRemoteDataSource.requestGetSelectTokensByUser(
+              userId: userId)
+          : await _nftRemoteDataSource.requestGetSelectTokens();
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(
@@ -184,9 +187,13 @@ class NftRepositoryImpl extends NftRepository {
   }
 
   @override
-  Future<Either<HMPError, List<NftPointsDto>>> getNftPoints() async {
+  Future<Either<HMPError, List<NftPointsDto>>> getNftPoints({
+    String? userId,
+  }) async {
     try {
-      final response = await _nftRemoteDataSource.requestGetNftPoints();
+      final response = userId != null
+          ? await _nftRemoteDataSource.requestGetNftPointsByUser(userId: userId)
+          : await _nftRemoteDataSource.requestGetNftPoints();
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(

@@ -12,6 +12,8 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
+import 'package:mobile/features/my/presentation/cubit/membership_cubit.dart';
+import 'package:mobile/features/my/presentation/cubit/points_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
 import 'package:mobile/features/my/presentation/widgets/my_membership_widget.dart';
@@ -46,61 +48,76 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ProfileCubit, ProfileState>(
+    return BlocBuilder<ProfileCubit, ProfileState>(
       bloc: getIt<ProfileCubit>(),
-      listener: (context, state) {},
       builder: (context, state) {
         final userData = state.userProfileEntity;
-        return BaseScaffold(
-          title: LocaleKeys.myPage.tr(),
-          isCenterTitle: true,
-          onBack: () {
-            Navigator.pop(context);
-          },
-          suffix: GestureDetector(
-            onTap: () {
-              MyEditScreen.push(context, userData);
-            },
-            child: DefaultImage(
-                path: "assets/icons/img_icon_system.svg",
-                width: 32,
-                height: 32),
-          ),
-          body: SafeArea(
-            child: BlocListener<AppCubit, AppState>(
-              bloc: getIt<AppCubit>(),
-              listener: (context, appState) {
-                if (!appState.isLoggedIn) {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    Routes.startUpScreen,
-                    (route) => false,
-                  );
-                }
-              },
-              child: SingleChildScrollView(
-                  child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _buildTitleRow(context, userData),
-                  const SizedBox(height: 24),
-                  _buildTabView(context),
-                  const SizedBox(height: 15),
-                  SizedBox(
-                    height: 1000,
-                    child: TabBarView(
-                      controller: tabViewController,
-                      children: const [
-                        MyMembershipWidget(),
-                        MyPointsWidget(),
-                      ],
+
+        return BlocBuilder<MembershipCubit, MembershipState>(
+          bloc: getIt<MembershipCubit>()..onStart(),
+          builder: (context, membershipsState) {
+            return BlocBuilder<PointsCubit, PointsState>(
+              bloc: getIt<PointsCubit>()..onStart(),
+              builder: (context, pointsState) {
+                return BaseScaffold(
+                  title: LocaleKeys.myPage.tr(),
+                  isCenterTitle: true,
+                  onBack: () {
+                    Navigator.pop(context);
+                  },
+                  suffix: GestureDetector(
+                    onTap: () {
+                      MyEditScreen.push(context, userData);
+                    },
+                    child: DefaultImage(
+                        path: "assets/icons/img_icon_system.svg",
+                        width: 32,
+                        height: 32),
+                  ),
+                  body: SafeArea(
+                    child: BlocListener<AppCubit, AppState>(
+                      bloc: getIt<AppCubit>(),
+                      listener: (context, appState) {
+                        if (!appState.isLoggedIn) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            Routes.startUpScreen,
+                            (route) => false,
+                          );
+                        }
+                      },
+                      child: SingleChildScrollView(
+                          child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          _buildTitleRow(context, userData),
+                          const SizedBox(height: 24),
+                          _buildTabView(context),
+                          const SizedBox(height: 15),
+                          SizedBox(
+                            height: 950,
+                            child: TabBarView(
+                              controller: tabViewController,
+                              children: [
+                                MyMembershipWidget(
+                                    selectedNftTokensList:
+                                        membershipsState.selectedNftTokensList),
+                                MyPointsWidget(
+                                  nftPointsList: pointsState.nftPointsList,
+                                  isOwner: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )),
                     ),
                   ),
-                ],
-              )),
-            ),
-          ),
+                );
+              },
+            );
+          },
         );
       },
     );
