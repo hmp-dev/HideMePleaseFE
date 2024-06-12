@@ -63,9 +63,7 @@ class HomeHeaderWidget extends StatelessWidget {
                   LinkedWalletButton(
                     titleText: LocaleKeys.linkedWallet.tr(),
                     count: connectedWallet.length,
-                    onTap: () {
-                      ConnectedWalletsListScreen.push(context);
-                    },
+                    onTap: () {},
                   ),
                 ],
               ),

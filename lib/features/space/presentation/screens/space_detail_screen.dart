@@ -193,8 +193,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
                           rotateGesturesEnabled: false,
                           indoorViewEnabled: true,
                           onTap: (argument) {
-                            MapUtils.navigateTo(
-                                state.spaceDetailEntity.latitude,
+                            MapUtils.openMap(state.spaceDetailEntity.latitude,
                                 state.spaceDetailEntity.longitude);
                           },
                         ),

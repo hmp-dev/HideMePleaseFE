@@ -7,6 +7,7 @@ class SettingsState extends BaseState {
   final String storeVersion;
   final String installedVersion;
   final String buildNumber;
+  final bool isWithdrawalSuccessful;
 
   @override
   final RequestStatus submitStatus;
@@ -18,6 +19,7 @@ class SettingsState extends BaseState {
     required this.storeVersion,
     required this.installedVersion,
     required this.buildNumber,
+    required this.isWithdrawalSuccessful,
     this.submitStatus = RequestStatus.initial,
   });
 
@@ -28,6 +30,7 @@ class SettingsState extends BaseState {
         storeVersion: "",
         installedVersion: "",
         buildNumber: "",
+        isWithdrawalSuccessful: false,
       );
 
   @override
@@ -39,6 +42,7 @@ class SettingsState extends BaseState {
         storeVersion,
         installedVersion,
         buildNumber,
+        isWithdrawalSuccessful,
       ];
 
   @override
@@ -50,6 +54,7 @@ class SettingsState extends BaseState {
     String? storeVersion,
     String? installedVersion,
     String? buildNumber,
+    bool? isWithdrawalSuccessful,
   }) {
     return SettingsState(
       settingsBannerEntity: settingsBannerEntity ?? this.settingsBannerEntity,
@@ -59,6 +64,8 @@ class SettingsState extends BaseState {
       storeVersion: storeVersion ?? this.storeVersion,
       installedVersion: installedVersion ?? this.installedVersion,
       buildNumber: buildNumber ?? this.buildNumber,
+      isWithdrawalSuccessful:
+          isWithdrawalSuccessful ?? this.isWithdrawalSuccessful,
     );
   }
 }

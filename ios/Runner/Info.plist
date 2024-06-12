@@ -55,6 +55,8 @@
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+	    <string>googlechromes</string>
+        <string>comgooglemaps</string>
 		<string>wirexwallet</string>
 		<string>stasis</string>
 		<string>omni</string>
