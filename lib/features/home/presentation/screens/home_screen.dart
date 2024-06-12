@@ -84,6 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         BlocListener<SpaceCubit, SpaceState>(
           bloc: getIt<SpaceCubit>(),
+          listenWhen: (previous, current) =>
+              current.spacesResponseEntity.spaces !=
+              previous.spacesResponseEntity.spaces,
           listener: (context, state) {
             if (state.isSubmitSuccess) {
               if (state.spacesResponseEntity.spaces.isNotEmpty) {

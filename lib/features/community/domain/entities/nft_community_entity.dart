@@ -32,8 +32,10 @@ class NftCommunityEntity extends Equatable {
         lastConversation = '',
         eventCount = 0;
 
-  String get timeAgo =>
-      timeago.format(DateTime.parse(lastConversation).toLocal(), locale: 'ko');
+  String get timeAgo => DateTime.tryParse(lastConversation) == null
+      ? ''
+      : timeago.format(DateTime.parse(lastConversation).toLocal(),
+          locale: 'ko');
 
   String get people => '$totalMembers명';
 

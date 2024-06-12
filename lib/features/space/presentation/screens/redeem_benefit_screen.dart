@@ -3,9 +3,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/helpers/animated_swipe/swipeable_button_view.dart';
-import 'package:mobile/app/core/helpers/flutter_touch_ripple/components/behavior.dart';
-import 'package:mobile/app/core/helpers/flutter_touch_ripple/widgets/widget.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -18,9 +16,7 @@ import 'package:mobile/features/home/presentation/widgets/benefit_card_widget_pa
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/benefit_redeem_cubit.dart';
-import 'package:mobile/features/space/presentation/views/confirm_page.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:page_transition/page_transition.dart';
 
 class CalculatorStyles {
   static const double headerPadding = 50;
@@ -168,7 +164,9 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   child: BlocConsumer<BenefitRedeemCubit, BenefitRedeemState>(
                     bloc: getIt<BenefitRedeemCubit>(),
                     listener: (context, benefitRedeemState) async {
-                      if (benefitRedeemState.isFailure) {
+                      "listener is $benefitRedeemState".log();
+                      if (benefitRedeemState.submitStatus ==
+                          RequestStatus.failure) {
                         // Show Error Snackbar If Error in Redeeming Benefit
                         // context.showErrorSnackBar(spaceState.errorMessage);
                         // await Future.delayed(const Duration(seconds: 2));
@@ -177,7 +175,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                         onBenefitRedeemSuccess(state);
                       }
 
-                      if (benefitRedeemState.isSuccess) {
+                      if (benefitRedeemState.submitStatus ==
+                          RequestStatus.success) {
                         onBenefitRedeemSuccess(state);
                       }
                     },
@@ -193,13 +192,16 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                 final locationState =
                                     getIt<EnableLocationCubit>().state;
                                 // call the benefit redeem api here
+
+                                "the token address is as ${selectedBenefitId.tokenAddress}"
+                                    .log();
                                 if (locationState.latitude != 0.0 ||
                                     locationState.longitude != 0.0) {
                                   getIt<BenefitRedeemCubit>()
                                       .onPostRedeemBenefit(
                                     benefitId: selectedBenefitId.id,
-                                    tokenAddress:
-                                        selectedBenefitId.tokenAddress,
+                                    tokenAddress: removeCurlyBraces(
+                                        selectedBenefitId.tokenAddress),
                                     spaceId: widget.nearBySpaceEntity.id,
                                     latitude: 2.0, //locationState.latitude,
                                     longitude: 2.0, //locationState.longitude,
@@ -235,6 +237,10 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
       // refetch all benefits
       fetchBenefits();
     }
+  }
+
+  String removeCurlyBraces(String input) {
+    return input.replaceAll(RegExp(r'[{}]'), '');
   }
 }
 
@@ -279,17 +285,18 @@ class _SunriseWidgetState extends State<SunriseWidget>
 
   void _onLongPress() {
     _fillFull = false;
-    _controller.forward();
-  }
+    _controller.forward().whenComplete(() async {
+      await Future.delayed(const Duration(milliseconds: 100));
+      widget.onSubmitRedeem();
+      setState(() {
+        _fillFull = true;
+      });
 
-  void _onLongPressEnd(LongPressEndDetails details) async {
-    widget.onSubmitRedeem();
-    setState(() {
-      _fillFull = true;
+      _controller.reset();
     });
-
-    _controller.dispose();
   }
+
+  void _onLongPressEnd(LongPressEndDetails details) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +314,7 @@ class _SunriseWidgetState extends State<SunriseWidget>
             ),
             child: Center(
               child: Text(
-                LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
+                LocaleKeys.longPressToUseBenefits.tr(),
                 style: fontCompactMd(),
               ),
             ),
@@ -316,8 +323,10 @@ class _SunriseWidgetState extends State<SunriseWidget>
             animation: _animation,
             builder: (context, child) {
               return ClipPath(
-                clipper:
-                    _fillFull ? FullClipper() : CurveClipper(_animation.value),
+                clipper: _fillFull
+                    ? CenterExpandClipper(
+                        MediaQuery.of(context).size.width - 40)
+                    : CurveClipper(_animation.value),
                 child: Container(
                   height: 54,
                   width: MediaQuery.of(context).size.width - 40,
@@ -368,5 +377,28 @@ class FullClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
     return false;
+  }
+}
+
+class CenterExpandClipper extends CustomClipper<Path> {
+  final double expansion;
+
+  CenterExpandClipper(this.expansion);
+
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    double centerX = size.width / 2;
+    path.moveTo(centerX - expansion, size.height);
+    path.lineTo(centerX + expansion, size.height);
+    path.lineTo(centerX + expansion, 0);
+    path.lineTo(centerX - expansion, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CenterExpandClipper oldClipper) {
+    return oldClipper.expansion != expansion;
   }
 }
