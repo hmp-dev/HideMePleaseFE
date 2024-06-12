@@ -143,6 +143,7 @@ class SettingsCubit extends BaseCubit<SettingsState> {
       (result) {
         emit(
           state.copyWith(
+            isWithdrawalSuccessful: true,
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),

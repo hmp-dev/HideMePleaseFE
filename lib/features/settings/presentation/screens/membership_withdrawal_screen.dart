@@ -72,6 +72,9 @@ class _MembershipWithdrawalScreenState
           ),
           BlocListener<SettingsCubit, SettingsState>(
             bloc: getIt<SettingsCubit>(),
+            listenWhen: (previous, current) =>
+                current.isWithdrawalSuccessful !=
+                previous.isWithdrawalSuccessful,
             listener: (context, state) async {
               if (state.submitStatus == RequestStatus.success) {
                 var result = await showCompletedWithdrawAlertDialog(
@@ -139,7 +142,6 @@ class _MembershipWithdrawalScreenState
                       RoundedButtonWithBorder(
                         text: LocaleKeys.applyForWithdrawal.tr(),
                         onPressed: () {
-                          Navigator.pop(context);
                           getIt<SettingsCubit>().onRequestDeleteUser();
 
                           // showWithdrawConfirmationAlertDialog(
