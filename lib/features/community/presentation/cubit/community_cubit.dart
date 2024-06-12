@@ -39,8 +39,7 @@ class CommunityCubit extends BaseCubit<CommunityState> {
     hotNftCommsRes.fold(
       (_) {},
       (data) => emit(state.copyWith(
-        hotNftCommunities:
-            state.allNftCommunities, // data.map((e) => e.toEntity()).toList(),
+        hotNftCommunities: data.map((e) => e.toEntity()).toList(),
       )),
     );
   }
@@ -50,8 +49,7 @@ class CommunityCubit extends BaseCubit<CommunityState> {
     userNftCommsRes.fold(
       (_) {},
       (data) => emit(state.copyWith(
-        userNftCommunities:
-            state.allNftCommunities, // data.map((e) => e.toEntity()).toList(),
+        userNftCommunities: data.map((e) => e.toEntity()).toList(),
       )),
     );
   }
