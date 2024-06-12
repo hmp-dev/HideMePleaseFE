@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
@@ -225,6 +223,17 @@ class _SpaceScreenState extends State<SpaceScreen> {
   }
 
   Column buildNewSpaceList(SpaceState state) {
+    // [4.1] Space
+    // 2 Introduction to new space
+    // Introducing a new space partnered with the HMP app
+    // Exposure to the area for one week after onboarding
+    // If there is no new space, the area is not exposed
+    // 2-1 Title provided in ‘New’ section (Figma Design does not show the title but the New graphic badge only)
+    // 2-2 Space name, benefit information
+    // Provide space name
+    // Benefit notation:
+    // If there is a collection you are supporting: The benefit of the collection you are supporting is displayed as a representative, and other benefits are indicated with {{n}} other benefits.
+    // If there is no collection being supported: The benefits of the NFT collection that can be purchased quickly are displayed as a representative, and other benefits are indicated as {{n}} other benefits.
     return Column(
       children: [
         state.newSpaceList.isEmpty

@@ -83,46 +83,6 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     );
   }
 
-  Future<void> onPostRedeemBenefit({
-    required String benefitId,
-    required String tokenAddress,
-    required String spaceId,
-    required double latitude,
-    required double longitude,
-  }) async {
-    emit(state.copyWith(submitStatus: RequestStatus.loading));
-
-    EasyLoading.show(dismissOnTap: true);
-
-    final response = await _spaceRepository.postRedeemBenefit(
-      benefitId: benefitId,
-      tokenAddress: tokenAddress,
-      spaceId: spaceId,
-      latitude: latitude,
-      longitude: longitude,
-    );
-
-    EasyLoading.dismiss();
-
-    response.fold(
-      (err) {
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: err.message,
-        ));
-      },
-      (isSuccess) {
-        emit(
-          state.copyWith(
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-            benefitRedeemStatus: true,
-          ),
-        );
-      },
-    );
-  }
-
   onResetSubmitStatus() {
     emit(state.copyWith(submitStatus: RequestStatus.initial));
   }

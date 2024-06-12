@@ -36,7 +36,14 @@ class MembersItemWidget extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(nft.name, style: fontTitle04Bold()),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 150,
+                      child: Text(
+                        nft.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: fontTitle04Bold(),
+                      ),
+                    ),
                     const VerticalSpace(5),
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 150,

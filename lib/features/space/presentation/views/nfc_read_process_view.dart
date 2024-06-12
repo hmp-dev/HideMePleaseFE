@@ -103,13 +103,13 @@ class _NfcReadProcessViewState extends State<NfcReadProcessView> {
           final locationState = getIt<EnableLocationCubit>().state;
 
           if (locationState.latitude == 0.0 || locationState.longitude == 0.0) {
-            getIt<SpaceCubit>().onPostRedeemBenefit(
-              benefitId: widget.benefitId,
-              tokenAddress: widget.tokenAddress,
-              spaceId: state.nfcToken,
-              latitude: 2.0, //locationState.latitude,
-              longitude: 2.0, //locationState.longitude,
-            );
+            // getIt<SpaceCubit>().onPostRedeemBenefit(
+            //   benefitId: widget.benefitId,
+            //   tokenAddress: widget.tokenAddress,
+            //   spaceId: state.nfcToken,
+            //   latitude: 2.0, //locationState.latitude,
+            //   longitude: 2.0, //locationState.longitude,
+            // );
           }
         }
 

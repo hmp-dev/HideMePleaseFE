@@ -88,7 +88,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                   _buildTabView(context),
                   const SizedBox(height: 15),
                   SizedBox(
-                    height: 800,
+                    height: 1000,
                     child: TabBarView(
                       controller: tabViewController,
                       children: const [
@@ -121,12 +121,19 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(34),
-            child: CustomImageView(
-              url: userProfile.pfpImageUrl,
-              fit: BoxFit.cover,
-              width: 68,
-              height: 68,
-            ),
+            child: userProfile.pfpImageUrl.isNotEmpty
+                ? CustomImageView(
+                    url: userProfile.pfpImageUrl,
+                    fit: BoxFit.cover,
+                    width: 68,
+                    height: 68,
+                  )
+                : CustomImageView(
+                    imagePath: "assets/images/profile_img.png",
+                    fit: BoxFit.cover,
+                    width: 68,
+                    height: 68,
+                  ),
           ),
           Expanded(
             child: Padding(

@@ -48,7 +48,9 @@ class _BenefitListWidgetState extends State<BenefitListWidget> {
                 itemCount: state.nftBenefitList.length,
                 itemBuilder: (context, index) {
                   return HomeBenefitItemWidget(
-                      nftBenefitEntity: state.nftBenefitList[index]);
+                    
+                    nftBenefitEntity: state.nftBenefitList[index],
+                  );
                 },
               )
             ],
