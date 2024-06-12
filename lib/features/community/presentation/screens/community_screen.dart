@@ -37,7 +37,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              const CommunityDetailsScreen()));
+                              CommunityDetailsScreen(nftCommunity: community)));
                 },
                 onEnterChat: (community) {},
                 onConnectWallet: () {},

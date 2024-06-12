@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/features/community/domain/entities/community_member_entity.dart';
 
 part 'nft_community_member_dto.g.dart';
 
@@ -33,18 +34,34 @@ class NftCommunityMemberDto extends Equatable {
   final int pointFluctuation;
   final int memberRank;
   final String name;
+  final String userId;
+  final String introduction;
+  final String pfpImage;
 
   const NftCommunityMemberDto({
     required this.totalPoints,
     required this.pointFluctuation,
     required this.memberRank,
     required this.name,
+    required this.userId,
+    required this.introduction,
+    required this.pfpImage,
   });
 
   factory NftCommunityMemberDto.fromJson(Map<String, dynamic> json) =>
       _$NftCommunityMemberDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$NftCommunityMemberDtoToJson(this);
+
+  CommunityMemberEntity toEntity() => CommunityMemberEntity(
+        totalPoints: totalPoints,
+        pointFluctuation: pointFluctuation,
+        memberRank: memberRank,
+        name: name,
+        userId: userId,
+        introduction: introduction,
+        pfpImage: pfpImage,
+      );
 
   @override
   List<Object?> get props {
@@ -53,6 +70,9 @@ class NftCommunityMemberDto extends Equatable {
       pointFluctuation,
       memberRank,
       name,
+      userId,
+      introduction,
+      pfpImage,
     ];
   }
 }

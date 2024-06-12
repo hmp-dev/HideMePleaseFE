@@ -20,12 +20,11 @@ abstract class BaseState extends Equatable {
   RequestStatus get submitStatus => throw UnimplementedError();
 
   bool get isLoading =>
-      submitStatus == RequestStatus.initial ||
-      submitStatus == RequestStatus.loading;
+      status == RequestStatus.initial || status == RequestStatus.loading;
 
-  bool get isSuccess => submitStatus == RequestStatus.success;
+  bool get isSuccess => status == RequestStatus.success;
 
-  bool get isFailure => submitStatus == RequestStatus.failure;
+  bool get isFailure => status == RequestStatus.failure;
 
   bool get isSubmitLoading => submitStatus == RequestStatus.loading;
 

@@ -30,6 +30,9 @@ NftCommunityMemberDto _$NftCommunityMemberDtoFromJson(
       pointFluctuation: json['pointFluctuation'] as int,
       memberRank: json['memberRank'] as int,
       name: json['name'] as String,
+      userId: json['userId'] as String,
+      introduction: json['introduction'] as String,
+      pfpImage: json['pfpImage'] as String,
     );
 
 Map<String, dynamic> _$NftCommunityMemberDtoToJson(
@@ -39,4 +42,7 @@ Map<String, dynamic> _$NftCommunityMemberDtoToJson(
       'pointFluctuation': instance.pointFluctuation,
       'memberRank': instance.memberRank,
       'name': instance.name,
+      'userId': instance.userId,
+      'introduction': instance.introduction,
+      'pfpImage': instance.pfpImage,
     };
