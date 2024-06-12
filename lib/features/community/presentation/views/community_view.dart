@@ -1,31 +1,53 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
-import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
+import 'package:mobile/features/community/presentation/widgets/free_nft_redeem_view.dart';
+import 'package:mobile/features/community/presentation/widgets/get_free_nft_view.dart';
+import 'package:mobile/features/community/presentation/widgets/hot_communities_view.dart';
 import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
+import 'package:mobile/features/community/presentation/widgets/user_communities_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class CommunityView extends StatefulWidget {
+  final Future<void> Function() onRefresh;
+  final void Function(NftCommunityEntity) onCommunityTap;
+  final void Function(NftCommunityEntity) onEnterChat;
+  final VoidCallback onConnectWallet;
+  final VoidCallback onGetFreeNft;
+  final String totalFreeNfts;
+  final String redeemedFreeNfts;
+  final String remainingFreeNfts;
   final List<NftCommunityEntity> allNftCommunities;
   final int communityCount;
   final int itemCount;
   final List<NftCommunityEntity> hotNftCommunities;
   final List<NftCommunityEntity> userNftCommunities;
   final GetNftCommunityOrderBy allNftCommOrderBy;
+  final bool isWalletConnected;
+  final bool redeemedFreeNft;
 
   const CommunityView({
     super.key,
+    required this.onRefresh,
+    required this.onCommunityTap,
+    required this.onEnterChat,
+    required this.onConnectWallet,
+    required this.onGetFreeNft,
+    required this.totalFreeNfts,
+    required this.redeemedFreeNfts,
+    required this.remainingFreeNfts,
     required this.allNftCommunities,
     required this.communityCount,
     required this.itemCount,
     required this.hotNftCommunities,
     required this.userNftCommunities,
     required this.allNftCommOrderBy,
+    required this.isWalletConnected,
+    required this.redeemedFreeNft,
   });
 
   @override
@@ -35,110 +57,91 @@ class CommunityView extends StatefulWidget {
 class _CommunityViewState extends State<CommunityView> {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildTopTitleBar(),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      child: Text(
-                        LocaleKeys.evenPeopleWithNftTitle.tr(),
-                        style: fontTitle05Medium(),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            LocaleKeys.getAFreeNft.tr(),
-                            style: fontCompactSm(color: fore2),
-                          ),
-                          CustomImageView(
-                            svgPath: 'assets/icons/ic_angle_arrow_down.svg',
-                            color: fore2,
-                            width: 16,
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                CustomImageView(
-                  imagePath: 'assets/images/connect.png',
-                  width: 88,
-                  height: 88,
-                )
-              ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 30),
+      child: RefreshIndicator(
+        onRefresh: widget.onRefresh,
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: buildTopTitleBar(),
+              ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      LocaleKeys.allCommunity.tr(),
-                      style: fontTitle07Medium(),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      widget.communityCount.toString(),
-                      style: fontTitle07(color: fore2),
-                    ),
-                  ],
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            if (widget.isWalletConnected &&
+                widget.redeemedFreeNft &&
+                widget.userNftCommunities.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: UserCommunitiesView(
+                    onEnterChat: widget.onEnterChat,
+                    userNftCommunities: widget.userNftCommunities,
+                  ),
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      LocaleKeys.byPoints.tr(),
-                      style: fontCompactSm(color: fore2),
-                    ),
-                    const SizedBox(width: 5),
-                    DefaultImage(
-                      path: "assets/icons/ic_arrow_down.svg",
-                      width: 14,
-                      height: 14,
-                    ),
-                  ],
+              )
+            else if (widget.isWalletConnected && !widget.redeemedFreeNft)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: FreeNftRedeemView(
+                    totalNfts: widget.totalFreeNfts,
+                    redeemedNfts: widget.redeemedFreeNfts,
+                    remainingNfts: widget.remainingFreeNfts,
+                    onTap: widget.onGetFreeNft,
+                  ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.center,
-              child: Wrap(
-                spacing: 20.0,
-                runSpacing: 20.0,
-                alignment: WrapAlignment.center,
-                children: List.generate(
-                  widget.allNftCommunities.length,
-                  (index) {
-                    return NftCommunityCardWidget(
-                      title: widget.allNftCommunities[index].name,
-                      imagePath: widget.allNftCommunities[index].collectionLogo,
-                      people: widget.allNftCommunities[index].people,
-                      rank: widget.allNftCommunities[index].rank,
-                      timeAgo: widget.allNftCommunities[index].timeAgo,
-                    );
-                  },
+              )
+            else if (!widget.isWalletConnected)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: GetFreeNftView(
+                    onTap: widget.onConnectWallet,
+                  ),
                 ),
               ),
+            if (widget.hotNftCommunities.isNotEmpty)
+              SliverToBoxAdapter(
+                child: HotCommunitiesView(
+                  onCommunityTap: widget.onCommunityTap,
+                  hotNftCommunities: widget.hotNftCommunities,
+                ),
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child:
+                    AllCommunitiesHeader(communityCount: widget.communityCount),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            SliverGrid.builder(
+              itemCount: widget.allNftCommunities.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 20.0,
+                crossAxisSpacing: 20.0,
+              ),
+              itemBuilder: (_, index) {
+                return Container(
+                  padding: index % 2 == 0
+                      ? const EdgeInsets.only(left: 20)
+                      : const EdgeInsets.only(right: 20),
+                  child: NftCommunityCardWidget(
+                    onTap: () =>
+                        widget.onCommunityTap(widget.allNftCommunities[index]),
+                    title: widget.allNftCommunities[index].name,
+                    imagePath: widget.allNftCommunities[index].collectionLogo,
+                    people: widget.allNftCommunities[index].people,
+                    rank: widget.allNftCommunities[index].rank,
+                    timeAgo: widget.allNftCommunities[index].timeAgo,
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -159,6 +162,53 @@ class _CommunityViewState extends State<CommunityView> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class AllCommunitiesHeader extends StatelessWidget {
+  const AllCommunitiesHeader({
+    super.key,
+    required this.communityCount,
+  });
+
+  final int communityCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              LocaleKeys.allCommunity.tr(),
+              style: fontTitle07Medium(),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              communityCount.toString(),
+              style: fontTitle07(color: fore2),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              LocaleKeys.byPoints.tr(),
+              style: fontCompactSm(color: fore2),
+            ),
+            const SizedBox(width: 5),
+            DefaultImage(
+              path: "assets/icons/ic_arrow_down.svg",
+              width: 14,
+              height: 14,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
