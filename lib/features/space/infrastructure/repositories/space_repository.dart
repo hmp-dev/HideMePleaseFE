@@ -186,7 +186,8 @@ class SpaceRepositoryImpl extends SpaceRepository {
   Future<Either<HMPError, SpaceDetailDto>> getSpaceDetail(
       {required String spaceId}) async {
     try {
-      final response = await _spaceRemoteDataSource.requestGetSpaceDetail(
+      final response =
+          await _spaceRemoteDataSource.requestGetSpaceDetailBySpaceId(
         spaceId: spaceId,
       );
       return right(response);

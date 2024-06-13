@@ -147,5 +147,7 @@ abstract class  LocaleKeys {
   static const saveTitle = 'saveTitle';
   static const longPressToUseBenefits = 'longPressToUseBenefits';
   static const peopleAreHiding = 'peopleAreHiding';
+  static const enableLocationAlertMessage = 'enableLocationAlertMessage';
+  static const nickNameIsAlreadyUsed = 'nickNameIsAlreadyUsed';
 
 }

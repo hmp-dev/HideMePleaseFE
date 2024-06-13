@@ -109,7 +109,7 @@ class SpaceRemoteDataSource {
         .toList();
   }
 
-  Future<SpaceDetailDto> requestGetSpaceDetail(
+  Future<SpaceDetailDto> requestGetSpaceDetailBySpaceId(
       {required String spaceId}) async {
     final response = await _network.get("space/space/$spaceId", {});
     return SpaceDetailDto.fromJson(response.data as Map<String, dynamic>);

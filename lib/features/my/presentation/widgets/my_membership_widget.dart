@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
@@ -40,11 +41,11 @@ class MyMembershipWidget extends StatelessWidget {
                 ),
               ),
               const VerticalSpace(20),
-              Padding(
+              Container(
+                height: MediaQuery.of(context).size.height - 325,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: selectedNftTokensList.length,
                   itemBuilder: (context, index) {
                     return MembersItemWidget(
