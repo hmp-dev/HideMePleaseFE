@@ -8,13 +8,8 @@ import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
 import 'package:mobile/app/core/animations/fade_indexed_stack.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
-import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
-import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_list_widget.dart';
@@ -28,7 +23,11 @@ import 'package:mobile/features/home/presentation/widgets/nft_card_iconnav_row.d
 import 'package:mobile/features/home/presentation/widgets/nft_card_rewards_bottom_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
-import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
+import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/space/presentation/screens/benefit_redeem_initiate_widget.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
 class HomeViewAfterWalletConnected extends StatefulWidget {
   const HomeViewAfterWalletConnected({
@@ -149,30 +148,12 @@ class _HomeViewAfterWalletConnectedState
                                   selectedNftsListForHome.length - 1) {
                                 return const GoToMemberShipCardWidget();
                               }
-                              return GestureDetector(
-                                onTap: () {
-                                  final locationState =
-                                      getIt<EnableLocationCubit>().state;
-
-                                  if (locationState.latitude == 0.0 ||
-                                      locationState.longitude == 0.0) {
-                                    getIt<EnableLocationCubit>()
-                                        .onAskDeviceLocation();
-                                  } else {
-                                    //TODO change the hard coded latitude with the device location
-                                    getIt<SpaceCubit>().onGetSpacesData(
-                                      tokenAddress: item.tokenAddress,
-                                      latitude: 2.0, //locationState.latitude,
-                                      longitude: 2.0, //locationState.longitude,
-                                    );
-                                  }
-
-                                  Log.trace(
-                                      "latitude: ${locationState.latitude}");
-                                  Log.trace(
-                                      "longitude: ${locationState.longitude}");
+                              return BenefitRedeemInitiateWidget(
+                                tokenAddress: _currentTokenAddress,
+                                onAlertCancel: () {
+                                  Navigator.pop(context);
                                 },
-                                child: NFTCardWidgetParent(
+                                childWidget: NFTCardWidgetParent(
                                   imagePath: itemIndex == 0
                                       ? nftState.welcomeNftEntity.image
                                       : item.imageUrl,

@@ -9,13 +9,13 @@ import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/features/common/presentation/widgets/info_text_tool_tip_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/edit_membership_list.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/block_chain_select_button.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/collection_title_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/connected_wallets_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/nft_token_widget.dart';
-import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 

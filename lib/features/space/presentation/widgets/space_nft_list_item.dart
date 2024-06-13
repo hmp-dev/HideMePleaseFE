@@ -48,6 +48,7 @@ class SpaceTopNFTListItem extends StatelessWidget {
               const HorizontalSpace(8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   SizedBox(
                     width: getWidth(score) - 20,

@@ -12,4 +12,6 @@ abstract class ProfileRepository {
   Future<Either<HMPError, UserProfileDto>> updateProfileData({
     required UpdateProfileRequestDto updateProfileRequestDto,
   });
+
+  Future<Either<HMPError, bool>> getRequestCheckNickNameExists(String nickName);
 }

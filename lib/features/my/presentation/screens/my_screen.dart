@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/router.dart';
@@ -86,8 +87,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                           );
                         }
                       },
-                      child: SingleChildScrollView(
-                          child: Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -95,23 +95,25 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                           const SizedBox(height: 24),
                           _buildTabView(context),
                           const SizedBox(height: 15),
-                          SizedBox(
-                            height: 950,
-                            child: TabBarView(
-                              controller: tabViewController,
-                              children: [
-                                MyMembershipWidget(
-                                    selectedNftTokensList:
-                                        membershipsState.selectedNftTokensList),
-                                MyPointsWidget(
-                                  nftPointsList: pointsState.nftPointsList,
-                                  isOwner: true,
-                                ),
-                              ],
+                          SingleChildScrollView(
+                            child: SizedBox(
+                              height: MediaQuery.of(context).size.height - 280,
+                              child: TabBarView(
+                                controller: tabViewController,
+                                children: [
+                                  MyMembershipWidget(
+                                      selectedNftTokensList: membershipsState
+                                          .selectedNftTokensList),
+                                  MyPointsWidget(
+                                    nftPointsList: pointsState.nftPointsList,
+                                    isOwner: true,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
-                      )),
+                      ),
                     ),
                   ),
                 );

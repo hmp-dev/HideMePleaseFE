@@ -19,7 +19,7 @@ import 'package:mobile/features/alarm/infrastructure/data_sources/alarms_remote_
     as _i26;
 import 'package:mobile/features/alarm/infrastructure/repositories/alarms_repository.dart'
     as _i28;
-import 'package:mobile/features/app/presentation/cubit/app_cubit.dart' as _i43;
+import 'package:mobile/features/app/presentation/cubit/app_cubit.dart' as _i44;
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart' as _i6;
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart'
     as _i30;
@@ -30,7 +30,7 @@ import 'package:mobile/features/auth/infrastructure/datasources/auth_remote_data
 import 'package:mobile/features/auth/infrastructure/repositoriies/auth_repository.dart'
     as _i31;
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart'
-    as _i44;
+    as _i45;
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart'
     as _i36;
 import 'package:mobile/features/common/presentation/cubit/network_cubit.dart'
@@ -50,10 +50,12 @@ import 'package:mobile/features/my/infrastructure/repositories/profile_repositor
     as _i16;
 import 'package:mobile/features/my/presentation/cubit/membership_cubit.dart'
     as _i37;
+import 'package:mobile/features/my/presentation/cubit/nick_name_cubit.dart'
+    as _i39;
 import 'package:mobile/features/my/presentation/cubit/points_cubit.dart'
     as _i13;
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart'
-    as _i39;
+    as _i40;
 import 'package:mobile/features/nft/domain/repositories/nft_repository.dart'
     as _i11;
 import 'package:mobile/features/nft/infrastructure/datasources/nft_remote_data_source.dart'
@@ -68,7 +70,7 @@ import 'package:mobile/features/settings/infrastructure/data_sources/settings_re
 import 'package:mobile/features/settings/infrastructure/repositries/settings_repository.dart'
     as _i19;
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart'
-    as _i40;
+    as _i41;
 import 'package:mobile/features/space/domain/repositories/space_repository.dart'
     as _i21;
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart'
@@ -78,7 +80,7 @@ import 'package:mobile/features/space/infrastructure/repositories/space_reposito
 import 'package:mobile/features/space/presentation/cubit/benefit_redeem_cubit.dart'
     as _i32;
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart'
-    as _i41;
+    as _i42;
 import 'package:mobile/features/wallets/domain/repositories/wallets_repository.dart'
     as _i24;
 import 'package:mobile/features/wallets/infrastructure/data_sources/wallets_remote_data_source.dart'
@@ -86,7 +88,7 @@ import 'package:mobile/features/wallets/infrastructure/data_sources/wallets_remo
 import 'package:mobile/features/wallets/infrastructure/repositories/wallets_repository.dart'
     as _i25;
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart'
-    as _i42;
+    as _i43;
 
 extension GetItInjectableX on _i1.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -159,18 +161,20 @@ extension GetItInjectableX on _i1.GetIt {
         () => _i37.MembershipCubit(gh<_i11.NftRepository>()));
     gh.lazySingleton<_i38.NftCubit>(
         () => _i38.NftCubit(gh<_i11.NftRepository>()));
-    gh.lazySingleton<_i39.ProfileCubit>(
-        () => _i39.ProfileCubit(gh<_i15.ProfileRepository>()));
-    gh.lazySingleton<_i40.SettingsCubit>(
-        () => _i40.SettingsCubit(gh<_i18.SettingsRepository>()));
-    gh.lazySingleton<_i41.SpaceCubit>(
-        () => _i41.SpaceCubit(gh<_i21.SpaceRepository>()));
-    gh.lazySingleton<_i42.WalletsCubit>(
-        () => _i42.WalletsCubit(gh<_i24.WalletsRepository>()));
-    gh.lazySingleton<_i43.AppCubit>(
-        () => _i43.AppCubit(gh<_i30.AuthRepository>()));
-    gh.lazySingleton<_i44.AuthCubit>(
-        () => _i44.AuthCubit(gh<_i30.AuthRepository>()));
+    gh.lazySingleton<_i39.NickNameCubit>(
+        () => _i39.NickNameCubit(gh<_i15.ProfileRepository>()));
+    gh.lazySingleton<_i40.ProfileCubit>(
+        () => _i40.ProfileCubit(gh<_i15.ProfileRepository>()));
+    gh.lazySingleton<_i41.SettingsCubit>(
+        () => _i41.SettingsCubit(gh<_i18.SettingsRepository>()));
+    gh.lazySingleton<_i42.SpaceCubit>(
+        () => _i42.SpaceCubit(gh<_i21.SpaceRepository>()));
+    gh.lazySingleton<_i43.WalletsCubit>(
+        () => _i43.WalletsCubit(gh<_i24.WalletsRepository>()));
+    gh.lazySingleton<_i44.AppCubit>(
+        () => _i44.AppCubit(gh<_i30.AuthRepository>()));
+    gh.lazySingleton<_i45.AuthCubit>(
+        () => _i45.AuthCubit(gh<_i30.AuthRepository>()));
     return this;
   }
 }
