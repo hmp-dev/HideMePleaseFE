@@ -197,6 +197,10 @@ class _MyMembershipSettingsScreenState
                                             .length,
                                         itemBuilder:
                                             (context, collectionIndex) {
+                                          final collection = state
+                                              .nftCollectionsGroupEntity
+                                              .collections[collectionIndex];
+
                                           final collectionName = state
                                               .nftCollectionsGroupEntity
                                               .collections[collectionIndex]
@@ -208,6 +212,8 @@ class _MyMembershipSettingsScreenState
                                               .chainSymbol;
 
                                           return Column(
+                                            key: ValueKey(
+                                                '$collectionName-$chainSymbol-$collectionIndex'),
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
@@ -233,28 +239,17 @@ class _MyMembershipSettingsScreenState
                                                   itemBuilder:
                                                       (context, tokenIndex) {
                                                     return NftTokenWidget(
+                                                      key: ValueKey(
+                                                          '$collectionName-$chainSymbol-$collectionIndex-${collection.tokenAddress}-$tokenIndex'),
                                                       tokenOrder:
                                                           collectionIndex,
-                                                      nftTokenEntity: state
-                                                          .nftCollectionsGroupEntity
-                                                          .collections[
-                                                              collectionIndex]
+                                                      nftTokenEntity: collection
                                                           .tokens[tokenIndex],
-                                                      tokenAddress: state
-                                                          .nftCollectionsGroupEntity
-                                                          .collections[
-                                                              collectionIndex]
+                                                      tokenAddress: collection
                                                           .tokenAddress,
-                                                      walletAddress: state
-                                                          .nftCollectionsGroupEntity
-                                                          .collections[
-                                                              collectionIndex]
+                                                      walletAddress: collection
                                                           .tokenAddress,
-                                                      chain: state
-                                                          .nftCollectionsGroupEntity
-                                                          .collections[
-                                                              collectionIndex]
-                                                          .chain,
+                                                      chain: collection.chain,
                                                     );
                                                   },
                                                 ),

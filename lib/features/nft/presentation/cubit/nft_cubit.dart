@@ -33,6 +33,7 @@ class NftCubit extends BaseCubit<NftState> {
   ) : super(NftState.initial());
 
   final SnackbarService snackbarService = getIt<SnackbarService>();
+  List<SelectedNFTEntity> _selectedNftTokensListCached = [];
 
   Future<void> onGetNftCollections({
     String? chain,
@@ -164,6 +165,8 @@ class NftCubit extends BaseCubit<NftState> {
         final resultList =
             selectedNftTokensList.map((e) => e.toEntity()).toList();
 
+        _selectedNftTokensListCached = List.from(resultList);
+
         emit(
           state.copyWith(
             selectedNftTokensList: resultList,
@@ -191,35 +194,34 @@ class NftCubit extends BaseCubit<NftState> {
     return result;
   }
 
-  Future<void> onPostCollectionOrderSave({
-    required SaveSelectedTokensReorderRequestDto
-        saveSelectedTokensReorderRequestDto,
-  }) async {
-    EasyLoading.show();
+  Future<void> onCollectionOrderChanged() async {
+    if (state.selectedNftTokensList.isNotEmpty &&
+        state.selectedNftTokensList != _selectedNftTokensListCached) {
+      final request = SaveSelectedTokensReorderRequestDto(
+          order: state.selectedNftTokensList.map((e) => e.id).toList());
+      final response = await _nftRepository.postCollectionOrderSave(
+          saveSelectedTokensReorderRequestDto: request);
 
-    final response = await _nftRepository.postCollectionOrderSave(
-        saveSelectedTokensReorderRequestDto:
-            saveSelectedTokensReorderRequestDto);
+      response.fold(
+        (err) {
+          Log.error(err);
+          emit(state.copyWith(
+            submitStatus: RequestStatus.failure,
+            errorMessage: LocaleKeys.somethingError.tr(),
+          ));
+        },
+        (nftCollectionsGroup) {
+          onGetSelectedNftTokens();
 
-    EasyLoading.dismiss();
-
-    response.fold(
-      (err) {
-        Log.error(err);
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
-        ));
-      },
-      (nftCollectionsGroup) {
-        emit(
-          state.copyWith(
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-          ),
-        );
-      },
-    );
+          emit(
+            state.copyWith(
+              submitStatus: RequestStatus.success,
+              errorMessage: '',
+            ),
+          );
+        },
+      );
+    }
   }
 
   Future<void> onGetWelcomeNft({bool isShowLoader = true}) async {

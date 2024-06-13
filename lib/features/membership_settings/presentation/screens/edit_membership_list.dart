@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/router.dart';
-import 'package:mobile/features/nft/infrastructure/dtos/save_selected_token_reorder_request_dto.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
@@ -39,8 +38,10 @@ class EditMembershipListScreen extends StatefulWidget {
 
 class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    getIt<NftCubit>().onCollectionOrderChanged();
+
+    super.dispose();
   }
 
   @override
@@ -73,7 +74,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     ReorderableListView.builder(
-                                      key: UniqueKey(),
+                                      buildDefaultDragHandles: false,
                                       shrinkWrap: true,
                                       itemCount:
                                           state.selectedNftTokensList.length,
@@ -84,16 +85,13 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                         final name = nft.name;
                                         final chain = nft.chain.toLowerCase();
 
-                                        //
-                                        return ReorderableDelayedDragStartListener(
-                                          key: ValueKey(nft),
+                                        return SelectedNftItem(
+                                          key: ValueKey(
+                                              '${nft.id}-${nft.tokenAddress}-$index'),
                                           index: index,
-                                          child: SelectedNftItem(
-                                            key: ValueKey(nft),
-                                            imageUrl: imageUrl,
-                                            name: name,
-                                            chain: chain,
-                                          ),
+                                          imageUrl: imageUrl,
+                                          name: name,
+                                          chain: chain,
                                         );
                                       },
                                       onReorder: (oldIndex, newIndex) {
@@ -153,16 +151,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                             child: HMPCustomButton(
                               text: LocaleKeys.next.tr(),
                               onPressed: () {
-                                List<String> order = [];
-
-                                for (var nft in state.selectedNftTokensList) {
-                                  order.add(nft.id);
-                                }
-
-                                getIt<NftCubit>().onPostCollectionOrderSave(
-                                    saveSelectedTokensReorderRequestDto:
-                                        SaveSelectedTokensReorderRequestDto(
-                                            order: order));
+                                getIt<NftCubit>().onCollectionOrderChanged();
 
                                 // Navigate to Home
                                 Navigator.pushNamedAndRemoveUntil(
