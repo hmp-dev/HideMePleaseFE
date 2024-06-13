@@ -22,18 +22,18 @@ class NftNetworkInfoWidget extends StatelessWidget {
           child: Column(
             children: [
               NftDetailValueTile(
-                title: "Chain",
+                title: "네트워크", //chian
                 value: state.nftNetworkEntity.network,
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 child: NftDetailValueTile(
-                  title: "Holders",
+                  title: "홀더 수", //"Holders",
                   value: state.nftNetworkEntity.holderCount,
                 ),
               ),
               NftDetailValueTile(
-                title: "Floor Price",
+                title: "바닥가", //"Floor Price",
                 value: "${state.nftNetworkEntity.floorPrice}",
               ),
             ],

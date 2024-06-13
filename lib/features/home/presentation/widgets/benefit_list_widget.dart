@@ -10,7 +10,9 @@ import 'package:mobile/features/home/presentation/widgets/home_benefits_item_wid
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class BenefitListWidget extends StatefulWidget {
-  const BenefitListWidget({super.key});
+  const BenefitListWidget({
+    super.key,
+  });
 
   @override
   State<BenefitListWidget> createState() => _BenefitListWidgetState();
@@ -48,7 +50,6 @@ class _BenefitListWidgetState extends State<BenefitListWidget> {
                 itemCount: state.nftBenefitList.length,
                 itemBuilder: (context, index) {
                   return HomeBenefitItemWidget(
-                    
                     nftBenefitEntity: state.nftBenefitList[index],
                   );
                 },

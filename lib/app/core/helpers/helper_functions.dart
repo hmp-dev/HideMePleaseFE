@@ -321,6 +321,76 @@ Future<bool> showWithdrawConfirmationAlertDialog({
   return result ?? false;
 }
 
+Future<bool> showEnableLocationAlertDialog({
+  required BuildContext context,
+  required String title,
+  required Function onConfirm,
+  required Function onCancel,
+}) async {
+  bool? result = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          backgroundColor: Colors.grey.shade900,
+          // backgroundColor: const Color(0xFF4E4E55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          title: Center(
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: bg4,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: CustomImageView(
+                  svgPath: "assets/icons/ic_info_icon.svg",
+                  width: 20,
+                  height: 20,
+                ),
+              ),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min, // Use min to fit content
+            children: [
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: fontBodySm(),
+              ),
+              const SizedBox(height: 20), // Spacing between text and buttons
+              HMPCustomButton(
+                bgColor: bg4,
+                text: LocaleKeys.confirm.tr(),
+                onPressed: () {
+                  onConfirm();
+                  Navigator.of(context)
+                      .pop(true); // Close the dialog and return true
+                },
+              ),
+              const SizedBox(height: 10), // Spacing between buttons
+              RoundedButtonWithBorder(
+                bgColor: const Color(0xFF4E4E55),
+                text: LocaleKeys.cancel.tr(),
+                onPressed: () {
+                  onCancel();
+                },
+              ),
+            ],
+          ),
+          actions: const <Widget>[],
+        ),
+      );
+    },
+  );
+
+  return result ?? false;
+}
+
 String getLocalCategoryName(String categoryName) {
   switch (categoryName) {
     case 'ENTIRE':

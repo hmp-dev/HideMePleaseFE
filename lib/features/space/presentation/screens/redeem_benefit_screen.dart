@@ -87,7 +87,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
           title: LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
           isCenterTitle: true,
           onBack: () {
-            Navigator.pop(context);
+            Navigator.of(context).pop();
           },
           backIconPath: 'assets/icons/ic_close.svg',
           body: SafeArea(
@@ -286,7 +286,7 @@ class _SunriseWidgetState extends State<SunriseWidget>
   void _onLongPress() {
     _fillFull = false;
     _controller.forward().whenComplete(() async {
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 200));
       widget.onSubmitRedeem();
       setState(() {
         _fillFull = true;

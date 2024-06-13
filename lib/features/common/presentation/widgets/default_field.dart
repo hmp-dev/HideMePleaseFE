@@ -53,7 +53,7 @@ class DefaultField extends StatefulWidget {
 
 class _DefaultFieldState extends State<DefaultField> {
   late TextEditingController _controller;
-  
+
   late FocusNode focusNode;
 
   @override
@@ -136,8 +136,7 @@ class _DefaultFieldState extends State<DefaultField> {
                 fillColor: bgNega5,
                 counterText: "",
                 hintText: widget.hintText ?? "",
-                hintStyle:
-                    (widget.textStyle ?? fontR(20)).copyWith(color: gray900),
+                hintStyle: fontCompactMd(color: fore3),
                 contentPadding: EdgeInsets.symmetric(
                     vertical: 15, horizontal: widget.isBorderType ? 16 : 0),
                 disabledBorder: border,

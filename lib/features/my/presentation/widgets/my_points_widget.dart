@@ -6,8 +6,8 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
+import 'package:mobile/features/common/presentation/widgets/info_text_tool_tip_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
 import 'package:mobile/features/my/presentation/screens/my_points_detail.dart';
 import 'package:mobile/features/my/presentation/widgets/points_info_box_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/points_item_widget.dart';
@@ -45,102 +45,106 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
             ),
           )
         else
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  children: [
-                    Text(LocaleKeys.myPoints.tr(), style: fontTitle07Medium()),
-                    const HorizontalSpace(10),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _isShowToolTip = !_isShowToolTip;
-                        });
-                      },
-                      child: DefaultImage(
-                        path: "assets/icons/ic_info.svg",
-                        width: 20,
-                        height: 20,
-                        color: white,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              const VerticalSpace(20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.nftPointsList.length,
-                  itemBuilder: (context, index) {
-                    // get a value true if the index is the last one in widget.nftPointsList
-
-                    return PointsItemWidget(
-                      nftPointsEntity: widget.nftPointsList[index],
-                      isLastItem: index == widget.nftPointsList.length - 1,
-                      onTap: () {
-                        //
-                        getIt<NftCubit>().onGetNftUsageHistory(
-                            tokenAddress:
-                                widget.nftPointsList[index].tokenAddress);
-
-                        MyPointsDetailScreen.push(
-                            context, widget.nftPointsList[index]);
-                      },
-                    );
-                  },
-                ),
-              ),
-              if (widget.isOwner)
-                const Divider(
-                  color: bgNega5,
-                  height: 8,
-                  thickness: 8,
-                ),
-              if (widget.isOwner)
+          SingleChildScrollView(
+            child: Column(
+              children: [
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text(
-                        LocaleKeys.pointsAccumulationMission.tr(),
-                        style: fontTitle07Medium(),
-                      ),
-                      const VerticalSpace(20),
-                      PointsInfoBoxWidget(
-                        subTitle: LocaleKeys.spaceVisit.tr(),
-                        title: LocaleKeys
-                            .whenUsingBenefitsAfterVisitingAffiliateSpace
-                            .tr(),
-                        buttonTitle: LocaleKeys.useTheBenefitAndGet1P.tr(),
-                        onPressed: () {
-                          //Navigate Back and go to Space Screen
-                          Navigator.pop(context);
-                          getIt<PageCubit>().changePage(
-                              MenuType.space.menuIndex, MenuType.space);
-                          // fetch Space Related Data
-                          // init Cubit function to get all space view data
-                          getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                      Text(LocaleKeys.myPoints.tr(),
+                          style: fontTitle07Medium()),
+                      const HorizontalSpace(10),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isShowToolTip = !_isShowToolTip;
+                          });
                         },
-                      ),
-                      const VerticalSpace(20),
-                      PointsInfoBoxWidget(
-                        subTitle: LocaleKeys.communityInvolvement.tr(),
-                        title: LocaleKeys
-                            .whenParticipatingInConversationsInTheCommunity30Times
-                            .tr(),
-                        buttonTitle: LocaleKeys.talkAnd1P.tr(),
-                        onPressed: () {},
+                        child: DefaultImage(
+                          path: "assets/icons/ic_info.svg",
+                          width: 20,
+                          height: 20,
+                          color: white,
+                        ),
                       )
                     ],
                   ),
-                )
-            ],
+                ),
+                const VerticalSpace(20),
+                Container(
+                  height: MediaQuery.of(context).size.height - 125,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: widget.nftPointsList.length,
+                    itemBuilder: (context, index) {
+                      // get a value true if the index is the last one in widget.nftPointsList
+
+                      return PointsItemWidget(
+                        nftPointsEntity: widget.nftPointsList[index],
+                        isLastItem: index == widget.nftPointsList.length - 1,
+                        onTap: () {
+                          //
+                          getIt<NftCubit>().onGetNftUsageHistory(
+                              tokenAddress:
+                                  widget.nftPointsList[index].tokenAddress);
+
+                          MyPointsDetailScreen.push(
+                              context, widget.nftPointsList[index]);
+                        },
+                      );
+                    },
+                  ),
+                ),
+                if (widget.isOwner)
+                  const Divider(
+                    color: bgNega5,
+                    height: 8,
+                    thickness: 8,
+                  ),
+                if (widget.isOwner)
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          LocaleKeys.pointsAccumulationMission.tr(),
+                          style: fontTitle07Medium(),
+                        ),
+                        const VerticalSpace(20),
+                        PointsInfoBoxWidget(
+                          subTitle: LocaleKeys.spaceVisit.tr(),
+                          title: LocaleKeys
+                              .whenUsingBenefitsAfterVisitingAffiliateSpace
+                              .tr(),
+                          buttonTitle: LocaleKeys.useTheBenefitAndGet1P.tr(),
+                          onPressed: () {
+                            //Navigate Back and go to Space Screen
+                            Navigator.pop(context);
+                            getIt<PageCubit>().changePage(
+                                MenuType.space.menuIndex, MenuType.space);
+                            // fetch Space Related Data
+                            // init Cubit function to get all space view data
+                            getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                          },
+                        ),
+                        const VerticalSpace(20),
+                        PointsInfoBoxWidget(
+                          subTitle: LocaleKeys.communityInvolvement.tr(),
+                          title: LocaleKeys
+                              .whenParticipatingInConversationsInTheCommunity30Times
+                              .tr(),
+                          buttonTitle: LocaleKeys.talkAnd1P.tr(),
+                          onPressed: () {},
+                        )
+                      ],
+                    ),
+                  )
+              ],
+            ),
           ),
         if (_isShowToolTip)
           Positioned(

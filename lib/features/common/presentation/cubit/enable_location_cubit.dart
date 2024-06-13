@@ -2,6 +2,7 @@
 
 import 'package:geolocator/geolocator.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -103,10 +104,21 @@ class EnableLocationCubit extends BaseCubit<EnableLocationState> {
           'Latitude: ${position.latitude}, Longitude: ${position.longitude}');
 
       emit(state.copyWith(
+        isLocationDenied: false,
         submitStatus: RequestStatus.success,
         latitude: position.latitude,
         longitude: position.longitude,
       ));
+    }
+  }
+
+  void onAskDeviceLocationWithOpenSettings() async {
+    var result = await openAppSettings();
+
+    if (result) {
+      "I am inside result".log();
+
+      onAskDeviceLocation();
     }
   }
 }
