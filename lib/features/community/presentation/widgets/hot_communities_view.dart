@@ -49,6 +49,7 @@ class HotCommunitiesView extends StatelessWidget {
               return NftCommunityCardWidget(
                 onTap: () => onCommunityTap(hotNftCommunities[index]),
                 title: hotNftCommunities[index].name,
+                networkLogo: hotNftCommunities[index].chainLogo,
                 imagePath: hotNftCommunities[index].collectionLogo,
                 people: hotNftCommunities[index].people,
                 rank: hotNftCommunities[index].rank,

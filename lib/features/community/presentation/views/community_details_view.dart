@@ -1,18 +1,20 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/community/domain/entities/community_member_entity.dart';
 import 'package:mobile/features/community/domain/entities/top_collection_nft_entity.dart';
+import 'package:mobile/features/community/presentation/widgets/community_error_view.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_network_entity.dart';
 
 class CommunityDetailsView extends StatelessWidget {
   final VoidCallback onEnterChat;
   final VoidCallback onRetry;
+  final VoidCallback onTapRank;
   final void Function(CommunityMemberEntity) onMemberTap;
   final TopCollectionNftEntity nftEntity;
   final int benefitCount;
@@ -29,6 +31,7 @@ class CommunityDetailsView extends StatelessWidget {
     super.key,
     required this.onEnterChat,
     required this.onRetry,
+    required this.onTapRank,
     required this.onMemberTap,
     required this.nftEntity,
     required this.benefitCount,
@@ -82,18 +85,36 @@ class CommunityDetailsView extends StatelessWidget {
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
                 collapseMode: CollapseMode.pin,
-                background: Center(
-                  child: Text(
-                    nftEntity.name,
-                    style: fontBody2Bold(),
-                    maxLines: 2,
-                  ),
+                background: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 72.0,
+                      child: CachedNetworkImage(
+                        imageUrl: nftEntity.collectionLogo,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: bg3.withOpacity(0.5),
+                      ),
+                      child: Text(
+                        nftEntity.name,
+                        style: fontBody2Bold(),
+                        maxLines: 2,
+                      ),
+                    ),
+                  ],
                 ),
                 expandedTitleScale: 1.0,
               ),
               bottom: TabBar(
                 padding: EdgeInsets.zero,
-                labelPadding: const EdgeInsets.symmetric(vertical: 19.5),
+                labelPadding: const EdgeInsets.symmetric(vertical: 12),
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelStyle: fontTitle07SemiBold(color: fore1),
                 unselectedLabelStyle: fontTitle07(color: fore3),
@@ -109,7 +130,7 @@ class CommunityDetailsView extends StatelessWidget {
           ];
         },
         body: Container(
-          color: bgNega5,
+          color: bg1,
           child: TabBarView(
             children: [
               if (infoLoading)
@@ -117,9 +138,10 @@ class CommunityDetailsView extends StatelessWidget {
                   'assets/lottie/loader.json',
                 )
               else if (infoError)
-                _ErrorView(onRetry: onRetry)
+                CommunityErrorView(onRetry: onRetry)
               else
                 _CommunityInfoView(
+                    onTapRank: onTapRank,
                     koreanNumFormat: koreanNumFormat,
                     nftEntity: nftEntity,
                     benefitCount: benefitCount,
@@ -132,7 +154,7 @@ class CommunityDetailsView extends StatelessWidget {
                         'assets/lottie/loader.json',
                       )
                     : membersError
-                        ? _ErrorView(onRetry: onRetry)
+                        ? CommunityErrorView(onRetry: onRetry)
                         : communityMembers.isEmpty
                             ? ListView(
                                 padding: const EdgeInsets.symmetric(
@@ -168,9 +190,11 @@ class CommunityDetailsView extends StatelessWidget {
                                   horizontal: 16.0,
                                 ),
                                 separatorBuilder: (context, index) => Container(
-                                  // padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 16.0),
                                   height: 1.0,
-                                  color: fore5,
+                                  width: double.infinity,
+                                  color: fore5.withOpacity(0.05),
                                 ),
                                 itemBuilder: (context, index) {
                                   final member = communityMembers[index];
@@ -227,6 +251,7 @@ class CommunityDetailsView extends StatelessWidget {
 class _CommunityInfoView extends StatefulWidget {
   const _CommunityInfoView({
     super.key,
+    required this.onTapRank,
     required this.koreanNumFormat,
     required this.nftEntity,
     required this.benefitCount,
@@ -239,6 +264,7 @@ class _CommunityInfoView extends StatefulWidget {
   final int benefitCount;
   final List<BenefitEntity> nftBenefits;
   final NftNetworkEntity nftNetwork;
+  final VoidCallback onTapRank;
 
   @override
   State<_CommunityInfoView> createState() => _CommunityInfoViewState();
@@ -288,32 +314,35 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(12.0),
-                        decoration: BoxDecoration(
-                          color: bgNega4,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text('포인트 랭킹 ',
-                                    style: fontCompactXs(color: fore2)),
-                                const SizedBox(height: 2),
-                                DefaultImage(
-                                  path: 'assets/icons/arrow_right.svg',
-                                  width: 14.0,
-                                  height: 14.0,
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                                '${widget.koreanNumFormat.format(widget.nftEntity.communityRank)}위',
-                                style: fontBoldEmpty(color: fore1)),
-                          ],
+                      child: GestureDetector(
+                        onTap: widget.onTapRank,
+                        child: Container(
+                          padding: const EdgeInsets.all(12.0),
+                          decoration: BoxDecoration(
+                            color: bgNega4,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text('포인트 랭킹 ',
+                                      style: fontCompactXs(color: fore2)),
+                                  const SizedBox(height: 2),
+                                  DefaultImage(
+                                    path: 'assets/icons/arrow_right.svg',
+                                    width: 14.0,
+                                    height: 14.0,
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                  '${widget.koreanNumFormat.format(widget.nftEntity.communityRank)}위',
+                                  style: fontBoldEmpty(color: fore1)),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -324,7 +353,11 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
             ],
           ),
         ),
-        const SizedBox(height: 8.0),
+        Container(
+          color: bgNega5,
+          height: 8.0,
+          width: double.infinity,
+        ),
         Container(
           padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 20.0),
           color: bg1,
@@ -434,7 +467,11 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
             ],
           ),
         ),
-        const SizedBox(height: 8.0),
+        Container(
+          color: bgNega5,
+          height: 8.0,
+          width: double.infinity,
+        ),
         Container(
           padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 20.0),
           color: bg1,
@@ -471,9 +508,13 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
             ],
           ),
         ),
-        const SizedBox(height: 8.0),
         Container(
-          padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 20.0),
+          color: bgNega5,
+          height: 8.0,
+          width: double.infinity,
+        ),
+        Container(
+          padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 100.0),
           color: bg1,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,31 +560,6 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorView({this.message = '뭔가 잘못됐어', required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 183,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(message, style: fontTitle07(color: fore3)),
-          const SizedBox(height: 16.0),
-          HMPCustomButton(
-            bgColor: backgroundGr1,
-            text: '다시 장전하다',
-            onPressed: onRetry,
-          ),
-        ],
-      ),
     );
   }
 }

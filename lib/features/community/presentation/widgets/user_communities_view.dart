@@ -8,10 +8,12 @@ import 'package:mobile/features/community/presentation/widgets/participated_comm
 class UserCommunitiesView extends StatelessWidget {
   const UserCommunitiesView({
     super.key,
+    required this.onTap,
     required this.onEnterChat,
     required this.userNftCommunities,
   });
 
+  final void Function(NftCommunityEntity) onTap;
   final void Function(NftCommunityEntity) onEnterChat;
   final List<NftCommunityEntity> userNftCommunities;
 
@@ -47,7 +49,7 @@ class UserCommunitiesView extends StatelessWidget {
                 ),
                 const SizedBox(width: 5),
                 DefaultImage(
-                  path: "assets/icons/ic_arrow_down.svg",
+                  path: "assets/icons/arrow_right.svg",
                   width: 14,
                   height: 14,
                 ),
@@ -68,10 +70,12 @@ class UserCommunitiesView extends StatelessWidget {
                     ? MediaQuery.of(context).size.width - 40.0
                     : MediaQuery.of(context).size.width * 0.75,
                 child: ParticipatedCommunityNftView(
-                  onTap: () => onEnterChat(userNftCommunities[index]),
+                  onTap: () => onTap(userNftCommunities[index]),
+                  onEnterChat: () => onEnterChat(userNftCommunities[index]),
                   communityPeoples: userNftCommunities[index].people,
                   recentMsgs: recentDummyMsgs,
                   communityName: userNftCommunities[index].name,
+                  collectionLogo: userNftCommunities[index].collectionLogo,
                   networkLogo:
                       "assets/chain-logos/${userNftCommunities[index].chain.toLowerCase()}_chain.svg",
                   unreadMsgCount: 99,

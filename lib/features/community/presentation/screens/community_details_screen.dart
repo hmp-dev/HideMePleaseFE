@@ -4,6 +4,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/domain/entities/top_collection_nft_entity.dart';
 import 'package:mobile/features/community/presentation/cubit/community_details_cubit.dart';
+import 'package:mobile/features/community/presentation/screens/community_ranking_screen.dart';
 import 'package:mobile/features/community/presentation/views/community_details_view.dart';
 import 'package:mobile/features/my/presentation/screens/member_details_screen.dart';
 
@@ -22,6 +23,11 @@ class CommunityDetailsScreen extends StatelessWidget {
           onEnterChat: () {},
           onRetry: () => getIt<CommunityDetailsCubit>()
               .onStart(tokenAddress: nftCommunity.tokenAddress),
+          onTapRank: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) =>
+                      CommunityRankingScreen(nftInfo: state.nftInfo))),
           onMemberTap: (member) {
             Navigator.push(
               context,
@@ -30,7 +36,9 @@ class CommunityDetailsScreen extends StatelessWidget {
             );
           },
           nftEntity: TopCollectionNftEntity(
+            index: 0,
             pointFluctuation: state.nftInfo.pointFluctuation,
+            totalMembers: state.nftInfo.totalMembers,
             tokenAddress: nftCommunity.tokenAddress,
             name: nftCommunity.name,
             chain: state.nftNetworkInfo.network,
