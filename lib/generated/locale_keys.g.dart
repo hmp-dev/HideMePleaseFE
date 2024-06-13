@@ -111,6 +111,7 @@ abstract class  LocaleKeys {
   static const getAFreeNft = 'getAFreeNft';
   static const allCommunity = 'allCommunity';
   static const byPoints = 'byPoints';
+  static const byMembers = 'byMembers';
   static const immediatelyJoinableCommunity = 'immediatelyJoinableCommunity';
   static const numberOfPeople = 'numberOfPeople';
   static const remaining = 'remaining';

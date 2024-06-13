@@ -39,17 +39,11 @@ class ParticipatedCommunityNftView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            networkLogo == ""
-                ? CustomImageView(
-                    imagePath: "assets/images/home_card_img.png",
-                    width: 28,
-                    height: 28,
-                  )
-                : CustomImageView(
-                    url: networkLogo,
-                    width: 28,
-                    height: 28,
-                  ),
+            CustomImageView(
+              svgPath: networkLogo,
+              width: 28,
+              height: 28,
+            ),
             const SizedBox(height: 16.0),
             Text(
               communityName,

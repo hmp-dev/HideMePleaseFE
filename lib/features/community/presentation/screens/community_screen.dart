@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/community/presentation/cubit/community_cubit.dart';
@@ -42,6 +43,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 onEnterChat: (community) {},
                 onConnectWallet: () {},
                 onGetFreeNft: () {},
+                onOrderByChanged: (orderBy) =>
+                    getIt<CommunityCubit>().onOrderByChanged(orderBy),
+                orderBy: state.allNftCommOrderBy,
                 totalFreeNfts: '2,000',
                 remainingFreeNfts: '692 남음',
                 redeemedFreeNfts: '1,308',
@@ -52,7 +56,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 userNftCommunities: state.userNftCommunities,
                 allNftCommOrderBy: state.allNftCommOrderBy,
                 isWalletConnected:
-                    true, // homeState.homeViewType == HomeViewType.afterWalletConnected,
+                    homeState.homeViewType == HomeViewType.afterWalletConnected,
                 redeemedFreeNft: true,
               );
             });
