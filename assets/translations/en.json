@@ -144,5 +144,7 @@
     "employeeConfirmation": "Employee confirmation",
     "saveTitle": "Save",
     "longPressToUseBenefits":"Long press to use benefits",
-    "peopleAreHiding":"People are Hiding"
+    "peopleAreHiding":"People are Hiding",
+    "enableLocationAlertMessage":"In order to use the benefit, location information must be shared.",
+    "nickNameIsAlreadyUsed":"Nick Name is already used"
 }

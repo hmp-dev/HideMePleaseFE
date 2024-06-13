@@ -1,21 +1,19 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/load_more_icon_button.dart';
-import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
-import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/my/presentation/screens/nft_benefits_usage_history_detail.dart';
 import 'package:mobile/features/my/presentation/widgets/benefits_item_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/nft_network_info_widget.dart';
+import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyMembershipNftDetailScreen extends StatefulWidget {
@@ -116,9 +114,10 @@ class _MyMembershipNftDetailScreenState
                     },
                   ),
                 ),
-                LoadMoreIconButton(
-                  onTap: () {},
-                ),
+                //TODO implement Loadmore
+                // LoadMoreIconButton(
+                //   onTap: () {},
+                // ),
                 const VerticalSpace(20),
                 const ThickDivider(),
                 Align(
@@ -154,6 +153,7 @@ class _MyMembershipNftDetailScreenState
   ) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Stack(
           children: [
@@ -193,5 +193,3 @@ class _MyMembershipNftDetailScreenState
     );
   }
 }
-
-

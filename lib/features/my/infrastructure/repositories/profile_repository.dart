@@ -73,4 +73,24 @@ class ProfileRepositoryImpl implements ProfileRepository {
       ));
     }
   }
+
+  @override
+  Future<Either<HMPError, bool>> getRequestCheckNickNameExists(
+      String nickName) async {
+    try {
+      final response = await _remoteDataSource.checkNickNameExist(nickName);
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
 }
