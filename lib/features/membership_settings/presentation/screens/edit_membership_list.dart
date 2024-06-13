@@ -39,8 +39,10 @@ class EditMembershipListScreen extends StatefulWidget {
 
 class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    getIt<NftCubit>().onCollectionOrderChanged();
+
+    super.dispose();
   }
 
   @override
@@ -73,7 +75,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     ReorderableListView.builder(
-                                      key: UniqueKey(),
+                                      buildDefaultDragHandles: false,
                                       shrinkWrap: true,
                                       itemCount:
                                           state.selectedNftTokensList.length,
@@ -84,16 +86,13 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                         final name = nft.name;
                                         final chain = nft.chain.toLowerCase();
 
-                                        //
-                                        return ReorderableDelayedDragStartListener(
-                                          key: ValueKey(nft),
+                                        return SelectedNftItem(
+                                          key: ValueKey(
+                                              '${nft.id}-${nft.tokenAddress}-$index'),
                                           index: index,
-                                          child: SelectedNftItem(
-                                            key: ValueKey(nft),
-                                            imageUrl: imageUrl,
-                                            name: name,
-                                            chain: chain,
-                                          ),
+                                          imageUrl: imageUrl,
+                                          name: name,
+                                          chain: chain,
                                         );
                                       },
                                       onReorder: (oldIndex, newIndex) {
@@ -153,16 +152,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                             child: HMPCustomButton(
                               text: LocaleKeys.next.tr(),
                               onPressed: () {
-                                List<String> order = [];
-
-                                for (var nft in state.selectedNftTokensList) {
-                                  order.add(nft.id);
-                                }
-
-                                getIt<NftCubit>().onPostCollectionOrderSave(
-                                    saveSelectedTokensReorderRequestDto:
-                                        SaveSelectedTokensReorderRequestDto(
-                                            order: order));
+                                getIt<NftCubit>().onCollectionOrderChanged();
 
                                 // Navigate to Home
                                 Navigator.pushNamedAndRemoveUntil(
