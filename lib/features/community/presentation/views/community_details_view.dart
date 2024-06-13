@@ -366,7 +366,7 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                             width: 68.0,
                             height: 68.0,
                             child: CustomImageView(
-                              imagePath: benefit.spaceImage,
+                              url: benefit.spaceImage,
                               width: 68.0,
                               height: 68.0,
                             ),
@@ -495,8 +495,8 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                   Text('홀더 수', style: fontTitle07(color: fore2)),
                   Expanded(
                     child: Text(
-                        widget.koreanNumFormat
-                            .format(int.parse(widget.nftNetwork.holderCount)),
+                        widget.koreanNumFormat.format(
+                            int.tryParse(widget.nftNetwork.holderCount) ?? 0),
                         textAlign: TextAlign.end,
                         style: fontTitle07()),
                   ),

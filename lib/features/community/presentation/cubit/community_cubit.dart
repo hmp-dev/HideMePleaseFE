@@ -34,6 +34,11 @@ class CommunityCubit extends BaseCubit<CommunityState> {
     );
   }
 
+  void onOrderByChanged(GetNftCommunityOrderBy orderBy) {
+    emit(state.copyWith(orderBy: orderBy));
+    onGetAllNftCommunities();
+  }
+
   Future<void> onGetHotNftCommunities() async {
     final hotNftCommsRes = await _nftRepository.getHotNftCommunities();
     hotNftCommsRes.fold(

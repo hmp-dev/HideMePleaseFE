@@ -29,6 +29,8 @@ class CommunityView extends StatefulWidget {
   final GetNftCommunityOrderBy allNftCommOrderBy;
   final bool isWalletConnected;
   final bool redeemedFreeNft;
+  final GetNftCommunityOrderBy orderBy;
+  final void Function(GetNftCommunityOrderBy) onOrderByChanged;
 
   const CommunityView({
     super.key,
@@ -48,6 +50,8 @@ class CommunityView extends StatefulWidget {
     required this.allNftCommOrderBy,
     required this.isWalletConnected,
     required this.redeemedFreeNft,
+    required this.orderBy,
+    required this.onOrderByChanged,
   });
 
   @override
@@ -114,8 +118,10 @@ class _CommunityViewState extends State<CommunityView> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child:
-                    AllCommunitiesHeader(communityCount: widget.communityCount),
+                child: AllCommunitiesHeader(
+                    orderBy: widget.orderBy,
+                    onOrderByChanged: widget.onOrderByChanged,
+                    communityCount: widget.communityCount),
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 20)),
@@ -170,9 +176,13 @@ class AllCommunitiesHeader extends StatelessWidget {
   const AllCommunitiesHeader({
     super.key,
     required this.communityCount,
+    required this.orderBy,
+    required this.onOrderByChanged,
   });
 
   final int communityCount;
+  final GetNftCommunityOrderBy orderBy;
+  final void Function(GetNftCommunityOrderBy) onOrderByChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -193,20 +203,37 @@ class AllCommunitiesHeader extends StatelessWidget {
             ),
           ],
         ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              LocaleKeys.byPoints.tr(),
-              style: fontCompactSm(color: fore2),
-            ),
-            const SizedBox(width: 5),
-            DefaultImage(
-              path: "assets/icons/ic_arrow_down.svg",
-              width: 14,
-              height: 14,
-            ),
-          ],
+        PopupMenuButton<GetNftCommunityOrderBy>(
+          initialValue: orderBy,
+          itemBuilder: (_) => GetNftCommunityOrderBy.values
+              .map((e) => PopupMenuItem<GetNftCommunityOrderBy>(
+                    value: e,
+                    child: Text(
+                      e == GetNftCommunityOrderBy.points
+                          ? LocaleKeys.byPoints.tr()
+                          : LocaleKeys.byMembers.tr(),
+                      style: fontCompactSm(color: fore2),
+                    ),
+                  ))
+              .toList(),
+          onSelected: onOrderByChanged,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                orderBy == GetNftCommunityOrderBy.points
+                    ? LocaleKeys.byPoints.tr()
+                    : LocaleKeys.byMembers.tr(),
+                style: fontCompactSm(color: fore2),
+              ),
+              const SizedBox(width: 5),
+              DefaultImage(
+                path: "assets/icons/ic_arrow_down.svg",
+                width: 14,
+                height: 14,
+              ),
+            ],
+          ),
         ),
       ],
     );

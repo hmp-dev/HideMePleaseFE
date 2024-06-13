@@ -72,7 +72,8 @@ class UserCommunitiesView extends StatelessWidget {
                   communityPeoples: userNftCommunities[index].people,
                   recentMsgs: recentDummyMsgs,
                   communityName: userNftCommunities[index].name,
-                  networkLogo: userNftCommunities[index].collectionLogo,
+                  networkLogo:
+                      "assets/chain-logos/${userNftCommunities[index].chain.toLowerCase()}_chain.svg",
                   unreadMsgCount: 99,
                 ),
               );

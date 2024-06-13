@@ -84,4 +84,4 @@ class NftCommunitytDto extends Equatable {
       );
 }
 
-enum GetNftCommunityOrderBy { page, points }
+enum GetNftCommunityOrderBy { points, members }
