@@ -8,6 +8,7 @@ part 'top_collection_nft_dto.g.dart';
 class TopCollectionNftDto extends Equatable {
   final int? pointFluctuation;
   final int? totalPoints;
+  final int? totalMembers;
   final String? tokenAddress;
   final String? collectionLogo;
   final String? name;
@@ -18,6 +19,7 @@ class TopCollectionNftDto extends Equatable {
   const TopCollectionNftDto({
     this.pointFluctuation,
     this.totalPoints,
+    this.totalMembers,
     this.tokenAddress,
     this.collectionLogo,
     this.name,
@@ -36,6 +38,7 @@ class TopCollectionNftDto extends Equatable {
     return [
       pointFluctuation,
       totalPoints,
+      totalMembers,
       tokenAddress,
       collectionLogo,
       name,
@@ -46,8 +49,10 @@ class TopCollectionNftDto extends Equatable {
   }
 
   TopCollectionNftEntity toEntity() => TopCollectionNftEntity(
+        index: 0,
         pointFluctuation: pointFluctuation ?? 0,
         totalPoints: totalPoints ?? 0,
+        totalMembers: totalMembers ?? 0,
         tokenAddress: tokenAddress ?? '',
         collectionLogo: collectionLogo ?? '',
         name: name ?? '',

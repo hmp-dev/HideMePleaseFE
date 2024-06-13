@@ -10,6 +10,7 @@ TopCollectionNftDto _$TopCollectionNftDtoFromJson(Map<String, dynamic> json) =>
     TopCollectionNftDto(
       pointFluctuation: json['pointFluctuation'] as int?,
       totalPoints: json['totalPoints'] as int?,
+      totalMembers: json['totalMembers'] as int?,
       tokenAddress: json['tokenAddress'] as String?,
       collectionLogo: json['collectionLogo'] as String?,
       name: json['name'] as String?,
@@ -23,6 +24,7 @@ Map<String, dynamic> _$TopCollectionNftDtoToJson(
     <String, dynamic>{
       'pointFluctuation': instance.pointFluctuation,
       'totalPoints': instance.totalPoints,
+      'totalMembers': instance.totalMembers,
       'tokenAddress': instance.tokenAddress,
       'collectionLogo': instance.collectionLogo,
       'name': instance.name,
