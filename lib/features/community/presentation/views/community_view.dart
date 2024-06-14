@@ -81,6 +81,7 @@ class _CommunityViewState extends State<CommunityView> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: UserCommunitiesView(
+                    onTap: widget.onCommunityTap,
                     onEnterChat: widget.onEnterChat,
                     userNftCommunities: widget.userNftCommunities,
                   ),
@@ -141,6 +142,7 @@ class _CommunityViewState extends State<CommunityView> {
                     onTap: () =>
                         widget.onCommunityTap(widget.allNftCommunities[index]),
                     title: widget.allNftCommunities[index].name,
+                    networkLogo: widget.allNftCommunities[index].chainLogo,
                     imagePath: widget.allNftCommunities[index].collectionLogo,
                     people: widget.allNftCommunities[index].people,
                     rank: widget.allNftCommunities[index].rank,

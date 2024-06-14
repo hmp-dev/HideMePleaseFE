@@ -41,6 +41,8 @@ class NftCommunityEntity extends Equatable {
 
   String get rank => '$communityRank위';
 
+  String get chainLogo => "assets/chain-logos/${chain.toLowerCase()}_chain.svg";
+
   @override
   List<Object?> get props {
     return [

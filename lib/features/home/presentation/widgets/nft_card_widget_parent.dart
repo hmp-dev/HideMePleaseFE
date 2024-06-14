@@ -70,7 +70,7 @@ class NFTCardWidgetParent extends StatelessWidget {
                     width: 322,
                     height: 482,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(2),
                       border: Border.all(
                         color: black100,
                         width: 1,
