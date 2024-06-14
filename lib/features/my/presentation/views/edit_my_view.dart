@@ -119,7 +119,7 @@ class _MyEditViewState extends State<MyEditView> {
                             guideMsg: widget.nickNameState.nickName == ''
                                 ? ''
                                 : widget.nickNameState.nickNameError
-                                    ? LocaleKeys.used.tr()
+                                    ? LocaleKeys.nickNameIsAlreadyUsed.tr()
                                     : LocaleKeys.available.tr(),
                             isError: widget.nickNameState.nickNameError,
                             color: widget.nickNameState.nickNameError

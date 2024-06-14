@@ -1,6 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/network/network.dart';
+import 'package:mobile/features/space/infrastructure/dtos/benefit_redeem_error_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/benefits_group_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_dto.dart';
@@ -39,6 +40,46 @@ class SpaceRemoteDataSource {
     return response.data;
   }
 
+  // Future<bool> postRedeemBenefit({
+  //   required String benefitId,
+  //   required String tokenAddress,
+  //   required String spaceId,
+  //   required double latitude,
+  //   required double longitude,
+  // }) async {
+  //   // Construct the query parameters
+  //   final Map<String, dynamic> queryParams = {
+  //     "latitude": latitude,
+  //     "longitude": longitude,
+  //     'spaceId': spaceId,
+  //     'tokenAddress': tokenAddress,
+  //   };
+
+  //   final response =
+  //       await _network.post("space/benefits/redeem/$benefitId", queryParams);
+
+  //   if (response.statusCode == 204) {
+  //     return true;
+  //   }
+
+  //   if (response.statusCode == 400) {
+  //     "inside Status Code is 400  **********************************************"
+  //         .log();
+  //     // Parse the response body
+  //     final Map<String, dynamic> responseBody = json.decode(response.data);
+  //     final errorCode = responseBody['error']['code'];
+  //     final errorMessage = responseBody['error']['message'];
+
+  //     throw BenefitRedeemErrorDto(
+  //       message: errorMessage,
+  //       error: errorCode,
+  //       trace: StackTrace.current.toString(),
+  //     );
+  //   }
+
+  //   return false;
+  // }
+
   Future<bool> postRedeemBenefit({
     required String benefitId,
     required String tokenAddress,
@@ -46,24 +87,47 @@ class SpaceRemoteDataSource {
     required double latitude,
     required double longitude,
   }) async {
-    // Construct the query parameters
-    final Map<String, dynamic> queryParams = {
-      "latitude": latitude,
-      "longitude": longitude,
-      'spaceId': spaceId,
-      'tokenAddress': tokenAddress,
-    };
+    try {
+      // Construct the query parameters
+      final Map<String, dynamic> queryParams = {
+        "latitude": latitude,
+        "longitude": longitude,
+        'spaceId': spaceId,
+        'tokenAddress': tokenAddress,
+      };
 
-    final response =
-        await _network.post("space/benefits/redeem/$benefitId", queryParams);
+      final response =
+          await _network.post("space/benefits/redeem/$benefitId", queryParams);
 
-    "response is: ${response.statusCode}".log();
-    "response is: ${response.data['code']}".log();
+      if (response.statusCode == 204) {
+        return true;
+      }
 
-    if (response.statusCode == 204) {
-      return true;
-    } else {
       return false;
+    } on DioException catch (e, t) {
+      if (e.response != null && e.response?.statusCode == 400) {
+        final Map<String, dynamic> responseBody = e.response?.data;
+        final errorCode = responseBody['error']['code'];
+        final errorMessage = responseBody['error']['message'];
+
+        throw BenefitRedeemErrorDto(
+          message: errorMessage,
+          error: errorCode,
+          trace: t.toString(),
+        );
+      }
+
+      throw BenefitRedeemErrorDto(
+        message: e.message ?? "",
+        error: e.toString(),
+        trace: t.toString(),
+      );
+    } catch (e, t) {
+      throw BenefitRedeemErrorDto(
+        message: e.toString(),
+        error: e.toString(),
+        trace: t.toString(),
+      );
     }
   }
 

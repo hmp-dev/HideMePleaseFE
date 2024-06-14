@@ -25,72 +25,82 @@ class HomeBenefitItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            if (isShowImage)
-              Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: CustomImageView(
-                  url: nftBenefitEntity.spaceImage,
-                  width: 54,
-                  height: 54,
-                  radius: BorderRadius.circular(2),
-                ),
-              ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(nftBenefitEntity.description,
-                    style: fontCompactMdMedium()),
-                const VerticalSpace(5),
-                Text(nftBenefitEntity.spaceName,
-                    style: fontCompactSm(color: fore3)),
-              ],
-            ),
-            const Spacer(),
-            nftBenefitEntity.used
-                ? const BenefitUsedText()
-                : BlocConsumer<EnableLocationCubit, EnableLocationState>(
-                    bloc: getIt<EnableLocationCubit>()..checkLocationEnabled(),
-                    listener: (context, state) {},
-                    builder: (context, state) {
-                      return GestureDetector(
-                        onTap: () {
-                          if (!state.isLocationDenied) {
-                            getIt<SpaceCubit>().onGetSpacesData(
-                              tokenAddress: nftBenefitEntity.tokenAddress,
-                              latitude: 2.0, //state.latitude,
-                              longitude: 2.0, //state.longitude,
-                            );
-                          } else {
-                            // open Alert Dialogue to Show Info and Ask to enable Location
-                            showEnableLocationAlertDialog(
-                              context: context,
-                              title: LocaleKeys.enableLocationAlertMessage.tr(),
-                              onConfirm: () {
-                                getIt<EnableLocationCubit>()
-                                    .onAskDeviceLocationWithOpenSettings();
-                              },
-                              onCancel: () {},
-                            );
-                          }
-
-                          "latitude: ${state.latitude}".log();
-                          "longitude: ${state.longitude}".log();
-                        },
-                        child: const BenefitAvailableText(),
-                      );
-                    },
+    return BlocListener<SpaceCubit, SpaceState>(
+      bloc: getIt<SpaceCubit>(),
+      listener: (context, state) {
+        // if (state.submitStatus == RequestStatus.success) {
+        //   RedeemBenefitScreenWithBenefitId.push(
+        //       context, nftBenefitEntity, state.spaceDetailEntity);
+        // }
+      },
+      child: Column(
+        children: [
+          Row(
+            children: [
+              if (isShowImage)
+                Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: CustomImageView(
+                    url: nftBenefitEntity.spaceImage,
+                    width: 54,
+                    height: 54,
+                    radius: BorderRadius.circular(2),
                   ),
-          ],
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
-          child: Divider(color: fore5),
-        )
-      ],
+                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(nftBenefitEntity.description,
+                      style: fontCompactMdMedium()),
+                  const VerticalSpace(5),
+                  Text(nftBenefitEntity.spaceName,
+                      style: fontCompactSm(color: fore3)),
+                ],
+              ),
+              const Spacer(),
+              nftBenefitEntity.used
+                  ? const BenefitUsedText()
+                  : BlocConsumer<EnableLocationCubit, EnableLocationState>(
+                      bloc: getIt<EnableLocationCubit>()
+                        ..checkLocationEnabled(),
+                      listener: (context, state) {},
+                      builder: (context, state) {
+                        return GestureDetector(
+                          onTap: () {
+                            if (!state.isLocationDenied) {
+                              // call the Space Detail and om Success Navigate to Redeem Benefit Screen
+
+                              // getIt<SpaceCubit>().onGetSpaceDetail(
+                              //     spaceId: nftBenefitEntity.spaceId);
+                            } else {
+                              // open Alert Dialogue to Show Info and Ask to enable Location
+                              showEnableLocationAlertDialog(
+                                context: context,
+                                title:
+                                    LocaleKeys.enableLocationAlertMessage.tr(),
+                                onConfirm: () {
+                                  getIt<EnableLocationCubit>()
+                                      .onAskDeviceLocationWithOpenSettings();
+                                },
+                                onCancel: () {},
+                              );
+                            }
+
+                            "latitude: ${state.latitude}".log();
+                            "longitude: ${state.longitude}".log();
+                          },
+                          child: const BenefitAvailableText(),
+                        );
+                      },
+                    ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Divider(color: fore5),
+          )
+        ],
+      ),
     );
   }
 }

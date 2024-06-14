@@ -9,6 +9,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
+import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -153,7 +154,7 @@ Future<bool> showBenefitRedeemSuccessAlertDialog({
     context: context,
     builder: (BuildContext context) {
       return BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
         child: AlertDialog(
           backgroundColor: Colors.grey.shade900,
           //backgroundColor: const Color(0xFF4E4E55),
@@ -413,4 +414,22 @@ String getLocalCategoryName(String categoryName) {
 Future<int?> getInitialScreen() async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getInt(isShowOnBoardingView);
+}
+
+List<BenefitEntity> moveBenefitEntityToFirst(
+    List<BenefitEntity> nftBenefitList, String id) {
+  List<BenefitEntity> sorted = nftBenefitList;
+  // Find the index of the entity with the specified id
+  final index = sorted.indexWhere((benefit) => benefit.id == id);
+
+  // Check if the entity exists in the list
+  if (index != -1) {
+    // Remove the entity from its current position
+    final benefitEntity = sorted.removeAt(index);
+
+    // Insert the entity at the first index
+    sorted.insert(0, benefitEntity);
+  }
+
+  return sorted;
 }

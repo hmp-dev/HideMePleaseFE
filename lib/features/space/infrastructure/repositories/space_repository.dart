@@ -2,8 +2,10 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
+import 'package:mobile/features/space/infrastructure/dtos/benefit_redeem_error_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/benefits_group_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_dto.dart';
@@ -85,12 +87,22 @@ class SpaceRepositoryImpl extends SpaceRepository {
       );
       return right(response);
     } on DioException catch (e, t) {
+      "inside DioException $e".log();
+
       return left(HMPError.fromNetwork(
         message: e.message,
         error: e,
         trace: t,
       ));
+    } on BenefitRedeemErrorDto catch (e) {
+      "inside Catch BenefitRedeemErrorDto $e".log();
+      final error = e;
+      return left(HMPError.fromNetwork(
+        message: error.message,
+        error: error.code,
+      ));
     } catch (e, t) {
+      "inside Catch $e".log();
       return left(HMPError.fromUnknown(
         error: e,
         trace: t,

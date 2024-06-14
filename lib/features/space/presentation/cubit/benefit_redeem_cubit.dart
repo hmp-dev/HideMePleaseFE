@@ -20,7 +20,6 @@ class BenefitRedeemCubit extends BaseCubit<BenefitRedeemState> {
     required double latitude,
     required double longitude,
   }) async {
-    
     emit(state.copyWith(submitStatus: RequestStatus.loading));
 
     EasyLoading.show(dismissOnTap: true);

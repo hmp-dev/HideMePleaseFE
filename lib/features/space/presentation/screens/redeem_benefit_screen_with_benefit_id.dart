@@ -12,69 +12,66 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/page_dot_indicator.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/home/presentation/widgets/benefit_card_widget_parent.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
-import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
+import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
+import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/benefit_redeem_cubit.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/widgets/benefit_redeem_card_widget_parent.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
-class RedeemBenefitScreen extends StatefulWidget {
-  const RedeemBenefitScreen({
+class RedeemBenefitScreenWithBenefitId extends StatefulWidget {
+  const RedeemBenefitScreenWithBenefitId({
     super.key,
-    required this.nearBySpaceEntity,
-    required this.selectedNftTokenAddress,
-    this.benefitId,
+    required this.benefitEntity,
+    required this.spaceDetailEntity,
   });
 
-  final NearBySpaceEntity nearBySpaceEntity;
-  final String selectedNftTokenAddress;
-  final String? benefitId;
+  final BenefitEntity benefitEntity;
+  final SpaceDetailEntity spaceDetailEntity;
 
-  static push(BuildContext context, NearBySpaceEntity nearBySpaceEntity,
-      String selectedNftTokenAddress) async {
+  static push(BuildContext context, BenefitEntity benefitEntity,
+      SpaceDetailEntity spaceDetailEntity) async {
     return await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => RedeemBenefitScreen(
-            nearBySpaceEntity: nearBySpaceEntity,
-            selectedNftTokenAddress: selectedNftTokenAddress),
+        builder: (_) => RedeemBenefitScreenWithBenefitId(
+            benefitEntity: benefitEntity, spaceDetailEntity: spaceDetailEntity),
       ),
     );
   }
 
   @override
-  State<RedeemBenefitScreen> createState() => _RedeemBenefitScreenState();
+  State<RedeemBenefitScreenWithBenefitId> createState() =>
+      _RedeemBenefitScreenWithBenefitIdState();
 }
 
-class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
+class _RedeemBenefitScreenWithBenefitIdState
+    extends State<RedeemBenefitScreenWithBenefitId> {
   final CarouselController _carouselController = CarouselController();
 
   String selectedBenefitId = "";
   int selectedPageIndex = 0;
-
-  bool isFinished = false;
+  late BenefitEntity selectedBenefitEntity;
 
   @override
   void initState() {
     super.initState();
     fetchBenefits();
+    selectedBenefitEntity = widget.benefitEntity;
   }
 
   fetchBenefits() {
-    // get Benefits
-    getIt<NftCubit>().onGetNftBenefits(
-      tokenAddress: widget.selectedNftTokenAddress,
-      spaceId: widget.nearBySpaceEntity.id,
-      isShowLoading: true,
-    );
+    getIt<SpaceCubit>()
+        .onGetSpaceBenefits(spaceId: widget.benefitEntity.spaceId);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<NftCubit, NftState>(
-      bloc: getIt<NftCubit>(),
+    return BlocConsumer<SpaceCubit, SpaceState>(
+      bloc: getIt<SpaceCubit>(),
       listener: (context, state) {},
       builder: (context, state) {
         return BaseScaffold(
@@ -102,7 +99,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.7,
                       child: Text(
-                        widget.nearBySpaceEntity.address,
+                        widget.spaceDetailEntity.address,
                         style: fontTitle04(),
                       ),
                     ),
@@ -125,20 +122,21 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                               aspectRatio: 16 / 9,
                               enableInfiniteScroll: false,
                               enlargeCenterPage: false,
+                              initialPage: state.benefitsGroupEntity.benefits
+                                  .indexOf(widget.benefitEntity),
                               autoPlayInterval: const Duration(seconds: 3),
                               onPageChanged: (int index, _) {
                                 setState(() {
                                   selectedPageIndex = index;
-                                  selectedBenefitId =
-                                      state.nftBenefitList[index].id;
+                                  selectedBenefitEntity =
+                                      state.benefitsGroupEntity.benefits[index];
                                 });
                               },
                             ),
-                            items: state.nftBenefitList.map((item) {
-                              return BenefitCardWidgetParent(
-                                nearBySpaceEntity: widget.nearBySpaceEntity,
-                                selectedNftTokenAddress:
-                                    widget.selectedNftTokenAddress,
+                            items:
+                                state.benefitsGroupEntity.benefits.map((item) {
+                              return BenefitRedeemCardWidgetParent(
+                                spaceDetailEntity: widget.spaceDetailEntity,
                                 nftBenefitEntity: item,
                               );
                             }).toList(),
@@ -149,8 +147,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   ),
                 const VerticalSpace(20),
                 PageDotIndicator(
-                  length: state.nftBenefitList.length,
-                  selectedIndex: selectedPageIndex,
+                  length: state.benefitsGroupEntity.benefits.length,
+                  selectedIndex: getSelectedIndex(state),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
@@ -160,12 +158,9 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                     listener: (context, benefitRedeemState) async {
                       if (benefitRedeemState.submitStatus ==
                           RequestStatus.failure) {
-                        // Show Error Snackbar If Error in Redeeming Benefit
-                        // context.showErrorSnackBar(spaceState.errorMessage);
-                        // await Future.delayed(const Duration(seconds: 2));
-                        // setState(() => isFinished = true);
-
-                        onBenefitRedeemSuccess(state);
+                        //Show Error Snackbar If Error in Redeeming Benefit
+                        context
+                            .showErrorSnackBar(benefitRedeemState.errorMessage);
                       }
 
                       if (benefitRedeemState.submitStatus ==
@@ -179,23 +174,31 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                           ? const CircularProgressIndicator(color: Colors.white)
                           : SunriseWidget(
                               onSubmitRedeem: () {
-                                setState(() => isFinished = false);
-                                final selectedBenefitId =
-                                    state.nftBenefitList[selectedPageIndex];
+                                final receivedBenefitIndex = state
+                                    .benefitsGroupEntity.benefits
+                                    .indexOf(widget.benefitEntity);
+
+                                final selectedBenefit =
+                                    (selectedPageIndex == receivedBenefitIndex)
+                                        ? state.benefitsGroupEntity
+                                            .benefits[selectedPageIndex]
+                                        : state.benefitsGroupEntity
+                                            .benefits[receivedBenefitIndex];
+
                                 final locationState =
                                     getIt<EnableLocationCubit>().state;
                                 // call the benefit redeem api here
 
-                                "the token address is as ${selectedBenefitId.tokenAddress}"
+                                "selectedBenefitId is ${selectedBenefit.id}"
                                     .log();
                                 if (locationState.latitude != 0.0 ||
                                     locationState.longitude != 0.0) {
                                   getIt<BenefitRedeemCubit>()
                                       .onPostRedeemBenefit(
-                                    benefitId: selectedBenefitId.id,
+                                    benefitId: selectedBenefit.id,
                                     tokenAddress: removeCurlyBraces(
-                                        selectedBenefitId.tokenAddress),
-                                    spaceId: widget.nearBySpaceEntity.id,
+                                        selectedBenefit.tokenAddress),
+                                    spaceId: selectedBenefit.spaceId,
                                     latitude: 2.0, //locationState.latitude,
                                     longitude: 2.0, //locationState.longitude,
                                   );
@@ -213,11 +216,15 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
     );
   }
 
-  onBenefitRedeemSuccess(NftState state) async {
+  int getSelectedIndex(SpaceState state) {
+    return state.benefitsGroupEntity.benefits.indexOf(selectedBenefitEntity);
+  }
+
+  onBenefitRedeemSuccess(SpaceState state) async {
     final result = await showBenefitRedeemSuccessAlertDialog(
       context: context,
       title:
-          "@${state.nftBenefitList[selectedPageIndex].spaceName}\n${LocaleKeys.youHaveBenefited.tr()}",
+          "@${state.benefitsGroupEntity.benefits[getSelectedIndex(state)].spaceName}\n${LocaleKeys.youHaveBenefited.tr()}",
       onConfirm: () {
         Navigator.pop(context);
       },
@@ -280,15 +287,17 @@ class _SunriseWidgetState extends State<SunriseWidget>
   void _startTimer() {
     _timer = Timer(const Duration(milliseconds: requiredPressDuration), () {
       if (_isPressed) {
-        setState(() {
-          _longPressSuccess = true;
-        });
+        if (mounted) {
+          setState(() {
+            _longPressSuccess = true;
+          });
+        }
       }
     });
   }
 
   void _cancelTimer() {
-    if (_timer != null) {
+    if (_timer != null && _timer!.isActive) {
       _timer!.cancel();
       _timer = null;
     }
