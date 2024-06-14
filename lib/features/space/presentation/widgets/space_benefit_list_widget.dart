@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -9,14 +8,18 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/load_more_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/home/presentation/widgets/home_benefits_item_widget.dart';
+import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/widgets/space_benefits_item_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class SpaceBenefitListWidget extends StatefulWidget {
   const SpaceBenefitListWidget({
     super.key,
+    required this.spaceDetailEntity,
   });
+
+  final SpaceDetailEntity spaceDetailEntity;
 
   @override
   State<SpaceBenefitListWidget> createState() => _SpaceBenefitListWidgetState();
@@ -64,7 +67,8 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: state.benefitsGroupEntity.benefits.length,
                 itemBuilder: (context, index) {
-                  return HomeBenefitItemWidget(
+                  return SpaceBenefitItemWidget(
+                    spaceDetailEntity: widget.spaceDetailEntity,
                     isShowImage: false,
                     nftBenefitEntity: state.benefitsGroupEntity.benefits[index],
                   );

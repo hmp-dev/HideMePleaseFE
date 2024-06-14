@@ -198,14 +198,15 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
                           },
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(20.0),
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            VerticalSpace(30),
-                            SpaceBenefitListWidget(),
-                            VerticalSpace(50),
+                            const VerticalSpace(30),
+                            SpaceBenefitListWidget(
+                                spaceDetailEntity: state.spaceDetailEntity),
+                            const VerticalSpace(50),
                           ],
                         ),
                       ),

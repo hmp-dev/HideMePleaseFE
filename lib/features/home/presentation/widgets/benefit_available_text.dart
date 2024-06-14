@@ -11,23 +11,29 @@ class BenefitAvailableText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 4,
-          margin: const EdgeInsets.only(left: 2),
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: hmpBlue,
-          ),
+    return Container(
+      color: Colors.transparent,
+      padding: const EdgeInsets.all(8),
+      child: Center(
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 4,
+              margin: const EdgeInsets.only(left: 2),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: hmpBlue,
+              ),
+            ),
+            const HorizontalSpace(5),
+            Text(
+              LocaleKeys.available.tr(),
+              style: fontCompactSm(color: hmpBlue),
+            ),
+          ],
         ),
-        const HorizontalSpace(5),
-        Text(
-          LocaleKeys.available.tr(),
-          style: fontCompactSm(color: hmpBlue),
-        ),
-      ],
+      ),
     );
   }
 }

@@ -18,11 +18,7 @@ class NickNameCubit extends BaseCubit<NickNameState> {
   Timer? _nickNameDebounceTimer;
 
   onCheckNickName({required String nickName}) async {
-    emit(state.copyWith(
-      nickName: nickName,
-      isNickNameAvailable: false,
-      nickNameError: false,
-    ));
+    emit(NickNameState.initial());
 
     if (nickName.isEmpty || nickName.length > 8) return;
 
@@ -37,10 +33,14 @@ class NickNameCubit extends BaseCubit<NickNameState> {
       EasyLoading.dismiss();
 
       usernameAvailableRes.fold(
-        (error) => emit(
-            state.copyWith(isNickNameAvailable: false, nickNameError: true)),
+        (error) => emit(state.copyWith(
+          isNickNameAvailable: false,
+          nickNameError: true,
+          nickName: nickName,
+        )),
         (isExist) => emit(state.copyWith(
           // isExists is false mean Nick Name is Available
+          nickName: nickName,
           isNickNameAvailable: isExist,
           nickNameError: isExist,
         )),
