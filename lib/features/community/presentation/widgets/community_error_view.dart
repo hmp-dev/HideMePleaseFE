@@ -1,0 +1,34 @@
+import 'package:flutter/material.dart';
+import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+
+class CommunityErrorView extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const CommunityErrorView(
+      {super.key, this.message = '뭔가 잘못됐어', required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 183,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(message, style: fontTitle07(color: fore3)),
+          const SizedBox(height: 16.0),
+          SizedBox(
+            width: 200.0,
+            child: HMPCustomButton(
+              bgColor: backgroundGr1,
+              text: '다시 장전하다',
+              onPressed: onRetry,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -11,6 +11,7 @@ class NftCommunityCardWidget extends StatelessWidget {
       required this.onTap,
       required this.title,
       required this.imagePath,
+      required this.networkLogo,
       required this.timeAgo,
       required this.rank,
       required this.people});
@@ -18,6 +19,7 @@ class NftCommunityCardWidget extends StatelessWidget {
   final VoidCallback onTap;
   final String title;
   final String imagePath;
+  final String networkLogo;
   final String timeAgo;
   final String rank;
   final String people;
@@ -35,6 +37,7 @@ class NftCommunityCardWidget extends StatelessWidget {
           children: [
             if (imagePath.isEmpty)
               CustomImageView(
+                radius: BorderRadius.circular(4.0),
                 width: 60,
                 height: 60,
                 fit: BoxFit.fitHeight,
@@ -42,6 +45,7 @@ class NftCommunityCardWidget extends StatelessWidget {
               )
             else
               CustomImageView(
+                radius: BorderRadius.circular(4.0),
                 url: imagePath,
                 width: screenSize.width * 0.40,
                 height: 250,
@@ -51,14 +55,8 @@ class NftCommunityCardWidget extends StatelessWidget {
               width: screenSize.width * 0.40,
               height: 250,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: const Alignment(0.5, 0),
-                  end: const Alignment(0.5, 1),
-                  colors: [
-                    black900.withOpacity(0),
-                    black900.withOpacity(0.6),
-                  ],
-                ),
+                color: bg3.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(4.0),
               ),
             ),
             SizedBox(
@@ -72,12 +70,19 @@ class NftCommunityCardWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    CustomImageView(
+                      svgPath: networkLogo,
+                      height: 24.0,
+                      width: 24.0,
+                    ),
+                    const SizedBox(height: 8.0),
                     Text(
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: fontB(18, lineHeight: 1.4),
                     ),
+                    const SizedBox(height: 8.0),
                     RoundedButtonSmallWithOpacity(
                         title: people, // "120명"
                         onTap: () {}),
