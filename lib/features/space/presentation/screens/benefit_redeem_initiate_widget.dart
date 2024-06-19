@@ -34,6 +34,8 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
               if (selectedBenefitEntity != null) {
                 getIt<NearBySpacesCubit>()
                     .onSetSelectedBenefitEntity(selectedBenefitEntity!);
+              } else {
+                getIt<NearBySpacesCubit>().onResetSelectedBenefitEntity();
               }
 
               getIt<NearBySpacesCubit>().onGetNearBySpacesListData(

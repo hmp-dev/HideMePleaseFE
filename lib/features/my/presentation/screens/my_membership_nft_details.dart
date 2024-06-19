@@ -52,6 +52,14 @@ class _MyMembershipNftDetailScreenState
       onBack: () {
         Navigator.pop(context);
       },
+      bottomNavigationBar: Container(
+        color: Colors.black.withOpacity(0.2),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: HMPCustomButton(
+          text: LocaleKeys.enterTheChatRoom.tr(),
+          onPressed: () {},
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
             child: BlocConsumer<NftCubit, NftState>(
@@ -130,14 +138,6 @@ class _MyMembershipNftDetailScreenState
                   ),
                 ),
                 const NftNetworkInfoWidget(),
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 20.0, right: 20, bottom: 30, top: 50),
-                  child: HMPCustomButton(
-                    text: LocaleKeys.enterTheChatRoom.tr(),
-                    onPressed: () {},
-                  ),
-                ),
               ],
             );
           },

@@ -3,12 +3,14 @@ import 'package:equatable/equatable.dart';
 class NftNetworkEntity extends Equatable {
   final String network;
   final String holderCount;
-  final int floorPrice;
+  final String floorPrice;
+  final String symbol;
 
   const NftNetworkEntity({
     required this.network,
     required this.holderCount,
     required this.floorPrice,
+    required this.symbol,
   });
 
   @override
@@ -17,17 +19,20 @@ class NftNetworkEntity extends Equatable {
   NftNetworkEntity copyWith({
     String? network,
     String? holderCount,
-    int? floorPrice,
+    String? floorPrice,
+    String? symbol,
   }) {
     return NftNetworkEntity(
       network: network ?? this.network,
       holderCount: holderCount ?? this.holderCount,
       floorPrice: floorPrice ?? this.floorPrice,
+      symbol: symbol ?? this.symbol,
     );
   }
 
   const NftNetworkEntity.empty()
       : network = '',
         holderCount = '',
-        floorPrice = 0;
+        floorPrice = '0',
+        symbol = '';
 }
