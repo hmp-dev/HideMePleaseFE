@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:web3modal_flutter/models/grid_item.dart';
+import 'package:web3modal_flutter/models/listing.dart';
 
 import 'package:web3modal_flutter/pages/about_wallets.dart';
 import 'package:web3modal_flutter/pages/confirm_email_page.dart';
@@ -82,6 +84,25 @@ class _WalletsListShortPageState extends State<WalletsListShortPage> {
               ),
             );
           }
+
+          items.add(GridItem<W3MWalletInfo>(
+            image:
+                'https://firebasestorage.googleapis.com/v0/b/hidemeplease2024-dev.appspot.com/o/public%2Fphantom-wallet.png?alt=media&token=9ad22838-f0b0-4d31-b603-9ca0725963aa',
+            id: 'phantom',
+            title: 'Phantom',
+            data: W3MWalletInfo(
+              listing: Listing(
+                id: 'phantom',
+                name: 'Phantom',
+                homepage: 'https://phantom.app/',
+                imageId: '',
+                order: 0,
+              ),
+              installed: true,
+              recent: false,
+            ),
+          ));
+
           final itemsCount = min(kShortWalletListCount, items.length);
           if (itemsCount < kShortWalletListCount) {
             maxHeight = kListItemHeight * (itemsCount + 1.5);
@@ -95,6 +116,12 @@ class _WalletsListShortPageState extends State<WalletsListShortPage> {
             constraints: BoxConstraints(maxHeight: maxHeight),
             child: WalletsList(
               onTapWallet: (data) {
+                if (data.listing.id == 'phantom') {
+                  service.selectWallet(data);
+                  service.closeModal();
+                  return;
+                }
+
                 service.selectWallet(data);
                 widgetStack.instance.push(const ConnectWalletPage());
               },
