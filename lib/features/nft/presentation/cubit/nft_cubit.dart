@@ -43,7 +43,7 @@ class NftCubit extends BaseCubit<NftState> {
     bool? isChainTypeFetchTapped,
     bool? isLoadingMore,
   }) async {
-    emit(state.copyWith(selectedChain: chain ?? ChainType.ALL.name));
+    emit(state.copyWith(selectedChain: chain));
     // if isChainTypeFetchTapped is true, then reset the nftCollectionsGroupEntity
     if (isChainTypeFetchTapped == true) {
       emit(
@@ -83,7 +83,7 @@ class NftCubit extends BaseCubit<NftState> {
             errorMessage: '',
             nftCollectionsGroupEntity: updatedGroupEntity,
             collectionFetchTime: DateTime.now(),
-            selectedChain: chain ?? ChainType.ALL.name,
+            selectedChain: chain,
           ),
         );
       },
