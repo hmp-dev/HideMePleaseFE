@@ -25,6 +25,7 @@ import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_wid
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/benefit_redeem_initiate_widget.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
@@ -130,11 +131,8 @@ class _HomeViewAfterWalletConnectedState
                                   // else set isItemFirstOrLast as false
                                   setState(() => _isCurrentIndexIsLat = false);
                                   //call NFt Benefits API
-                                  getIt<NftCubit>().onGetNftBenefits(
-                                      tokenAddress:
-                                          selectedNftsListForHome[index]
-                                              .tokenAddress
-                                              .trim());
+                                  getIt<NftBenefitsCubit>().onGetNftBenefits(
+                                      tokenAddress: _currentTokenAddress);
                                 }
                               },
                             ),
@@ -241,10 +239,11 @@ class _HomeViewAfterWalletConnectedState
       );
     } else if (itemIndex > 0 && itemIndex < itemsLength) {
       return !isSelectedNftsListEmpty
-          ? CustomImageView(
-              svgPath: "assets/images/nfc-illustration.svg",
-              height: 100,
-            )
+          ? const SizedBox.shrink()
+          // CustomImageView(
+          //     svgPath: "assets/images/nfc-illustration.svg",
+          //     height: 100,
+          //   )
           : const SizedBox.shrink();
     } else {
       return const SizedBox.shrink();

@@ -8,6 +8,7 @@ import 'package:mobile/features/common/presentation/widgets/vertical_space.dart'
 import 'package:mobile/features/my/presentation/screens/my_membership_nft_details.dart';
 import 'package:mobile/features/my/presentation/widgets/members_item_widget.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 
 class MyMembershipWidget extends StatelessWidget {
@@ -53,7 +54,7 @@ class MyMembershipWidget extends StatelessWidget {
                       nft: selectedNftTokensList[index],
                       onTap: () {
                         // call the Benefits for this NFT
-                        getIt<NftCubit>().onGetNftBenefits(
+                        getIt<NftBenefitsCubit>().onGetNftBenefits(
                             tokenAddress: selectedNftTokensList[index]
                                 .tokenAddress
                                 .trim());

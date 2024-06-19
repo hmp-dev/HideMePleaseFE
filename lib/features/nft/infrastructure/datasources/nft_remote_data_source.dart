@@ -94,7 +94,7 @@ class NftRemoteDataSource {
     };
 
     final response = await _network.get(
-        "nft/collection/{$tokenAddress}/benefits", queryParams);
+        "nft/collection/$tokenAddress/benefits", queryParams);
     return NftBenefitsResponseDto.fromJson(
         response.data as Map<String, dynamic>);
   }

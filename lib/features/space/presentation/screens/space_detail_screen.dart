@@ -2,9 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/helpers/map_utils.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/util/observer_utils.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -31,7 +33,7 @@ class SpaceDetailScreen extends StatefulWidget {
   State<SpaceDetailScreen> createState() => _SpaceDetailScreenState();
 }
 
-class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
+class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
   List<Marker> allMarkers = [];
 
   late GoogleMapController _controller;
@@ -69,6 +71,28 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ObserverUtils.routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    // Screen was pushed onto the stack
+    ('SecondScreen was pushed').log();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when the top route has been popped off, and the current route shows up
+    ('Returned back to SecondScreen').log();
+    final state = getIt<SpaceCubit>().state;
+    // fetch Space related Benefits
+    getIt<SpaceCubit>()
+        .onGetSpaceBenefitsOnSpaceDetailView(spaceId: state.currentSpaceId);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
@@ -77,8 +101,8 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
           listener: (context, state) {
             if (state.submitStatus == RequestStatus.success) {
               // fetch Space related Benefits
-              getIt<SpaceCubit>()
-                  .onGetSpaceBenefits(spaceId: state.currentSpaceId);
+              getIt<SpaceCubit>().onGetSpaceBenefitsOnSpaceDetailView(
+                  spaceId: state.currentSpaceId);
             }
           },
           builder: (context, state) {
@@ -205,8 +229,8 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> {
                           children: [
                             const VerticalSpace(30),
                             SpaceBenefitListWidget(
-                                spaceDetailEntity: state.spaceDetailEntity),
-                            const VerticalSpace(50),
+                              spaceDetailEntity: state.spaceDetailEntity,
+                            ),
                           ],
                         ),
                       ),

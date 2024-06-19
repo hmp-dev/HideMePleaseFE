@@ -81,7 +81,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
   Widget buildRecommendedSpaceWidget(SpaceState state, BuildContext context) {
     return GestureDetector(
       onTap: () {
-        getIt<SpaceCubit>().onGetSpaceDetail(
+        getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(
             spaceId: state.recommendationSpaceList[0].spaceId);
         SpaceDetailScreen.push(context);
       },
@@ -215,7 +215,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
                             );
                           },
                         ),
-                  const SizedBox(height: 140),
+                  const SizedBox(height: 40),
                 ],
               ),
       ],

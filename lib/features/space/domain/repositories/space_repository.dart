@@ -9,7 +9,7 @@ import 'package:mobile/features/space/infrastructure/dtos/spaces_response_dto.da
 import 'package:mobile/features/space/infrastructure/dtos/top_used_nft_dto.dart';
 
 abstract class SpaceRepository {
-  Future<Either<HMPError, SpacesResponseDto>> getSpacesData({
+  Future<Either<HMPError, SpacesResponseDto>> getNearBySpacesListData({
     required String tokenAddress,
     required double latitude,
     required double longitude,
