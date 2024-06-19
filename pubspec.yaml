@@ -65,6 +65,7 @@ dependencies:
   shared_preferences: ^2.2.3
   sign_in_with_apple: ^6.1.0
   smooth_page_indicator: ^1.1.0
+  solana_wallet_provider: ^0.1.9
   stacked_services: ^1.5.0
   timeago: ^3.6.1
   upgrader: ^10.3.0

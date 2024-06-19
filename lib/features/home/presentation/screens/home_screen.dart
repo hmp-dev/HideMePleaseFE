@@ -14,9 +14,10 @@ import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
 import 'package:mobile/features/space/presentation/cubit/space_detail_cubit.dart';
-import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_from_benefit_tap.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
+import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_from_benefit_tap.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:upgrader/upgrader.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,11 +36,15 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
-
-    // initialize the w3mService
-    getIt<WalletsCubit>().initW3MService();
+    _initWallets();
     // Ask for device location
     getIt<EnableLocationCubit>().onAskDeviceLocation();
+  }
+
+  void _initWallets() async {
+    await SolanaWalletProvider.initialize();
+    // initialize the w3mService
+    getIt<WalletsCubit>().init(solWallet: SolanaWalletProvider.of(context));
   }
 
   void _scrollListener() {
