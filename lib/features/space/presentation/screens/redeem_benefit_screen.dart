@@ -241,27 +241,51 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                           ? const CircularProgressIndicator(color: Colors.white)
                           : SunriseWidget(
                               onSubmitRedeem: () {
-                                setState(() => isFinished = false);
-                                final selectedBenefitId = spaceBenefitsState
-                                    .benefitGroupEntity
-                                    .benefits[selectedPageIndex];
-                                final locationState =
-                                    getIt<EnableLocationCubit>().state;
-                                // call the benefit redeem api here
+                                if (widget.selectedBenefitEntity != null) {
+                                  final locationState =
+                                      getIt<EnableLocationCubit>().state;
+                                  // call the benefit redeem api here
 
-                                "the token address is as ${selectedBenefitId.tokenAddress}"
-                                    .log();
-                                if (locationState.latitude != 0.0 ||
-                                    locationState.longitude != 0.0) {
-                                  getIt<BenefitRedeemCubit>()
-                                      .onPostRedeemBenefit(
-                                    benefitId: selectedBenefitId.id,
-                                    tokenAddress: removeCurlyBraces(
-                                        selectedBenefitId.tokenAddress),
-                                    spaceId: widget.nearBySpaceEntity.id,
-                                    latitude: 2.0, //locationState.latitude,
-                                    longitude: 2.0, //locationState.longitude,
-                                  );
+                                  "the token address is as ${widget.selectedBenefitEntity?.tokenAddress}"
+                                      .log();
+
+                                  if (locationState.latitude != 0.0 ||
+                                      locationState.longitude != 0.0) {
+                                    getIt<BenefitRedeemCubit>()
+                                        .onPostRedeemBenefit(
+                                      benefitId:
+                                          widget.selectedBenefitEntity!.id,
+                                      tokenAddress: removeCurlyBraces(widget
+                                          .selectedBenefitEntity!.tokenAddress),
+                                      spaceId:
+                                          widget.selectedBenefitEntity!.spaceId,
+                                      latitude: 2.0, //locationState.latitude,
+                                      longitude: 2.0, //locationState.longitude,
+                                    );
+                                  }
+                                } else {
+                                  final selectedBenefit = spaceBenefitsState
+                                      .benefitGroupEntity
+                                      .benefits[selectedPageIndex];
+                                  final locationState =
+                                      getIt<EnableLocationCubit>().state;
+                                  // call the benefit redeem api here
+
+                                  "the token address is as ${selectedBenefit.tokenAddress}"
+                                      .log();
+
+                                  if (locationState.latitude != 0.0 ||
+                                      locationState.longitude != 0.0) {
+                                    getIt<BenefitRedeemCubit>()
+                                        .onPostRedeemBenefit(
+                                      benefitId: selectedBenefit.id,
+                                      tokenAddress: removeCurlyBraces(
+                                          selectedBenefit.tokenAddress),
+                                      spaceId: selectedBenefit.spaceId,
+                                      latitude: 2.0, //locationState.latitude,
+                                      longitude: 2.0, //locationState.longitude,
+                                    );
+                                  }
                                 }
                               },
                             ),

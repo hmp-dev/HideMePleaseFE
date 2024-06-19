@@ -30,6 +30,10 @@ class NearBySpacesCubit extends BaseCubit<NearBySpacesState> {
     emit(state.copyWith(selectedBenefitEntity: selectedBenefitEntity));
   }
 
+  onResetSelectedBenefitEntity() {
+    emit(state.copyWith(selectedBenefitEntity: const BenefitEntity.empty()));
+  }
+
   Future<void> onGetNearBySpacesListData({
     required String tokenAddress,
     required double latitude,

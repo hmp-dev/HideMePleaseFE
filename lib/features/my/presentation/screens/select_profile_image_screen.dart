@@ -42,7 +42,7 @@ class _SelectProfileImageScreenState extends State<SelectProfileImageScreen> {
     super.initState();
   }
 
-  List<String> pfpImages = [
+  List<String> tempPfpImages = [
     "assets/images/pfp1.png",
     "assets/images/pfp2.png",
     "assets/images/pfp3.png",
@@ -144,9 +144,12 @@ class _SelectProfileImageScreenState extends State<SelectProfileImageScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: index == selectedIndex
-                                  ? Colors.white
-                                  : Colors.transparent,
+                              color: isAnImageSelected
+                                  ? index == selectedIndex
+                                      ? Colors.white
+                                      : Colors.white.withOpacity(0.0)
+                                  : getSelectedBorderColor(
+                                      selectedNfts[index].imageUrl),
                               width: 2.0,
                             ),
                           ),
@@ -167,5 +170,11 @@ class _SelectProfileImageScreenState extends State<SelectProfileImageScreen> {
     );
   }
 
-  /// Section Widget
+  /// Section Widgets
+  ///
+  Color getSelectedBorderColor(String imageUrl) {
+    return widget.userProfile.pfpImageUrl == imageUrl
+        ? Colors.white
+        : Colors.transparent;
+  }
 }
