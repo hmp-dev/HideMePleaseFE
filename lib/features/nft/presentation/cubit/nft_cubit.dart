@@ -291,45 +291,45 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
-  Future<void> onGetNftBenefits({
-    required String tokenAddress,
-    String? spaceId,
-    int? pageSize,
-    int? page,
-    bool isShowLoading = false,
-  }) async {
-    if (isShowLoading) EasyLoading.show();
+  // Future<void> onGetNftBenefits({
+  //   required String tokenAddress,
+  //   String? spaceId,
+  //   int? pageSize,
+  //   int? page,
+  //   bool isShowLoading = false,
+  // }) async {
+  //   if (isShowLoading) EasyLoading.show();
 
-    final response = await _nftRepository.getNftBenefits(
-      tokenAddress: tokenAddress,
-      spaceId: spaceId,
-      pageSize: pageSize,
-      page: page,
-    );
-    if (isShowLoading) EasyLoading.dismiss();
+  //   final response = await _nftRepository.getNftBenefits(
+  //     tokenAddress: tokenAddress,
+  //     spaceId: spaceId,
+  //     pageSize: pageSize,
+  //     page: page,
+  //   );
+  //   if (isShowLoading) EasyLoading.dismiss();
 
-    response.fold(
-      (err) {
-        Log.error(err);
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
-        ));
-      },
-      (nftBenefitsList) {
-        final resultList =
-            nftBenefitsList.benefits?.map((e) => e.toEntity()).toList() ?? [];
+  //   response.fold(
+  //     (err) {
+  //       Log.error(err);
+  //       emit(state.copyWith(
+  //         submitStatus: RequestStatus.failure,
+  //         errorMessage: LocaleKeys.somethingError.tr(),
+  //       ));
+  //     },
+  //     (nftBenefitsList) {
+  //       final resultList =
+  //           nftBenefitsList.benefits?.map((e) => e.toEntity()).toList() ?? [];
 
-        emit(
-          state.copyWith(
-            nftBenefitList: resultList,
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-          ),
-        );
-      },
-    );
-  }
+  //       emit(
+  //         state.copyWith(
+  //           nftBenefitList: resultList,
+  //           submitStatus: RequestStatus.success,
+  //           errorMessage: '',
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<void> onGetNftPoints() async {
     final response = await _nftRepository.getNftPoints();

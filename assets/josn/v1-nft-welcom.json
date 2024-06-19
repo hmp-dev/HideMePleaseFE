@@ -1,0 +1,54 @@
+[
+    {
+      "id": "0xe6313d1776e4043d906d5b7221be70cf470f5e87_2394",
+      "name": "OnChainShiba",
+      "imageUrl": "",
+      "order": 0,
+      "tokenAddress": "0xe6313d1776e4043d906d5b7221be70cf470f5e87",
+      "symbol": "OCS",
+      "chain": "ETHEREUM",
+      "totalPoints": 0,
+      "totalMembers": 2,
+      "pointFluctuation": 0,
+      "communityRank": 342
+    },
+    {
+      "id": "0x338be3d8d0209815601e72f7a04ac7f37d61564b_7892",
+      "name": "Light Decay Walker #7892",
+      "imageUrl": "https://nftassets.covalenthq.com/4a63b7ead4b924967718d5fc381cb5ce7cab284625e490ce31487d77f8cfab98.png",
+      "order": 1,
+      "tokenAddress": "0x338be3d8d0209815601e72f7a04ac7f37d61564b",
+      "symbol": "VOX",
+      "chain": "ETHEREUM",
+      "totalPoints": 0,
+      "totalMembers": 1,
+      "pointFluctuation": 0,
+      "communityRank": 833
+    },
+    {
+      "id": "0x7733eb6d6f57b53055d748072b94526c3bd1f6bb_198",
+      "name": "KAMITSUBAKI Resident Genesis #198",
+      "imageUrl": "https://nftassets.covalenthq.com/213e1ded77b93f423fb24f65b5c9ba74bcba932b1bf18557f8e85e7e257eadee.png",
+      "order": 2,
+      "tokenAddress": "0x7733eb6d6f57b53055d748072b94526c3bd1f6bb",
+      "symbol": "KRG",
+      "chain": "ETHEREUM",
+      "totalPoints": 1,
+      "totalMembers": 1,
+      "pointFluctuation": 0,
+      "communityRank": 12
+    },
+    {
+      "id": "0xd7d9ed27201f2eb065a5f9bbf78f3a04c19c32d7_536",
+      "name": "",
+      "imageUrl": "",
+      "order": 3,
+      "tokenAddress": "0xd7d9ed27201f2eb065a5f9bbf78f3a04c19c32d7",
+      "symbol": "NftGrilsapes",
+      "chain": "POLYGON",
+      "totalPoints": 0,
+      "totalMembers": 1,
+      "pointFluctuation": 0,
+      "communityRank": 737
+    }
+  ]

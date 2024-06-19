@@ -21,7 +21,7 @@ class SpaceListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        getIt<SpaceCubit>().onGetSpaceDetail(spaceId: spaceEntity.id);
+        getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(spaceId: spaceEntity.id);
         SpaceDetailScreen.push(context);
       },
       child: Column(

@@ -24,7 +24,8 @@ class NewSpaceItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        getIt<SpaceCubit>().onGetSpaceDetail(spaceId: newSpaceEntity.id);
+        getIt<SpaceCubit>()
+            .onGetSpaceDetailBySpaceId(spaceId: newSpaceEntity.id);
         SpaceDetailScreen.push(context);
       },
       child: Stack(

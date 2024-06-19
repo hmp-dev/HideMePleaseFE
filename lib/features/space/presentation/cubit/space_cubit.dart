@@ -22,42 +22,6 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     this._spaceRepository,
   ) : super(SpaceState.initial());
 
-  Future<void> onGetSpacesData({
-    required String tokenAddress,
-    required double latitude,
-    required double longitude,
-  }) async {
-    emit(state.copyWith(submitStatus: RequestStatus.loading));
-    EasyLoading.show(dismissOnTap: true);
-    final response = await _spaceRepository.getSpacesData(
-      tokenAddress: tokenAddress,
-      latitude: latitude,
-      longitude: longitude,
-    );
-
-    EasyLoading.dismiss();
-
-    response.fold(
-      (err) {
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
-        ));
-      },
-      (spacesData) {
-        // if users
-        emit(
-          state.copyWith(
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-            spacesResponseEntity: spacesData.toEntity(),
-            selectedNftTokenAddress: tokenAddress,
-          ),
-        );
-      },
-    );
-  }
-
   Future<void> onGetBackdoorToken({
     required String spaceId,
   }) async {
@@ -210,7 +174,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     ));
   }
 
-  onGetSpaceDetail({required String spaceId}) async {
+  onGetSpaceDetailBySpaceId({required String spaceId}) async {
     EasyLoading.show(dismissOnTap: true);
 
     emit(state.copyWith(
@@ -243,12 +207,11 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     );
   }
 
-  Future<void> onGetSpaceBenefits({
+  Future<void> onGetSpaceBenefitsOnSpaceDetailView({
     required String spaceId,
     String? nextCursor,
     bool? isLoadingMore,
   }) async {
-    //TODO implement Load more functionality
     if (isLoadingMore == true) {
       emit(state.copyWith(isLoadingMoreFetch: isLoadingMore));
       EasyLoading.show(dismissOnTap: true);

@@ -16,13 +16,13 @@ class BenefitCardWidgetParent extends StatelessWidget {
   const BenefitCardWidgetParent({
     super.key,
     required this.nearBySpaceEntity,
-    required this.selectedNftTokenAddress,
     required this.nftBenefitEntity,
+    this.isBenefitRedeemSuccess,
   });
 
   final NearBySpaceEntity nearBySpaceEntity;
-  final String selectedNftTokenAddress;
   final BenefitEntity nftBenefitEntity;
+  final bool? isBenefitRedeemSuccess;
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +99,7 @@ class BenefitCardWidgetParent extends StatelessWidget {
                                 const HorizontalSpace(5),
                                 Text(
                                   "무료 혜택은 각 제휴 공간에서 1개 사용가능",
-                                  style: fontCompact2Xs(color: fore2),
+                                  style: fontCompactXs(color: fore2),
                                 )
                               ],
                             ),
@@ -107,14 +107,22 @@ class BenefitCardWidgetParent extends StatelessWidget {
                         const VerticalSpace(10),
                         const DashedDivider(),
                         const VerticalSpace(20),
-                        Center(
-                          child: Text(
-                            nftBenefitEntity.used
-                                ? LocaleKeys.available.tr()
-                                : LocaleKeys.used.tr(),
-                            style: fontCompactMd(),
-                          ),
-                        ),
+                        isBenefitRedeemSuccess != null &&
+                                isBenefitRedeemSuccess == true
+                            ? Center(
+                                child: Text(
+                                  LocaleKeys.used.tr(),
+                                  style: fontCompactMd(),
+                                ),
+                              )
+                            : Center(
+                                child: Text(
+                                  nftBenefitEntity.used
+                                      ? LocaleKeys.used.tr()
+                                      : LocaleKeys.available.tr(),
+                                  style: fontCompactMd(),
+                                ),
+                              ),
                       ],
                     ),
                   ),

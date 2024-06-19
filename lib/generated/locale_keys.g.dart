@@ -150,5 +150,10 @@ abstract class  LocaleKeys {
   static const peopleAreHiding = 'peopleAreHiding';
   static const enableLocationAlertMessage = 'enableLocationAlertMessage';
   static const nickNameIsAlreadyUsed = 'nickNameIsAlreadyUsed';
+  static const spaceSettings = 'spaceSettings';
+  static const chooseSpace = 'chooseSpace';
+  static const withIn10MeterFromCurrentLocation = 'withIn10MeterFromCurrentLocation';
+  static const currentLocation = 'currentLocation';
+  static const notInSpaceCanSpaceCannotUseBenefit = 'notInSpaceCanSpaceCannotUseBenefit';
 
 }

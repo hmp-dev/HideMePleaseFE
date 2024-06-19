@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -70,7 +69,7 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
                   return SpaceBenefitItemWidget(
                     spaceDetailEntity: widget.spaceDetailEntity,
                     isShowImage: false,
-                    nftBenefitEntity: state.benefitsGroupEntity.benefits[index],
+                    benefitEntity: state.benefitsGroupEntity.benefits[index],
                   );
                 },
               ),
@@ -78,10 +77,8 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
                   state.benefitsGroupEntity.benefitCount)
                 LoadMoreIconButton(
                   onTap: () {
-                    getIt<SpaceCubit>().onGetSpaceBenefits(
+                    getIt<SpaceCubit>().onGetSpaceBenefitsOnSpaceDetailView(
                       spaceId: state.benefitsGroupEntity.benefits[0].spaceId,
-                      isLoadingMore: true,
-                      nextCursor: state.benefitsGroupEntity.next,
                     );
                   },
                 ),
@@ -90,23 +87,5 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
         }
       },
     );
-  }
-
-  void getSpacesDataToNavigateToRedeemBenefitScreen(String tokenAddress) {
-    final locationState = getIt<EnableLocationCubit>().state;
-
-    if (locationState.latitude == 0.0 || locationState.longitude == 0.0) {
-      getIt<EnableLocationCubit>().onAskDeviceLocation();
-    } else {
-      //TODO change the hard coded latitude with the device location
-      getIt<SpaceCubit>().onGetSpacesData(
-        tokenAddress: tokenAddress,
-        latitude: 2.0, //locationState.latitude,
-        longitude: 2.0, //locationState.longitude,
-      );
-    }
-
-    Log.trace("latitude: ${locationState.latitude}");
-    Log.trace("longitude: ${locationState.longitude}");
   }
 }

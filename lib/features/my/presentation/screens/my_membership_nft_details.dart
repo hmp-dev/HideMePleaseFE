@@ -8,7 +8,6 @@ import 'package:mobile/features/common/presentation/widgets/custom_image_view.da
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
-import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/my/presentation/screens/nft_benefits_usage_history_detail.dart';
 import 'package:mobile/features/my/presentation/widgets/benefits_item_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/nft_network_info_widget.dart';
@@ -118,8 +117,8 @@ class _MyMembershipNftDetailScreenState
                 // LoadMoreIconButton(
                 //   onTap: () {},
                 // ),
-                const VerticalSpace(20),
-                const ThickDivider(),
+                //const VerticalSpace(20),
+                const ThickDivider(paddingTop: 10),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(

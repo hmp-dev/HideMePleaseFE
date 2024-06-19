@@ -21,7 +21,7 @@ class SpaceRepositoryImpl extends SpaceRepository {
   SpaceRepositoryImpl(this._spaceRemoteDataSource);
 
   @override
-  Future<Either<HMPError, SpacesResponseDto>> getSpacesData({
+  Future<Either<HMPError, SpacesResponseDto>> getNearBySpacesListData({
     required String tokenAddress,
     required double latitude,
     required double longitude,

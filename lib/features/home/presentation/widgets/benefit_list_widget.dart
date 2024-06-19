@@ -1,12 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
+import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/home_benefits_item_widget.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class BenefitListWidget extends StatefulWidget {
@@ -21,11 +23,19 @@ class BenefitListWidget extends StatefulWidget {
 class _BenefitListWidgetState extends State<BenefitListWidget> {
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<NftCubit, NftState>(
-      bloc: getIt<NftCubit>(),
+    return BlocConsumer<NftBenefitsCubit, NftBenefitsState>(
+      bloc: getIt<NftBenefitsCubit>(),
       listener: (context, state) {},
       builder: (context, state) {
-        if (state.nftBenefitList.isEmpty) {
+        if (state.submitStatus == RequestStatus.loading) {
+          return Center(
+            child: Lottie.asset(
+              'assets/lottie/loader.json',
+            ),
+          );
+        }
+        if (state.submitStatus == RequestStatus.success &&
+            state.nftBenefitList.isEmpty) {
           return Column(
             children: [
               Text(LocaleKeys.memberShipBenefits.tr(),
@@ -50,7 +60,7 @@ class _BenefitListWidgetState extends State<BenefitListWidget> {
                 itemCount: state.nftBenefitList.length,
                 itemBuilder: (context, index) {
                   return HomeBenefitItemWidget(
-                    nftBenefitEntity: state.nftBenefitList[index],
+                    benefitEntity: state.nftBenefitList[index],
                   );
                 },
               )

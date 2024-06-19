@@ -72,7 +72,7 @@ class ConnectedWalletItemWidget extends StatelessWidget {
                               child: Text(
                                 formatWalletAddress(
                                     connectedWallet.publicAddress),
-                                style: fontBody2Medium(color: fore2),
+                                style: fontBody2XsMedium(color: fore2),
                               ),
                             ),
                           ],

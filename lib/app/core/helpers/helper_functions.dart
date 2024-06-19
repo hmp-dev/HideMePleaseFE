@@ -433,3 +433,7 @@ List<BenefitEntity> moveBenefitEntityToFirst(
 
   return sorted;
 }
+
+String removeCurlyBraces(String input) {
+  return input.replaceAll(RegExp(r'[{}]'), '');
+}
