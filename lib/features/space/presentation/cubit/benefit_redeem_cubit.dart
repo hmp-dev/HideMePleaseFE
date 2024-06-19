@@ -1,4 +1,3 @@
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
@@ -22,8 +21,6 @@ class BenefitRedeemCubit extends BaseCubit<BenefitRedeemState> {
   }) async {
     emit(state.copyWith(submitStatus: RequestStatus.loading));
 
-    EasyLoading.show(dismissOnTap: true);
-
     final response = await _spaceRepository.postRedeemBenefit(
       benefitId: benefitId,
       tokenAddress: tokenAddress,
@@ -31,8 +28,6 @@ class BenefitRedeemCubit extends BaseCubit<BenefitRedeemState> {
       latitude: latitude,
       longitude: longitude,
     );
-
-    EasyLoading.dismiss();
 
     response.fold(
       (err) {
