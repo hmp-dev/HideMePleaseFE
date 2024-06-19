@@ -21,8 +21,7 @@ class _ChattingWidgetState extends State<ChattingWidget> {
         Text("오픈 채팅방", style: fontTitle06Medium()),
         const HorizontalSpace(10),
         Text("읽지 않은 메세지 12", style: fontCompactXs(color: fore3)),
-        const VerticalSpace(20),
-        const VerticalSpace(20),
+        const VerticalSpace(40),
         HomeChatItemWidget(
           nftPointsEntity: const NftPointsEntity(
             id: "0",

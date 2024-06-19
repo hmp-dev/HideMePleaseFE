@@ -66,7 +66,8 @@ class _MyPointsDetailScreenState extends State<MyPointsDetailScreen> {
                     children: [
                       RoundedSelectButton(
                         title: LocaleKeys.entire.tr(),
-                        isSelected: true,
+                        isSelected:
+                            state.benefitUsageType == BenefitUsageType.ENTIRE,
                         onTap: () {
                           getIt<NftCubit>().onGetNftUsageHistory(
                               tokenAddress:
@@ -75,7 +76,8 @@ class _MyPointsDetailScreenState extends State<MyPointsDetailScreen> {
                       ),
                       RoundedSelectButton(
                         title: LocaleKeys.spaceVisit.tr(),
-                        isSelected: false,
+                        isSelected: state.benefitUsageType ==
+                            BenefitUsageType.SPACE_VISIT,
                         onTap: () {
                           getIt<NftCubit>().onGetNftUsageHistory(
                             tokenAddress: widget.nftPointsEntity.tokenAddress,
@@ -85,7 +87,8 @@ class _MyPointsDetailScreenState extends State<MyPointsDetailScreen> {
                       ),
                       RoundedSelectButton(
                         title: LocaleKeys.community.tr(),
-                        isSelected: false,
+                        isSelected: state.benefitUsageType ==
+                            BenefitUsageType.COMMUNITY,
                         onTap: () {
                           getIt<NftCubit>().onGetNftUsageHistory(
                             tokenAddress: widget.nftPointsEntity.tokenAddress,

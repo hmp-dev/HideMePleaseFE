@@ -155,5 +155,6 @@ abstract class  LocaleKeys {
   static const withIn10MeterFromCurrentLocation = 'withIn10MeterFromCurrentLocation';
   static const currentLocation = 'currentLocation';
   static const notInSpaceCanSpaceCannotUseBenefit = 'notInSpaceCanSpaceCannotUseBenefit';
+  static const pointRanking = 'pointRanking';
 
 }

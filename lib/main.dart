@@ -20,7 +20,6 @@ import 'package:timeago/timeago.dart' as timeago;
 /// check if it is first time App is launched by user
 
 int? isShowOnBoarding;
-
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
@@ -41,7 +40,7 @@ void main() async {
       fallbackLocale: const Locale('en'),
       startLocale: AppEnv.flavor.isProd && kReleaseMode
           ? const Locale('ko')
-          : const Locale('en'),
+          : const Locale('ko'),
       useOnlyLangCode: true,
       child: DevicePreview(
         enabled: false,
