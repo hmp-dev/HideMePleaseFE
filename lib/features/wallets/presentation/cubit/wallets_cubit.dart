@@ -10,14 +10,26 @@ import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.
 import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/domain/repositories/wallets_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
 part 'wallets_state.dart';
+
+const kAppIcon =
+    'https://firebasestorage.googleapis.com/v0/b/hidemeplease2024-dev.appspot.com/o/public%2Fplaystore-icon.png?alt=media&token=121932f4-6fcc-4ddf-a48f-4496f128d763';
+const kAppName = 'HideMePlease';
+const kAppWeb = 'https://hidemeplease.xyz';
+final kSolanaAppId = AppIdentity(
+  uri: Uri.parse(kAppWeb),
+  icon: Uri.parse('favicon.png'),
+  name: kAppName,
+);
 
 @lazySingleton
 class WalletsCubit extends BaseCubit<WalletsState> {
   final WalletsRepository _walletsRepository;
   W3MService? _w3mService;
+  SolanaWalletProvider? _solanaWallet;
 
   WalletsCubit(
     this._walletsRepository,
@@ -92,20 +104,24 @@ class WalletsCubit extends BaseCubit<WalletsState> {
   ///
   ///
 
-  Future<void> initW3MService() async {
+  Future<void> init({required SolanaWalletProvider solWallet}) async {
     emit(state.copyWith(submitStatus: RequestStatus.loading));
 
     try {
+      // Solana Wallet
+      _solanaWallet = solWallet;
+
+      // Wallet Connect
       var w3mService = W3MService(
         logLevel: LogLevel.debug,
         featuredWalletIds: Web3Constants.allowedWalletIds,
         includedWalletIds: Web3Constants.allowedWalletIds,
         projectId: Web3Constants.projectId,
         metadata: const PairingMetadata(
-          name: 'HideMePlease',
+          name: kAppName,
           description: 'Hide Me Please App',
-          url: 'https://hidemeplease.xyz/',
-          icons: ['https://walletconnect.com/walletconnect-logo.png'],
+          url: kAppWeb,
+          icons: [kAppIcon],
           redirect: Redirect(
             native: 'web3modalflutter://',
             universal: 'HideMePlease',
@@ -176,14 +192,43 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     ('[$runtimeType] onModalDisconnect $args').log();
   }
 
-  onConnectWallet(BuildContext context) {
-    state.w3mService!.openModal(context);
+  onConnectWallet(BuildContext context) async {
+    await state.w3mService!.openModal(context);
+    if (state.w3mService!.selectedWallet!.listing.id == 'phantom') {
+      onConnectSolWallet(context);
+    }
+  }
+
+  onConnectSolWallet(BuildContext context) async {
+    if (_solanaWallet != null && !_solanaWallet!.adapter.isAuthorized) {
+      // await _solanaWallet!.connect(context, options: [
+      //   const PhantomAppInfo(id: '0'),
+      // ]);
+      await _solanaWallet!.adapter.authorize(
+        type: AssociationType.local,
+        walletUriBase: const PhantomAppInfo(id: '0').walletUriBase,
+      );
+      if (_solanaWallet!.adapter.isAuthorized) {
+        onPostWallet(
+          saveWalletRequestDto: SaveWalletRequestDto(
+            publicAddress: _solanaWallet!.adapter.connectedAccount!.address,
+            provider: getWalletProvider('phantom'),
+          ),
+        );
+      }
+    }
   }
 
   onDisconnectW3MService() {
     "onDisconnectW3MService is called**********************".log();
     if (state.w3mService != null) {
       state.w3mService!.disconnect();
+    }
+  }
+
+  onDisconnectSolWallet(BuildContext context) async {
+    if (_solanaWallet != null && _solanaWallet!.adapter.isAuthorized) {
+      await _solanaWallet!.disconnect(context);
     }
   }
 
