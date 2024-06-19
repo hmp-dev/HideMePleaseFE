@@ -49,8 +49,8 @@ class NotificationServices {
       }
 
       if (_canReceiveNotification) {
-        FirebaseMessaging.onBackgroundMessage(
-            _firebaseMessagingBackgroundHandler);
+        // FirebaseMessaging.onBackgroundMessage(
+        //     _firebaseMessagingBackgroundHandler);
 
         FirebaseMessaging.onMessage.listen((message) {
           Log.debug("notifications title:${message.notification?.title}");
@@ -140,8 +140,6 @@ class NotificationServices {
     );
     await _flutterLocalNotificationsPlugin.initialize(initializationSetting,
         onDidReceiveNotificationResponse: (notificationResponse) {
-      _handleMessageAction(jsonDecode(notificationResponse.payload!));
-    }, onDidReceiveBackgroundNotificationResponse: (notificationResponse) {
       _handleMessageAction(jsonDecode(notificationResponse.payload!));
     });
   }

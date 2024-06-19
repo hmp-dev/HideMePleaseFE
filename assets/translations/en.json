@@ -152,5 +152,6 @@
     "chooseSpace":"Choose Space",
     "withIn10MeterFromCurrentLocation":"with in 10 meter from current location",
     "currentLocation":"Current Location",
-    "notInSpaceCanSpaceCannotUseBenefit":"You are not currently in the space and cannot use the benefit."
+    "notInSpaceCanSpaceCannotUseBenefit":"You are not currently in the space and cannot use the benefit.",
+    "pointRanking":"Point Ranking"
 }
