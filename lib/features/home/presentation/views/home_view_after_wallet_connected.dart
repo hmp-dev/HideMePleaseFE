@@ -35,9 +35,11 @@ class HomeViewAfterWalletConnected extends StatefulWidget {
   const HomeViewAfterWalletConnected({
     super.key,
     required this.isOverIconNavVisible,
+    required this.homeViewScrollController,
   });
 
   final bool isOverIconNavVisible;
+  final ScrollController homeViewScrollController;
 
   @override
   State<HomeViewAfterWalletConnected> createState() =>
@@ -275,10 +277,26 @@ class _HomeViewAfterWalletConnectedState
       return NftCardRewardsBottomWidget(welcomeNftEntity: welcomeNftEntity);
     } else {
       return isOverIconNavVisible
-          ? const AnimatedSlideFadeIn(
+          ? AnimatedSlideFadeIn(
               slideIndex: 0,
-              beginOffset: Offset(0.0, 0.01),
-              child: NftCardIconNavRow(),
+              beginOffset: const Offset(0.0, 0.01),
+              child: NftCardIconNavRow(
+                selectedIndex: _currentSelectWidgetIndex,
+                onIndexChanged: (index) {
+                  widget.homeViewScrollController.animateTo(
+                    120,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                  if (index == 2) {
+                    getIt<CommunityDetailsCubit>()
+                        .onGetNftMembers(tokenAddress: _currentTokenAddress);
+                  }
+                  setState(() {
+                    _currentSelectWidgetIndex = index;
+                  });
+                },
+              ),
             )
           : AnimatedSlideFadeIn(
               slideIndex: 0,
