@@ -1,28 +1,22 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
-import 'package:mobile/app/core/helpers/helper_functions.dart';
-import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_available_text.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_used_text.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
-import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_with_benefit_id.dart';
-import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/features/space/presentation/screens/benefit_redeem_initiate_widget.dart';
 
 class SpaceBenefitItemWidget extends StatelessWidget {
   const SpaceBenefitItemWidget({
     super.key,
-    required this.nftBenefitEntity,
+    required this.benefitEntity,
     required this.spaceDetailEntity,
     this.isShowImage = true,
   });
 
-  final BenefitEntity nftBenefitEntity;
+  final BenefitEntity benefitEntity;
   final SpaceDetailEntity spaceDetailEntity;
   final bool isShowImage;
 
@@ -36,7 +30,7 @@ class SpaceBenefitItemWidget extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 20.0),
                 child: CustomImageView(
-                  url: nftBenefitEntity.spaceImage,
+                  url: benefitEntity.spaceImage,
                   width: 54,
                   height: 54,
                   radius: BorderRadius.circular(2),
@@ -45,45 +39,23 @@ class SpaceBenefitItemWidget extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(nftBenefitEntity.description,
-                    style: fontCompactMdMedium()),
+                Text(benefitEntity.description, style: fontCompactMdMedium()),
                 const VerticalSpace(5),
-                Text(nftBenefitEntity.spaceName,
+                Text(benefitEntity.spaceName,
                     style: fontCompactSm(color: fore3)),
               ],
             ),
             const Spacer(),
-            nftBenefitEntity.used
+            benefitEntity.used
                 ? const BenefitUsedText()
-                : BlocConsumer<EnableLocationCubit, EnableLocationState>(
-                    bloc: getIt<EnableLocationCubit>()..checkLocationEnabled(),
-                    listener: (context, state) {},
-                    builder: (context, state) {
-                      return GestureDetector(
-                        onTap: () {
-                          if (!state.isLocationDenied) {
-                            RedeemBenefitScreenWithBenefitId.push(
-                                context, nftBenefitEntity, spaceDetailEntity);
-                          } else {
-                            // open Alert Dialogue to Show Info and Ask to enable Location
-                            showEnableLocationAlertDialog(
-                              context: context,
-                              title: LocaleKeys.enableLocationAlertMessage.tr(),
-                              onConfirm: () {
-                                getIt<EnableLocationCubit>()
-                                    .onAskDeviceLocationWithOpenSettings();
-                              },
-                              onCancel: () {},
-                            );
-                          }
-
-                          "latitude: ${state.latitude}".log();
-                          "longitude: ${state.longitude}".log();
-                        },
-                        child: const BenefitAvailableText(),
-                      );
+                : BenefitRedeemInitiateWidget(
+                    tokenAddress: benefitEntity.tokenAddress,
+                    selectedBenefitEntity: benefitEntity,
+                    onAlertCancel: () {
+                      Navigator.pop(context);
                     },
-                  ),
+                    childWidget: const BenefitAvailableText(),
+                  )
           ],
         ),
         const Padding(

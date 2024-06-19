@@ -560,17 +560,25 @@ TextStyle fontBodyXsBold({Color? color = fore1}) => TextStyle(
     );
 
 TextStyle fontBody2Xs({Color? color = fore1}) => TextStyle(
-      fontSize: 12,
+      fontSize: 10,
       fontFamily: 'Pretendard',
       fontWeight: FontWeight.w400,
       color: color ?? fore1,
       letterSpacing: -0.1,
       height: 1.7,
     );
-TextStyle fontBody2Medium({Color? color = fore1}) => TextStyle(
-      fontSize: 12,
+TextStyle fontBody2XsMedium({Color? color = fore1}) => TextStyle(
+      fontSize: 10,
       fontFamily: 'Pretendard',
       fontWeight: FontWeight.w500,
+      color: color ?? fore1,
+      letterSpacing: -0.1,
+      height: 1.7,
+    );
+TextStyle fontBody2XsBold({Color? color = fore1}) => TextStyle(
+      fontSize: 10,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w600,
       color: color ?? fore1,
       letterSpacing: -0.1,
       height: 1.7,
@@ -636,7 +644,7 @@ TextStyle fontTitle06Medium({Color? color = fore1}) => TextStyle(
 TextStyle fontTitle06Bold({Color? color = fore1}) => TextStyle(
       fontSize: 18,
       fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
       color: color ?? fore1,
       letterSpacing: -0.1,
       height: 1.4,
@@ -686,7 +694,7 @@ TextStyle fontTitle04Medium({Color? color = fore1}) => TextStyle(
 TextStyle fontTitle04Bold({Color? color = fore1}) => TextStyle(
       fontSize: 22,
       fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
       color: color ?? fore1,
       letterSpacing: -0.1,
       height: 1.4,
@@ -710,7 +718,7 @@ TextStyle fontTitle03Medium({Color? color = fore1}) => TextStyle(
 TextStyle fontTitle03Bold({Color? color = fore1}) => TextStyle(
       fontSize: 24,
       fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
       color: color ?? fore1,
       letterSpacing: -0.1,
       height: 1.4,
@@ -735,7 +743,7 @@ TextStyle fontTitle02Medium({Color? color = fore1}) => TextStyle(
 TextStyle fontTitle02Bold({Color? color = fore1}) => TextStyle(
       fontSize: 28,
       fontFamily: 'Pretendard',
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
       color: color ?? fore1,
       letterSpacing: -0.1,
       height: 1.4,

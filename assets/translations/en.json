@@ -147,5 +147,10 @@
     "longPressToUseBenefits":"Long press to use benefits",
     "peopleAreHiding":"People are Hiding",
     "enableLocationAlertMessage":"In order to use the benefit, location information must be shared.",
-    "nickNameIsAlreadyUsed":"Nick Name is already used"
+    "nickNameIsAlreadyUsed":"Nick Name is already used",
+    "spaceSettings":"Space Settings",
+    "chooseSpace":"Choose Space",
+    "withIn10MeterFromCurrentLocation":"with in 10 meter from current location",
+    "currentLocation":"Current Location",
+    "notInSpaceCanSpaceCannotUseBenefit":"You are not currently in the space and cannot use the benefit."
 }
