@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -196,24 +196,33 @@ class WalletsCubit extends BaseCubit<WalletsState> {
 
   onConnectWallet(BuildContext context) async {
     await state.w3mService!.openModal(context);
-    if (state.w3mService!.selectedWallet!.listing.id == 'phantom') {
+
+    if (state.w3mService!.selectedWallet?.listing.id == 'phantom') {
       onConnectSolWallet(context);
     }
   }
 
   onConnectSolWallet(BuildContext context) async {
-    if (_solanaWallet != null && !_solanaWallet!.adapter.isAuthorized) {
-      // await _solanaWallet!.connect(context, options: [
-      //   const PhantomAppInfo(id: '0'),
-      // ]);
+    if (_solanaWallet != null) {
+      if (_solanaWallet!.adapter.isAuthorized) {
+        await _solanaWallet!.adapter.deauthorize(
+          type: AssociationType.local,
+          walletUriBase: const PhantomAppInfo(id: '0').walletUriBase,
+        );
+      }
+
       await _solanaWallet!.adapter.authorize(
         type: AssociationType.local,
         walletUriBase: const PhantomAppInfo(id: '0').walletUriBase,
       );
       if (_solanaWallet!.adapter.isAuthorized) {
+        final solWalletAddr = base58Encode(
+            base64Decode(_solanaWallet!.adapter.connectedAccount!.address));
+
+        solWalletAddr.log();
         onPostWallet(
           saveWalletRequestDto: SaveWalletRequestDto(
-            publicAddress: _solanaWallet!.adapter.connectedAccount!.address,
+            publicAddress: solWalletAddr,
             provider: getWalletProvider('phantom'),
           ),
         );
