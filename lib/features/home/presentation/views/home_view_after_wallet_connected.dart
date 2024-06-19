@@ -5,13 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
-import 'package:mobile/app/core/animations/fade_indexed_stack.dart';
+import 'package:mobile/app/core/animations/fade_indexed_widget.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/community/presentation/cubit/community_details_cubit.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_list_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/chatting_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/events_widget.dart';
@@ -133,9 +134,16 @@ class _HomeViewAfterWalletConnectedState
                                 } else {
                                   // else set isItemFirstOrLast as false
                                   setState(() => _isCurrentIndexIsLat = false);
+
                                   //call NFt Benefits API
                                   getIt<NftBenefitsCubit>().onGetNftBenefits(
                                       tokenAddress: _currentTokenAddress);
+
+                                  if (_currentSelectWidgetIndex == 2) {
+                                    getIt<CommunityDetailsCubit>()
+                                        .onGetNftMembers(
+                                            tokenAddress: _currentTokenAddress);
+                                  }
                                 }
                               },
                             ),
@@ -149,33 +157,28 @@ class _HomeViewAfterWalletConnectedState
                                   selectedNftsListForHome.length - 1) {
                                 return const GoToMemberShipCardWidget();
                               }
-                              return Stack(
-                                children: [
-                                  BenefitRedeemInitiateWidget(
-                                    tokenAddress: _currentTokenAddress,
-                                    onAlertCancel: () {
-                                      Navigator.pop(context);
-                                    },
-                                    childWidget: NFTCardWidgetParent(
-                                      imagePath: itemIndex == 0
-                                          ? nftState.welcomeNftEntity.image
-                                          : item.imageUrl,
-                                      topWidget: widget.isOverIconNavVisible
-                                          ? NftCardTopTitleWidget(
-                                              title: item.name,
-                                              chain: item.chain,
-                                            )
-                                          : const SizedBox.shrink(),
-                                      bottomWidget: _getBottomWidget(
-                                          itemIndex,
-                                          nftState.welcomeNftEntity,
-                                          widget.isOverIconNavVisible,
-                                          item),
-                                      index: itemIndex,
-                                    ),
-                                  ),
-                                  Text(item.tokenAddress)
-                                ],
+                              return BenefitRedeemInitiateWidget(
+                                tokenAddress: _currentTokenAddress,
+                                onAlertCancel: () {
+                                  Navigator.pop(context);
+                                },
+                                childWidget: NFTCardWidgetParent(
+                                  imagePath: itemIndex == 0
+                                      ? nftState.welcomeNftEntity.image
+                                      : item.imageUrl,
+                                  topWidget: widget.isOverIconNavVisible
+                                      ? NftCardTopTitleWidget(
+                                          title: item.name,
+                                          chain: item.chain,
+                                        )
+                                      : const SizedBox.shrink(),
+                                  bottomWidget: _getBottomWidget(
+                                      itemIndex,
+                                      nftState.welcomeNftEntity,
+                                      widget.isOverIconNavVisible,
+                                      item),
+                                  index: itemIndex,
+                                ),
                               );
                             }).toList(),
                           ),
@@ -207,6 +210,12 @@ class _HomeViewAfterWalletConnectedState
                                 IconNavWidgets(
                                   selectedIndex: _currentSelectWidgetIndex,
                                   onIndexChanged: (index) {
+                                    if (index == 2) {
+                                      getIt<CommunityDetailsCubit>()
+                                          .onGetNftMembers(
+                                              tokenAddress:
+                                                  _currentTokenAddress);
+                                    }
                                     setState(() {
                                       _currentSelectWidgetIndex = index;
                                     });
@@ -214,15 +223,17 @@ class _HomeViewAfterWalletConnectedState
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 20, top: 10, right: 20, bottom: 50),
-                                  child: FadeIndexedStack(
-                                    index: _currentSelectWidgetIndex,
-                                    children: const [
-                                      BenefitListWidget(),
-                                      EventsWidget(),
-                                      MemberWidget(),
-                                      ChattingWidget(),
-                                    ],
+                                      left: 20, top: 10, right: 20, bottom: 30),
+                                  child: SizedBox(
+                                    child: FadeIndexedWidget(
+                                      index: _currentSelectWidgetIndex,
+                                      children: const [
+                                        BenefitListWidget(),
+                                        EventsWidget(),
+                                        MemberWidget(),
+                                        ChattingWidget(),
+                                      ],
+                                    ),
                                   ),
                                 )
                               ],
