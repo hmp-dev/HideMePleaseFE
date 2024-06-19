@@ -4,7 +4,14 @@ import 'package:mobile/features/home/presentation/widgets/feature_icon_widget.da
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class NftCardIconNavRow extends StatelessWidget {
-  const NftCardIconNavRow({super.key});
+  const NftCardIconNavRow({
+    super.key,
+    required this.selectedIndex,
+    required this.onIndexChanged,
+  });
+
+  final int selectedIndex;
+  final Function(int) onIndexChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -16,22 +23,22 @@ class NftCardIconNavRow extends StatelessWidget {
           FeatureIconWidget(
             title: LocaleKeys.benefits.tr(),
             imagePath: "assets/icons/ic_benefits.svg",
-            onTap: () {},
+            onTap: () => onIndexChanged(0),
           ),
           FeatureIconWidget(
             title: LocaleKeys.event.tr(),
             imagePath: "assets/icons/ic_events.svg",
-            onTap: () {},
+            onTap: () => onIndexChanged(1),
           ),
           FeatureIconWidget(
             title: LocaleKeys.member.tr(),
             imagePath: "assets/icons/ic_member.svg",
-            onTap: () {},
+            onTap: () => onIndexChanged(2),
           ),
           FeatureIconWidget(
             title: LocaleKeys.chatting.tr(),
             imagePath: "assets/icons/ic_chatting.svg",
-            onTap: () {},
+            onTap: () => onIndexChanged(3),
           ),
         ],
       ),

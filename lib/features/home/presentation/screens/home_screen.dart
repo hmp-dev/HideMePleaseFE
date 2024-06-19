@@ -190,7 +190,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getHomeView(HomeViewType homeViewType) {
     if (homeViewType == HomeViewType.afterWalletConnected) {
-      return HomeViewAfterWalletConnected(isOverIconNavVisible: _isVisible);
+      return HomeViewAfterWalletConnected(
+        isOverIconNavVisible: _isVisible,
+        homeViewScrollController: _scrollController,
+      );
     } else {
       return const HomeViewBeforeLogin();
     }
