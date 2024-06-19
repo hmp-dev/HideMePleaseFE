@@ -10,7 +10,8 @@ NftNetworkDto _$NftNetworkDtoFromJson(Map<String, dynamic> json) =>
     NftNetworkDto(
       network: json['network'] as String?,
       holderCount: json['holderCount'] as String?,
-      floorPrice: json['floorPrice'] as int?,
+      floorPrice: json['floorPrice'] as String?,
+      symbol: json['symbol'] as String?,
     );
 
 Map<String, dynamic> _$NftNetworkDtoToJson(NftNetworkDto instance) =>
@@ -18,4 +19,5 @@ Map<String, dynamic> _$NftNetworkDtoToJson(NftNetworkDto instance) =>
       'network': instance.network,
       'holderCount': instance.holderCount,
       'floorPrice': instance.floorPrice,
+      'symbol': instance.symbol,
     };

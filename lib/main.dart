@@ -1,6 +1,7 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +21,11 @@ import 'package:timeago/timeago.dart' as timeago;
 /// check if it is first time App is launched by user
 
 int? isShowOnBoarding;
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +47,7 @@ void main() async {
       fallbackLocale: const Locale('en'),
       startLocale: AppEnv.flavor.isProd && kReleaseMode
           ? const Locale('ko')
-          : const Locale('en'),
+          : const Locale('ko'),
       useOnlyLangCode: true,
       child: DevicePreview(
         enabled: false,
@@ -63,6 +69,10 @@ Future initApp() async {
 
   // DI
   await configureDependencies();
+
+  await // Firebase
+      Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await Future.wait([
     // Firebase

@@ -11,12 +11,15 @@ class NftNetworkDto extends Equatable {
   @JsonKey(name: "holderCount")
   final String? holderCount;
   @JsonKey(name: "floorPrice")
-  final int? floorPrice;
+  final String? floorPrice;
+  @JsonKey(name: "symbol")
+  final String? symbol;
 
   const NftNetworkDto({
     this.network,
     this.holderCount,
     this.floorPrice,
+    this.symbol,
   });
 
   factory NftNetworkDto.fromJson(Map<String, dynamic> json) =>
@@ -30,6 +33,7 @@ class NftNetworkDto extends Equatable {
   NftNetworkEntity toEntity() => NftNetworkEntity(
         network: network ?? '',
         holderCount: holderCount ?? '',
-        floorPrice: floorPrice ?? 0,
+        floorPrice: floorPrice ?? '',
+        symbol: symbol ?? '',
       );
 }

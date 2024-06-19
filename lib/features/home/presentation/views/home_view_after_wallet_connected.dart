@@ -122,6 +122,9 @@ class _HomeViewAfterWalletConnectedState
                                           .tokenAddress;
                                 });
 
+                                "the Current TokenAddress is $_currentTokenAddress"
+                                    .log();
+
                                 // if index is last item,
                                 // and set _isCurrentIndexIsLat as true
                                 if (_currentIndex ==
@@ -146,28 +149,33 @@ class _HomeViewAfterWalletConnectedState
                                   selectedNftsListForHome.length - 1) {
                                 return const GoToMemberShipCardWidget();
                               }
-                              return BenefitRedeemInitiateWidget(
-                                tokenAddress: _currentTokenAddress,
-                                onAlertCancel: () {
-                                  Navigator.pop(context);
-                                },
-                                childWidget: NFTCardWidgetParent(
-                                  imagePath: itemIndex == 0
-                                      ? nftState.welcomeNftEntity.image
-                                      : item.imageUrl,
-                                  topWidget: widget.isOverIconNavVisible
-                                      ? NftCardTopTitleWidget(
-                                          title: item.name,
-                                          chain: item.chain,
-                                        )
-                                      : const SizedBox.shrink(),
-                                  bottomWidget: _getBottomWidget(
-                                      itemIndex,
-                                      nftState.welcomeNftEntity,
-                                      widget.isOverIconNavVisible,
-                                      item),
-                                  index: itemIndex,
-                                ),
+                              return Stack(
+                                children: [
+                                  BenefitRedeemInitiateWidget(
+                                    tokenAddress: _currentTokenAddress,
+                                    onAlertCancel: () {
+                                      Navigator.pop(context);
+                                    },
+                                    childWidget: NFTCardWidgetParent(
+                                      imagePath: itemIndex == 0
+                                          ? nftState.welcomeNftEntity.image
+                                          : item.imageUrl,
+                                      topWidget: widget.isOverIconNavVisible
+                                          ? NftCardTopTitleWidget(
+                                              title: item.name,
+                                              chain: item.chain,
+                                            )
+                                          : const SizedBox.shrink(),
+                                      bottomWidget: _getBottomWidget(
+                                          itemIndex,
+                                          nftState.welcomeNftEntity,
+                                          widget.isOverIconNavVisible,
+                                          item),
+                                      index: itemIndex,
+                                    ),
+                                  ),
+                                  Text(item.tokenAddress)
+                                ],
                               );
                             }).toList(),
                           ),
