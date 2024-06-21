@@ -305,7 +305,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
     await showBenefitRedeemSuccessAlertDialog(
       context: context,
       title:
-          "@${state.benefitGroupEntity.benefits[selectedPageIndex].spaceName}\n${LocaleKeys.youHaveBenefited.tr()}",
+          "${state.benefitGroupEntity.benefits[selectedPageIndex].spaceName}\n${LocaleKeys.youHaveBenefited.tr()}",
       onConfirm: () {
         Navigator.pop(context);
       },

@@ -153,5 +153,9 @@
     "withIn10MeterFromCurrentLocation":"with in 10 meter from current location",
     "currentLocation":"Current Location",
     "notInSpaceCanSpaceCannotUseBenefit":"You are not currently in the space and cannot use the benefit.",
-    "pointRanking":"Point Ranking"
+    "pointRanking":"Point Ranking",
+    "minutesAgo":"minutes Ago",
+    "hoursAgo":"Hours Ago",
+    "day":"day",
+    "days":"Days"
 }

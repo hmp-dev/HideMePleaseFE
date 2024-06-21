@@ -437,3 +437,31 @@ List<BenefitEntity> moveBenefitEntityToFirst(
 String removeCurlyBraces(String input) {
   return input.replaceAll(RegExp(r'[{}]'), '');
 }
+
+String checkTimeDifference(String dateString) {
+  // Parse the input date string to a DateTime object
+  DateTime parsedDate = DateTime.parse(dateString);
+  DateTime currentDate = DateTime.now();
+
+  // Calculate the difference between current time and the parsed date
+  Duration difference = currentDate.difference(parsedDate);
+
+  if (difference.inMinutes < 60) {
+    return "${difference.inMinutes} ${LocaleKeys.minutesAgo.tr()}";
+  } else if (difference.inHours < 24) {
+    return "${difference.inHours} ${LocaleKeys.hoursAgo.tr()}";
+  } else {
+    int days = difference.inDays;
+    int hours = difference.inHours % 24;
+
+    if (days == 1) {
+      return "$days ${LocaleKeys.day.tr()}";
+    }
+
+    final dayString = (days == 1)
+        ? "$days ${LocaleKeys.day.tr()}"
+        : "$days ${LocaleKeys.days.tr()}";
+
+    return "$days $dayString and $hours ${LocaleKeys.hoursAgo.tr()}";
+  }
+}

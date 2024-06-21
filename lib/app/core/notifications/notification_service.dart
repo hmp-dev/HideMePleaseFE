@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 
@@ -33,7 +33,7 @@ class NotificationServices {
     if (hasPermission) {
       if (Platform.isIOS) {
         final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-        Log.debug('apnsToken: $apnsToken');
+        ('apnsToken: $apnsToken').log();
 
         _canReceiveNotification = apnsToken != null;
         if (_canReceiveNotification) {
@@ -53,10 +53,10 @@ class NotificationServices {
         //     _firebaseMessagingBackgroundHandler);
 
         FirebaseMessaging.onMessage.listen((message) {
-          Log.debug("notifications title:${message.notification?.title}");
-          Log.debug("notifications body:${message.notification?.body}");
-          Log.debug('count:${message.notification?.android?.count}');
-          Log.debug('data:${message.data.toString()}');
+          ("notifications title:${message.notification?.title}").log();
+          ("notifications body:${message.notification?.body}").log();
+          ('count:${message.notification?.android?.count}').log();
+          ('data:${message.data.toString()}').log();
 
           if (Platform.isAndroid) {
             _initLocalNotifications(message);
@@ -99,7 +99,7 @@ class NotificationServices {
       return settings.authorizationStatus == AuthorizationStatus.authorized ||
           settings.authorizationStatus == AuthorizationStatus.provisional;
     } catch (e) {
-      Log.debug('Error requesting notification permission: $e');
+      ('Error requesting notification permission: $e').log();
       return false;
     }
   }
@@ -128,7 +128,7 @@ class NotificationServices {
   }
 
   void _handleMessageAction(Map<String, dynamic> payload) {
-    Log.debug('Message Action payload: $payload');
+    ('Message Action payload: $payload').log();
   }
 
   int _notificationCounter = 0;
