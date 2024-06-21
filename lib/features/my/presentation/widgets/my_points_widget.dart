@@ -23,10 +23,12 @@ class MyPointsWidget extends StatefulWidget {
     required this.nftPointsList,
     required this.isOwner,
     this.isLoading = false,
+    required this.title,
   });
   final List<NftPointsEntity> nftPointsList;
   final bool isOwner;
   final bool isLoading;
+  final String title;
 
   @override
   State<MyPointsWidget> createState() => _MyPointsWidgetState();
@@ -53,7 +55,7 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                Text(LocaleKeys.myPoints.tr(), style: fontTitle07Medium()),
+                Text(widget.title, style: fontTitle07Medium()),
               ],
             ),
           )
@@ -65,8 +67,7 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                   padding: const EdgeInsets.all(20.0),
                   child: Row(
                     children: [
-                      Text(LocaleKeys.myPoints.tr(),
-                          style: fontTitle07Medium()),
+                      Text(widget.title, style: fontTitle07Medium()),
                       const HorizontalSpace(10),
                       GestureDetector(
                         onTap: () {
