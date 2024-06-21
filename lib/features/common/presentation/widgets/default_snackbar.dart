@@ -23,6 +23,7 @@ class DefaultSnackBar {
 
   void showToastMsg(
     BuildContext context, {
+    Duration toastDuration = const Duration(seconds: 2),
     required String message,
   }) {
     BuildContext? navigatorContext =
@@ -38,7 +39,7 @@ class DefaultSnackBar {
     _fToast.showToast(
       child: _snackBar(context, message),
       gravity: ToastGravity.TOP,
-      toastDuration: const Duration(seconds: 2),
+      toastDuration: toastDuration,
     );
   }
 
@@ -225,6 +226,14 @@ extension SnackBarExtension on BuildContext {
 
     DefaultSnackBar.instance
         .showToastMsg(this, message: message ?? LocaleKeys.somethingError.tr());
+  }
+
+  void showErrorSnackBarDismissible([String? message]) {
+    DefaultSnackBar.instance.showToastMsg(
+      this,
+      message: message ?? LocaleKeys.somethingError.tr(),
+      toastDuration: const Duration(minutes: 2),
+    );
   }
 
   void showDismissibleSnackBarWithButton({

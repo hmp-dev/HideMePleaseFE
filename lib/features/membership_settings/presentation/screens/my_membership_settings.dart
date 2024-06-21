@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
+import 'package:mobile/app/core/enum/error_codes.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/info_text_tool_tip_widget.dart';
@@ -18,6 +20,7 @@ import 'package:mobile/features/membership_settings/presentation/widgets/collect
 import 'package:mobile/features/membership_settings/presentation/widgets/connected_wallets_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/nft_token_widget.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyMembershipSettingsScreen extends StatefulWidget {
@@ -97,207 +100,228 @@ class _MyMembershipSettingsScreenState
         ),
       ),
       body: SafeArea(
-        child: BlocConsumer<NftCubit, NftState>(
-          bloc: getIt<NftCubit>(),
-          listener: (context, state) {},
-          builder: (context, state) {
-            return Stack(
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      child: state.isSubmitLoading
-                          ? const SizedBox.shrink()
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const ConnectedWalletsWidget(),
-                                const SizedBox(height: 20),
-                                Container(
-                                  margin: const EdgeInsets.only(left: 20),
-                                  height: 50,
-                                  child: ListView(
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.horizontal,
-                                    children: [
-                                      BlockChainSelectButton(
-                                        title: LocaleKeys.all.tr(),
-                                        isSelected: state.selectedChain ==
-                                            ChainType.ALL.name,
-                                        onTap: () {
-                                          getIt<NftCubit>().onGetNftCollections(
-                                              chain: ChainType.ALL.name,
-                                              isChainTypeFetchTapped: true);
-                                        },
-                                      ),
-                                      BlockChainSelectButton(
-                                        title: "Ethereum",
-                                        imagePath:
-                                            "assets/chain-logos/ethereum_chain.svg",
-                                        isSelected: state.selectedChain ==
-                                            ChainType.ETHEREUM.name,
-                                        onTap: () {
-                                          getIt<NftCubit>().onGetNftCollections(
-                                            chain: ChainType.ETHEREUM.name,
-                                            isChainTypeFetchTapped: true,
-                                          );
-                                        },
-                                      ),
-                                      BlockChainSelectButton(
-                                        title: "Polygon",
-                                        imagePath:
-                                            "assets/chain-logos/polygon_chain.svg",
-                                        isSelected: state.selectedChain ==
-                                            ChainType.POLYGON.name,
-                                        onTap: () {
-                                          getIt<NftCubit>().onGetNftCollections(
-                                            chain: ChainType.POLYGON.name,
-                                            isChainTypeFetchTapped: true,
-                                          );
-                                        },
-                                      ),
-                                      BlockChainSelectButton(
-                                        title: "Solana",
-                                        imagePath:
-                                            "assets/chain-logos/solana_chain.svg",
-                                        isSelected: state.selectedChain ==
-                                            ChainType.SOLANA.name,
-                                        onTap: () {
-                                          getIt<NftCubit>().onGetNftCollections(
-                                            chain: ChainType.SOLANA.name,
-                                            isChainTypeFetchTapped: true,
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const VerticalSpace(25),
-                                (state.nftCollectionsGroupEntity.collections
-                                        .isEmpty)
-                                    ? const Column(
-                                        children: [
-                                          Center(child: EmptyDataWidget()),
-                                        ],
-                                      )
-                                    : ListView.builder(
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: state
-                                            .nftCollectionsGroupEntity
-                                            .collections
-                                            .length,
-                                        itemBuilder:
-                                            (context, collectionIndex) {
-                                          final collection = state
-                                              .nftCollectionsGroupEntity
-                                              .collections[collectionIndex];
+        child: BlocListener<WalletsCubit, WalletsState>(
+          bloc: getIt<WalletsCubit>(),
+          listener: (context, state) {
+            if (state.submitStatus == RequestStatus.failure) {
+              // Map the error message to the appropriate enum message
+              String errorMessage = getErrorMessage(state.errorMessage);
 
-                                          final collectionName = state
-                                              .nftCollectionsGroupEntity
-                                              .collections[collectionIndex]
-                                              .name;
+              // Show Error Snackbar If Wallet is Already Connected
+              context.showErrorSnackBarDismissible(errorMessage);
 
-                                          final chainSymbol = state
-                                              .nftCollectionsGroupEntity
-                                              .collections[collectionIndex]
-                                              .chainSymbol;
-
-                                          return Column(
-                                            key: ValueKey(
-                                                '$collectionName-$chainSymbol-$collectionIndex'),
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              CollectionTitleWidget(
-                                                title: collectionName,
-                                                chainSymbol: chainSymbol,
-                                              ),
-                                              const VerticalSpace(25),
-                                              Container(
-                                                margin: const EdgeInsets.only(
-                                                    left: 20, bottom: 25),
-                                                height: 190,
-                                                child: ListView.builder(
-                                                  shrinkWrap: true,
-                                                  scrollDirection:
-                                                      Axis.horizontal,
-                                                  itemCount: state
-                                                      .nftCollectionsGroupEntity
-                                                      .collections[
-                                                          collectionIndex]
-                                                      .tokens
-                                                      .length,
-                                                  itemBuilder:
-                                                      (context, tokenIndex) {
-                                                    return NftTokenWidget(
-                                                      key: ValueKey(
-                                                          '$collectionName-$chainSymbol-$collectionIndex-${collection.tokenAddress}-$tokenIndex'),
-                                                      tokenOrder:
-                                                          collectionIndex,
-                                                      nftTokenEntity: collection
-                                                          .tokens[tokenIndex],
-                                                      tokenAddress: collection
-                                                          .tokenAddress,
-                                                      walletAddress: collection
-                                                          .tokenAddress,
-                                                      chain: collection.chain,
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                (state.isLoadingMore)
-                                    ? Lottie.asset(
-                                        'assets/lottie/loader.json',
-                                      )
-                                    : const SizedBox(height: 100),
-                              ],
-                            ),
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 20.0, right: 20, bottom: 20),
-                    child: HMPCustomButton(
-                      text:
-                          "${LocaleKeys.next.tr()} (${state.nftCollectionsGroupEntity.selectedNftCount}/20)",
-                      onPressed: () {
-                        getIt<NftCubit>().onGetSelectedNftTokens();
-                        EditMembershipListScreen.push(context, false);
-                      },
-                    ),
-                  ),
-                ),
-                if (_isShowToolTip)
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: InfoTextToolTipWidget(
-                      title:
-                          "보유한 NFT 컬렉션의 대표 NFT를 설정하세요.설정은 최대 20개 컬렉션에서 각 1개씩 가능합니다. 대표 NFT가 속한 컬렉션은 1개의 혜택을 제공합니다.",
-                      onTap: () {
-                        setState(() {
-                          _isShowToolTip = false;
-                        });
-                      },
-                    ),
-                  )
-              ],
-            );
+              "inside listener++++++ error message is $errorMessage".log();
+            }
           },
+          child: BlocConsumer<NftCubit, NftState>(
+            bloc: getIt<NftCubit>(),
+            listener: (context, state) {},
+            builder: (context, state) {
+              return Stack(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: state.isSubmitLoading
+                            ? const SizedBox.shrink()
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const ConnectedWalletsWidget(),
+                                  const SizedBox(height: 20),
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 20),
+                                    height: 50,
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      children: [
+                                        BlockChainSelectButton(
+                                          title: LocaleKeys.all.tr(),
+                                          isSelected: state.selectedChain ==
+                                              ChainType.ALL.name,
+                                          onTap: () {
+                                            getIt<NftCubit>()
+                                                .onGetNftCollections(
+                                                    chain: ChainType.ALL.name,
+                                                    isChainTypeFetchTapped:
+                                                        true);
+                                          },
+                                        ),
+                                        BlockChainSelectButton(
+                                          title: "Ethereum",
+                                          imagePath:
+                                              "assets/chain-logos/ethereum_chain.svg",
+                                          isSelected: state.selectedChain ==
+                                              ChainType.ETHEREUM.name,
+                                          onTap: () {
+                                            getIt<NftCubit>()
+                                                .onGetNftCollections(
+                                              chain: ChainType.ETHEREUM.name,
+                                              isChainTypeFetchTapped: true,
+                                            );
+                                          },
+                                        ),
+                                        BlockChainSelectButton(
+                                          title: "Polygon",
+                                          imagePath:
+                                              "assets/chain-logos/polygon_chain.svg",
+                                          isSelected: state.selectedChain ==
+                                              ChainType.POLYGON.name,
+                                          onTap: () {
+                                            getIt<NftCubit>()
+                                                .onGetNftCollections(
+                                              chain: ChainType.POLYGON.name,
+                                              isChainTypeFetchTapped: true,
+                                            );
+                                          },
+                                        ),
+                                        BlockChainSelectButton(
+                                          title: "Solana",
+                                          imagePath:
+                                              "assets/chain-logos/solana_chain.svg",
+                                          isSelected: state.selectedChain ==
+                                              ChainType.SOLANA.name,
+                                          onTap: () {
+                                            getIt<NftCubit>()
+                                                .onGetNftCollections(
+                                              chain: ChainType.SOLANA.name,
+                                              isChainTypeFetchTapped: true,
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const VerticalSpace(25),
+                                  (state.nftCollectionsGroupEntity.collections
+                                          .isEmpty)
+                                      ? const Column(
+                                          children: [
+                                            Center(child: EmptyDataWidget()),
+                                          ],
+                                        )
+                                      : ListView.builder(
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: state
+                                              .nftCollectionsGroupEntity
+                                              .collections
+                                              .length,
+                                          itemBuilder:
+                                              (context, collectionIndex) {
+                                            final collection = state
+                                                .nftCollectionsGroupEntity
+                                                .collections[collectionIndex];
+
+                                            final collectionName = state
+                                                .nftCollectionsGroupEntity
+                                                .collections[collectionIndex]
+                                                .name;
+
+                                            final chainSymbol = state
+                                                .nftCollectionsGroupEntity
+                                                .collections[collectionIndex]
+                                                .chainSymbol;
+
+                                            return Column(
+                                              key: ValueKey(
+                                                  '$collectionName-$chainSymbol-$collectionIndex'),
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                CollectionTitleWidget(
+                                                  title: collectionName,
+                                                  chainSymbol: chainSymbol,
+                                                ),
+                                                const VerticalSpace(25),
+                                                Container(
+                                                  margin: const EdgeInsets.only(
+                                                      left: 20, bottom: 25),
+                                                  height: 190,
+                                                  child: ListView.builder(
+                                                    shrinkWrap: true,
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    itemCount: state
+                                                        .nftCollectionsGroupEntity
+                                                        .collections[
+                                                            collectionIndex]
+                                                        .tokens
+                                                        .length,
+                                                    itemBuilder:
+                                                        (context, tokenIndex) {
+                                                      return NftTokenWidget(
+                                                        key: ValueKey(
+                                                            '$collectionName-$chainSymbol-$collectionIndex-${collection.tokenAddress}-$tokenIndex'),
+                                                        tokenOrder:
+                                                            collectionIndex,
+                                                        nftTokenEntity:
+                                                            collection.tokens[
+                                                                tokenIndex],
+                                                        tokenAddress: collection
+                                                            .tokenAddress,
+                                                        walletAddress:
+                                                            collection
+                                                                .tokenAddress,
+                                                        chain: collection.chain,
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                  (state.isLoadingMore)
+                                      ? Lottie.asset(
+                                          'assets/lottie/loader.json',
+                                        )
+                                      : const SizedBox(height: 100),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 20.0, right: 20, bottom: 20),
+                      child: HMPCustomButton(
+                        text:
+                            "${LocaleKeys.next.tr()} (${state.nftCollectionsGroupEntity.selectedNftCount}/20)",
+                        onPressed: () {
+                          getIt<NftCubit>().onGetSelectedNftTokens();
+                          EditMembershipListScreen.push(context, false);
+                        },
+                      ),
+                    ),
+                  ),
+                  if (_isShowToolTip)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: InfoTextToolTipWidget(
+                        title:
+                            "보유한 NFT 컬렉션의 대표 NFT를 설정하세요.설정은 최대 20개 컬렉션에서 각 1개씩 가능합니다. 대표 NFT가 속한 컬렉션은 1개의 혜택을 제공합니다.",
+                        onTap: () {
+                          setState(() {
+                            _isShowToolTip = false;
+                          });
+                        },
+                      ),
+                    )
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

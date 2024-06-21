@@ -157,6 +157,7 @@
     "minutesAgo":"분 전",
     "hoursAgo":"시간 전",
     "day":"낮",
-    "days":"날"
+    "days":"날",
+    "walletAlreadyLinkedMessage":"이 지갑은 이미 다른 계정에 연결되어 있습니다. 다른 지갑을 선택해 주십시오"
 }
 

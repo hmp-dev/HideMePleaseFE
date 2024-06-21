@@ -2,10 +2,12 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/wallets/domain/repositories/wallets_repository.dart';
 import 'package:mobile/features/wallets/infrastructure/data_sources/wallets_remote_data_source.dart';
 import 'package:mobile/features/wallets/infrastructure/dtos/connected_wallet_dto.dart';
 import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
+import 'package:mobile/features/wallets/infrastructure/dtos/wallet_add_error_dto.dart';
 
 @LazySingleton(as: WalletsRepository)
 class WalletsRepositoryImpl implements WalletsRepository {
@@ -41,23 +43,22 @@ class WalletsRepositoryImpl implements WalletsRepository {
           saveWalletRequestDto: saveWalletRequestDto);
       return right(response);
     } on DioException catch (e, t) {
-      Map<String, dynamic> responseMap =
-          e.response?.data as Map<String, dynamic>;
-      String errorMessage = responseMap['message'];
-      if (errorMessage.contains('nUnique constraint failed on the fields')) {
-        return left(HMPError.fromNetwork(
-          message: "Wallet already exists",
-          error: e,
-          trace: t,
-        ));
-      }
+      "inside DioException $e".log();
 
       return left(HMPError.fromNetwork(
         message: e.message,
         error: e,
         trace: t,
       ));
+    } on WalletAddErrorDto catch (e) {
+      "inside Catch BenefitRedeemErrorDto $e".log();
+      final error = e;
+      return left(HMPError.fromNetwork(
+        message: error.message,
+        error: error.code,
+      ));
     } catch (e, t) {
+      "inside Catch $e".log();
       return left(HMPError.fromUnknown(
         error: e,
         trace: t,

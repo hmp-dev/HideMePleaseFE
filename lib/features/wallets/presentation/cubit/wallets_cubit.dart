@@ -68,26 +68,22 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     // disconnect W3MService
     onDisconnectW3MService();
 
-    emit(state.copyWith(submitStatus: RequestStatus.loading));
+    emit(state.copyWith(
+      submitStatus: RequestStatus.loading,
+      errorMessage: '',
+    ));
 
     final response = await _walletsRepository.saveWallet(
         saveWalletRequestDto: saveWalletRequestDto);
 
     response.fold(
       (err) {
-        if (err.message == "Wallet already exists") {
-          emit(state.copyWith(
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-          ));
-          // fetch All Wallets
-          onGetAllWallets();
-        } else {
-          emit(state.copyWith(
-            submitStatus: RequestStatus.failure,
-            errorMessage: LocaleKeys.somethingError.tr(),
-          ));
-        }
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: err.message,
+        ));
+        // fetch All Wallets
+        onGetAllWallets();
       },
       (wallets) {
         emit(
