@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -19,7 +21,12 @@ class ConnectedWalletItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<WalletsCubit, WalletsState>(
       bloc: getIt<WalletsCubit>(),
-      listener: (context, state) {},
+      listener: (context, state) {
+        if (state.submitStatus == RequestStatus.failure) {
+          // Show Error Snackbar If Error in Redeeming Benefit
+          context.showErrorSnackBar(state.errorMessage);
+        }
+      },
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),

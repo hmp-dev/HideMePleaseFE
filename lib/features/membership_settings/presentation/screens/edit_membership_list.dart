@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/router.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
@@ -11,6 +10,7 @@ import 'package:mobile/features/common/presentation/widgets/rounded_button_with_
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/selected_nft_item.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class EditMembershipListScreen extends StatefulWidget {

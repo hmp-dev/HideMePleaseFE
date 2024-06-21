@@ -160,5 +160,6 @@ abstract class  LocaleKeys {
   static const hoursAgo = 'hoursAgo';
   static const day = 'day';
   static const days = 'days';
+  static const walletAlreadyLinkedMessage = 'walletAlreadyLinkedMessage';
 
 }
