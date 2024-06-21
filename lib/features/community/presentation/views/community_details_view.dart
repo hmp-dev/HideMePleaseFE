@@ -95,6 +95,7 @@ class CommunityDetailsView extends StatelessWidget {
                       child: CachedNetworkImage(
                         imageUrl: nftEntity.collectionLogo,
                         fit: BoxFit.cover,
+                        errorWidget: (_,__,___) => const SizedBox(),
                       ),
                     ),
                     Container(
@@ -104,6 +105,7 @@ class CommunityDetailsView extends StatelessWidget {
                       ),
                       child: Text(
                         nftEntity.name,
+                        textAlign: TextAlign.center,
                         style: fontBody2Bold(),
                         maxLines: 2,
                       ),
@@ -155,7 +157,7 @@ class CommunityDetailsView extends StatelessWidget {
                       )
                     : membersError
                         ? CommunityErrorView(onRetry: onRetry)
-                        : communityMembers.isEmpty
+                        : true
                             ? ListView(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 32.0,
@@ -172,10 +174,9 @@ class CommunityDetailsView extends StatelessWidget {
                                       children: [
                                         DefaultImage(
                                           path: 'assets/images/hmp_eyes_up.svg',
-                                          height: 24,
-                                          width: 24,
+                                          height: 60,
+                                          width: 60,
                                         ),
-                                        const SizedBox(height: 12.0),
                                         Text('아직 가입한 멤버가 없어요',
                                             style: fontTitle07(color: fore3)),
                                       ],
@@ -387,6 +388,7 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
               else
                 ListView.builder(
                   shrinkWrap: true,
+                  padding: EdgeInsets.zero,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: _benefitsExpanded ? widget.nftBenefits.length : 1,
                   itemBuilder: (context, index) {
@@ -402,6 +404,7 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                               url: benefit.spaceImage,
                               width: 68.0,
                               height: 68.0,
+                              fit: BoxFit.cover,
                             ),
                           ),
                           const SizedBox(width: 16.0),
@@ -549,7 +552,7 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                   Text('바닥가', style: fontTitle07(color: fore2)),
                   Expanded(
                     child: Text(
-                        '${widget.koreanNumFormat.format(widget.nftNetwork.floorPrice)} KLAY',
+                        '${NumberFormat("###,###,###.##", "en_US").format(num.parse(widget.nftNetwork.floorPrice))} ${widget.nftNetwork.symbol.toUpperCase()}',
                         textAlign: TextAlign.end,
                         style: fontTitle07()),
                   ),

@@ -64,12 +64,8 @@ class _MyMembershipSettingsScreenState
     setState(() {
       _isLoadingMore = true;
     });
-    final nextCursor = getIt<NftCubit>().state.nftCollectionsGroupEntity.next;
 
-    getIt<NftCubit>().onGetNftCollections(
-      nextCursor: nextCursor,
-      isLoadMoreFetch: true,
-    );
+    getIt<NftCubit>().onGetNftCollections(isLoadMoreFetch: true);
 
     // call cubit
 
@@ -135,6 +131,7 @@ class _MyMembershipSettingsScreenState
                                             ChainType.ALL.name,
                                         onTap: () {
                                           getIt<NftCubit>().onGetNftCollections(
+                                              chain: ChainType.ALL.name,
                                               isChainTypeFetchTapped: true);
                                         },
                                       ),

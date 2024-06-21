@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/community/domain/entities/top_collection_nft_entity.dart';
 import 'package:mobile/features/community/presentation/widgets/community_error_view.dart';
 
@@ -19,11 +21,13 @@ class CommunityRankingView extends StatefulWidget {
     required this.isLoading,
     required this.isError,
     required this.allLoaded,
+    required this.selectedNft,
   });
 
   final VoidCallback onRetry;
   final VoidCallback onLoadMore;
   final List<TopCollectionNftEntity> topNfts;
+  final TopCollectionNftEntity selectedNft;
   final bool isLoadingMore;
   final bool isLoading;
   final bool isError;
@@ -35,6 +39,8 @@ class CommunityRankingView extends StatefulWidget {
 
 class _CommunityRankingViewState extends State<CommunityRankingView> {
   Timer? _paginationDebounceTimer;
+  bool _enableScrollToTop = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
@@ -56,144 +62,198 @@ class _CommunityRankingViewState extends State<CommunityRankingView> {
             )
           : widget.isError
               ? CommunityErrorView(onRetry: widget.onRetry)
-              : NotificationListener<ScrollNotification>(
-                  onNotification: (notification) {
-                    if (notification.metrics.pixels ==
-                            notification.metrics.maxScrollExtent &&
-                        !widget.isLoadingMore) {
-                      _paginationDebounceTimer?.cancel();
-                      _paginationDebounceTimer =
-                          Timer(const Duration(milliseconds: 500), () {
-                        widget.onLoadMore();
-                      });
-                    }
-                    return true;
-                  },
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                  16.0, 8.0, 16.0, 24.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                      child: widget.topNfts.length > 1
-                                          ? _SecondaryRankItem(
-                                              nft: widget.topNfts[1])
-                                          : const SizedBox()),
-                                  const SizedBox(width: 16.0),
-                                  Expanded(
-                                      child: widget.topNfts.isNotEmpty
-                                          ? _PrimaryRankItem(
-                                              nft: widget.topNfts[0])
-                                          : const SizedBox()),
-                                  const SizedBox(width: 16.0),
-                                  Expanded(
-                                      child: widget.topNfts.length > 2
-                                          ? _SecondaryRankItem(
-                                              nft: widget.topNfts[2])
-                                          : const SizedBox()),
-                                ],
-                              ),
-                            ),
-                            Positioned.fill(
-                              child: CustomImageView(
-                                svgPath: 'assets/icons/star_effects.svg',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (widget.topNfts.length > 3)
-                        SliverList.separated(
-                          itemCount: widget.topNfts.length - 3,
-                          itemBuilder: (_, index) {
-                            final nft = widget.topNfts[index + 3];
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 18.0, horizontal: 16.0),
-                              child: Row(
-                                children: [
-                                  Column(
+              : Stack(
+                  children: [
+                    NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification.metrics.pixels >= 200) {
+                          if (!_enableScrollToTop) {
+                            setState(() {
+                              _enableScrollToTop = true;
+                            });
+                          }
+                        } else {
+                          if (_enableScrollToTop) {
+                            setState(() {
+                              _enableScrollToTop = false;
+                            });
+                          }
+                        }
+                        if (notification.metrics.pixels ==
+                                notification.metrics.maxScrollExtent &&
+                            !widget.isLoadingMore) {
+                          _paginationDebounceTimer?.cancel();
+                          _paginationDebounceTimer =
+                              Timer(const Duration(milliseconds: 500), () {
+                            widget.onLoadMore();
+                          });
+                        }
+                        return true;
+                      },
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: Stack(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      16.0, 8.0, 16.0, 24.0),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      Text((nft.index + 1).toString(),
-                                          style: fontCompactSmBold()),
-                                      const SizedBox(height: 4.0),
-                                      CustomImageView(
-                                        svgPath: nft.pointFluctuation.isNegative
-                                            ? "assets/icons/ic_arrow_down_blue.svg"
-                                            : "assets/icons/ic_arrow_up_pink.svg",
-                                        width: 8,
-                                        height: 8,
-                                      )
+                                      Expanded(
+                                          child: widget.topNfts.length > 1
+                                              ? _SecondaryRankItem(
+                                                  nft: widget.topNfts[1])
+                                              : const SizedBox()),
+                                      const SizedBox(width: 16.0),
+                                      Expanded(
+                                          child: widget.topNfts.isNotEmpty
+                                              ? _PrimaryRankItem(
+                                                  nft: widget.topNfts[0])
+                                              : const SizedBox()),
+                                      const SizedBox(width: 16.0),
+                                      Expanded(
+                                          child: widget.topNfts.length > 2
+                                              ? _SecondaryRankItem(
+                                                  nft: widget.topNfts[2])
+                                              : const SizedBox()),
                                     ],
                                   ),
-                                  const SizedBox(width: 12.0),
-                                  Stack(
+                                ),
+                                Positioned.fill(
+                                  child: CustomImageView(
+                                    svgPath: 'assets/icons/star_effects.svg',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (widget.topNfts.length > 3)
+                            SliverList.separated(
+                              itemCount: widget.topNfts.length - 3,
+                              itemBuilder: (_, index) {
+                                final nft = widget.topNfts[index + 3];
+                                final bool isSelected =
+                                    widget.selectedNft.tokenAddress ==
+                                        nft.tokenAddress;
+
+                                return Container(
+                                  decoration: isSelected
+                                      ? BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(4.0),
+                                          border: Border.all(
+                                              color: pink, width: 2.0),
+                                        )
+                                      : null,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 18.0, horizontal: 16.0),
+                                  child: Row(
                                     children: [
-                                      CustomImageView(
-                                        radius: BorderRadius.circular(4.0),
-                                        url: nft.collectionLogo,
-                                        height: 68.0,
-                                        width: 48.0,
-                                        fit: BoxFit.cover,
+                                      Column(
+                                        children: [
+                                          Text((nft.index).toString(),
+                                              style: fontCompactSmBold()),
+                                          const SizedBox(height: 4.0),
+                                          CustomImageView(
+                                            svgPath: nft
+                                                    .pointFluctuation.isNegative
+                                                ? "assets/icons/ic_arrow_down_blue.svg"
+                                                : "assets/icons/ic_arrow_up_pink.svg",
+                                            width: 8,
+                                            height: 8,
+                                          )
+                                        ],
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 4.0, left: 4.0),
-                                        child: CustomImageView(
-                                          svgPath: nft.chainLogo,
-                                          width: 14,
-                                          height: 14,
+                                      const SizedBox(width: 12.0),
+                                      Stack(
+                                        children: [
+                                          CustomImageView(
+                                            radius: BorderRadius.circular(4.0),
+                                            url: nft.collectionLogo,
+                                            height: 68.0,
+                                            width: 48.0,
+                                            fit: BoxFit.cover,
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 4.0, left: 4.0),
+                                            child: CustomImageView(
+                                              svgPath: nft.chainLogo,
+                                              width: 14,
+                                              height: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 12.0),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(nft.name,
+                                                maxLines: 2,
+                                                style: fontCompactMdBold()),
+                                            const SizedBox(height: 4.0),
+                                            Text('${nft.totalMembers}명이 함께함',
+                                                maxLines: 2,
+                                                style: fontCompactSm(
+                                                    color: fore2)),
+                                          ],
                                         ),
                                       ),
+                                      const SizedBox(width: 12.0),
+                                      Text(nft.pointsFormatted,
+                                          style: fontCompactMdBold()),
                                     ],
                                   ),
-                                  const SizedBox(width: 12.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(nft.name,
-                                            maxLines: 2,
-                                            style: fontCompactMdBold()),
-                                        const SizedBox(height: 4.0),
-                                        Text('${nft.totalMembers}명이 함께함',
-                                            maxLines: 2,
-                                            style: fontCompactSm(color: fore2)),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12.0),
-                                  Text(nft.pointsFormatted,
-                                      style: fontCompactMdBold()),
-                                ],
-                              ),
+                                );
+                              },
+                              separatorBuilder: (_, index) {
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 16.0),
+                                  height: 1.0,
+                                  width: double.infinity,
+                                  color: fore5.withOpacity(0.05),
+                                );
+                              },
+                            ),
+                          if (!widget.allLoaded)
+                            SliverToBoxAdapter(
+                              child: Lottie.asset('assets/lottie/loader.json'),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Visibility(
+                      visible: _enableScrollToTop,
+                      child: Positioned(
+                        right: 12.0,
+                        bottom: 24.0,
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            _scrollController.animateTo(
+                              _scrollController.initialScrollOffset,
+                              duration: const Duration(milliseconds: 350),
+                              curve: Curves.easeIn,
                             );
                           },
-                          separatorBuilder: (_, index) {
-                            return Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              height: 1.0,
-                              width: double.infinity,
-                              color: fore5.withOpacity(0.05),
-                            );
-                          },
+                          child: DefaultImage(
+                            path: 'assets/icons/arrow_up.svg',
+                            width: 20,
+                            height: 20,
+                          ),
+                          backgroundColor: bg1,
+                          shape: CircleBorder(side: BorderSide(color: fore4)),
                         ),
-                      if (!widget.allLoaded)
-                        SliverToBoxAdapter(
-                          child: Lottie.asset('assets/lottie/loader.json'),
-                        ),
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
     );
   }
@@ -215,7 +275,7 @@ class _SecondaryRankItem extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text((nft.index + 1).toString(), style: fontCompactSmBold()),
+            Text((nft.index).toString(), style: fontCompactSmBold()),
             const SizedBox(width: 8.0),
             CustomImageView(
               svgPath: nft.pointFluctuation.isNegative

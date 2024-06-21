@@ -34,7 +34,9 @@ class CommunityCubit extends BaseCubit<CommunityState> {
     );
   }
 
-  void onOrderByChanged(GetNftCommunityOrderBy orderBy) {
+  void onOrderByChanged(GetNftCommunityOrderBy? orderBy) {
+    if (orderBy == null) return;
+    
     emit(state.copyWith(orderBy: orderBy));
     onGetAllNftCommunities();
   }

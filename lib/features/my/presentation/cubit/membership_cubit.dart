@@ -17,7 +17,7 @@ class MembershipCubit extends BaseCubit<MembershipState> {
       onGetSelectedNftTokens(userId: userId);
 
   Future<void> onGetSelectedNftTokens({String? userId}) async {
-    final response = await _nftRepository.getSelectNftCollections();
+    final response = await _nftRepository.getSelectNftCollections(userId: userId);
 
     response.fold(
       (err) {

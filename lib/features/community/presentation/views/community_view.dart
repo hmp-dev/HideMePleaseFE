@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -30,7 +31,7 @@ class CommunityView extends StatefulWidget {
   final bool isWalletConnected;
   final bool redeemedFreeNft;
   final GetNftCommunityOrderBy orderBy;
-  final void Function(GetNftCommunityOrderBy) onOrderByChanged;
+  final void Function(GetNftCommunityOrderBy?) onOrderByChanged;
 
   const CommunityView({
     super.key,
@@ -62,18 +63,13 @@ class _CommunityViewState extends State<CommunityView> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 30),
+      padding: const EdgeInsets.only(bottom: 30),
       child: RefreshIndicator(
         onRefresh: widget.onRefresh,
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: buildTopTitleBar(),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            SliverToBoxAdapter(child: buildTopTitleBar()),
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
             if (widget.isWalletConnected &&
                 widget.redeemedFreeNft &&
                 widget.userNftCommunities.isNotEmpty)
@@ -184,7 +180,7 @@ class AllCommunitiesHeader extends StatelessWidget {
 
   final int communityCount;
   final GetNftCommunityOrderBy orderBy;
-  final void Function(GetNftCommunityOrderBy) onOrderByChanged;
+  final void Function(GetNftCommunityOrderBy?) onOrderByChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -205,36 +201,50 @@ class AllCommunitiesHeader extends StatelessWidget {
             ),
           ],
         ),
-        PopupMenuButton<GetNftCommunityOrderBy>(
-          initialValue: orderBy,
-          itemBuilder: (_) => GetNftCommunityOrderBy.values
-              .map((e) => PopupMenuItem<GetNftCommunityOrderBy>(
-                    value: e,
-                    child: Text(
-                      e == GetNftCommunityOrderBy.points
-                          ? LocaleKeys.byPoints.tr()
-                          : LocaleKeys.byMembers.tr(),
-                      style: fontCompactSm(color: fore2),
-                    ),
-                  ))
-              .toList(),
-          onSelected: onOrderByChanged,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                orderBy == GetNftCommunityOrderBy.points
-                    ? LocaleKeys.byPoints.tr()
-                    : LocaleKeys.byMembers.tr(),
-                style: fontCompactSm(color: fore2),
+        Padding(
+          padding: const EdgeInsets.only(right: 4.0),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton2(
+              value: orderBy,
+              dropdownStyleData: DropdownStyleData(
+                  offset: Offset(-30, -20),
+                  width: 100.0,
+                  padding: EdgeInsets.zero),
+              menuItemStyleData: MenuItemStyleData(padding: EdgeInsets.zero),
+              items: GetNftCommunityOrderBy.values
+                  .map((e) => DropdownMenuItem<GetNftCommunityOrderBy>(
+                        value: e,
+                        child: Container(
+                          color: orderBy == e ? bg3 : bg1,
+                          alignment: Alignment.center,
+                          child: Text(
+                            e == GetNftCommunityOrderBy.points
+                                ? LocaleKeys.byPoints.tr()
+                                : LocaleKeys.byMembers.tr(),
+                            style: fontCompactSm(color: fore2),
+                          ),
+                        ),
+                      ))
+                  .toList(),
+              onChanged: onOrderByChanged,
+              customButton: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    orderBy == GetNftCommunityOrderBy.points
+                        ? LocaleKeys.byPoints.tr()
+                        : LocaleKeys.byMembers.tr(),
+                    style: fontCompactSm(color: fore2),
+                  ),
+                  const SizedBox(width: 5),
+                  DefaultImage(
+                    path: "assets/icons/ic_arrow_down.svg",
+                    width: 14,
+                    height: 14,
+                  ),
+                ],
               ),
-              const SizedBox(width: 5),
-              DefaultImage(
-                path: "assets/icons/ic_arrow_down.svg",
-                width: 14,
-                height: 14,
-              ),
-            ],
+            ),
           ),
         ),
       ],

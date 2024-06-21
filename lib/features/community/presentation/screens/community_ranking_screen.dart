@@ -25,6 +25,7 @@ class CommunityRankingScreen extends StatelessWidget {
           isError: state.isFailure,
           topNfts: state.topNfts,
           allLoaded: state.isLoadedAll,
+          selectedNft: nftInfo,
         );
       },
     );

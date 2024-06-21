@@ -21,6 +21,7 @@ dependencies:
   device_info_plus: ^10.0.1
   device_preview: ^1.1.0
   dio: ^5.4.2+1
+  dropdown_button2: ^2.3.9
   easy_localization: ^3.0.5
   envied: ^0.5.4
   equatable: ^2.0.5
