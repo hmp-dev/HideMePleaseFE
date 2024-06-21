@@ -138,8 +138,10 @@ class _HomeViewAfterWalletConnectedState
                                   setState(() => _isCurrentIndexIsLat = false);
 
                                   //call NFt Benefits API
-                                  getIt<NftBenefitsCubit>().onGetNftBenefits(
-                                      tokenAddress: _currentTokenAddress);
+                                  if (_currentIndex > 0) {
+                                    getIt<NftBenefitsCubit>().onGetNftBenefits(
+                                        tokenAddress: _currentTokenAddress);
+                                  }
 
                                   if (_currentSelectWidgetIndex == 2) {
                                     getIt<CommunityDetailsCubit>()
