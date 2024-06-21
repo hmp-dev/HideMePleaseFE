@@ -152,6 +152,10 @@
     "withIn10MeterFromCurrentLocation":"현재 위치에서 10m 이내",
     "currentLocation":"현재 위치",
     "notInSpaceCanSpaceCannotUseBenefit":"귀하는 현재 해당 공간에 있지 않으며 혜택을 사용할 수 없습니다.",
-    "pointRanking":"포인트 랭킹"
+    "pointRanking":"포인트 랭킹",
+    "minutesAgo":"분 전",
+    "hoursAgo":"시간 전",
+    "day":"낮",
+    "days":"날"
 }
 

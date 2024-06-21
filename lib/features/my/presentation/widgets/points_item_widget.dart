@@ -60,10 +60,11 @@ class PointsItemWidget extends StatelessWidget {
                   Text(nftPointsEntity.name,
                       style: fontCompactSm(color: fore2)),
                   const VerticalSpace(5),
-                  Text(
-                    "${nftPointsEntity.totalPoints} P",
-                    style: fontCompactLgBold(),
-                  ),
+                  if (nftPointsEntity.totalPoints > 0)
+                    Text(
+                      "${nftPointsEntity.totalPoints} P",
+                      style: fontCompactLgBold(),
+                    ),
                 ],
               ),
               const Spacer(),

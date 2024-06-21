@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/features/alarm/presentation/screens/alarms_screen.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/settings/presentation/screens/notifications_screen.dart';
 
 class AlarmsIconButton extends StatelessWidget {
   const AlarmsIconButton({super.key});
@@ -9,7 +9,7 @@ class AlarmsIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        AlarmsScreen.push(context);
+        NotificationsScreen.push(context);
       },
       child: DefaultImage(
         path: "assets/icons/ic_notification.svg",

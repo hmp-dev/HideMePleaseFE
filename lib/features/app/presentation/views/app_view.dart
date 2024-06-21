@@ -43,7 +43,7 @@ class _AppViewState extends State<AppView> {
     NotificationServices.instance.initialize().then((_) async {
       final fcmToken = await NotificationServices.instance.getDeviceToken();
       if (fcmToken != null) {
-        Log.debug("fcmToken: $fcmToken");
+        ("fcmToken: $fcmToken").log();
         getIt<ProfileCubit>()
             .onUpdateUserProfile(UpdateProfileRequestDto(fcmToken: fcmToken));
       }
