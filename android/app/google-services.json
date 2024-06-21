@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "125892280544-lad4vh7m19g2bkqt2v8krpt1jcf1o4kk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kr.hideme",
+            "certificate_hash": "40bd8472ede5cdcdd6e7693eb1757ba48a2edd71"
+          }
+        },
+        {
           "client_id": "125892280544-rjf7f4jt6u5qpledlfgj5go9hobt7spe.apps.googleusercontent.com",
           "client_type": 3
         }
