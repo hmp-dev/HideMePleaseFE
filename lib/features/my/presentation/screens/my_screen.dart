@@ -107,6 +107,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                                   MyPointsWidget(
                                     nftPointsList: pointsState.nftPointsList,
                                     isOwner: true,
+                                    title: LocaleKeys.myPoints.tr(),
                                   ),
                                 ],
                               ),

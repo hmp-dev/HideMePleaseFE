@@ -38,10 +38,14 @@ class NftCubit extends BaseCubit<NftState> {
   Future<void> onGetNftCollections({
     String? chain,
     String? nextCursor,
-    bool? isLoadMoreFetch,
+    bool isLoadMoreFetch = false,
     bool? isChainTypeFetchTapped,
     bool? isLoadingMore,
   }) async {
+    if(isLoadMoreFetch && state.nextCursor.isEmpty) {
+      return;
+    }
+    
     emit(state.copyWith(selectedChain: chain));
     // if isChainTypeFetchTapped is true, then reset the nftCollectionsGroupEntity
     if (isChainTypeFetchTapped == true) {
@@ -56,17 +60,19 @@ class NftCubit extends BaseCubit<NftState> {
     emit(state.copyWith(isLoadingMore: true));
 
     final response = await _nftRepository.getNftCollections(
-      chain: chain,
-      nextCursor: nextCursor,
+      chain: state.selectedChain != ChainType.ALL.name
+          ? state.selectedChain
+          : null,
+      nextCursor: isLoadMoreFetch && state.nextCursor.isNotEmpty
+          ? state.nextCursor
+          : null,
     );
-
-    // set isLoadingMore to false
-    emit(state.copyWith(isLoadingMore: false));
 
     response.fold(
       (err) {
         Log.error(err); // Log the error
         emit(state.copyWith(
+          isLoadingMore: false,
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
@@ -76,15 +82,14 @@ class NftCubit extends BaseCubit<NftState> {
             ? _updateGroupWithNewCollections(nftCollectionsGroup)
             : nftCollectionsGroup.toEntity();
 
-        emit(
-          state.copyWith(
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-            nftCollectionsGroupEntity: updatedGroupEntity,
-            collectionFetchTime: DateTime.now(),
-            selectedChain: chain,
-          ),
-        );
+        emit(state.copyWith(
+          isLoadingMore: false,
+          submitStatus: RequestStatus.success,
+          errorMessage: '',
+          nftCollectionsGroupEntity: updatedGroupEntity,
+          collectionFetchTime: DateTime.now(),
+          nextCursor: nftCollectionsGroup.next ?? '',
+        ));
       },
     );
   }

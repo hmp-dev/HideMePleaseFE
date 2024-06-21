@@ -23,7 +23,11 @@ class PointsCubit extends BaseCubit<PointsState> {
         emit(state.copyWith(status: RequestStatus.failure));
       },
       (nftPointsList) {
-        final resultList = nftPointsList.map((e) => e.toEntity()).toList();
+        final resultList = nftPointsList
+            .map((e) => e.toEntity())
+            .toList()
+            .where((element) => element.totalPoints > 0)
+            .toList();
 
         emit(
           state.copyWith(
