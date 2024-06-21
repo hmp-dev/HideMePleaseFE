@@ -56,6 +56,7 @@ class MemberDetailsView extends StatelessWidget {
                     isLoading: isPointsLoading,
                     nftPointsList: nftPointsList,
                     isOwner: false,
+                    title: '획득 포인트',
                   ),
                 ],
               ),
