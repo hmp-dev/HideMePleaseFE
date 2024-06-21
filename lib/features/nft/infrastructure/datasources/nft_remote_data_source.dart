@@ -147,7 +147,7 @@ class NftRemoteDataSource {
     final response = await _network.get(
       '/nft/collections/communities',
       {
-        'orderBy': order.toString().split('.').last,
+        'order': order.toString().split('.').last,
         if (page != null) 'page': page.toString(),
       },
     );

@@ -54,26 +54,28 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
         Navigator.pop(context);
       },
       body: SafeArea(
+        top: false,
+        bottom: true,
         child: BlocConsumer<NftCubit, NftState>(
           bloc: getIt<NftCubit>(),
           listener: (context, state) {},
           builder: (context, state) {
             return Stack(
               children: [
-                SingleChildScrollView(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: state.isSubmitLoading
-                        ? const SizedBox.shrink()
-                        : state.isSubmitFailure
-                            ? const Center(child: Text("Something went wrong"))
-                            : Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ReorderableListView.builder(
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: state.isSubmitLoading
+                      ? const SizedBox.shrink()
+                      : state.isSubmitFailure
+                          ? const Center(child: Text("Something went wrong"))
+                          : Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: ReorderableListView.builder(
                                       buildDefaultDragHandles: false,
                                       shrinkWrap: true,
                                       itemCount:
@@ -84,7 +86,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                         final imageUrl = nft.imageUrl;
                                         final name = nft.name;
                                         final chain = nft.chain.toLowerCase();
-
+                                                    
                                         return SelectedNftItem(
                                           key: ValueKey(
                                               '${nft.id}-${nft.tokenAddress}-$index'),
@@ -100,35 +102,35 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                         }
                                         final item = state.selectedNftTokensList
                                             .removeAt(oldIndex);
-
+                                                    
                                         state.selectedNftTokensList
                                             .insert(newIndex, item);
                                       },
                                     ),
-
-                                    const VerticalSpace(20),
-
-                                    // show Membership Button
-                                    //of if isShowMembershipButton is true
-                                    widget.isShowMembershipButton
-                                        ? HMPCustomButton(
-                                            text: LocaleKeys
-                                                .myMembershipSettings
-                                                .tr(),
-                                            onPressed: () {
-                                              // call to get nft collections
-                                              getIt<NftCubit>()
-                                                  .onGetNftCollections();
-                                              // Navigate to Membership Settings
-                                              MyMembershipSettingsScreen.push(
-                                                  context);
-                                            },
-                                          )
-                                        : const SizedBox.shrink(),
-                                  ],
-                                ),
+                                  ),
+                
+                                  const VerticalSpace(20),
+                
+                                  // show Membership Button
+                                  //of if isShowMembershipButton is true
+                                  widget.isShowMembershipButton
+                                      ? HMPCustomButton(
+                                          text: LocaleKeys
+                                              .myMembershipSettings
+                                              .tr(),
+                                          onPressed: () {
+                                            // call to get nft collections
+                                            getIt<NftCubit>()
+                                                .onGetNftCollections();
+                                            // Navigate to Membership Settings
+                                            MyMembershipSettingsScreen.push(
+                                                context);
+                                          },
+                                        )
+                                      : const SizedBox.shrink(),
+                                ],
                               ),
-                  ),
+                            ),
                 ),
                 if (!widget.isShowMembershipButton)
                   Align(

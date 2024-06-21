@@ -33,6 +33,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
             builder: (context, homeState) {
               return CommunityView(
                 onRefresh: () => getIt<CommunityCubit>().onStart(),
+                onLoadMore: () =>
+                    getIt<CommunityCubit>().onGetAllNftCommunitiesLoadMore(),
                 onCommunityTap: (community) {
                   Navigator.push(
                       context,
@@ -58,6 +60,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 isWalletConnected:
                     homeState.homeViewType == HomeViewType.afterWalletConnected,
                 redeemedFreeNft: true,
+                isLoadingMore: state.isLoadingMore,
               );
             });
       },

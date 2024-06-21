@@ -57,7 +57,7 @@ class UserCommunitiesView extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 4),
         SizedBox(
           height: 483.0,
           child: ListView.separated(

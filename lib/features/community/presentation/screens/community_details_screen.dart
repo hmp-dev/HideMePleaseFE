@@ -26,8 +26,9 @@ class CommunityDetailsScreen extends StatelessWidget {
           onTapRank: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (_) =>
-                      CommunityRankingScreen(nftInfo: state.nftInfo))),
+                  builder: (_) => CommunityRankingScreen(
+                      nftInfo: state.nftInfo
+                          .copyWith(tokenAddress: nftCommunity.tokenAddress)))),
           onMemberTap: (member) {
             Navigator.push(
               context,

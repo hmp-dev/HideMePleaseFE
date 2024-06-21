@@ -7,6 +7,11 @@ class CommunityState extends BaseState {
   final List<NftCommunityEntity> hotNftCommunities;
   final List<NftCommunityEntity> userNftCommunities;
   final GetNftCommunityOrderBy allNftCommOrderBy;
+  final int allCommunitiesPage;
+  final RequestStatus loadingMoreStatus;
+  final bool allNftLoaded;
+  @override
+  final RequestStatus status;
 
   const CommunityState({
     required this.status,
@@ -16,10 +21,10 @@ class CommunityState extends BaseState {
     required this.hotNftCommunities,
     required this.userNftCommunities,
     required this.allNftCommOrderBy,
+    required this.allCommunitiesPage,
+    required this.loadingMoreStatus,
+    required this.allNftLoaded,
   });
-
-  @override
-  final RequestStatus status;
 
   factory CommunityState.initial() => const CommunityState(
         status: RequestStatus.initial,
@@ -29,7 +34,12 @@ class CommunityState extends BaseState {
         hotNftCommunities: [],
         userNftCommunities: [],
         allNftCommOrderBy: GetNftCommunityOrderBy.points,
+        allCommunitiesPage: 1,
+        loadingMoreStatus: RequestStatus.initial,
+        allNftLoaded: false,
       );
+
+  bool get isLoadingMore => loadingMoreStatus == RequestStatus.loading;
 
   @override
   List<Object?> get props => [
@@ -40,21 +50,22 @@ class CommunityState extends BaseState {
         hotNftCommunities,
         userNftCommunities,
         allNftCommOrderBy,
+        allCommunitiesPage,
+        loadingMoreStatus,
+        allNftLoaded,
       ];
 
-  @override
-  String toString() =>
-      'CommunityState(status: $status, allNftCommunities: $allNftCommunities, communityCount: $communityCount, itemCount: $itemCount, hotNftCommunities: $hotNftCommunities, userNftCommunities: $userNftCommunities, allNftCommOrderBy: $allNftCommOrderBy)';
-
-  @override
   CommunityState copyWith({
     List<NftCommunityEntity>? allNftCommunities,
     int? communityCount,
     int? itemCount,
     List<NftCommunityEntity>? hotNftCommunities,
     List<NftCommunityEntity>? userNftCommunities,
+    GetNftCommunityOrderBy? allNftCommOrderBy,
+    int? allCommunitiesPage,
+    RequestStatus? loadingMoreStatus,
+    bool? allNftLoaded,
     RequestStatus? status,
-    GetNftCommunityOrderBy? orderBy,
   }) {
     return CommunityState(
       allNftCommunities: allNftCommunities ?? this.allNftCommunities,
@@ -62,8 +73,11 @@ class CommunityState extends BaseState {
       itemCount: itemCount ?? this.itemCount,
       hotNftCommunities: hotNftCommunities ?? this.hotNftCommunities,
       userNftCommunities: userNftCommunities ?? this.userNftCommunities,
+      allNftCommOrderBy: allNftCommOrderBy ?? this.allNftCommOrderBy,
+      allCommunitiesPage: allCommunitiesPage ?? this.allCommunitiesPage,
+      loadingMoreStatus: loadingMoreStatus ?? this.loadingMoreStatus,
+      allNftLoaded: allNftLoaded ?? this.allNftLoaded,
       status: status ?? this.status,
-      allNftCommOrderBy: orderBy ?? allNftCommOrderBy,
     );
   }
 }

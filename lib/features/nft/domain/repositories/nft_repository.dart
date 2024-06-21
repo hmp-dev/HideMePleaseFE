@@ -28,7 +28,7 @@ abstract class NftRepository {
         saveSelectedTokensReorderRequestDto,
   });
 
-  Future<Either<HMPError, List<SelectedNFTDto>>> getSelectNftCollections();
+  Future<Either<HMPError, List<SelectedNFTDto>>> getSelectNftCollections({String? userId});
 
   Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft();
 
