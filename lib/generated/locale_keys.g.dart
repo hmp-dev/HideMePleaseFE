@@ -156,5 +156,9 @@ abstract class  LocaleKeys {
   static const currentLocation = 'currentLocation';
   static const notInSpaceCanSpaceCannotUseBenefit = 'notInSpaceCanSpaceCannotUseBenefit';
   static const pointRanking = 'pointRanking';
+  static const minutesAgo = 'minutesAgo';
+  static const hoursAgo = 'hoursAgo';
+  static const day = 'day';
+  static const days = 'days';
 
 }

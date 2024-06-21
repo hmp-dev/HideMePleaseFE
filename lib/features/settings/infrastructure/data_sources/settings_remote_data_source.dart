@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/announcement_dto.dart';
+import 'package:mobile/features/settings/infrastructure/dtos/notification_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/settings_banner_dto.dart';
 
 @lazySingleton
@@ -29,5 +30,12 @@ class SettingsRemoteDataSource {
       return true;
     }
     return false;
+  }
+
+  Future<List<NotificationDto>> getUserNotifications() async {
+    final response = await _network.get('/notification', {});
+    return (response.data as List)
+        .map((e) => NotificationDto.fromJson(e))
+        .toList();
   }
 }
