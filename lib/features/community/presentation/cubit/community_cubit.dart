@@ -21,6 +21,7 @@ class CommunityCubit extends BaseCubit<CommunityState> {
   Future<void> onGetAllNftCommunities() async {
     final allNftCommsRes = await _nftRepository.getNftCommunities(
       order: state.allNftCommOrderBy,
+      page: 1,
     );
     allNftCommsRes.fold(
       (l) => emit(state.copyWith(status: RequestStatus.failure)),
@@ -34,10 +35,35 @@ class CommunityCubit extends BaseCubit<CommunityState> {
     );
   }
 
+  Future<void> onGetAllNftCommunitiesLoadMore() async {
+    if (state.allNftLoaded ||
+        state.loadingMoreStatus == RequestStatus.loading) {
+      return;
+    }
+
+    emit(state.copyWith(loadingMoreStatus: RequestStatus.loading));
+
+    final allNftCommsRes = await _nftRepository.getNftCommunities(
+      order: state.allNftCommOrderBy,
+      page: state.allCommunitiesPage + 1,
+    );
+    allNftCommsRes.fold(
+      (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
+      (data) => emit(state.copyWith(
+        allNftLoaded: data.allCommunities?.isEmpty ?? true,
+        allNftCommunities: List.from(state.allNftCommunities)
+          ..addAll(
+              data.allCommunities?.map((e) => e.toEntity()).toList() ?? []),
+        loadingMoreStatus: RequestStatus.success,
+        allCommunitiesPage: state.allCommunitiesPage + 1,
+      )),
+    );
+  }
+
   void onOrderByChanged(GetNftCommunityOrderBy? orderBy) {
     if (orderBy == null) return;
-    
-    emit(state.copyWith(orderBy: orderBy));
+
+    emit(state.copyWith(allNftCommOrderBy: orderBy));
     onGetAllNftCommunities();
   }
 

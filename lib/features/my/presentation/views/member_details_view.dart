@@ -15,11 +15,15 @@ class MemberDetailsView extends StatelessWidget {
       {super.key,
       required this.member,
       required this.selectedNftTokensList,
-      required this.nftPointsList});
+      required this.nftPointsList,
+      required this.isMembersLoading,
+      required this.isPointsLoading});
 
   final CommunityMemberEntity member;
   final List<SelectedNFTEntity> selectedNftTokensList;
   final List<NftPointsEntity> nftPointsList;
+  final bool isMembersLoading;
+  final bool isPointsLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +49,11 @@ class MemberDetailsView extends StatelessWidget {
               child: TabBarView(
                 children: [
                   MyMembershipWidget(
-                      selectedNftTokensList: selectedNftTokensList),
+                    isLoading: isMembersLoading,
+                    selectedNftTokensList: selectedNftTokensList,
+                  ),
                   MyPointsWidget(
+                    isLoading: isPointsLoading,
                     nftPointsList: nftPointsList,
                     isOwner: false,
                   ),

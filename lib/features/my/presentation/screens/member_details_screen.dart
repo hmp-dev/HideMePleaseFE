@@ -34,6 +34,8 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
               member: widget.member,
               selectedNftTokensList: membershipsState.selectedNftTokensList,
               nftPointsList: pointsState.nftPointsList,
+              isMembersLoading: membershipsState.isLoading,
+              isPointsLoading: pointsState.isLoading,
             );
           },
         );

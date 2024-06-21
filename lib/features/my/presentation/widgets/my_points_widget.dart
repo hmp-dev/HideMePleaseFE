@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/enum/menu_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -21,9 +22,11 @@ class MyPointsWidget extends StatefulWidget {
     super.key,
     required this.nftPointsList,
     required this.isOwner,
+    this.isLoading = false,
   });
   final List<NftPointsEntity> nftPointsList;
   final bool isOwner;
+  final bool isLoading;
 
   @override
   State<MyPointsWidget> createState() => _MyPointsWidgetState();
@@ -35,7 +38,17 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        if (widget.nftPointsList.isEmpty)
+        if (widget.isLoading)
+          Column(
+            children: [
+              Center(
+                child: Lottie.asset(
+                  'assets/lottie/loader.json',
+                ),
+              ),
+            ],
+          )
+        else if (widget.nftPointsList.isEmpty)
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(

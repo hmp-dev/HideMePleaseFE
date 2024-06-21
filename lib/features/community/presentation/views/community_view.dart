@@ -1,6 +1,7 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -32,6 +33,8 @@ class CommunityView extends StatefulWidget {
   final bool redeemedFreeNft;
   final GetNftCommunityOrderBy orderBy;
   final void Function(GetNftCommunityOrderBy?) onOrderByChanged;
+  final VoidCallback onLoadMore;
+  final bool isLoadingMore;
 
   const CommunityView({
     super.key,
@@ -53,6 +56,8 @@ class CommunityView extends StatefulWidget {
     required this.redeemedFreeNft,
     required this.orderBy,
     required this.onOrderByChanged,
+    required this.onLoadMore,
+    required this.isLoadingMore,
   });
 
   @override
@@ -60,6 +65,21 @@ class CommunityView extends StatefulWidget {
 }
 
 class _CommunityViewState extends State<CommunityView> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      widget.onLoadMore();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -67,6 +87,7 @@ class _CommunityViewState extends State<CommunityView> {
       child: RefreshIndicator(
         onRefresh: widget.onRefresh,
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
             SliverToBoxAdapter(child: buildTopTitleBar()),
             const SliverToBoxAdapter(child: SizedBox(height: 8)),
@@ -147,6 +168,13 @@ class _CommunityViewState extends State<CommunityView> {
                 );
               },
             ),
+            SliverToBoxAdapter(
+              child: widget.isLoadingMore
+                  ? Lottie.asset(
+                      'assets/lottie/loader.json',
+                    )
+                  : const SizedBox(),
+            )
           ],
         ),
       ),
