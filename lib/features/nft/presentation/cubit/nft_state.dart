@@ -15,6 +15,7 @@ class NftState extends BaseState {
   final NftUsageHistoryEntity nftUsageHistoryEntity;
   final BenefitUsageType benefitUsageType;
   final bool isLoadingMore;
+  final String nextCursor;
 
   @override
   final RequestStatus submitStatus;
@@ -35,6 +36,7 @@ class NftState extends BaseState {
     required this.nftUsageHistoryEntity,
     required this.isLoadingMore,
     required this.benefitUsageType,
+    required this.nextCursor,
   });
 
   factory NftState.initial() => NftState(
@@ -53,6 +55,7 @@ class NftState extends BaseState {
         nftUsageHistoryEntity: NftUsageHistoryEntity.empty(),
         isLoadingMore: false,
         benefitUsageType: BenefitUsageType.ENTIRE,
+        nextCursor: "",
       );
 
   @override
@@ -72,6 +75,7 @@ class NftState extends BaseState {
         nftUsageHistoryEntity,
         isLoadingMore,
         benefitUsageType,
+        nextCursor,
       ];
 
   @override
@@ -92,6 +96,7 @@ class NftState extends BaseState {
     NftUsageHistoryEntity? nftUsageHistoryEntity,
     bool? isLoadingMore,
     BenefitUsageType? benefitUsageType,
+    String? nextCursor,
   }) {
     return NftState(
       nftCollectionsGroupEntity:
@@ -112,6 +117,7 @@ class NftState extends BaseState {
           nftUsageHistoryEntity ?? this.nftUsageHistoryEntity,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       benefitUsageType: benefitUsageType ?? this.benefitUsageType,
+      nextCursor: nextCursor ?? this.nextCursor,
     );
   }
 }

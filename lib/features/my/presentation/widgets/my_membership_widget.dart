@@ -47,6 +47,7 @@ class MyMembershipWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: ListView.builder(
                   shrinkWrap: true,
+                  padding: EdgeInsets.zero,
                   itemCount: selectedNftTokensList.length,
                   itemBuilder: (context, index) {
                     return MembersItemWidget(

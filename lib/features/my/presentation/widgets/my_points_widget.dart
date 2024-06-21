@@ -77,6 +77,7 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: ListView.builder(
                     shrinkWrap: true,
+                    padding: EdgeInsets.zero,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: widget.nftPointsList.length,
                     itemBuilder: (context, index) {

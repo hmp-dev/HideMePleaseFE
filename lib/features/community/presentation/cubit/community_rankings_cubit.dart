@@ -53,8 +53,10 @@ class CommunityRankingsCubit extends BaseCubit<CommunityRankingsState> {
             : data.map((e) => e.toEntity()).toList();
         emit(state.copyWith(
           topNfts: topNfts
-              .mapIndexed((index, element) => element.copyWith(index: index))
-              .toList(),
+              .mapIndexed((index, element) =>
+                  element.copyWith(index: element.communityRank))
+              .toList()
+            ..sort((a, b) => a.index.compareTo(b.index)),
           status: RequestStatus.success,
           loadingMoreStatus:
               loadingMore ? RequestStatus.success : RequestStatus.initial,
