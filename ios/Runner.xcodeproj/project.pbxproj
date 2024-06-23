@@ -531,7 +531,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.14;
+				MARKETING_VERSION = 1.8.15;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kr.hideme;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -722,7 +722,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.14;
+				MARKETING_VERSION = 1.8.15;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kr.hideme;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -753,7 +753,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.14;
+				MARKETING_VERSION = 1.8.15;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kr.hideme;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

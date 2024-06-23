@@ -5,7 +5,6 @@ import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/enum/error_codes.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
-import 'package:mobile/app/core/helpers/lazy_loading_list/lazy_loading_list.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
@@ -200,6 +199,8 @@ class _MyMembershipSettingsScreenState
                                     ),
                                   ),
                                   const VerticalSpace(25),
+                                  Text(
+                                      "Collection List Count: ${state.nftCollectionsGroupEntity.collections.length}"),
                                   (state.nftCollectionsGroupEntity.collections
                                           .isEmpty)
                                       ? const Column(
@@ -231,70 +232,52 @@ class _MyMembershipSettingsScreenState
                                                 .collections[collectionIndex]
                                                 .chainSymbol;
 
-                                            return LazyLoadingList(
-                                              initialSizeOfItems: 3,
-                                              index: collectionIndex,
-                                              hasMore: true,
-                                              loadMore: () => print(""),
-                                              child: Column(
-                                                key: ValueKey(
-                                                    '$collectionName-$chainSymbol-$collectionIndex'),
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  CollectionTitleWidget(
-                                                    title: collectionName,
-                                                    chainSymbol: chainSymbol,
+                                            return Column(
+                                              key: ValueKey(
+                                                  '$collectionName-$chainSymbol-$collectionIndex'),
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                CollectionTitleWidget(
+                                                  title: collectionName,
+                                                  chainSymbol: chainSymbol,
+                                                ),
+                                                const VerticalSpace(25),
+                                                Container(
+                                                  margin: const EdgeInsets.only(
+                                                      left: 20, bottom: 25),
+                                                  height: 190,
+                                                  child: ListView.builder(
+                                                    shrinkWrap: true,
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    itemCount: state
+                                                        .nftCollectionsGroupEntity
+                                                        .collections[
+                                                            collectionIndex]
+                                                        .tokens
+                                                        .length,
+                                                    itemBuilder:
+                                                        (context, tokenIndex) {
+                                                      return NftTokenWidget(
+                                                        key: ValueKey(
+                                                            '$collectionName-$chainSymbol-$collectionIndex-${collection.tokenAddress}-$tokenIndex'),
+                                                        tokenOrder:
+                                                            collectionIndex,
+                                                        nftTokenEntity:
+                                                            collection.tokens[
+                                                                tokenIndex],
+                                                        tokenAddress: collection
+                                                            .tokenAddress,
+                                                        walletAddress:
+                                                            collection
+                                                                .tokenAddress,
+                                                        chain: collection.chain,
+                                                      );
+                                                    },
                                                   ),
-                                                  const VerticalSpace(25),
-                                                  Container(
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                            left: 20,
-                                                            bottom: 25),
-                                                    height: 190,
-                                                    child: ListView.builder(
-                                                      shrinkWrap: true,
-                                                      scrollDirection:
-                                                          Axis.horizontal,
-                                                      itemCount: state
-                                                          .nftCollectionsGroupEntity
-                                                          .collections[
-                                                              collectionIndex]
-                                                          .tokens
-                                                          .length,
-                                                      itemBuilder: (context,
-                                                          tokenIndex) {
-                                                        return LazyLoadingList(
-                                                          initialSizeOfItems: 3,
-                                                          index: tokenIndex,
-                                                          hasMore: true,
-                                                          loadMore: () => print(
-                                                              'Loading More'),
-                                                          child: NftTokenWidget(
-                                                            key: ValueKey(
-                                                                '$collectionName-$chainSymbol-$collectionIndex-${collection.tokenAddress}-$tokenIndex'),
-                                                            tokenOrder:
-                                                                collectionIndex,
-                                                            nftTokenEntity:
-                                                                collection
-                                                                        .tokens[
-                                                                    tokenIndex],
-                                                            tokenAddress:
-                                                                collection
-                                                                    .tokenAddress,
-                                                            walletAddress:
-                                                                collection
-                                                                    .tokenAddress,
-                                                            chain: collection
-                                                                .chain,
-                                                          ),
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             );
                                           },
                                         ),

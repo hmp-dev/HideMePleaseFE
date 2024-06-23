@@ -10,7 +10,7 @@ class NftNetworkDto extends Equatable {
   final String? network;
   @JsonKey(name: "holderCount")
   final String? holderCount;
-  @JsonKey(name: "floorPrice")
+  @JsonKey(name: "floorPrice", fromJson: _floorPriceFromJson)
   final String? floorPrice;
   @JsonKey(name: "symbol")
   final String? symbol;
@@ -36,4 +36,9 @@ class NftNetworkDto extends Equatable {
         floorPrice: floorPrice ?? '',
         symbol: symbol ?? '',
       );
+
+  static String _floorPriceFromJson(dynamic value) {
+    // Convert to string regardless of whether the input is an int or already a string
+    return value.toString();
+  }
 }

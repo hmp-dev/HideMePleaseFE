@@ -55,6 +55,7 @@ class CommunityState extends BaseState {
         allNftLoaded,
       ];
 
+  @override
   CommunityState copyWith({
     List<NftCommunityEntity>? allNftCommunities,
     int? communityCount,

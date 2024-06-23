@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
@@ -8,6 +10,7 @@ import 'package:mobile/features/common/presentation/widgets/default_snackbar.dar
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class ConnectedWalletItemWidget extends StatelessWidget {
   const ConnectedWalletItemWidget({
@@ -28,79 +31,84 @@ class ConnectedWalletItemWidget extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9,
-                margin: const EdgeInsets.only(bottom: 20),
-                height: 68,
-                decoration: BoxDecoration(
-                  color: bgNega5,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: bgNega5,
-                    width: 1,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          margin: const EdgeInsets.only(bottom: 10, left: 20, right: 20),
+          height: 68,
+          decoration: BoxDecoration(
+            color: scaffoldBg,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: bgNega5,
+              width: 1,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: CustomImageView(
-                                    svgPath:
-                                        "assets/wallet-logos/${connectedWallet.provider.toLowerCase()}_wallet.svg",
-                                    width: 28,
-                                    height: 28,
-                                  ),
-                                ),
-                                Text(
-                                  connectedWallet.provider,
-                                  style: fontTitle06(),
-                                ),
-                              ],
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 4.0, bottom: 5),
-                              child: Text(
-                                formatWalletAddress(
-                                    connectedWallet.publicAddress),
-                                style: fontBody2XsMedium(color: fore2),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          CustomImageView(
+                            svgPath:
+                                "assets/wallet-logos/${connectedWallet.provider.toLowerCase()}_wallet.svg",
+                            width: 28,
+                            height: 28,
+                          ),
+                          const SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                connectedWallet.provider,
+                                style: fontBodyMdMedium(),
                               ),
-                            ),
-                          ],
-                        ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 0.0),
+                                child: Text(
+                                  formatWalletAddress(
+                                      connectedWallet.publicAddress),
+                                  style: fontCompactXs(color: fore3),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-
-                      //
-                      // tapping on this connect
-
-                      IconButton.outlined(
-                        onPressed: () {
-                          // getIt<WalletsCubit>().onDeleteConnectedWallet(
-                          //     walletId: connectedWallet.id);
-                        },
-                        icon: const Icon(Icons.delete),
-                      )
                     ],
                   ),
                 ),
-              ),
-            ],
+                GestureDetector(
+                  onTap: () {
+                    getIt<WalletsCubit>()
+                        .onDeleteConnectedWallet(walletId: connectedWallet.id);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 15),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: fore2,
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      LocaleKeys.addWallet.tr(),
+                      style: fontCompactSm(),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         );
       },

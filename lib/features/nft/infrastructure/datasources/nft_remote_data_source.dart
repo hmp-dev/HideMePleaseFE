@@ -154,23 +154,23 @@ class NftRemoteDataSource {
     return NftCommunityResponseDto.fromJson(response.data);
   }
 
-  Future<List<NftCommunitytDto>> getHotNftCommunities() async {
+  Future<List<NftCommunityDto>> getHotNftCommunities() async {
     final response = await _network.get(
       '/nft/collections/communities/hot',
       {},
     );
     return (response.data as List)
-        .map((e) => NftCommunitytDto.fromJson(e))
+        .map((e) => NftCommunityDto.fromJson(e))
         .toList();
   }
 
-  Future<List<NftCommunitytDto>> getUserNftCommunities() async {
+  Future<List<NftCommunityDto>> getUserNftCommunities() async {
     final response = await _network.get(
       'user/collections/communities',
       {},
     );
     return (response.data as List)
-        .map((e) => NftCommunitytDto.fromJson(e))
+        .map((e) => NftCommunityDto.fromJson(e))
         .toList();
   }
 

@@ -8,7 +8,7 @@ part 'nft_community_dto.g.dart';
 class NftCommunityResponseDto extends Equatable {
   final int? communityCount;
   final int? itemCount;
-  final List<NftCommunitytDto>? allCommunities;
+  final List<NftCommunityDto>? allCommunities;
 
   const NftCommunityResponseDto({
     this.communityCount,
@@ -32,7 +32,7 @@ class NftCommunityResponseDto extends Equatable {
 }
 
 @JsonSerializable()
-class NftCommunitytDto extends Equatable {
+class NftCommunityDto extends Equatable {
   final int? communityRank;
   final int? totalMembers;
   final String? tokenAddress;
@@ -42,7 +42,7 @@ class NftCommunitytDto extends Equatable {
   final String? lastConversation;
   final int? eventCount;
 
-  const NftCommunitytDto({
+  const NftCommunityDto({
     this.communityRank,
     this.totalMembers,
     this.tokenAddress,
@@ -53,10 +53,10 @@ class NftCommunitytDto extends Equatable {
     this.eventCount,
   });
 
-  factory NftCommunitytDto.fromJson(Map<String, dynamic> json) =>
-      _$NftCommunitytDtoFromJson(json);
+  factory NftCommunityDto.fromJson(Map<String, dynamic> json) =>
+      _$NftCommunityDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$NftCommunitytDtoToJson(this);
+  Map<String, dynamic> toJson() => _$NftCommunityDtoToJson(this);
 
   @override
   List<Object?> get props {

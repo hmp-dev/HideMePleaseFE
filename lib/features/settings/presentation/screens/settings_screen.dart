@@ -68,75 +68,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
             builder: (context, state) {
               return state.submitStatus == RequestStatus.loading
                   ? const SizedBox.shrink()
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              buildTopHmpBlueBannerBox(state),
-                              const VerticalSpace(10),
-                              Fore3TextButton(
-                                title: LocaleKeys.userSettings.tr(),
-                                onTap: () {},
-                              ),
-                              buildNotificationsSettingsToggleRow(),
-                              buildLocationConcent(),
-                            ],
+                  : SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                buildTopHmpBlueBannerBox(state),
+                                const VerticalSpace(10),
+                                Fore3TextButton(
+                                  title: LocaleKeys.userSettings.tr(),
+                                  onTap: () {},
+                                ),
+                                buildNotificationsSettingsToggleRow(),
+                                buildLocationConcent(),
+                              ],
+                            ),
                           ),
-                        ),
-                        const ThickDivider(paddingTop: 5, paddingBottom: 10),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Fore3TextButton(
-                                title: LocaleKeys.etc.tr(),
-                                onTap: () {},
-                              ),
-                              FeatureTile(
-                                title: LocaleKeys.announcement.tr(),
-                                onTap: () {
-                                  getIt<SettingsCubit>().onGetAnnouncements();
-                                  AnnouncementScreen.push(context);
-                                },
-                              ),
-                              const VerticalSpace(10),
-                              FeatureTile(
-                                title: LocaleKeys.termsOfUse.tr(),
-                                onTap: () {
-                                  TermsOfUseMainScreen.push(context);
-                                },
-                              ),
-                              const VerticalSpace(10),
-                              const VersionInfoTile(),
-                              FeatureTile(
-                                isShowArrowIcon: false,
-                                title: LocaleKeys.logout.tr(),
-                                onTap: () {
-                                  getIt<AppCubit>().onLogOut();
-                                },
-                              ),
-                              const VerticalSpace(10),
-                              FeatureTile(
-                                isShowArrowIcon: false,
-                                title: LocaleKeys.membershipWithdrawal.tr(),
-                                onTap: () {
-                                  MembershipWithdrawalScreen.push(context);
-                                },
-                              ),
-                            ],
+                          const ThickDivider(paddingTop: 5, paddingBottom: 10),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Fore3TextButton(
+                                  title: LocaleKeys.etc.tr(),
+                                  onTap: () {},
+                                ),
+                                FeatureTile(
+                                  title: LocaleKeys.announcement.tr(),
+                                  onTap: () {
+                                    getIt<SettingsCubit>().onGetAnnouncements();
+                                    AnnouncementScreen.push(context);
+                                  },
+                                ),
+                                const VerticalSpace(10),
+                                FeatureTile(
+                                  title: LocaleKeys.termsOfUse.tr(),
+                                  onTap: () {
+                                    TermsOfUseMainScreen.push(context);
+                                  },
+                                ),
+                                const VerticalSpace(10),
+                                const VersionInfoTile(),
+                                FeatureTile(
+                                  isShowArrowIcon: false,
+                                  title: LocaleKeys.logout.tr(),
+                                  onTap: () {
+                                    getIt<AppCubit>().onLogOut();
+                                  },
+                                ),
+                                const VerticalSpace(10),
+                                FeatureTile(
+                                  isShowArrowIcon: false,
+                                  title: LocaleKeys.membershipWithdrawal.tr(),
+                                  onTap: () {
+                                    MembershipWithdrawalScreen.push(context);
+                                  },
+                                ),
+                                const VerticalSpace(100),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     );
             },
           ),
@@ -222,7 +225,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.symmetric(vertical: 15),
           child: GestureDetector(
             onTap: () {
-              getIt<EnableLocationCubit>().onAskDeviceLocation();
+              getIt<EnableLocationCubit>()
+                  .onAskDeviceLocationWithOpenSettings();
             },
             child: Row(
               children: [

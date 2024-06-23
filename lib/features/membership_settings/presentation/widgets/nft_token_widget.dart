@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/svg_aware_image_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/not_selected_radio.dart';
@@ -59,21 +58,12 @@ class NftTokenWidget extends StatelessWidget {
                                     width: 2,
                                   ),
                           ),
-                          child: nftTokenEntity.imageUrl == ""
-                              ? CustomImageView(
-                                  imagePath:
-                                      "assets/images/place_holder_card.png",
-                                  width: 120,
-                                  height: 160,
-                                  radius: BorderRadius.circular(2),
-                                  fit: BoxFit.cover,
-                                )
-                              : SvgAwareImageWidget(
-                                  imageUrl: nftTokenEntity.imageUrl,
-                                  imageWidth: 120,
-                                  imageHeight: 136,
-                                  imageBorderRadius: 2,
-                                ),
+                          child: SvgAwareImageWidget(
+                            imageUrl: nftTokenEntity.imageUrl,
+                            imageWidth: 120,
+                            imageHeight: 160,
+                            imageBorderRadius: 2,
+                          ),
                         )
                       : Container(
                           decoration: BoxDecoration(

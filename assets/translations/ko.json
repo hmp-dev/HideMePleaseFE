@@ -158,6 +158,11 @@
     "hoursAgo":"시간 전",
     "day":"낮",
     "days":"날",
-    "walletAlreadyLinkedMessage":"이 지갑은 이미 다른 계정에 연결되어 있습니다. 다른 지갑을 선택해 주십시오"
+    "walletAlreadyLinkedMessage":"이 지갑은 이미 다른 계정에 연결되어 있습니다. 다른 지갑을 선택해 주십시오",
+    "communitiesInConversation":"대화중인 커뮤니티",
+    "network":"네트워크",
+    "numberOfHolders":"홀더 수",
+    "walletConnectionStatus":"지갑 연결 현황",
+    "disconnect":"연결 해제"
 }
 

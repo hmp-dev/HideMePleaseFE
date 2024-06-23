@@ -284,8 +284,7 @@ class NftRepositoryImpl extends NftRepository {
   }
 
   @override
-  Future<Either<HMPError, List<NftCommunitytDto>>>
-      getHotNftCommunities() async {
+  Future<Either<HMPError, List<NftCommunityDto>>> getHotNftCommunities() async {
     try {
       final response = await _nftRemoteDataSource.getHotNftCommunities();
       return right(response);
@@ -302,7 +301,7 @@ class NftRepositoryImpl extends NftRepository {
   }
 
   @override
-  Future<Either<HMPError, List<NftCommunitytDto>>>
+  Future<Either<HMPError, List<NftCommunityDto>>>
       getUserNftCommunities() async {
     try {
       final response = await _nftRemoteDataSource.getUserNftCommunities();

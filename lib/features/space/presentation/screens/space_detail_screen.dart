@@ -182,9 +182,13 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
                                   style: fontCompactSm(),
                                 ),
                                 const HorizontalSpace(10),
-                                Text(
-                                  state.spaceDetailEntity.address,
-                                  style: fontCompactSmBold(),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.7,
+                                  child: Text(
+                                    state.spaceDetailEntity.address,
+                                    style: fontCompactSmBold(),
+                                  ),
                                 ),
                               ],
                             ),

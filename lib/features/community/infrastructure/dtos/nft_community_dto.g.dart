@@ -12,7 +12,7 @@ NftCommunityResponseDto _$NftCommunityResponseDtoFromJson(
       communityCount: json['communityCount'] as int?,
       itemCount: json['itemCount'] as int?,
       allCommunities: (json['allCommunities'] as List<dynamic>?)
-          ?.map((e) => NftCommunitytDto.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => NftCommunityDto.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
@@ -24,8 +24,8 @@ Map<String, dynamic> _$NftCommunityResponseDtoToJson(
       'allCommunities': instance.allCommunities,
     };
 
-NftCommunitytDto _$NftCommunitytDtoFromJson(Map<String, dynamic> json) =>
-    NftCommunitytDto(
+NftCommunityDto _$NftCommunityDtoFromJson(Map<String, dynamic> json) =>
+    NftCommunityDto(
       communityRank: json['communityRank'] as int?,
       totalMembers: json['totalMembers'] as int?,
       tokenAddress: json['tokenAddress'] as String?,
@@ -36,7 +36,7 @@ NftCommunitytDto _$NftCommunitytDtoFromJson(Map<String, dynamic> json) =>
       eventCount: json['eventCount'] as int?,
     );
 
-Map<String, dynamic> _$NftCommunitytDtoToJson(NftCommunitytDto instance) =>
+Map<String, dynamic> _$NftCommunityDtoToJson(NftCommunityDto instance) =>
     <String, dynamic>{
       'communityRank': instance.communityRank,
       'totalMembers': instance.totalMembers,
