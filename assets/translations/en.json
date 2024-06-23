@@ -158,5 +158,10 @@
     "hoursAgo":"Hours Ago",
     "day":"day",
     "days":"Days",
-    "walletAlreadyLinkedMessage":"This wallet is already linked to another account. Please choose another one."
+    "walletAlreadyLinkedMessage":"This wallet is already linked to another account. Please choose another one.",
+    "communitiesInConversation":"Community in conversation",
+    "network":"Network",
+    "numberOfHolders":"Number Of Holders",
+    "walletConnectionStatus":"Wallet connection status",
+    "disconnect":"Disconnect"
 }

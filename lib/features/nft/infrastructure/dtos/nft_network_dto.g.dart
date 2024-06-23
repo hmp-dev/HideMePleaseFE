@@ -10,7 +10,7 @@ NftNetworkDto _$NftNetworkDtoFromJson(Map<String, dynamic> json) =>
     NftNetworkDto(
       network: json['network'] as String?,
       holderCount: json['holderCount'] as String?,
-      floorPrice: json['floorPrice'] as String?,
+      floorPrice: NftNetworkDto._floorPriceFromJson(json['floorPrice']),
       symbol: json['symbol'] as String?,
     );
 
