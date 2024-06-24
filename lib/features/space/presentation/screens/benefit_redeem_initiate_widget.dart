@@ -40,8 +40,8 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
 
               getIt<NearBySpacesCubit>().onGetNearBySpacesListData(
                 tokenAddress: tokenAddress,
-                latitude: 2.0, // state.latitude,
-                longitude: 2.0, // state.longitude,
+                latitude: state.latitude,
+                longitude: state.longitude,
               );
             } else {
               // open Alert Dialogue to Show Info and Ask to enable Location

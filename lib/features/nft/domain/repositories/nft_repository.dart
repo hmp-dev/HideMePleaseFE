@@ -60,9 +60,9 @@ abstract class NftRepository {
   Future<Either<HMPError, NftCommunityResponseDto>> getNftCommunities(
       {required GetNftCommunityOrderBy order, int? page});
 
-  Future<Either<HMPError, List<NftCommunitytDto>>> getHotNftCommunities();
+  Future<Either<HMPError, List<NftCommunityDto>>> getHotNftCommunities();
 
-  Future<Either<HMPError, List<NftCommunitytDto>>> getUserNftCommunities();
+  Future<Either<HMPError, List<NftCommunityDto>>> getUserNftCommunities();
 
   Future<Either<HMPError, NftCommunityMemberResponseDto>> getNftMembers(
       {required String tokenAddress, int? page});

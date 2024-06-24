@@ -111,7 +111,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
 
       // Wallet Connect
       var w3mService = W3MService(
-        logLevel: LogLevel.debug,
+        logLevel: LogLevel.verbose,
         featuredWalletIds: Web3Constants.allowedWalletIds,
         includedWalletIds: Web3Constants.allowedWalletIds,
         projectId: Web3Constants.projectId,
@@ -250,7 +250,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     response.fold(
       (err) {},
       (result) {
-        // fetch All Wallets
+        EasyLoading.showSuccess('Wallet deleted successfully');
         onGetAllWallets();
       },
     );

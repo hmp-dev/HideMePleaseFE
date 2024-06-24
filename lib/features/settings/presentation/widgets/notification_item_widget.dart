@@ -4,7 +4,6 @@ import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
-import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/settings/domain/entities/notification_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 

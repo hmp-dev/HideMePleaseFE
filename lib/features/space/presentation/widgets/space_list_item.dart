@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
+import 'package:mobile/features/common/presentation/widgets/svg_aware_image_widget.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
@@ -47,7 +47,12 @@ class SpaceListItem extends StatelessWidget {
                                 radius: BorderRadius.circular(2),
                                 fit: BoxFit.cover,
                               )
-                            : getImageWidget(spaceEntity.image),
+                            : SvgAwareImageWidget(
+                                imageUrl: spaceEntity.image,
+                                imageWidth: 102,
+                                imageHeight: 136,
+                                imageBorderRadius: 2,
+                              ),
                         const SizedBox(width: 15),
                         SizedBox(
                           height: 136,
@@ -127,25 +132,5 @@ class SpaceListItem extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Widget getImageWidget(String imagePath) {
-    return isSvg(imagePath)
-        ? SvgPicture.network(
-            imagePath,
-            height: 136, // Set appropriate height
-            width: 102,
-          )
-        : CustomImageView(
-            url: spaceEntity.image,
-            width: 102,
-            height: 136,
-            radius: BorderRadius.circular(2),
-            fit: BoxFit.cover,
-          );
-  }
-
-  bool isSvg(String url) {
-    return url.toLowerCase().endsWith('.svg');
   }
 }
