@@ -16,7 +16,7 @@ class PointsCubit extends BaseCubit<PointsState> {
   Future<void> onStart({String? userId}) => onGetNftPoints(userId: userId);
 
   Future<void> onGetNftPoints({String? userId}) async {
-    final response = await _nftRepository.getNftPoints();
+    final response = await _nftRepository.getNftPoints(userId: userId);
 
     response.fold(
       (err) {

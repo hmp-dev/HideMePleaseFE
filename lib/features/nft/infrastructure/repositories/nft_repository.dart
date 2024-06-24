@@ -138,10 +138,10 @@ class NftRepositoryImpl extends NftRepository {
 
   @override
   Future<Either<HMPError, String>> getConsumeUserWelcomeNft(
-      {required int welcomeNftId}) async {
+      {required String tokenAddress}) async {
     try {
       final response =
-          await _nftRemoteDataSource.requestGetConsumeWelcomeNft(welcomeNftId);
+          await _nftRemoteDataSource.requestGetConsumeWelcomeNft(tokenAddress);
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(

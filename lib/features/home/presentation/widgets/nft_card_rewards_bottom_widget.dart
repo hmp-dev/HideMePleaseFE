@@ -61,10 +61,10 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "${welcomeNftEntity.usedCount}",
+                      welcomeNftEntity.redeemedNfts,
                       style: fontCompactLgBold(),
                     ),
-                    Text('/${welcomeNftEntity.totalCount}',
+                    Text('/${welcomeNftEntity.totalNfts}',
                         style: fontCompactLg())
                   ],
                 )
@@ -89,9 +89,8 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.80,
               height: 60,
               onPressed: () {
-                if (welcomeNftEntity.id != 0) {
-                  getIt<NftCubit>().onGetConsumeWelcomeNft(
-                      welcomeNftId: welcomeNftEntity.id);
+                if (welcomeNftEntity.remainingCount > 0) {
+                  getIt<NftCubit>().onGetConsumeWelcomeNft();
                 } else {
                   snackBarService.showSnackbar(
                       message: "No Free NFT Available",

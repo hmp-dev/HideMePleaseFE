@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -24,6 +25,7 @@ import 'package:mobile/features/home/presentation/widgets/nft_card_iconnav_row.d
 import 'package:mobile/features/home/presentation/widgets/nft_card_rewards_bottom_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
+import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
@@ -36,10 +38,12 @@ class HomeViewAfterWalletConnected extends StatefulWidget {
     super.key,
     required this.isOverIconNavVisible,
     required this.homeViewScrollController,
+    required this.userProfile,
   });
 
   final bool isOverIconNavVisible;
   final ScrollController homeViewScrollController;
+  final UserProfileEntity userProfile;
 
   @override
   State<HomeViewAfterWalletConnected> createState() =>
@@ -77,24 +81,25 @@ class _HomeViewAfterWalletConnectedState
 
   @override
   bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BlocConsumer<NftCubit, NftState>(
+    return BlocBuilder<NftCubit, NftState>(
       bloc: getIt<NftCubit>(),
-      listener: (context, nftState) {},
       builder: (context, nftState) {
         return ListView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: [
-            BlocConsumer<WalletsCubit, WalletsState>(
+            BlocBuilder<WalletsCubit, WalletsState>(
               bloc: getIt<WalletsCubit>(),
-              listener: (context, walletsState) {},
               builder: (context, walletsState) {
                 final connectedWallet = walletsState.connectedWallets;
                 List<SelectedNFTEntity> selectedNftsListForHome =
                     nftState.nftsListHome;
+                final bool isCurrentNftFreeNft =
+                    _currentIndex == 0 && !widget.userProfile.freeNftClaimed;
 
                 return Column(
                   children: [
@@ -151,9 +156,10 @@ class _HomeViewAfterWalletConnectedState
                                 }
                               },
                             ),
-                            items: selectedNftsListForHome.map((item) {
-                              final itemIndex =
-                                  selectedNftsListForHome.indexOf(item);
+                            items: selectedNftsListForHome
+                                .mapIndexed((itemIndex, item) {
+                              final bool showFreeNftClaim = itemIndex == 0 &&
+                                  !widget.userProfile.freeNftClaimed;
 
                               // If itemIndex is last, then return GoToMemberShipCardWidget
                               // else  return  NFTCardWidgetParent
@@ -167,7 +173,7 @@ class _HomeViewAfterWalletConnectedState
                                   Navigator.pop(context);
                                 },
                                 childWidget: NFTCardWidgetParent(
-                                  imagePath: itemIndex == 0
+                                  imagePath: showFreeNftClaim
                                       ? nftState.welcomeNftEntity.image
                                       : item.imageUrl,
                                   topWidget: widget.isOverIconNavVisible
@@ -177,7 +183,7 @@ class _HomeViewAfterWalletConnectedState
                                         )
                                       : const SizedBox.shrink(),
                                   bottomWidget: _getBottomWidget(
-                                      itemIndex,
+                                      showFreeNftClaim,
                                       nftState.welcomeNftEntity,
                                       widget.isOverIconNavVisible,
                                       item),
@@ -191,6 +197,7 @@ class _HomeViewAfterWalletConnectedState
                             top: 0,
                             right: 30,
                             child: _getBadgeWidget(
+                                isCurrentNftFreeNft,
                                 _currentIndex,
                                 selectedNftsListForHome.isEmpty,
                                 selectedNftsListForHome.length - 1)),
@@ -254,9 +261,9 @@ class _HomeViewAfterWalletConnectedState
     );
   }
 
-  Widget _getBadgeWidget(
-      int itemIndex, bool isSelectedNftsListEmpty, int itemsLength) {
-    if (itemIndex == 0) {
+  Widget _getBadgeWidget(bool showFreeNftClaim, int itemIndex,
+      bool isSelectedNftsListEmpty, int itemsLength) {
+    if (showFreeNftClaim) {
       return CustomImageView(
         imagePath: "assets/images/free-graphic-text.png",
       );
@@ -273,9 +280,12 @@ class _HomeViewAfterWalletConnectedState
     }
   }
 
-  Widget _getBottomWidget(int itemIndex, WelcomeNftEntity welcomeNftEntity,
-      bool isOverIconNavVisible, SelectedNFTEntity item) {
-    if (itemIndex == 0) {
+  Widget _getBottomWidget(
+      bool showFreeNftClaim,
+      WelcomeNftEntity welcomeNftEntity,
+      bool isOverIconNavVisible,
+      SelectedNFTEntity item) {
+    if (showFreeNftClaim) {
       return NftCardRewardsBottomWidget(welcomeNftEntity: welcomeNftEntity);
     } else {
       return isOverIconNavVisible

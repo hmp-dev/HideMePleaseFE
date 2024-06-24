@@ -22,6 +22,10 @@ class WalletsState extends BaseState {
         errorMessage: "",
       );
 
+  bool get isKlipWalletConnected => connectedWallets
+      .where((element) => element.provider == 'klip')
+      .isNotEmpty;
+
   @override
   List<Object?> get props => [
         w3mService,
