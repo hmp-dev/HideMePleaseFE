@@ -14,16 +14,14 @@ import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
-class HomeViewBeforeLogin extends StatefulWidget {
+class HomeViewBeforeLogin extends StatelessWidget {
   const HomeViewBeforeLogin({
     super.key,
+    required this.onConnectWallet,
   });
 
-  @override
-  State<HomeViewBeforeLogin> createState() => _HomeViewBeforeLoginState();
-}
+  final VoidCallback onConnectWallet;
 
-class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<WalletsCubit, WalletsState>(
@@ -55,53 +53,21 @@ class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
             ),
           ),
           const SizedBox(height: 20),
-          BlocConsumer<WalletsCubit, WalletsState>(
-            bloc: getIt<WalletsCubit>(),
-            listener: (context, state) {},
-            builder: (context, state) {
-              // check if the w3mService is initialized
-              if (state.w3mService != null) {
-                return ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0),
-                    )),
-                    overlayColor:
-                        MaterialStateProperty.all<Color>(Colors.transparent),
-                  ),
-                  onPressed: () {
-                    state.w3mService!.openModal(context);
-                  },
-                  child: Text(
-                    LocaleKeys.walletConnection.tr(),
-                    style: fontCompactMdMedium(color: white),
-                  ),
-                );
-
-                // W3MConnectWalletButton(
-                //   service: state.w3mService!,
-                // );
-              } else {
-                return ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0),
-                    )),
-                    overlayColor:
-                        MaterialStateProperty.all<Color>(Colors.transparent),
-                  ),
-                  onPressed: () {},
-                  child: Text(
-                    LocaleKeys.walletConnection.tr(),
-                    style: fontCompactMdMedium(color: white),
-                  ),
-                );
-              }
-            },
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50.0),
+              )),
+              overlayColor:
+                  MaterialStateProperty.all<Color>(Colors.transparent),
+            ),
+            onPressed: onConnectWallet,
+            child: Text(
+              LocaleKeys.walletConnection.tr(),
+              style: fontCompactMdMedium(color: white),
+            ),
           ),
           const SizedBox(height: 30),
           NFTCardWidgetParentLocal(
@@ -118,7 +84,7 @@ class _HomeViewBeforeLoginState extends State<HomeViewBeforeLogin> {
               child: GlassmorphicButton(
                 width: MediaQuery.of(context).size.width * 0.80,
                 height: 60,
-                onPressed: () {},
+                onPressed: onConnectWallet,
                 child: Text(
                   'Klip 연결하고 무료 NFT 받기',
                   style: fontCompactMdMedium(),

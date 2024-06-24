@@ -7,6 +7,7 @@ class UserProfileEntity extends Equatable {
   final bool notificationsEnabled;
   final String pfpNftId;
   final String pfpImageUrl;
+  final bool freeNftClaimed;
 
   const UserProfileEntity({
     required this.nickName,
@@ -15,6 +16,7 @@ class UserProfileEntity extends Equatable {
     required this.notificationsEnabled,
     required this.pfpNftId,
     required this.pfpImageUrl,
+    required this.freeNftClaimed,
   });
 
   const UserProfileEntity.empty()
@@ -23,7 +25,8 @@ class UserProfileEntity extends Equatable {
         locationPublic = false,
         notificationsEnabled = false,
         pfpNftId = '',
-        pfpImageUrl = '';
+        pfpImageUrl = '',
+        this.freeNftClaimed = false;
 
   @override
   List<Object?> get props {
@@ -34,6 +37,7 @@ class UserProfileEntity extends Equatable {
       notificationsEnabled,
       pfpNftId,
       pfpImageUrl,
+      freeNftClaimed,
     ];
   }
 
@@ -44,6 +48,7 @@ class UserProfileEntity extends Equatable {
     bool? notificationsEnabled,
     String? pfpNftId,
     String? pfpImageUrl,
+    bool? freeNftClaimed,
   }) {
     return UserProfileEntity(
       nickName: nickName ?? this.nickName,
@@ -52,6 +57,7 @@ class UserProfileEntity extends Equatable {
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       pfpNftId: pfpNftId ?? this.pfpNftId,
       pfpImageUrl: pfpImageUrl ?? this.pfpImageUrl,
+      freeNftClaimed: freeNftClaimed ?? this.freeNftClaimed,
     );
   }
 }

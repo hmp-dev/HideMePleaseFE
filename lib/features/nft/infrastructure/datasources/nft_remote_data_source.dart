@@ -75,8 +75,8 @@ class NftRemoteDataSource {
     return WelcomeNftDto.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<String> requestGetConsumeWelcomeNft(int welcomeNftId) async {
-    final response = await _network.post("nft/welcome/$welcomeNftId", {});
+  Future<String> requestGetConsumeWelcomeNft(String tokenAddress) async {
+    final response = await _network.post("nft/welcome/$tokenAddress", {});
     return response.data;
   }
 
