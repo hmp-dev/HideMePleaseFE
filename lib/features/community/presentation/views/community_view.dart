@@ -9,9 +9,7 @@ import 'package:mobile/features/community/domain/entities/nft_community_entity.d
 import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
 import 'package:mobile/features/community/presentation/widgets/free_nft_redeem_view.dart';
 import 'package:mobile/features/community/presentation/widgets/get_free_nft_view.dart';
-import 'package:mobile/features/community/presentation/widgets/hot_communities_view.dart';
 import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
-import 'package:mobile/features/community/presentation/widgets/user_communities_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class CommunityView extends StatefulWidget {
@@ -90,21 +88,22 @@ class _CommunityViewState extends State<CommunityView> {
           controller: _scrollController,
           slivers: [
             SliverToBoxAdapter(child: buildTopTitleBar()),
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            if (widget.isWalletConnected &&
-                widget.redeemedFreeNft &&
-                widget.userNftCommunities.isNotEmpty)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: UserCommunitiesView(
-                    onTap: widget.onCommunityTap,
-                    onEnterChat: widget.onEnterChat,
-                    userNftCommunities: widget.userNftCommunities,
-                  ),
-                ),
-              )
-            else if (widget.isWalletConnected && !widget.redeemedFreeNft)
+            // const SliverToBoxAdapter(child: SizedBox(height: 8)),
+            // if (widget.isWalletConnected &&
+            //     widget.redeemedFreeNft &&
+            //     widget.userNftCommunities.isNotEmpty)
+            //   SliverToBoxAdapter(
+            //     child: Padding(
+            //       padding: const EdgeInsets.symmetric(horizontal: 20),
+            //       child: UserCommunitiesView(
+            //         onTap: widget.onCommunityTap,
+            //         onEnterChat: widget.onEnterChat,
+            //         userNftCommunities: widget.userNftCommunities,
+            //       ),
+            //     ),
+            //   )
+            // else
+            if (widget.isWalletConnected && !widget.redeemedFreeNft)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -126,22 +125,22 @@ class _CommunityViewState extends State<CommunityView> {
                 ),
               ),
             if (widget.hotNftCommunities.isNotEmpty)
+              // SliverToBoxAdapter(
+              //   child: HotCommunitiesView(
+              //     onCommunityTap: widget.onCommunityTap,
+              //     hotNftCommunities: widget.hotNftCommunities,
+              //   ),
+              // ),
+              //const SliverToBoxAdapter(child: SizedBox(height: 16)),
               SliverToBoxAdapter(
-                child: HotCommunitiesView(
-                  onCommunityTap: widget.onCommunityTap,
-                  hotNftCommunities: widget.hotNftCommunities,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: AllCommunitiesHeader(
+                      orderBy: widget.orderBy,
+                      onOrderByChanged: widget.onOrderByChanged,
+                      communityCount: widget.communityCount),
                 ),
               ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: AllCommunitiesHeader(
-                    orderBy: widget.orderBy,
-                    onOrderByChanged: widget.onOrderByChanged,
-                    communityCount: widget.communityCount),
-              ),
-            ),
             const SliverToBoxAdapter(child: SizedBox(height: 20)),
             SliverGrid.builder(
               itemCount: widget.allNftCommunities.length,
@@ -189,7 +188,8 @@ class _CommunityViewState extends State<CommunityView> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Chat me", style: fontBody2Bold()),
+            // Text("Chat me", style: fontBody2Bold()),
+            Text("Community", style: fontBody2Bold()),
             const AlarmsIconButton(),
           ],
         ),
@@ -234,11 +234,12 @@ class AllCommunitiesHeader extends StatelessWidget {
           child: DropdownButtonHideUnderline(
             child: DropdownButton2(
               value: orderBy,
-              dropdownStyleData: DropdownStyleData(
+              dropdownStyleData: const DropdownStyleData(
                   offset: Offset(-30, -20),
                   width: 100.0,
                   padding: EdgeInsets.zero),
-              menuItemStyleData: MenuItemStyleData(padding: EdgeInsets.zero),
+              menuItemStyleData:
+                  const MenuItemStyleData(padding: EdgeInsets.zero),
               items: GetNftCommunityOrderBy.values
                   .map((e) => DropdownMenuItem<GetNftCommunityOrderBy>(
                         value: e,

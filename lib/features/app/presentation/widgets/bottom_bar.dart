@@ -74,7 +74,9 @@ class _BottomBarState extends State<BottomBar> {
       },
       child: Container(
         color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: (type == MenuType.space)
+            ? const EdgeInsets.only(left: 60, right: 44)
+            : const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -84,10 +86,6 @@ class _BottomBarState extends State<BottomBar> {
               height: 28,
               width: 28,
             ),
-            // Text(
-            //   type.title(context),
-            //   style: fontR(14, color: textColor),
-            // ),
           ],
         ),
       ),

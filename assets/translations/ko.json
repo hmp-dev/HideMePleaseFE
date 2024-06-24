@@ -101,6 +101,8 @@
     "peopleRecievedPoints":"명이 포인트를 받았어요",
     "meal":"식사",
     "open":"영업 중",
+    "close":"닫다",
+    "openingHours":"개관 시간",
     "upcomingEvents":"진행 예정 이벤트",
     "benefitInfo":"혜택 정보",
     "more":"더보기",
@@ -164,5 +166,6 @@
     "numberOfHolders":"홀더 수",
     "walletConnectionStatus":"지갑 연결 현황",
     "disconnect":"연결 해제"
+   
 }
 

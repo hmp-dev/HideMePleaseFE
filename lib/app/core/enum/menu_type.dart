@@ -6,11 +6,11 @@ enum MenuType {
     deactivateIconPath: "assets/icons/ic_space_disabled.svg",
     menuIndex: 0,
   ),
-  events(
-    activeIconPath: "assets/icons/ic_events_enabled.svg",
-    deactivateIconPath: "assets/icons/ic_events_disabled.svg",
-    menuIndex: 1,
-  ),
+  // events(
+  //   activeIconPath: "assets/icons/ic_events_enabled.svg",
+  //   deactivateIconPath: "assets/icons/ic_events_disabled.svg",
+  //   menuIndex: 1,
+  // ),
   home(
     activeIconPath: "assets/icons/home_icon_active.png",
     deactivateIconPath: "assets/icons/home_icon_disabled.png",
@@ -41,8 +41,8 @@ enum MenuType {
     switch (this) {
       case MenuType.space:
         return "Space";
-      case MenuType.events:
-        return "Events";
+      // case MenuType.events:
+      //   return "Events";
       case MenuType.home:
         return "Home";
       case MenuType.community:

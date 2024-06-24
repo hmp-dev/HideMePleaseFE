@@ -11,7 +11,6 @@ import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_screen.dart';
-import 'package:mobile/features/events/presentation/screens/events_screen.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/my/presentation/screens/my_screen.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
@@ -78,9 +77,13 @@ class _AppViewState extends State<AppView> {
                           itemBuilder: (context, index) {
                             if (index == MenuType.space.menuIndex) {
                               return const SpaceScreen();
-                            } else if (index == MenuType.events.menuIndex) {
-                              return const EventsScreen();
-                            } else if (index == MenuType.home.menuIndex) {
+                            }
+
+                            // else if (index == MenuType.events.menuIndex) {
+                            //   return const EventsScreen();
+                            // }
+
+                            else if (index == MenuType.home.menuIndex) {
                               return const HomeScreen();
                             } else if (index == MenuType.community.menuIndex) {
                               return const CommunityScreen();
