@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
@@ -16,6 +14,7 @@ class CommunityRankingView extends StatefulWidget {
     super.key,
     required this.onRetry,
     required this.onLoadMore,
+    required this.onCommunityTap,
     required this.topNfts,
     required this.isLoadingMore,
     required this.isLoading,
@@ -26,6 +25,7 @@ class CommunityRankingView extends StatefulWidget {
 
   final VoidCallback onRetry;
   final VoidCallback onLoadMore;
+  final void Function(TopCollectionNftEntity) onCommunityTap;
   final List<TopCollectionNftEntity> topNfts;
   final TopCollectionNftEntity selectedNft;
   final bool isLoadingMore;
@@ -105,18 +105,27 @@ class _CommunityRankingViewState extends State<CommunityRankingView> {
                                       Expanded(
                                           child: widget.topNfts.length > 1
                                               ? _SecondaryRankItem(
+                                                  onTap: () =>
+                                                      widget.onCommunityTap(
+                                                          widget.topNfts[1]),
                                                   nft: widget.topNfts[1])
                                               : const SizedBox()),
                                       const SizedBox(width: 16.0),
                                       Expanded(
                                           child: widget.topNfts.isNotEmpty
                                               ? _PrimaryRankItem(
+                                                  onTap: () =>
+                                                      widget.onCommunityTap(
+                                                          widget.topNfts[0]),
                                                   nft: widget.topNfts[0])
                                               : const SizedBox()),
                                       const SizedBox(width: 16.0),
                                       Expanded(
                                           child: widget.topNfts.length > 2
                                               ? _SecondaryRankItem(
+                                                  onTap: () =>
+                                                      widget.onCommunityTap(
+                                                          widget.topNfts[2]),
                                                   nft: widget.topNfts[2])
                                               : const SizedBox()),
                                     ],
@@ -126,6 +135,41 @@ class _CommunityRankingViewState extends State<CommunityRankingView> {
                                   child: CustomImageView(
                                     svgPath: 'assets/icons/star_effects.svg',
                                     fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      16.0, 8.0, 16.0, 24.0),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Expanded(
+                                        child: InkWell(
+                                            onTap: () => widget.onCommunityTap(
+                                                widget.topNfts[1]),
+                                            child: Container(
+                                                height: 200.0,
+                                                alignment: Alignment.center)),
+                                      ),
+                                      const SizedBox(width: 16.0),
+                                      Expanded(
+                                        child: InkWell(
+                                            onTap: () => widget.onCommunityTap(
+                                                widget.topNfts[0]),
+                                            child: Container(
+                                                height: 200.0,
+                                                alignment: Alignment.center)),
+                                      ),
+                                      const SizedBox(width: 16.0),
+                                      Expanded(
+                                        child: InkWell(
+                                            onTap: () => widget.onCommunityTap(
+                                                widget.topNfts[2]),
+                                            child: Container(
+                                                height: 200.0,
+                                                alignment: Alignment.center)),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -140,76 +184,85 @@ class _CommunityRankingViewState extends State<CommunityRankingView> {
                                     widget.selectedNft.tokenAddress ==
                                         nft.tokenAddress;
 
-                                return Container(
-                                  decoration: isSelected
-                                      ? BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(4.0),
-                                          border: Border.all(
-                                              color: pink, width: 2.0),
-                                        )
-                                      : null,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 18.0, horizontal: 16.0),
-                                  child: Row(
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Text((nft.index).toString(),
-                                              style: fontCompactSmBold()),
-                                          const SizedBox(height: 4.0),
-                                          CustomImageView(
-                                            svgPath: nft
-                                                    .pointFluctuation.isNegative
-                                                ? "assets/icons/ic_arrow_down_blue.svg"
-                                                : "assets/icons/ic_arrow_up_pink.svg",
-                                            width: 8,
-                                            height: 8,
+                                return InkWell(
+                                  onTap: () => widget.onCommunityTap(nft),
+                                  child: Container(
+                                    decoration: isSelected
+                                        ? BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                            border: Border.all(
+                                                color: pink, width: 2.0),
                                           )
-                                        ],
-                                      ),
-                                      const SizedBox(width: 12.0),
-                                      Stack(
-                                        children: [
-                                          CustomImageView(
-                                            radius: BorderRadius.circular(4.0),
-                                            url: nft.collectionLogo,
-                                            height: 68.0,
-                                            width: 48.0,
-                                            fit: BoxFit.cover,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                top: 4.0, left: 4.0),
-                                            child: CustomImageView(
-                                              svgPath: nft.chainLogo,
-                                              width: 14,
-                                              height: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(width: 12.0),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                        : null,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 18.0, horizontal: 16.0),
+                                    child: Row(
+                                      children: [
+                                        Column(
                                           children: [
-                                            Text(nft.name,
-                                                maxLines: 2,
-                                                style: fontCompactMdBold()),
+                                            Text(
+                                                (nft.pointFluctuation.isNegative
+                                                        ? (nft.pointFluctuation *
+                                                            -1)
+                                                        : nft.pointFluctuation)
+                                                    .toString(),
+                                                style: fontCompactSmBold()),
                                             const SizedBox(height: 4.0),
-                                            Text('${nft.totalMembers}명이 함께함',
-                                                maxLines: 2,
-                                                style: fontCompactSm(
-                                                    color: fore2)),
+                                            CustomImageView(
+                                              svgPath: nft.pointFluctuation
+                                                      .isNegative
+                                                  ? "assets/icons/ic_arrow_down_blue.svg"
+                                                  : "assets/icons/ic_arrow_up_pink.svg",
+                                              width: 8,
+                                              height: 8,
+                                            )
                                           ],
                                         ),
-                                      ),
-                                      const SizedBox(width: 12.0),
-                                      Text(nft.pointsFormatted,
-                                          style: fontCompactMdBold()),
-                                    ],
+                                        const SizedBox(width: 12.0),
+                                        Stack(
+                                          children: [
+                                            CustomImageView(
+                                              radius:
+                                                  BorderRadius.circular(4.0),
+                                              url: nft.collectionLogo,
+                                              height: 68.0,
+                                              width: 48.0,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 4.0, left: 4.0),
+                                              child: CustomImageView(
+                                                svgPath: nft.chainLogo,
+                                                width: 14,
+                                                height: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(width: 12.0),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(nft.name,
+                                                  maxLines: 2,
+                                                  style: fontCompactMdBold()),
+                                              const SizedBox(height: 4.0),
+                                              Text('${nft.totalMembers}명이 함께함',
+                                                  maxLines: 2,
+                                                  style: fontCompactSm(
+                                                      color: fore2)),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12.0),
+                                        Text(nft.pointsFormatted,
+                                            style: fontCompactMdBold()),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },
@@ -262,55 +315,66 @@ class _CommunityRankingViewState extends State<CommunityRankingView> {
 class _SecondaryRankItem extends StatelessWidget {
   const _SecondaryRankItem({
     super.key,
+    required this.onTap,
     required this.nft,
   });
 
+  final VoidCallback onTap;
   final TopCollectionNftEntity nft;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text((nft.index).toString(), style: fontCompactSmBold()),
-            const SizedBox(width: 8.0),
-            CustomImageView(
-              svgPath: nft.pointFluctuation.isNegative
-                  ? "assets/icons/ic_arrow_down_blue.svg"
-                  : "assets/icons/ic_arrow_up_pink.svg",
-              width: 8,
-              height: 8,
-            )
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-          child: Stack(
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(
+                  (nft.pointFluctuation.isNegative
+                          ? (nft.pointFluctuation * -1)
+                          : nft.pointFluctuation)
+                      .toString(),
+                  style: fontCompactSmBold()),
+              const SizedBox(width: 8.0),
               CustomImageView(
-                radius: BorderRadius.circular(4.0),
-                url: nft.collectionLogo,
-                fit: BoxFit.cover,
-                height: 118.0,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 4.0, left: 4.0),
-                child: CustomImageView(
-                  svgPath: nft.chainLogo,
-                  width: 14,
-                  height: 14,
-                ),
-              ),
+                svgPath: nft.pointFluctuation.isNegative
+                    ? "assets/icons/ic_arrow_down_blue.svg"
+                    : "assets/icons/ic_arrow_up_pink.svg",
+                width: 8,
+                height: 8,
+              )
             ],
           ),
-        ),
-        Text(nft.name, maxLines: 1, style: fontCompactSm()),
-        const SizedBox(height: 2.0),
-        Text(nft.pointsFormatted, maxLines: 1, style: fontCompactLgBold()),
-      ],
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+            child: Stack(
+              children: [
+                CustomImageView(
+                  radius: BorderRadius.circular(4.0),
+                  url: nft.collectionLogo,
+                  fit: BoxFit.cover,
+                  height: 118.0,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0, left: 4.0),
+                  child: CustomImageView(
+                    svgPath: nft.chainLogo,
+                    width: 14,
+                    height: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(nft.name, maxLines: 1, style: fontCompactSm()),
+          const SizedBox(height: 2.0),
+          Text(nft.pointsFormatted, maxLines: 1, style: fontCompactLgBold()),
+        ],
+      ),
     );
   }
 }
@@ -318,45 +382,50 @@ class _SecondaryRankItem extends StatelessWidget {
 class _PrimaryRankItem extends StatelessWidget {
   const _PrimaryRankItem({
     super.key,
+    required this.onTap,
     required this.nft,
   });
 
+  final VoidCallback onTap;
   final TopCollectionNftEntity nft;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        CustomImageView(
-          svgPath: 'assets/icons/topranker.svg',
-          width: 64.0,
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8.0, .0, 8.0, 12.0),
-          child: Stack(
-            children: [
-              CustomImageView(
-                radius: BorderRadius.circular(4.0),
-                url: nft.collectionLogo,
-                fit: BoxFit.cover,
-                height: 138.0,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 4.0, left: 4.0),
-                child: CustomImageView(
-                  svgPath: nft.chainLogo,
-                  width: 14,
-                  height: 14,
-                ),
-              ),
-            ],
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          CustomImageView(
+            svgPath: 'assets/icons/topranker.svg',
+            width: 64.0,
           ),
-        ),
-        Text(nft.name, maxLines: 1, style: fontCompactSm()),
-        const SizedBox(height: 2.0),
-        Text(nft.pointsFormatted, maxLines: 1, style: fontCompactLgBold()),
-      ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8.0, .0, 8.0, 12.0),
+            child: Stack(
+              children: [
+                CustomImageView(
+                  radius: BorderRadius.circular(4.0),
+                  url: nft.collectionLogo,
+                  fit: BoxFit.cover,
+                  height: 138.0,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0, left: 4.0),
+                  child: CustomImageView(
+                    svgPath: nft.chainLogo,
+                    width: 14,
+                    height: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(nft.name, maxLines: 1, style: fontCompactSm()),
+          const SizedBox(height: 2.0),
+          Text(nft.pointsFormatted, maxLines: 1, style: fontCompactLgBold()),
+        ],
+      ),
     );
   }
 }
