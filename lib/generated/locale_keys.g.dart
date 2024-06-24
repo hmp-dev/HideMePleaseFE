@@ -103,6 +103,8 @@ abstract class  LocaleKeys {
   static const peopleRecievedPoints = 'peopleRecievedPoints';
   static const meal = 'meal';
   static const open = 'open';
+  static const close = 'close';
+  static const openingHours = 'openingHours';
   static const upcomingEvents = 'upcomingEvents';
   static const location = 'location';
   static const benefitInfo = 'benefitInfo';

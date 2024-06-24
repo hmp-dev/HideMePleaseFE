@@ -136,26 +136,8 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
                       ),
                       buildNameTypeRow(state),
                       buildOpenTimeRow(state),
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              LocaleKeys.upcomingEvents.tr(),
-                              style: fontTitle06Medium(),
-                            ),
-                            const VerticalSpace(10),
-                            CustomImageView(
-                              imagePath: "assets/images/space_placeholder.png",
-                              width: MediaQuery.of(context).size.width,
-                              height: 250,
-                              radius: BorderRadius.circular(2),
-                              fit: BoxFit.fill,
-                            )
-                          ],
-                        ),
-                      ),
+                      //const TempPlaceHolerForEventsFeature(),
+                      const VerticalSpace(10),
                       const Divider(
                         thickness: 8,
                         color: fore5,
@@ -297,7 +279,8 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
                 const BoxDecoration(color: hmpBlue, shape: BoxShape.circle),
           ),
           Text(
-            LocaleKeys.open.tr(),
+            getOpenCloseString(state.spaceDetailEntity.businessHoursStart,
+                state.spaceDetailEntity.businessHoursEnd),
             style: fontCompactSm(color: hmpBlue),
           ),
           Container(
@@ -327,7 +310,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.001),
+              color: Colors.grey.withOpacity(0.2),
               spreadRadius: 10,
               blurRadius: 8,
               offset: const Offset(-2, 0),
@@ -353,22 +336,68 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
   String getBusinessHours(String? start, String? end) {
     // Check for null values
     if (start == null || end == null) {
-      return "Invalid input: start or end time is null";
+      return "";
+    }
+
+    return "$start ~ $end";
+  }
+
+  String getOpenCloseString(String? start, String? end) {
+    "===========================the state hour is $start and end hour is $end"
+        .log();
+
+    // Check for null values
+    if (start == null || end == null) {
+      return LocaleKeys.openingHours.tr();
     }
 
     try {
-      // Parse the input times
-      DateTime businessStart = DateFormat('HH:mm:ss').parse(start);
-      DateTime businessEnd = DateFormat('HH:mm:ss').parse(end);
+      // Extract the hour part from the start and end times
+      int startHour = int.parse(start.split(':')[0]);
+      int endHour = int.parse(end.split(':')[0]);
 
-      // Format the new times back into strings
-      String formattedNewStart = DateFormat('HH:mm').format(businessStart);
-      String formattedNewEnd = DateFormat('HH:mm').format(businessEnd);
+      // Get the current hour
+      DateTime now = DateTime.now();
+      int currentHour = now.hour;
 
-      // Return the new time range as a string
-      return "$formattedNewStart ~ $formattedNewEnd";
+      // Check if current hour is within the business hours
+      if (currentHour >= startHour && currentHour < endHour) {
+        return LocaleKeys.open.tr();
+      } else {
+        return LocaleKeys.close.tr();
+      }
     } catch (e) {
-      return "$start ~ $end";
+      return LocaleKeys.openingHours.tr();
     }
+  }
+}
+
+class TempPlaceHolerForEventsFeature extends StatelessWidget {
+  const TempPlaceHolerForEventsFeature({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            LocaleKeys.upcomingEvents.tr(),
+            style: fontTitle06Medium(),
+          ),
+          const VerticalSpace(10),
+          CustomImageView(
+            imagePath: "assets/images/space_placeholder.png",
+            width: MediaQuery.of(context).size.width,
+            height: 250,
+            radius: BorderRadius.circular(2),
+            fit: BoxFit.fill,
+          )
+        ],
+      ),
+    );
   }
 }
