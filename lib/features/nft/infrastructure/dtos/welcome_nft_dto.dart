@@ -16,12 +16,16 @@ class WelcomeNftDto extends Equatable {
   final int? totalCount;
   @JsonKey(name: "usedCount")
   final int? usedCount;
+  final String? name;
+  final String? tokenAddress;
 
   const WelcomeNftDto({
     this.id,
     this.image,
     this.totalCount,
     this.usedCount,
+    this.name,
+    this.tokenAddress,
   });
 
   factory WelcomeNftDto.fromJson(Map<String, dynamic> json) =>
@@ -35,12 +39,14 @@ class WelcomeNftDto extends Equatable {
         image,
         totalCount,
         usedCount,
+        name,
+        tokenAddress,
       ];
 
   WelcomeNftEntity toEntity() => WelcomeNftEntity(
-        id: id!,
         image: image ?? '',
         totalCount: totalCount ?? 0,
         usedCount: usedCount ?? 0,
+        tokenAddress: tokenAddress ?? '',
       );
 }

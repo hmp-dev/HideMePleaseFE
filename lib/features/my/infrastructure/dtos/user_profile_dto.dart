@@ -22,6 +22,7 @@ class UserProfileDto extends Equatable {
   final String? pfpNftId;
   @JsonKey(name: "pfpImageUrl")
   final String? pfpImageUrl;
+  final bool? freeNftClaimed;
 
   const UserProfileDto({
     this.nickName,
@@ -30,6 +31,7 @@ class UserProfileDto extends Equatable {
     this.notificationsEnabled,
     this.pfpNftId,
     this.pfpImageUrl,
+    this.freeNftClaimed,
   });
 
   factory UserProfileDto.fromJson(Map<String, dynamic> json) =>
@@ -44,6 +46,7 @@ class UserProfileDto extends Equatable {
         pfpNftId: pfpNftId ?? "",
         pfpImageUrl: pfpImageUrl ?? "",
         notificationsEnabled: notificationsEnabled ?? false,
+        freeNftClaimed: freeNftClaimed ?? false,
       );
 
 //
@@ -57,6 +60,7 @@ class UserProfileDto extends Equatable {
       notificationsEnabled,
       pfpNftId,
       pfpImageUrl,
+      freeNftClaimed,
     ];
   }
 }

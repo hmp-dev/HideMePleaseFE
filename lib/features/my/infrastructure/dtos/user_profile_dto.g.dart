@@ -14,6 +14,7 @@ UserProfileDto _$UserProfileDtoFromJson(Map<String, dynamic> json) =>
       notificationsEnabled: json['notificationsEnabled'] as bool?,
       pfpNftId: json['pfpNftId'] as String?,
       pfpImageUrl: json['pfpImageUrl'] as String?,
+      freeNftClaimed: json['freeNftClaimed'] as bool?,
     );
 
 Map<String, dynamic> _$UserProfileDtoToJson(UserProfileDto instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$UserProfileDtoToJson(UserProfileDto instance) =>
       'notificationsEnabled': instance.notificationsEnabled,
       'pfpNftId': instance.pfpNftId,
       'pfpImageUrl': instance.pfpImageUrl,
+      'freeNftClaimed': instance.freeNftClaimed,
     };
