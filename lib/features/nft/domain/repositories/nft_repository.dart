@@ -28,7 +28,8 @@ abstract class NftRepository {
         saveSelectedTokensReorderRequestDto,
   });
 
-  Future<Either<HMPError, List<SelectedNFTDto>>> getSelectNftCollections({String? userId});
+  Future<Either<HMPError, List<SelectedNFTDto>>> getSelectNftCollections(
+      {String? userId});
 
   Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft();
 
@@ -43,7 +44,8 @@ abstract class NftRepository {
     int? page,
   });
 
-  Future<Either<HMPError, List<NftPointsDto>>> getNftPoints();
+  Future<Either<HMPError, List<NftPointsDto>>> getNftPoints(
+      {required String? userId});
 
   Future<Either<HMPError, NftNetworkDto>> getNftNetworkInfo(
       {required String tokenAddress});
