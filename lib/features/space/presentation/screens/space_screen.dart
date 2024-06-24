@@ -6,6 +6,7 @@ import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
@@ -31,12 +32,16 @@ class _SpaceScreenState extends State<SpaceScreen> {
       bloc: getIt<SpaceCubit>(),
       listener: (context, state) {},
       builder: (context, state) {
+        final collectionLogo = state.topUsedNfts.isNotEmpty
+            ? state.topUsedNfts[0].collectionLogo
+            : "";
         return SizedBox(
           height: MediaQuery.of(context).size.height,
           child: Stack(
             children: [
+              //if (state.submitStatus == RequestStatus.loading)
               PositionedDirectional(
-                child: state.topUsedNfts[0].collectionLogo == ""
+                child: collectionLogo == ""
                     ? Image.asset(
                         "assets/images/place_holder_card.png",
                         width: MediaQuery.of(context).size.width,
@@ -132,102 +137,123 @@ class _SpaceScreenState extends State<SpaceScreen> {
     );
   }
 
-  Column buildTypeWiseSpaceList(SpaceState state) {
-    return Column(
-      children: [
-        state.recommendationSpaceList.isEmpty
-            ? const SizedBox.shrink()
-            : Column(
-                children: [
-                  SizedBox(
-                    height: 90,
-                    child: ListView(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_entire.svg",
-                          title: LocaleKeys.entire.tr(),
-                          isSelected:
-                              state.spaceCategory == SpaceCategory.ENTIRE,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.ENTIRE,
-                            );
-                          },
-                        ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_pub.svg",
-                          title: LocaleKeys.pub.tr(),
-                          isSelected: state.spaceCategory == SpaceCategory.PUB,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.PUB,
-                            );
-                          },
-                        ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_cafe.svg",
-                          title: LocaleKeys.cafe.tr(),
-                          isSelected: state.spaceCategory == SpaceCategory.CAFE,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.CAFE,
-                            );
-                          },
-                        ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_pub.svg",
-                          title: LocaleKeys.coworking.tr(),
-                          isSelected:
-                              state.spaceCategory == SpaceCategory.COWORKING,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.COWORKING,
-                            );
-                          },
-                        ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_music.svg",
-                          title: LocaleKeys.music.tr(),
-                          isSelected:
-                              state.spaceCategory == SpaceCategory.MUSIC,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.MUSIC,
-                            );
-                          },
-                        ),
-                        CategoryIconWidget(
-                          icon: "assets/icons/ic_space_category_meal.svg",
-                          title: LocaleKeys.meal.tr(),
-                          isSelected: state.spaceCategory == SpaceCategory.MEAL,
-                          onTap: () {
-                            getIt<SpaceCubit>().onGetSpaceListByCategory(
-                              category: SpaceCategory.MEAL,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const VerticalSpace(30),
-                  state.spaceList.isEmpty
-                      ? const SizedBox(height: 50)
-                      : ListView.builder(
+  Widget buildTypeWiseSpaceList(SpaceState state) {
+    return BlocConsumer<EnableLocationCubit, EnableLocationState>(
+      bloc: getIt<EnableLocationCubit>()..onAskDeviceLocation(),
+      listener: (context, locationState) {},
+      builder: (context, locationState) {
+        return Column(
+          children: [
+            state.recommendationSpaceList.isEmpty
+                ? const SizedBox.shrink()
+                : Column(
+                    children: [
+                      SizedBox(
+                        height: 90,
+                        child: ListView(
                           shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: state.spaceList.length,
-                          itemBuilder: (context, index) {
-                            return SpaceListItem(
-                              spaceEntity: state.spaceList[index],
-                            );
-                          },
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            CategoryIconWidget(
+                              icon: "assets/icons/ic_space_category_entire.svg",
+                              title: LocaleKeys.entire.tr(),
+                              isSelected:
+                                  state.spaceCategory == SpaceCategory.ENTIRE,
+                              onTap: () {
+                                getIt<SpaceCubit>().onGetSpaceListByCategory(
+                                  category: SpaceCategory.ENTIRE,
+                                  latitude: locationState.latitude,
+                                  longitude: locationState.longitude,
+                                );
+                              },
+                            ),
+                            CategoryIconWidget(
+                              icon: "assets/icons/ic_space_category_pub.svg",
+                              title: LocaleKeys.pub.tr(),
+                              isSelected:
+                                  state.spaceCategory == SpaceCategory.PUB,
+                              onTap: () {
+                                getIt<SpaceCubit>().onGetSpaceListByCategory(
+                                  category: SpaceCategory.PUB,
+                                  latitude: locationState.latitude,
+                                  longitude: locationState.longitude,
+                                );
+                              },
+                            ),
+                            CategoryIconWidget(
+                              icon: "assets/icons/ic_space_category_cafe.svg",
+                              title: LocaleKeys.cafe.tr(),
+                              isSelected:
+                                  state.spaceCategory == SpaceCategory.CAFE,
+                              onTap: () {
+                                getIt<SpaceCubit>().onGetSpaceListByCategory(
+                                  category: SpaceCategory.CAFE,
+                                  latitude: locationState.latitude,
+                                  longitude: locationState.longitude,
+                                );
+                              },
+                            ),
+                            CategoryIconWidget(
+                              icon: "assets/icons/ic_space_category_pub.svg",
+                              title: LocaleKeys.coworking.tr(),
+                              isSelected: state.spaceCategory ==
+                                  SpaceCategory.COWORKING,
+                              onTap: () {
+                                getIt<SpaceCubit>().onGetSpaceListByCategory(
+                                  category: SpaceCategory.COWORKING,
+                                  latitude: locationState.latitude,
+                                  longitude: locationState.longitude,
+                                );
+                              },
+                            ),
+                            CategoryIconWidget(
+                              icon: "assets/icons/ic_space_category_music.svg",
+                              title: LocaleKeys.music.tr(),
+                              isSelected:
+                                  state.spaceCategory == SpaceCategory.MUSIC,
+                              onTap: () {
+                                getIt<SpaceCubit>().onGetSpaceListByCategory(
+                                  category: SpaceCategory.MUSIC,
+                                  latitude: locationState.latitude,
+                                  longitude: locationState.longitude,
+                                );
+                              },
+                            ),
+                            CategoryIconWidget(
+                              icon: "assets/icons/ic_space_category_meal.svg",
+                              title: LocaleKeys.meal.tr(),
+                              isSelected:
+                                  state.spaceCategory == SpaceCategory.MEAL,
+                              onTap: () {
+                                getIt<SpaceCubit>().onGetSpaceListByCategory(
+                                  category: SpaceCategory.MEAL,
+                                  latitude: locationState.latitude,
+                                  longitude: locationState.longitude,
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                  const SizedBox(height: 40),
-                ],
-              ),
-      ],
+                      ),
+                      const VerticalSpace(30),
+                      state.spaceList.isEmpty
+                          ? const SizedBox(height: 50)
+                          : ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: state.spaceList.length,
+                              itemBuilder: (context, index) {
+                                return SpaceListItem(
+                                  spaceEntity: state.spaceList[index],
+                                );
+                              },
+                            ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+          ],
+        );
+      },
     );
   }
 

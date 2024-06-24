@@ -240,7 +240,10 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                               RequestStatus.loading)
                           ? const CircularProgressIndicator(color: Colors.white)
                           : SunriseWidget(
+                              isButtonEnabled:
+                                  widget.isMatchedSpaceFound ?? false,
                               onSubmitRedeem: () {
+                                // redeem submit  starts
                                 if (widget.selectedBenefitEntity != null) {
                                   final locationState =
                                       getIt<EnableLocationCubit>().state;
@@ -287,6 +290,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                     );
                                   }
                                 }
+                                // redeem submit  Ends
                               },
                             ),
                     ),

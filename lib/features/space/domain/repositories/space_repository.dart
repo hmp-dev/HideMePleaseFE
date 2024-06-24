@@ -35,6 +35,8 @@ abstract class SpaceRepository {
   Future<Either<HMPError, List<SpaceDto>>> getSpaceList({
     String? category,
     int? page,
+    required double latitude,
+    required double longitude,
   });
 
   Future<Either<HMPError, List<RecommendationSpaceDto>>> getRecommendedSpaces();

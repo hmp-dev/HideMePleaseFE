@@ -5,6 +5,7 @@ import 'package:mobile/app/core/enum/menu_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/info_text_tool_tip_widget.dart';
@@ -141,13 +142,20 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                               .tr(),
                           buttonTitle: LocaleKeys.useTheBenefitAndGet1P.tr(),
                           onPressed: () {
+                            // update device Location
+                            getIt<EnableLocationCubit>().onAskDeviceLocation();
                             //Navigate Back and go to Space Screen
                             Navigator.pop(context);
                             getIt<PageCubit>().changePage(
                                 MenuType.space.menuIndex, MenuType.space);
                             // fetch Space Related Data
                             // init Cubit function to get all space view data
-                            getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                            final locationState =
+                                getIt<EnableLocationCubit>().state;
+                            getIt<SpaceCubit>().onFetchAllSpaceViewData(
+                              latitude: locationState.latitude,
+                              longitude: locationState.longitude,
+                            );
                           },
                         ),
                         const VerticalSpace(20),

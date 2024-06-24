@@ -87,22 +87,39 @@ class EnableLocationCubit extends BaseCubit<EnableLocationState> {
 
 //==================
 
+  /// This method is responsible for asking the device location and
+  /// emitting the state accordingly.
+  ///
+  /// It first emits a loading state, then calls the [_determinePosition]
+  /// method to get the current position. If there is an error, it emits a
+  /// failure state with the error message. If the position is obtained
+  /// successfully, it emits a success state with the latitude, longitude,
+  /// and sets [isLocationDenied] to false.
   void onAskDeviceLocation() async {
+    // Emit the loading state
     emit(state.copyWith(submitStatus: RequestStatus.loading));
 
+    // Get the current position
     final locationResult = await _determinePosition();
 
+    // Check if there is an error
     if (locationResult.error != null) {
       // Handle the error
       Log.debug(locationResult.error!);
+
+      // Emit the failure state with the error message
       emit(state.copyWith(
           submitStatus: RequestStatus.failure, isLocationDenied: true));
     } else {
-      // Location obtained successfully, do something with the position
+      // Get the position
       Position position = locationResult.position!;
+
+      // Log the latitude and longitude
       Log.debug(
           'Latitude: ${position.latitude}, Longitude: ${position.longitude}');
 
+      // Emit the success state with the latitude, longitude, and set
+      // [isLocationDenied] to false
       emit(state.copyWith(
         isLocationDenied: false,
         submitStatus: RequestStatus.success,
