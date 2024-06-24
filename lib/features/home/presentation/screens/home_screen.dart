@@ -10,6 +10,8 @@ import 'package:mobile/features/home/presentation/screens/space_selection_screen
 import 'package:mobile/features/home/presentation/views/home_view_after_wallet_connected.dart';
 import 'package:mobile/features/home/presentation/views/home_view_before_login.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
+import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
@@ -173,29 +175,46 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ],
-      child: BlocConsumer<HomeCubit, HomeState>(
+      child: BlocBuilder<HomeCubit, HomeState>(
         bloc: getIt<HomeCubit>(),
-        listener: (context, state) {},
         builder: (context, state) {
-          return UpgradeAlert(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: getHomeView(state.homeViewType),
-            ),
+          return BlocBuilder<ProfileCubit, ProfileState>(
+            bloc: getIt<ProfileCubit>(),
+            buildWhen: (previous, current) =>
+                previous.userProfileEntity != current.userProfileEntity,
+            builder: (context, profileState) {
+              return UpgradeAlert(
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: getHomeView(
+                      state.homeViewType, profileState.userProfileEntity),
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
 
-  getHomeView(HomeViewType homeViewType) {
+  getHomeView(
+    HomeViewType homeViewType,
+    UserProfileEntity userProfile,
+  ) {
     if (homeViewType == HomeViewType.afterWalletConnected) {
       return HomeViewAfterWalletConnected(
         isOverIconNavVisible: _isVisible,
         homeViewScrollController: _scrollController,
+        userProfile: userProfile,
       );
     } else {
-      return const HomeViewBeforeLogin();
+      return HomeViewBeforeLogin(
+        onConnectWallet: () {
+          if (getIt<WalletsCubit>().state.w3mService != null) {
+            getIt<WalletsCubit>().state.w3mService!.openModal(context);
+          }
+        },
+      );
     }
   }
 }

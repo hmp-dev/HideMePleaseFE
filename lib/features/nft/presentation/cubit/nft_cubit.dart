@@ -42,10 +42,10 @@ class NftCubit extends BaseCubit<NftState> {
     bool? isChainTypeFetchTapped,
     bool? isLoadingMore,
   }) async {
-    if(isLoadMoreFetch && state.nextCursor.isEmpty) {
+    if (isLoadMoreFetch && state.nextCursor.isEmpty) {
       return;
     }
-    
+
     emit(state.copyWith(selectedChain: chain));
     // if isChainTypeFetchTapped is true, then reset the nftCollectionsGroupEntity
     if (isChainTypeFetchTapped == true) {
@@ -260,13 +260,11 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
-  Future<void> onGetConsumeWelcomeNft({
-    required int welcomeNftId,
-  }) async {
+  Future<void> onGetConsumeWelcomeNft() async {
     EasyLoading.show();
 
     final response = await _nftRepository.getConsumeUserWelcomeNft(
-        welcomeNftId: welcomeNftId);
+        tokenAddress: state.welcomeNftEntity.tokenAddress);
 
     EasyLoading.dismiss();
 
