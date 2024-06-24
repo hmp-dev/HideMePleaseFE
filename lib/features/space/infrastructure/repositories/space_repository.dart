@@ -152,11 +152,15 @@ class SpaceRepositoryImpl extends SpaceRepository {
   Future<Either<HMPError, List<SpaceDto>>> getSpaceList({
     String? category,
     int? page,
+    required double latitude,
+    required double longitude,
   }) async {
     try {
       final response = await _spaceRemoteDataSource.requestGetSpaceList(
         category: category,
         page: page,
+        latitude: latitude,
+        longitude: longitude,
       );
       return right(response);
     } on DioException catch (e, t) {

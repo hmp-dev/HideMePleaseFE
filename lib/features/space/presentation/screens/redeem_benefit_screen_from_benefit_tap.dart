@@ -175,6 +175,7 @@ class _RedeemBenefitScreenFromBenefitTapState
                               RequestStatus.loading)
                           ? const CircularProgressIndicator(color: Colors.white)
                           : SunriseWidget(
+                              isButtonEnabled: true,
                               onSubmitRedeem: () {
                                 final receivedBenefitIndex = state
                                     .benefitsGroupEntity.benefits

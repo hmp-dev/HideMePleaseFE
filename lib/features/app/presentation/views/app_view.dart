@@ -8,6 +8,7 @@ import 'package:mobile/app/core/notifications/notification_service.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_screen.dart';
@@ -110,8 +111,17 @@ class _AppViewState extends State<AppView> {
                                 // Navigate to Settings Screen
                                 SettingsScreen.push(context);
                               } else if (type == MenuType.space) {
+                                // update device Location
+                                getIt<EnableLocationCubit>()
+                                    .onAskDeviceLocation();
+                                // get device Location
+                                final locationState =
+                                    getIt<EnableLocationCubit>().state;
                                 // init Cubit function to get all space view data
-                                getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                                getIt<SpaceCubit>().onFetchAllSpaceViewData(
+                                  latitude: locationState.latitude,
+                                  longitude: locationState.longitude,
+                                );
                                 _onChangeMenu(type);
                               } else {
                                 _onChangeMenu(type);
