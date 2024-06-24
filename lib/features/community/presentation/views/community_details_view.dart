@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -12,6 +13,7 @@ import 'package:mobile/features/community/domain/entities/top_collection_nft_ent
 import 'package:mobile/features/community/presentation/widgets/community_error_view.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_network_entity.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class CommunityDetailsView extends StatelessWidget {
   final VoidCallback onEnterChat;
@@ -159,7 +161,7 @@ class CommunityDetailsView extends StatelessWidget {
                       )
                     : membersError
                         ? CommunityErrorView(onRetry: onRetry)
-                        : true
+                        : communityMembers.isEmpty
                             ? ListView(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 32.0,
@@ -676,11 +678,12 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('상세 정보', style: fontTitle06Medium()),
+              Text(LocaleKeys.moreInformation.tr(), style: fontTitle06Medium()),
               const SizedBox(height: 16.0),
               Row(
                 children: [
-                  Text('네트워크', style: fontTitle07(color: fore2)),
+                  Text(LocaleKeys.network.tr(),
+                      style: fontTitle07(color: fore2)),
                   Expanded(
                     child: Text(widget.nftNetwork.network,
                         textAlign: TextAlign.end, style: fontTitle07()),
@@ -690,7 +693,8 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
               const SizedBox(height: 12.0),
               Row(
                 children: [
-                  Text('홀더 수', style: fontTitle07(color: fore2)),
+                  Text(LocaleKeys.numberOfHolders.tr(),
+                      style: fontTitle07(color: fore2)),
                   Expanded(
                     child: Text(
                         widget.koreanNumFormat.format(
@@ -703,7 +707,8 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
               const SizedBox(height: 12.0),
               Row(
                 children: [
-                  Text('바닥가', style: fontTitle07(color: fore2)),
+                  Text(LocaleKeys.floorPrice.tr(),
+                      style: fontTitle07(color: fore2)),
                   Expanded(
                     child: Text(
                         '${NumberFormat("###,###,###.##", "en_US").format(num.parse(widget.nftNetwork.floorPrice))} ${widget.nftNetwork.symbol.toUpperCase()}',

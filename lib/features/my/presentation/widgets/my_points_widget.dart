@@ -87,7 +87,7 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                 ),
                 const VerticalSpace(20),
                 Container(
-                  height: MediaQuery.of(context).size.height - 125,
+                  height: widget.nftPointsList.length * 120,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: ListView.builder(
                     shrinkWrap: true,
@@ -97,18 +97,22 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                     itemBuilder: (context, index) {
                       // get a value true if the index is the last one in widget.nftPointsList
 
-                      return PointsItemWidget(
-                        nftPointsEntity: widget.nftPointsList[index],
-                        isLastItem: index == widget.nftPointsList.length - 1,
-                        onTap: () {
-                          //
-                          getIt<NftCubit>().onGetNftUsageHistory(
-                              tokenAddress:
-                                  widget.nftPointsList[index].tokenAddress);
+                      return Container(
+                        height: 120,
+                        color: Colors.transparent,
+                        child: PointsItemWidget(
+                          nftPointsEntity: widget.nftPointsList[index],
+                          isLastItem: index == widget.nftPointsList.length - 1,
+                          onTap: () {
+                            //
+                            getIt<NftCubit>().onGetNftUsageHistory(
+                                tokenAddress:
+                                    widget.nftPointsList[index].tokenAddress);
 
-                          MyPointsDetailScreen.push(
-                              context, widget.nftPointsList[index]);
-                        },
+                            MyPointsDetailScreen.push(
+                                context, widget.nftPointsList[index]);
+                          },
+                        ),
                       );
                     },
                   ),

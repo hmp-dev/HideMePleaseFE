@@ -1,4 +1,5 @@
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/community/domain/entities/community_member_entity.dart';
 import 'package:mobile/features/community/domain/entities/top_collection_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
@@ -41,7 +42,9 @@ class CommunityDetailsCubit extends BaseCubit<CommunityDetailsState> {
     final hotNftCommsRes =
         await _nftRepository.getNftNetworkInfo(tokenAddress: tokenAddress);
     hotNftCommsRes.fold(
-      (_) {},
+      (err) {
+        "inside Error for onGetNftNetworkInfo : $err".log();
+      },
       (data) => emit(state.copyWith(
         nftNetworkInfo: data.toEntity(),
       )),

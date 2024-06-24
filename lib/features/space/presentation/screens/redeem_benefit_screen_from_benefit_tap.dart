@@ -201,8 +201,8 @@ class _RedeemBenefitScreenFromBenefitTapState
                                     tokenAddress: removeCurlyBraces(
                                         selectedBenefit.tokenAddress),
                                     spaceId: selectedBenefit.spaceId,
-                                    latitude: 2.0, //locationState.latitude,
-                                    longitude: 2.0, //locationState.longitude,
+                                    latitude: locationState.latitude,
+                                    longitude: locationState.longitude,
                                   );
                                 }
                               },

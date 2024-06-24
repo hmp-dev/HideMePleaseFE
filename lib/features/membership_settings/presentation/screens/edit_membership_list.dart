@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/router.dart';
+import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
+import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
@@ -86,7 +88,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                         final imageUrl = nft.imageUrl;
                                         final name = nft.name;
                                         final chain = nft.chain.toLowerCase();
-                                                    
+
                                         return SelectedNftItem(
                                           key: ValueKey(
                                               '${nft.id}-${nft.tokenAddress}-$index'),
@@ -102,30 +104,30 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                         }
                                         final item = state.selectedNftTokensList
                                             .removeAt(oldIndex);
-                                                    
+
                                         state.selectedNftTokensList
                                             .insert(newIndex, item);
                                       },
                                     ),
                                   ),
-                
+
                                   const VerticalSpace(20),
-                
+
                                   // show Membership Button
                                   //of if isShowMembershipButton is true
                                   widget.isShowMembershipButton
-                                      ? HMPCustomButton(
-                                          text: LocaleKeys
-                                              .myMembershipSettings
-                                              .tr(),
-                                          onPressed: () {
-                                            // call to get nft collections
-                                            getIt<NftCubit>()
-                                                .onGetNftCollections();
-                                            // Navigate to Membership Settings
-                                            MyMembershipSettingsScreen.push(
-                                                context);
-                                          },
+                                      ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            buildMyMembershipSettingsTextIconButton(),
+                                            HMPCustomButton(
+                                              text: LocaleKeys.confirm.tr(),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
                                         )
                                       : const SizedBox.shrink(),
                                 ],
@@ -171,6 +173,38 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget buildMyMembershipSettingsTextIconButton() {
+    return GestureDetector(
+      onTap: () {
+        // call to get nft collections
+        getIt<NftCubit>().onGetNftCollections();
+        // Navigate to Membership Settings
+        MyMembershipSettingsScreen.push(context);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          vertical: 30.0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              LocaleKeys.myMembershipSettings.tr(),
+              style: fontCompactSm(color: fore2),
+            ),
+            const SizedBox(width: 5),
+            DefaultImage(
+              path: "assets/icons/arrow_right.svg",
+              width: 14,
+              height: 14,
+            ),
+          ],
         ),
       ),
     );

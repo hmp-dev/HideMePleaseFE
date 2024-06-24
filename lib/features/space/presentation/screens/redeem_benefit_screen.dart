@@ -259,8 +259,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                           .selectedBenefitEntity!.tokenAddress),
                                       spaceId:
                                           widget.selectedBenefitEntity!.spaceId,
-                                      latitude: 2.0, //locationState.latitude,
-                                      longitude: 2.0, //locationState.longitude,
+                                      latitude: locationState.latitude,
+                                      longitude: locationState.longitude,
                                     );
                                   }
                                 } else {
@@ -282,8 +282,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                       tokenAddress: removeCurlyBraces(
                                           selectedBenefit.tokenAddress),
                                       spaceId: selectedBenefit.spaceId,
-                                      latitude: 2.0, //locationState.latitude,
-                                      longitude: 2.0, //locationState.longitude,
+                                      latitude: locationState.latitude,
+                                      longitude: locationState.longitude,
                                     );
                                   }
                                 }

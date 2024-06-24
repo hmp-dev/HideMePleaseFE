@@ -20,6 +20,7 @@ import 'package:mobile/features/my/presentation/screens/edit_my_screen.dart';
 import 'package:mobile/features/my/presentation/widgets/my_membership_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/my_points_widget.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyScreen extends StatefulWidget {
@@ -179,7 +180,9 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                   LinkedWalletButton(
                     titleText: LocaleKeys.linkedWallet.tr(),
                     count: connectedWalletsList.length,
-                    onTap: () {},
+                    onTap: () {
+                      ConnectedWalletsListScreen.show(context);
+                    },
                   ),
                 ],
               ),

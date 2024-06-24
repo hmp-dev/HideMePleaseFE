@@ -161,5 +161,10 @@ abstract class  LocaleKeys {
   static const day = 'day';
   static const days = 'days';
   static const walletAlreadyLinkedMessage = 'walletAlreadyLinkedMessage';
+  static const communitiesInConversation = 'communitiesInConversation';
+  static const network = 'network';
+  static const numberOfHolders = 'numberOfHolders';
+  static const walletConnectionStatus = 'walletConnectionStatus';
+  static const disconnect = 'disconnect';
 
 }
