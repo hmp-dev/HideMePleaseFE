@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +9,12 @@ import 'package:mobile/app/core/constants/wallet_connects_constants.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
+import 'package:mobile/features/home/presentation/views/solana_import_wallet_view.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/domain/repositories/wallets_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:solana/solana.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
@@ -194,7 +197,26 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     await state.w3mService!.openModal(context);
 
     if (state.w3mService!.selectedWallet?.listing.id == 'phantom') {
-      onConnectSolWallet(context);
+      if (Platform.isAndroid) {
+        onConnectSolWallet(context);
+      } else if (Platform.isIOS) {
+        Navigator.push(context,
+                MaterialPageRoute(builder: (_) => SolanaImportWalletView()))
+            .then((value) async {
+          if (value != null) {
+            final mnemonic = value as String;
+            final keypair = await Ed25519HDKeyPair.fromMnemonic(mnemonic,
+                account: 0, change: 0);
+
+            onPostWallet(
+              saveWalletRequestDto: SaveWalletRequestDto(
+                publicAddress: keypair.address,
+                provider: getWalletProvider('phantom'),
+              ),
+            );
+          }
+        });
+      }
     }
   }
 
