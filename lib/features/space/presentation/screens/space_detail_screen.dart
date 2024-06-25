@@ -266,6 +266,8 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
   }
 
   Padding buildOpenTimeRow(SpaceState state) {
+    final start = state.spaceDetailEntity.businessHoursStart;
+    final end = state.spaceDetailEntity.businessHoursEnd;
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
       child: Row(
@@ -279,9 +281,11 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
                 const BoxDecoration(color: hmpBlue, shape: BoxShape.circle),
           ),
           Text(
-            getOpenCloseString(state.spaceDetailEntity.businessHoursStart,
-                state.spaceDetailEntity.businessHoursEnd),
-            style: fontCompactSm(color: hmpBlue),
+            getOpenCloseString(start, end),
+            style: (getOpenCloseString(start, end) ==
+                    LocaleKeys.businessClosed.tr())
+                ? fontCompactSm(color: fore3)
+                : fontCompactSm(color: hmpBlue),
           ),
           Container(
             margin: const EdgeInsets.only(right: 10, left: 10),
@@ -364,7 +368,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
       if (currentHour >= startHour && currentHour < endHour) {
         return LocaleKeys.open.tr();
       } else {
-        return LocaleKeys.close.tr();
+        return LocaleKeys.businessClosed.tr();
       }
     } catch (e) {
       return LocaleKeys.openingHours.tr();

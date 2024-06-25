@@ -7,8 +7,6 @@ import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.d
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
-import 'package:mobile/features/community/presentation/widgets/free_nft_redeem_view.dart';
-import 'package:mobile/features/community/presentation/widgets/get_free_nft_view.dart';
 import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -103,27 +101,27 @@ class _CommunityViewState extends State<CommunityView> {
             //     ),
             //   )
             // else
-            if (widget.isWalletConnected && !widget.redeemedFreeNft)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: FreeNftRedeemView(
-                    totalNfts: widget.totalFreeNfts,
-                    redeemedNfts: widget.redeemedFreeNfts,
-                    remainingNfts: widget.remainingFreeNfts,
-                    onTap: widget.onGetFreeNft,
-                  ),
-                ),
-              )
-            else if (!widget.isWalletConnected)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: GetFreeNftView(
-                    onTap: widget.onConnectWallet,
-                  ),
-                ),
-              ),
+            // if (widget.isWalletConnected && !widget.redeemedFreeNft)
+            //   SliverToBoxAdapter(
+            //     child: Padding(
+            //       padding: const EdgeInsets.symmetric(horizontal: 20),
+            //       child: FreeNftRedeemView(
+            //         totalNfts: widget.totalFreeNfts,
+            //         redeemedNfts: widget.redeemedFreeNfts,
+            //         remainingNfts: widget.remainingFreeNfts,
+            //         onTap: widget.onGetFreeNft,
+            //       ),
+            //     ),
+            //   )
+            // else if (!widget.isWalletConnected)
+            //   SliverToBoxAdapter(
+            //     child: Padding(
+            //       padding: const EdgeInsets.symmetric(horizontal: 20),
+            //       child: GetFreeNftView(
+            //         onTap: widget.onConnectWallet,
+            //       ),
+            //     ),
+            //   ),
             if (widget.hotNftCommunities.isNotEmpty)
               // SliverToBoxAdapter(
               //   child: HotCommunitiesView(

@@ -199,8 +199,6 @@ class _MyMembershipSettingsScreenState
                                     ),
                                   ),
                                   const VerticalSpace(25),
-                                  Text(
-                                      "Collection List Count: ${state.nftCollectionsGroupEntity.collections.length}"),
                                   (state.nftCollectionsGroupEntity.collections
                                           .isEmpty)
                                       ? const Column(

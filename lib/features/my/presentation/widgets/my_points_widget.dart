@@ -56,7 +56,25 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                Text(widget.title, style: fontTitle07Medium()),
+                Row(
+                  children: [
+                    Text(widget.title, style: fontTitle07Medium()),
+                    const HorizontalSpace(10),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isShowToolTip = !_isShowToolTip;
+                        });
+                      },
+                      child: DefaultImage(
+                        path: "assets/icons/ic_info.svg",
+                        width: 20,
+                        height: 20,
+                        color: white,
+                      ),
+                    )
+                  ],
+                ),
               ],
             ),
           )

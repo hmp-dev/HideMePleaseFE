@@ -102,7 +102,7 @@ class ConnectedWalletItemWidget extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      LocaleKeys.addWallet.tr(),
+                      LocaleKeys.disconnect.tr(),
                       style: fontCompactSm(),
                     ),
                   ),

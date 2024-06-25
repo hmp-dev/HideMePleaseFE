@@ -33,26 +33,26 @@ class _SpaceScreenState extends State<SpaceScreen> {
       listener: (context, state) {},
       builder: (context, state) {
         final collectionLogo = state.topUsedNfts.isNotEmpty
-            ? state.topUsedNfts[0].collectionLogo
+            ? state.topUsedNfts[1].collectionLogo
             : "";
         return SizedBox(
           height: MediaQuery.of(context).size.height,
           child: Stack(
             children: [
-              //if (state.submitStatus == RequestStatus.loading)
-              PositionedDirectional(
-                child: collectionLogo == ""
-                    ? Image.asset(
-                        "assets/images/place_holder_card.png",
-                        width: MediaQuery.of(context).size.width,
-                        fit: BoxFit.fill,
-                      )
-                    : Image.network(
-                        state.topUsedNfts[0].collectionLogo,
-                        width: MediaQuery.of(context).size.width,
-                        fit: BoxFit.fill,
-                      ),
-              ),
+              if (state.submitStatus == RequestStatus.success)
+                PositionedDirectional(
+                  child: collectionLogo == ""
+                      ? Image.asset(
+                          "assets/images/place_holder_card.png",
+                          width: MediaQuery.of(context).size.width,
+                          fit: BoxFit.fill,
+                        )
+                      : Image.network(
+                          collectionLogo,
+                          width: MediaQuery.of(context).size.width,
+                          fit: BoxFit.fill,
+                        ),
+                ),
               BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
                 child: Container(

@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/menu_type.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -74,9 +72,7 @@ class _BottomBarState extends State<BottomBar> {
       },
       child: Container(
         color: Colors.transparent,
-        padding: (type == MenuType.space)
-            ? const EdgeInsets.only(left: 60, right: 44)
-            : const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
