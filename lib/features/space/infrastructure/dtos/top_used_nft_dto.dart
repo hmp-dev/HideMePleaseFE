@@ -14,6 +14,8 @@ class TopUsedNftDto extends Equatable {
   final String? tokenAddress;
   @JsonKey(name: "totalMembers")
   final int? totalMembers;
+  @JsonKey(name: "communityRank")
+  final int? communityRank;
   @JsonKey(name: "collectionLogo")
   final String? collectionLogo;
   @JsonKey(name: "name")
@@ -28,6 +30,7 @@ class TopUsedNftDto extends Equatable {
     this.totalPoints,
     this.tokenAddress,
     this.totalMembers,
+    this.communityRank,
     this.collectionLogo,
     this.name,
     this.chain,
@@ -46,6 +49,7 @@ class TopUsedNftDto extends Equatable {
       totalPoints,
       tokenAddress,
       totalMembers,
+      communityRank,
       collectionLogo,
       name,
       chain,
@@ -58,6 +62,7 @@ class TopUsedNftDto extends Equatable {
         totalPoints: totalPoints ?? 0,
         tokenAddress: tokenAddress ?? '',
         totalMembers: totalMembers ?? 0,
+        communityRank: communityRank ?? 0,
         collectionLogo: collectionLogo ?? '',
         name: name ?? '',
         chain: chain ?? '',

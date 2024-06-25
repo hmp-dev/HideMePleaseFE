@@ -12,6 +12,8 @@ WelcomeNftDto _$WelcomeNftDtoFromJson(Map<String, dynamic> json) =>
       image: json['image'] as String?,
       totalCount: json['totalCount'] as int?,
       usedCount: json['usedCount'] as int?,
+      name: json['name'] as String?,
+      tokenAddress: json['tokenAddress'] as String?,
     );
 
 Map<String, dynamic> _$WelcomeNftDtoToJson(WelcomeNftDto instance) =>
@@ -20,4 +22,6 @@ Map<String, dynamic> _$WelcomeNftDtoToJson(WelcomeNftDto instance) =>
       'image': instance.image,
       'totalCount': instance.totalCount,
       'usedCount': instance.usedCount,
+      'name': instance.name,
+      'tokenAddress': instance.tokenAddress,
     };

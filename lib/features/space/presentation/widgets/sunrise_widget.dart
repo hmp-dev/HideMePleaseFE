@@ -6,9 +6,14 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class SunriseWidget extends StatefulWidget {
-  const SunriseWidget({super.key, required this.onSubmitRedeem});
+  const SunriseWidget({
+    super.key,
+    required this.onSubmitRedeem,
+    required this.isButtonEnabled,
+  });
 
   final VoidCallback onSubmitRedeem;
+  final bool isButtonEnabled;
 
   @override
   State<SunriseWidget> createState() => _SunriseWidgetState();
@@ -104,21 +109,23 @@ class _SunriseWidgetState extends State<SunriseWidget>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPressStart: _onLongPressStart,
-      onLongPressEnd: _onLongPressEnd,
+      onLongPressStart: widget.isButtonEnabled ? _onLongPressStart : (_) {},
+      onLongPressEnd: widget.isButtonEnabled ? _onLongPressEnd : (_) {},
       child: Stack(
         children: [
           Container(
             height: 54,
             width: MediaQuery.of(context).size.width - 40,
             decoration: BoxDecoration(
-              color: backgroundGr1,
+              color: widget.isButtonEnabled ? backgroundGr1 : black300,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Center(
               child: Text(
                 LocaleKeys.longPressToUseBenefits.tr(),
-                style: fontCompactMd(),
+                style: fontCompactMd(
+                  color: widget.isButtonEnabled ? white : black500,
+                ),
               ),
             ),
           ),

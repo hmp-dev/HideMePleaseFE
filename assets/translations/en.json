@@ -101,6 +101,8 @@
     "peopleRecievedPoints": "People received points",
     "meal": "Meal",
     "open": "Open",
+    "close":"Close",
+    "openingHours":"Open Hours",
     "upcomingEvents": "UpcomingEvents",
     "location": "Location",
     "benefitInfo": "Benefit Info",

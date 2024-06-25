@@ -30,10 +30,9 @@ class SpaceListItem extends StatelessWidget {
           Stack(
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(right: 20, top: 20, left: 20),
+                margin: const EdgeInsets.only(right: 20, top: 14, left: 20),
                 width: MediaQuery.of(context).size.width * 0.9,
-                height: 170,
+                height: 150,
                 child: Column(
                   children: [
                     Row(
@@ -77,9 +76,12 @@ class SpaceListItem extends StatelessWidget {
                                     )
                                   : const SizedBox.shrink(),
                               //이번 주 핫 플레이스
-                              Text(
-                                spaceEntity.name,
-                                style: fontTitle05Bold(),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                child: Text(
+                                  spaceEntity.name,
+                                  style: fontTitle05Bold(),
+                                ),
                               ),
 
                               Text(
@@ -88,20 +90,21 @@ class SpaceListItem extends StatelessWidget {
                                 style: fontCompactSm(),
                               ),
                               const Spacer(),
-                              Row(
-                                children: [
-                                  DefaultImage(
-                                    path: "assets/icons/eyes-icon.svg",
-                                    width: 18,
-                                    height: 18,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    "${spaceEntity.hidingCount}명 숨어있어요",
-                                    style: fontCompactSm(color: fore2),
-                                  ),
-                                ],
-                              ),
+                              if (spaceEntity.hidingCount > 0)
+                                Row(
+                                  children: [
+                                    DefaultImage(
+                                      path: "assets/icons/eyes-icon.svg",
+                                      width: 18,
+                                      height: 18,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      "${spaceEntity.hidingCount}명 숨어있어요",
+                                      style: fontCompactSm(color: fore2),
+                                    ),
+                                  ],
+                                ),
                               // const SizedBox(height: 5),
                             ],
                           ),
@@ -112,7 +115,7 @@ class SpaceListItem extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: 10,
+                top: 0,
                 left: 0,
                 child: spaceEntity.hot
                     ? CustomImageView(
@@ -126,8 +129,11 @@ class SpaceListItem extends StatelessWidget {
               )
             ],
           ),
-          const Divider(
-            color: fore5,
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 0.0),
+            child: Divider(
+              color: fore5,
+            ),
           )
         ],
       ),

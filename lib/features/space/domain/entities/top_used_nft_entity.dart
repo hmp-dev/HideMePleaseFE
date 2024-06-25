@@ -5,6 +5,7 @@ class TopUsedNftEntity extends Equatable {
   final int totalPoints;
   final String tokenAddress;
   final int totalMembers;
+  final int communityRank;
   final String collectionLogo;
   final String name;
   final String chain;
@@ -15,6 +16,7 @@ class TopUsedNftEntity extends Equatable {
     required this.totalPoints,
     required this.tokenAddress,
     required this.totalMembers,
+    required this.communityRank,
     required this.collectionLogo,
     required this.name,
     required this.chain,
@@ -28,6 +30,7 @@ class TopUsedNftEntity extends Equatable {
       totalPoints,
       tokenAddress,
       totalMembers,
+      communityRank,
       collectionLogo,
       name,
       chain,
@@ -43,6 +46,7 @@ class TopUsedNftEntity extends Equatable {
         totalPoints = 0,
         tokenAddress = '',
         totalMembers = 0,
+        communityRank = 0,
         collectionLogo = '',
         name = '',
         chain = '',
@@ -54,6 +58,7 @@ class TopUsedNftEntity extends Equatable {
     int? totalPoints,
     String? tokenAddress,
     int? totalMembers,
+    int? communityRank,
     String? collectionLogo,
     String? name,
     String? chain,
@@ -64,6 +69,7 @@ class TopUsedNftEntity extends Equatable {
       totalPoints: totalPoints ?? this.totalPoints,
       tokenAddress: tokenAddress ?? this.tokenAddress,
       totalMembers: totalMembers ?? this.totalMembers,
+      communityRank: communityRank ?? this.communityRank,
       collectionLogo: collectionLogo ?? this.collectionLogo,
       name: name ?? this.name,
       chain: chain ?? this.chain,
