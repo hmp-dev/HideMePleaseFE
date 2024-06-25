@@ -3,17 +3,17 @@ import 'package:lottie/lottie.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 
-class PagePopup extends StatelessWidget {
-  final PageViewData onBoardingSlideData;
+class EventsView extends StatelessWidget {
+  final EventsViewData onBoardingSlideData;
 
-  const PagePopup({super.key, required this.onBoardingSlideData});
+  const EventsView({super.key, required this.onBoardingSlideData});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         const Expanded(
-          flex: 1,
+          flex: 3,
           child: SizedBox(),
         ),
         Expanded(
@@ -71,13 +71,13 @@ class PagePopup extends StatelessWidget {
   }
 }
 
-class PageViewData {
+class EventsViewData {
   final String titleTextA;
   final String titleTextB;
   final String descText;
   final String animationPath;
 
-  PageViewData({
+  EventsViewData({
     required this.titleTextA,
     required this.titleTextB,
     required this.descText,

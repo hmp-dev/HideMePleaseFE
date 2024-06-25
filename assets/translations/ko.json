@@ -165,7 +165,8 @@
     "network":"네트워크",
     "numberOfHolders":"홀더 수",
     "walletConnectionStatus":"지갑 연결 현황",
-    "disconnect":"연결 해제"
+    "disconnect":"연결 해제",
+    "businessClosed":"영업종료"
    
 }
 

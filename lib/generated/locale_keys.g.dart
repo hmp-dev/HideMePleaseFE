@@ -168,5 +168,6 @@ abstract class  LocaleKeys {
   static const numberOfHolders = 'numberOfHolders';
   static const walletConnectionStatus = 'walletConnectionStatus';
   static const disconnect = 'disconnect';
+  static const businessClosed = 'businessClosed';
 
 }

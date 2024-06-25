@@ -25,21 +25,21 @@ class NftCardIconNavRow extends StatelessWidget {
             imagePath: "assets/icons/ic_benefits.svg",
             onTap: () => onIndexChanged(0),
           ),
-          FeatureIconWidget(
-            title: LocaleKeys.event.tr(),
-            imagePath: "assets/icons/ic_events.svg",
-            onTap: () => onIndexChanged(1),
-          ),
+          // FeatureIconWidget(
+          //   title: LocaleKeys.event.tr(),
+          //   imagePath: "assets/icons/ic_events.svg",
+          //   onTap: () => onIndexChanged(1),
+          // ),
           FeatureIconWidget(
             title: LocaleKeys.member.tr(),
             imagePath: "assets/icons/ic_member.svg",
             onTap: () => onIndexChanged(2),
           ),
-          FeatureIconWidget(
-            title: LocaleKeys.chatting.tr(),
-            imagePath: "assets/icons/ic_chatting.svg",
-            onTap: () => onIndexChanged(3),
-          ),
+          // FeatureIconWidget(
+          //   title: LocaleKeys.chatting.tr(),
+          //   imagePath: "assets/icons/ic_chatting.svg",
+          //   onTap: () => onIndexChanged(3),
+          // ),
         ],
       ),
     );

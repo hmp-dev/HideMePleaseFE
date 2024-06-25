@@ -36,7 +36,15 @@ class HomeBenefitItemWidget extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(benefitEntity.description, style: fontCompactMdMedium()),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  child: Text(
+                    benefitEntity.description,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: fontCompactMdMedium(),
+                  ),
+                ),
                 const VerticalSpace(5),
                 Text(benefitEntity.spaceName,
                     style: fontCompactSm(color: fore3)),

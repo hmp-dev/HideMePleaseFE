@@ -29,14 +29,14 @@ class IconNavWidgets extends StatelessWidget {
             titleColor: selectedIndex == 0 ? white : fore3,
             onTap: () => onIndexChanged(0),
           ),
-          FeatureIconWidget(
-            title: LocaleKeys.event.tr(),
-            imagePath: selectedIndex == 1
-                ? "assets/icons/ic_event_hmp.svg"
-                : "assets/icons/ic_events_dark.svg",
-            titleColor: selectedIndex == 1 ? white : fore3,
-            onTap: () => onIndexChanged(1),
-          ),
+          // FeatureIconWidget(
+          //   title: LocaleKeys.event.tr(),
+          //   imagePath: selectedIndex == 1
+          //       ? "assets/icons/ic_event_hmp.svg"
+          //       : "assets/icons/ic_events_dark.svg",
+          //   titleColor: selectedIndex == 1 ? white : fore3,
+          //   onTap: () => onIndexChanged(1),
+          // ),
           FeatureIconWidget(
             title: LocaleKeys.member.tr(),
             imagePath: selectedIndex == 2
@@ -45,14 +45,14 @@ class IconNavWidgets extends StatelessWidget {
             titleColor: selectedIndex == 2 ? white : fore3,
             onTap: () => onIndexChanged(2),
           ),
-          FeatureIconWidget(
-            title: LocaleKeys.chatting.tr(),
-            imagePath: selectedIndex == 3
-                ? "assets/icons/ic_chat_hmp.svg"
-                : "assets/icons/ic_chat_dark.svg",
-            titleColor: selectedIndex == 3 ? white : fore3,
-            onTap: () => onIndexChanged(3),
-          ),
+          // FeatureIconWidget(
+          //   title: LocaleKeys.chatting.tr(),
+          //   imagePath: selectedIndex == 3
+          //       ? "assets/icons/ic_chat_hmp.svg"
+          //       : "assets/icons/ic_chat_dark.svg",
+          //   titleColor: selectedIndex == 3 ? white : fore3,
+          //   onTap: () => onIndexChanged(3),
+          // ),
         ],
       ),
     );

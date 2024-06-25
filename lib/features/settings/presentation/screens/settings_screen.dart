@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -180,7 +181,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget buildTopHmpBlueBannerBox(SettingsState state) {
     return GestureDetector(
       onTap: () {
-        if (state.isSuccess &&
+        "the link is ${state.settingsBannerEntity.settingsBannerLink}".log();
+
+        if (state.isSubmitSuccess &&
             state.settingsBannerEntity.settingsBannerLink.isNotEmpty) {
           WebViewScreen.push(
             context: context,
@@ -218,13 +221,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget buildLocationConcent() {
     return BlocConsumer<EnableLocationCubit, EnableLocationState>(
-      bloc: getIt<EnableLocationCubit>(),
+      bloc: getIt<EnableLocationCubit>()..checkLocationPermission(),
       listener: (context, state) {},
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 15),
           child: GestureDetector(
             onTap: () {
+              "is the location is enabled ${state.isLocationEnabled}".log();
               getIt<EnableLocationCubit>()
                   .onAskDeviceLocationWithOpenSettings();
             },
@@ -235,13 +239,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: fontCompactMd(),
                 ),
                 const Spacer(),
-                state.isLocationEnabled
+                state.isLocationPermissionGranted
                     ? Text(
-                        LocaleKeys.permit.tr(),
+                        LocaleKeys.allowed.tr(),
                         style: fontCompactSmMedium(color: hmpBlue),
                       )
                     : Text(
-                        LocaleKeys.allowed.tr(),
+                        LocaleKeys.permit.tr(),
                         style: fontCompactSmMedium(color: hmpBlue),
                       ),
               ],

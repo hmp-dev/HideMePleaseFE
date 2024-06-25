@@ -165,5 +165,6 @@
     "network":"Network",
     "numberOfHolders":"Number Of Holders",
     "walletConnectionStatus":"Wallet connection status",
-    "disconnect":"Disconnect"
+    "disconnect":"Disconnect",
+    "businessClosed":"Business Closed"
 }

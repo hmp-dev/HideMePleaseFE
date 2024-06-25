@@ -32,6 +32,44 @@ class EnableLocationCubit extends BaseCubit<EnableLocationState> {
     emit(state.copyWith(isLocationEnabled: serviceEnabled));
   }
 
+  Future<void> checkLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled, return or handle accordingly
+      emit(state.copyWith(
+          isLocationEnabled: false, isLocationPermissionGranted: false));
+      return;
+    }
+
+    // Check for location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      // Permissions are denied, request permissions
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are still denied, handle accordingly
+        emit(state.copyWith(
+            isLocationEnabled: true, isLocationPermissionGranted: false));
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle accordingly
+      emit(state.copyWith(
+          isLocationEnabled: true, isLocationPermissionGranted: false));
+      return;
+    }
+
+    // Permissions are granted, handle accordingly
+    emit(state.copyWith(
+        isLocationEnabled: true, isLocationPermissionGranted: true));
+  }
+
   Future<LocationResult> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
