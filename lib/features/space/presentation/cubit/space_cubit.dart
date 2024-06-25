@@ -108,8 +108,14 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     );
   }
 
-  Future<void> onGetSpaceList() async {
-    final response = await _spaceRepository.getSpaceList();
+  Future<void> onGetSpaceList({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final response = await _spaceRepository.getSpaceList(
+      latitude: latitude,
+      longitude: longitude,
+    );
     response.fold(
       (err) {
         emit(state.copyWith(
@@ -130,11 +136,15 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   Future<void> onGetSpaceListByCategory({
     SpaceCategory? category,
     int? page,
+    required double latitude,
+    required double longitude,
   }) async {
     EasyLoading.show(dismissOnTap: true);
     final response = await _spaceRepository.getSpaceList(
       category: category == SpaceCategory.ENTIRE ? null : category?.name,
       page: page,
+      latitude: latitude,
+      longitude: longitude,
     );
     EasyLoading.dismiss();
 
@@ -156,13 +166,19 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     );
   }
 
-  onFetchAllSpaceViewData() async {
+  onFetchAllSpaceViewData({
+    required double latitude,
+    required double longitude,
+  }) async {
     EasyLoading.show(dismissOnTap: true);
     await Future.wait([
       onGetTopUsedNfts(),
       onGetNewSpaceList(),
       onGetRecommendSpaceList(),
-      onGetSpaceList(),
+      onGetSpaceList(
+        latitude: latitude,
+        longitude: longitude,
+      ),
     ]);
 
     EasyLoading.dismiss();

@@ -109,12 +109,14 @@ class AuthRepositoryImpl implements AuthRepository {
     } on FirebaseAuthException catch (e) {
       final errorMsg = LogInWithGoogleFailure.fromCode(e.code);
 
+      ("FirebaseAuthException error is: $e").log();
       ("errorMsg: $errorMsg").log();
 
       FirebaseCrashlytics.instance.recordError(
         e,
         e.stackTrace,
         information: [
+          'errorCode:$e',
           'errorMsg: $errorMsg',
         ],
       );

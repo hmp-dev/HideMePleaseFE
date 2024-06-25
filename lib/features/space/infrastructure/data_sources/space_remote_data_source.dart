@@ -152,11 +152,15 @@ class SpaceRemoteDataSource {
   Future<List<SpaceDto>> requestGetSpaceList({
     String? category,
     int? page,
+    required double latitude,
+    required double longitude,
   }) async {
     // Construct the query parameters
     final Map<String, String> queryParams = {
       if (category != null) 'category': category,
       if (page != null) 'page': page.toString(),
+      "latitude": '$latitude',
+      "longitude": '$longitude',
     };
 
     final response = await _network.get("space", queryParams);

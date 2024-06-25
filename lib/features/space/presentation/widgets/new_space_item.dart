@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -111,15 +112,10 @@ class NewSpaceItem extends StatelessWidget {
             top: 0,
             left: 0,
             child: Transform.rotate(
-              angle: -25 * math.pi / 180,
-              child: CustomImageView(
-                svgPath: "assets/images/badge_new.svg",
-                width: 96,
-                height: 56,
-                radius: BorderRadius.circular(2),
-                fit: BoxFit.cover,
-              ),
-            ),
+                angle: -25 * math.pi / 180,
+                child: Lottie.asset(
+                  'assets/lottie/new.json',
+                )),
           )
         ],
       ),
