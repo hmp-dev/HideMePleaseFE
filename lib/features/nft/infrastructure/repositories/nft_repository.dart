@@ -118,9 +118,13 @@ class NftRepositoryImpl extends NftRepository {
   }
 
   @override
-  Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft() async {
+  Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft(
+      {required double latitude, required double longitude}) async {
     try {
-      final response = await _nftRemoteDataSource.requestGetWelcomeNFT();
+      final response = await _nftRemoteDataSource.requestGetWelcomeNFT(
+        latitude: latitude,
+        longitude: longitude,
+      );
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(

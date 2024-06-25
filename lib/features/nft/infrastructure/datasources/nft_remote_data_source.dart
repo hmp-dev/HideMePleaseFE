@@ -70,8 +70,12 @@ class NftRemoteDataSource {
     return response.statusCode == 201;
   }
 
-  Future<WelcomeNftDto> requestGetWelcomeNFT() async {
-    final response = await _network.get("nft/welcome", {});
+  Future<WelcomeNftDto> requestGetWelcomeNFT(
+      {required double latitude, required double longitude}) async {
+    final response = await _network.get("nft/welcome", {
+      'latitude': latitude.toString(),
+      'longitude': longitude.toString(),
+    });
     return WelcomeNftDto.fromJson(response.data as Map<String, dynamic>);
   }
 

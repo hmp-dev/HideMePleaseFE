@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
@@ -233,8 +234,12 @@ class NftCubit extends BaseCubit<NftState> {
     if (isShowLoader) {
       EasyLoading.show();
     }
+    final position = await Geolocator.getCurrentPosition();
 
-    final response = await _nftRepository.getWelcomeNft();
+    final response = await _nftRepository.getWelcomeNft(
+      latitude: position.latitude,
+      longitude: position.longitude,
+    );
 
     if (EasyLoading.isShow) {
       EasyLoading.dismiss();

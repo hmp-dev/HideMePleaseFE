@@ -31,7 +31,8 @@ abstract class NftRepository {
   Future<Either<HMPError, List<SelectedNFTDto>>> getSelectNftCollections(
       {String? userId});
 
-  Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft();
+  Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft(
+      {required double latitude, required double longitude});
 
   Future<Either<HMPError, String>> getConsumeUserWelcomeNft(
       {required String tokenAddress});
