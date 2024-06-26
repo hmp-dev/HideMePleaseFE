@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import 'package:mobile/app/core/enum/chain_type.dart';
 
 final koreanNumFormat = NumberFormat("###,###,### P", "en_US");
 
@@ -30,7 +31,7 @@ class TopCollectionNftEntity extends Equatable {
 
   String get pointsFormatted => koreanNumFormat.format(totalPoints);
 
-  String get chainLogo => "assets/chain-logos/${chain.toLowerCase()}_chain.svg";
+  String get chainLogo => ChainType.fromString(chain).chainLogo;
 
   @override
   List<Object?> get props {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
@@ -20,7 +21,7 @@ class CollectionTitleWidget extends StatelessWidget {
       child: Row(
         children: [
           DefaultImage(
-            path: "assets/chain-logos/${chainSymbol.toLowerCase()}_chain.svg",
+            path: ChainType.fromString(chainSymbol).chainLogo,
             width: 30,
             height: 30,
           ),

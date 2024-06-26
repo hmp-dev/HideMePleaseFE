@@ -39,7 +39,11 @@ class BlockChainSelectButton extends StatelessWidget {
                       ? Padding(
                           padding: const EdgeInsets.only(right: 7),
                           child: CustomImageView(
-                            svgPath: imagePath!,
+                            imagePath: !imagePath!.endsWith('.svg')
+                                ? imagePath!
+                                : null,
+                            svgPath:
+                                imagePath!.endsWith('.svg') ? imagePath! : null,
                             width: 24,
                             height: 24,
                           ),
