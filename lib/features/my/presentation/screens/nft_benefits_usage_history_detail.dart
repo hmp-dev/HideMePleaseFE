@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -170,8 +171,7 @@ class _MyNftBenefitsUsageHistoryDetailScreenState
               Padding(
                 padding: const EdgeInsets.only(left: 4.0, top: 4),
                 child: DefaultImage(
-                  path:
-                      "assets/chain-logos/${nftChain.toLowerCase()}_chain.svg",
+                  path: ChainType.fromString(nftChain).chainLogo,
                   width: 14,
                   height: 14,
                 ),

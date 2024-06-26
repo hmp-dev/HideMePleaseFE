@@ -1,3 +1,4 @@
+import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -41,7 +42,7 @@ class NftCommunityEntity extends Equatable {
 
   String get rank => '$communityRank위';
 
-  String get chainLogo => "assets/chain-logos/${chain.toLowerCase()}_chain.svg";
+  String get chainLogo => ChainType.fromString(chain).chainLogo;
 
   @override
   List<Object?> get props {
