@@ -69,6 +69,12 @@ class _CommunityViewState extends State<CommunityView> {
     _scrollController.addListener(_onScroll);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.removeListener(_onScroll);
+  }
+
   void _onScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {

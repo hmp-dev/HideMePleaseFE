@@ -412,8 +412,8 @@ class _PrimaryRankItem extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 4.0, left: 4.0),
-                  child: CustomImageView(
-                    svgPath: nft.chainLogo,
+                  child: DefaultImage(
+                    path: nft.chainLogo,
                     width: 14,
                     height: 14,
                   ),

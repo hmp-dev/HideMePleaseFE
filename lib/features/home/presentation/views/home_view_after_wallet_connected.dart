@@ -1,5 +1,3 @@
-// ignore_for_file: unused_field
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';

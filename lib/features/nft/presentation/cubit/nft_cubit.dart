@@ -122,12 +122,31 @@ class NftCubit extends BaseCubit<NftState> {
   }
 
   Future<void> onSelectDeselectNftToken({
+    required int collectionIndex,
     required SelectTokenToggleRequestDto requestDto,
     required NftTokenEntity selectedNft,
+    required bool selected,
   }) async {
-    //  emit(
-    //       state.copyWith(
-    //         selectedNftTokensList: state.selectedNftTokensList..add(value),));
+    final collections = List<NftCollectionEntity>.from(
+        state.nftCollectionsGroupEntity.collections);
+    final tokenIdx = collections[collectionIndex]
+        .tokens
+        .indexWhere((element) => element.id == selectedNft.id);
+    if (tokenIdx >= 0) {
+      final tokens = List<NftTokenEntity>.from(collections[collectionIndex]
+          .tokens
+          .map((e) => e.copyWith(selected: false))
+          .toList());
+      tokens[tokenIdx] = collections[collectionIndex]
+          .tokens[tokenIdx]
+          .copyWith(selected: selected);
+      collections[collectionIndex] =
+          collections[collectionIndex].copyWith(tokens: tokens);
+    }
+    emit(state.copyWith(
+        nftCollectionsGroupEntity: state.nftCollectionsGroupEntity
+            .copyWith(collections: collections)));
+
     final response = await _nftRepository.postNftSelectDeselectToken(
         selectTokenToggleRequestDto: requestDto);
 
@@ -146,10 +165,6 @@ class NftCubit extends BaseCubit<NftState> {
             errorMessage: '',
           ),
         );
-
-        // call the NFT Collections Again
-        onGetNftCollections();
-        onGetSelectedNftTokens();
       },
     );
   }

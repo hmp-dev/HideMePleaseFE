@@ -29,19 +29,20 @@ class NftTokenEntity extends Equatable {
   List<Object?> get props => [tokenId, name, imageUrl, selected];
 
   NftTokenEntity copyWith({
-    required String tokenId,
-    required String name,
-    required String imageUrl,
-    required bool selected,
-    required String updatedAt,
+    String? id,
+    String? tokenId,
+    String? name,
+    String? imageUrl,
+    bool? selected,
+    String? updatedAt,
   }) {
     return NftTokenEntity(
-      id: id,
-      tokenId: tokenId,
-      name: name,
-      imageUrl: imageUrl,
-      selected: selected,
-      updatedAt: updatedAt,
+      id: id ?? this.id,
+      tokenId: tokenId ?? this.tokenId,
+      name: name ?? this.name,
+      imageUrl: imageUrl ?? this.imageUrl,
+      selected: selected ?? this.selected,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

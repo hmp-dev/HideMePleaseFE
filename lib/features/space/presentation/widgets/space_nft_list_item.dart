@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -117,8 +118,7 @@ class SpaceTopNFTListItem extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 4.0, top: 4),
           child: DefaultImage(
-            path:
-                "assets/chain-logos/${topUsedNftEntity.chain.toLowerCase()}_chain.svg",
+            path: ChainType.fromString(topUsedNftEntity.chain).chainLogo,
             width: 14,
             height: 14,
           ),

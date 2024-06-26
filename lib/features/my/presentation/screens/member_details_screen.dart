@@ -19,6 +19,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
   @override
   void dispose() {
     getIt.resetLazySingleton<MembershipCubit>();
+    getIt.resetLazySingleton<PointsCubit>();
     super.dispose();
   }
 

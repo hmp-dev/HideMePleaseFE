@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 
@@ -20,7 +21,7 @@ class NftCardTopTitleWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           DefaultImage(
-            path: "assets/chain-logos/${chain.toLowerCase()}_chain.svg",
+            path: ChainType.fromString(chain).chainLogo,
             width: 40,
             height: 40,
           ),
