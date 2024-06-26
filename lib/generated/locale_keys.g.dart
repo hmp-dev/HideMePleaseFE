@@ -169,5 +169,10 @@ abstract class  LocaleKeys {
   static const walletConnectionStatus = 'walletConnectionStatus';
   static const disconnect = 'disconnect';
   static const businessClosed = 'businessClosed';
+  static const unavailable = 'unavailable';
+  static const retryButtonTitle = 'retryButtonTitle';
+  static const serviceUpdatingMessage = 'serviceUpdatingMessage';
+  static const serviceUpdating = 'serviceUpdating';
+  static const benefitRedeemAgreeTermsMessage = 'benefitRedeemAgreeTermsMessage';
 
 }

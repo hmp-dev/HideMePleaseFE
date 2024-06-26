@@ -33,7 +33,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
       listener: (context, state) {},
       builder: (context, state) {
         final collectionLogo = state.topUsedNfts.isNotEmpty
-            ? state.topUsedNfts[1].collectionLogo
+            ? state.topUsedNfts[0].collectionLogo
             : "";
         return SizedBox(
           height: MediaQuery.of(context).size.height,

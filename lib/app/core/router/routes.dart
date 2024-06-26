@@ -3,6 +3,7 @@ import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/features/app/presentation/screens/app_screen.dart';
 import 'package:mobile/features/app/presentation/screens/splash_screen.dart';
 import 'package:mobile/features/app/presentation/screens/startup_screen.dart';
+import 'package:mobile/features/app/presentation/views/server_error_page.dart';
 import 'package:mobile/features/auth/presentation/screens/social_auth_screen.dart';
 import 'package:mobile/features/onboarding/presentation/screens/onboarding_screen.dart';
 
@@ -18,6 +19,8 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
       return _route(const SocialAuthScreen());
     case Routes.appHome:
       return _route(const AppScreen());
+    case Routes.serverErrorPage:
+      return _route(const ServeErrorPage());
     default:
       return null;
   }

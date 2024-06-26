@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/pref_keys.dart';
@@ -149,6 +150,7 @@ Future<bool> showBenefitRedeemSuccessAlertDialog({
   required BuildContext context,
   required String title,
   required Function onConfirm,
+  required String buttonTitle,
 }) async {
   bool? result = await showDialog<bool>(
     context: context,
@@ -187,10 +189,68 @@ Future<bool> showBenefitRedeemSuccessAlertDialog({
             HMPCustomButton(
               height: 44,
               bgColor: bg4,
-              text: LocaleKeys.confirm.tr(),
+              text: buttonTitle,
               onPressed: () {
                 onConfirm();
               },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
+  return result ?? false;
+}
+
+Future<bool> showBenefitRedeemAgreeTermsAlertDialog({
+  required BuildContext context,
+  required String title,
+  required Function onConfirm,
+  required Function onCancel,
+}) async {
+  bool? result = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+        child: AlertDialog(
+          backgroundColor: Colors.grey.shade900,
+          //backgroundColor: const Color(0xFF4E4E55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          title: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: fontBodySm(),
+          ),
+
+          actions: <Widget>[
+            Row(
+              children: [
+                Expanded(
+                  child: HMPCustomButton(
+                    height: 44,
+                    bgColor: bg4,
+                    text: LocaleKeys.confirm.tr(),
+                    onPressed: () {
+                      onConfirm();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: HMPCustomButton(
+                    height: 44,
+                    bgColor: fore4,
+                    text: LocaleKeys.cancel.tr(),
+                    onPressed: () {
+                      onCancel();
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),

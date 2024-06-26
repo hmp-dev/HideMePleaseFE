@@ -10,6 +10,7 @@ part 'user_profile_dto.g.dart';
 
 @JsonSerializable()
 class UserProfileDto extends Equatable {
+  final String? id;
   @JsonKey(name: "nickName")
   final String? nickName;
   @JsonKey(name: "introduction")
@@ -18,20 +19,25 @@ class UserProfileDto extends Equatable {
   final bool? locationPublic;
   @JsonKey(name: "notificationsEnabled")
   final bool? notificationsEnabled;
+  final bool? freeNftClaimed;
+  final String? chatAccessToken;
   @JsonKey(name: "pfpNftId")
   final String? pfpNftId;
   @JsonKey(name: "pfpImageUrl")
   final String? pfpImageUrl;
-  final bool? freeNftClaimed;
+  final String? chatAppId;
 
   const UserProfileDto({
+    this.id,
     this.nickName,
     this.introduction,
     this.locationPublic,
     this.notificationsEnabled,
+    this.chatAccessToken,
     this.pfpNftId,
     this.pfpImageUrl,
     this.freeNftClaimed,
+    this.chatAppId,
   });
 
   factory UserProfileDto.fromJson(Map<String, dynamic> json) =>
@@ -40,6 +46,7 @@ class UserProfileDto extends Equatable {
   Map<String, dynamic> toJson() => _$UserProfileDtoToJson(this);
 
   UserProfileEntity toEntity() => UserProfileEntity(
+        id: id ?? "",
         nickName: nickName ?? "",
         introduction: introduction ?? "",
         locationPublic: locationPublic ?? false,
@@ -47,6 +54,8 @@ class UserProfileDto extends Equatable {
         pfpImageUrl: pfpImageUrl ?? "",
         notificationsEnabled: notificationsEnabled ?? false,
         freeNftClaimed: freeNftClaimed ?? false,
+        chatAccessToken: chatAccessToken ?? "",
+        chatAppId: chatAppId ?? "",
       );
 
 //
@@ -58,9 +67,11 @@ class UserProfileDto extends Equatable {
       introduction,
       locationPublic,
       notificationsEnabled,
+      chatAccessToken,
       pfpNftId,
       pfpImageUrl,
       freeNftClaimed,
+      chatAppId
     ];
   }
 }

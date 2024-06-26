@@ -114,6 +114,16 @@ class _StartUpScreenState extends State<StartUpScreen>
                 );
               }
             }
+
+            if (walletsState.isSubmitFailure) {
+              await getIt.reset();
+              await configureDependencies();
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                Routes.serverErrorPage,
+                (route) => false,
+              );
+            }
           },
         ),
       ],

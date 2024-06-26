@@ -104,6 +104,7 @@
     "close":"닫다",
     "openingHours":"개관 시간",
     "upcomingEvents":"진행 예정 이벤트",
+    "location": "위치",
     "benefitInfo":"혜택 정보",
     "more":"더보기",
     "evenPeopleWithNftTitle":"NFT가 없는 사람도\n커뮤니티에 참여할 수 있는 기회!",
@@ -166,7 +167,13 @@
     "numberOfHolders":"홀더 수",
     "walletConnectionStatus":"지갑 연결 현황",
     "disconnect":"연결 해제",
-    "businessClosed":"영업종료"
+    "businessClosed":"영업종료",
+    "unavailable":"사용불가능",
+    "retryButtonTitle": "새로고침",
+    "serviceUpdatingMessage": "새로운 기능 추가를 위해 임시 점검 중이에요.\n잠시 후에 다시 만나요",
+    "serviceUpdating": "서비스 업데이트 중",
+    "benefitRedeemAgreeTermsMessage":"개인정보 이용에 동의하시겠습니까?"
+
    
 }
 

@@ -58,7 +58,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
           bearing: 92.8334901395799,
           target: position,
           tilt: 9.440717697143555,
-          zoom: 8.151926040649414,
+          zoom: 18.151926040649414,
         ),
       ),
     );
@@ -275,10 +275,15 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
         children: [
           Container(
             margin: const EdgeInsets.only(right: 10),
-            width: 4,
-            height: 4,
-            decoration:
-                const BoxDecoration(color: hmpBlue, shape: BoxShape.circle),
+            width: 5,
+            height: 5,
+            decoration: BoxDecoration(
+              color: (getOpenCloseString(start, end) ==
+                      LocaleKeys.businessClosed.tr())
+                  ? fore3
+                  : hmpBlue,
+              shape: BoxShape.circle,
+            ),
           ),
           Text(
             getOpenCloseString(start, end),
@@ -312,12 +317,13 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
       left: 28,
       child: Container(
         decoration: BoxDecoration(
+          color: Colors.transparent,
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withOpacity(0.3),
               spreadRadius: 10,
-              blurRadius: 8,
-              offset: const Offset(-2, 0),
+              blurRadius: 10,
+              offset: const Offset(0, 0),
             ),
           ],
         ),

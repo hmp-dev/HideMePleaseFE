@@ -2,12 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/helpers/glassmorphism_widgets/glass_container.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/circle_dot_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/dashed_divider.dart';
+import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/widgets/benefit_title_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -117,9 +117,7 @@ class BenefitCardWidgetParent extends StatelessWidget {
                               )
                             : Center(
                                 child: Text(
-                                  nftBenefitEntity.used
-                                      ? LocaleKeys.used.tr()
-                                      : LocaleKeys.available.tr(),
+                                  getStateString(nftBenefitEntity.state),
                                   style: fontCompactMd(),
                                 ),
                               ),
@@ -147,5 +145,18 @@ class BenefitCardWidgetParent extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String getStateString(String state) {
+    switch (state) {
+      case 'available':
+        return LocaleKeys.available.tr();
+      case 'unavailable':
+        return LocaleKeys.unavailable.tr();
+      case 'used':
+        return LocaleKeys.used.tr();
+      default:
+        return '';
+    }
   }
 }

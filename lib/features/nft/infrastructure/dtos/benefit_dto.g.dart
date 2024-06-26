@@ -30,7 +30,10 @@ BenefitDto _$BenefitDtoFromJson(Map<String, dynamic> json) => BenefitDto(
       spaceName: json['spaceName'] as String?,
       spaceImage: json['spaceImage'] as String?,
       used: json['used'] as bool?,
+      state: json['state'] as String?,
       tokenAddress: json['tokenAddress'] as String?,
+      nftCollectionName: json['nftCollectionName'] as String?,
+      termsUrl: json['termsUrl'] as String?,
     );
 
 Map<String, dynamic> _$BenefitDtoToJson(BenefitDto instance) =>
@@ -42,5 +45,8 @@ Map<String, dynamic> _$BenefitDtoToJson(BenefitDto instance) =>
       'spaceName': instance.spaceName,
       'spaceImage': instance.spaceImage,
       'used': instance.used,
+      'state': instance.state,
       'tokenAddress': instance.tokenAddress,
+      'nftCollectionName': instance.nftCollectionName,
+      'termsUrl': instance.termsUrl,
     };

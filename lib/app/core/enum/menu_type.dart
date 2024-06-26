@@ -17,8 +17,8 @@ enum MenuType {
     menuIndex: 2,
   ),
   community(
-    activeIconPath: "assets/icons/ic_community_enabled.svg",
-    deactivateIconPath: "assets/icons/ic_community_disabled.svg",
+    activeIconPath: "assets/icons/ic_community_enabled_jayden.svg",
+    deactivateIconPath: "assets/icons/ic_community_disabled_jayden.svg",
     menuIndex: 3,
   ),
   settings(

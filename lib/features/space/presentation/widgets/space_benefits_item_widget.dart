@@ -3,6 +3,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_available_text.dart';
+import 'package:mobile/features/home/presentation/widgets/benefit_unavailable_text.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_used_text.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
@@ -41,21 +42,12 @@ class SpaceBenefitItemWidget extends StatelessWidget {
               children: [
                 Text(benefitEntity.description, style: fontCompactMdMedium()),
                 const VerticalSpace(5),
-                Text(benefitEntity.spaceName,
+                Text(benefitEntity.nftCollectionName,
                     style: fontCompactSm(color: fore3)),
               ],
             ),
             const Spacer(),
-            benefitEntity.used
-                ? const BenefitUsedText()
-                : BenefitRedeemInitiateWidget(
-                    tokenAddress: benefitEntity.tokenAddress,
-                    selectedBenefitEntity: benefitEntity,
-                    onAlertCancel: () {
-                      Navigator.pop(context);
-                    },
-                    childWidget: const BenefitAvailableText(),
-                  )
+            getKoreanTranslation(context, benefitEntity.state),
           ],
         ),
         const Padding(
@@ -64,5 +56,25 @@ class SpaceBenefitItemWidget extends StatelessWidget {
         )
       ],
     );
+  }
+
+  Widget getKoreanTranslation(BuildContext context, String state) {
+    switch (state) {
+      case 'available':
+        return BenefitRedeemInitiateWidget(
+          tokenAddress: benefitEntity.tokenAddress,
+          selectedBenefitEntity: benefitEntity,
+          onAlertCancel: () {
+            Navigator.pop(context);
+          },
+          childWidget: const BenefitAvailableText(),
+        );
+      case 'unavailable':
+        return const BenefitUnavailableText();
+      case 'used':
+        return const BenefitUsedText();
+      default:
+        return const SizedBox.shrink();
+    }
   }
 }

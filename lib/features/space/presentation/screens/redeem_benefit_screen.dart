@@ -2,7 +2,9 @@
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -14,10 +16,13 @@ import 'package:mobile/features/common/presentation/widgets/default_snackbar.dar
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/page_dot_indicator.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_card_widget_parent.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
+import 'package:mobile/features/space/infrastructure/dtos/agree_terms_url_dto.dart';
 import 'package:mobile/features/space/presentation/cubit/benefit_redeem_cubit.dart';
 import 'package:mobile/features/space/presentation/cubit/space_benefits_cubit.dart';
 import 'package:mobile/features/space/presentation/widgets/sunrise_widget.dart';
@@ -72,10 +77,24 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
   }
 
   fetchBenefits() {
-    // get Benefits
-    getIt<SpaceBenefitsCubit>().onGetSpaceBenefits(
-      spaceId: widget.nearBySpaceEntity.id,
-    );
+    if (widget.selectedBenefitEntity == null) {
+      getIt<SpaceBenefitsCubit>().onGetSpaceBenefits(
+        spaceId: widget.nearBySpaceEntity.id,
+      );
+    }
+  }
+
+  showTermsAlert() {
+    if (widget.selectedBenefitEntity != null &&
+        widget.selectedBenefitEntity?.termsUrl != "") {
+      onShowTermsConcentAlert(widget.selectedBenefitEntity?.termsUrl ?? "");
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    showTermsAlert();
   }
 
   @override
@@ -110,41 +129,14 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
           },
           builder: (context, benefitRedeemState) {
             return BaseScaffold(
-              title: LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
-              isCenterTitle: true,
-              onBack: () {
-                // on Return Press there us need to Re Fetch Benefits
-                // if Coming from Home Screen Fetch Its NFT Benefits
-                // If Coming from Space Fetch its Space benefits
-
-                Navigator.of(context).pop();
-              },
-              backIconPath: 'assets/icons/ic_close.svg',
               body: SafeArea(
                 child: SingleChildScrollView(
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        DefaultImage(
-                          path: "assets/icons/ic_space_enabled.svg",
-                          width: 32,
-                          height: 32,
-                          color: white,
-                        ),
-                        const HorizontalSpace(8),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.7,
-                          child: Text(
-                            widget.nearBySpaceEntity.address,
-                            style: fontTitle04(),
-                          ),
-                        ),
-                      ],
-                    ),
+                    buildTitleRow(context),
+                    buildAddressRow(context),
                     widget.isMatchedSpaceFound != null &&
                             widget.isMatchedSpaceFound == false
                         ? Padding(
@@ -174,7 +166,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                           )
                         : const SizedBox.shrink(),
                     const SizedBox(height: 24),
-                    if (spaceBenefitsState.isSubmitSuccess)
+                    if (spaceBenefitsState.isSubmitSuccess ||
+                        widget.selectedBenefitEntity != null)
                       SizedBox(
                         height: 436,
                         child: Stack(
@@ -244,52 +237,84 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                   widget.isMatchedSpaceFound == null
                                       ? true
                                       : widget.isMatchedSpaceFound ?? false,
-                              onSubmitRedeem: () {
+                              onSubmitRedeem: () async {
                                 // redeem submit  starts
                                 if (widget.selectedBenefitEntity != null) {
-                                  final locationState =
-                                      getIt<EnableLocationCubit>().state;
-                                  // call the benefit redeem api here
+                                  var result =
+                                      await showBenefitRedeemSuccessAlertDialog(
+                                    context: context,
+                                    buttonTitle:
+                                        LocaleKeys.employeeConfirmation.tr(),
+                                    title:
+                                        "직원에게 혜택 사용 화면을 보여주세요!\n혜택:${widget.selectedBenefitEntity?.description} ",
+                                    onConfirm: () {
+                                      Navigator.pop(context, true);
+                                    },
+                                  );
 
-                                  "the token address is as ${widget.selectedBenefitEntity?.tokenAddress}"
-                                      .log();
+                                  if (result) {
+                                    final locationState =
+                                        getIt<EnableLocationCubit>().state;
+                                    // call the benefit redeem api here
 
-                                  if (locationState.latitude != 0.0 ||
-                                      locationState.longitude != 0.0) {
-                                    getIt<BenefitRedeemCubit>()
-                                        .onPostRedeemBenefit(
-                                      benefitId:
-                                          widget.selectedBenefitEntity!.id,
-                                      tokenAddress: removeCurlyBraces(widget
-                                          .selectedBenefitEntity!.tokenAddress),
-                                      spaceId:
-                                          widget.selectedBenefitEntity!.spaceId,
-                                      latitude: locationState.latitude,
-                                      longitude: locationState.longitude,
-                                    );
+                                    "the token address is as ${widget.selectedBenefitEntity?.tokenAddress}"
+                                        .log();
+
+                                    if (locationState.latitude != 0.0 ||
+                                        locationState.longitude != 0.0) {
+                                      getIt<BenefitRedeemCubit>()
+                                          .onPostRedeemBenefit(
+                                        benefitId:
+                                            widget.selectedBenefitEntity!.id,
+                                        tokenAddress: removeCurlyBraces(widget
+                                            .selectedBenefitEntity!
+                                            .tokenAddress),
+                                        spaceId: widget
+                                            .selectedBenefitEntity!.spaceId,
+                                        latitude: locationState.latitude,
+                                        longitude: locationState.longitude,
+                                      );
+                                    }
                                   }
                                 } else {
                                   final selectedBenefit = spaceBenefitsState
                                       .benefitGroupEntity
                                       .benefits[selectedPageIndex];
-                                  final locationState =
-                                      getIt<EnableLocationCubit>().state;
-                                  // call the benefit redeem api here
 
-                                  "the token address is as ${selectedBenefit.tokenAddress}"
-                                      .log();
+                                  //show info dialogue
 
-                                  if (locationState.latitude != 0.0 ||
-                                      locationState.longitude != 0.0) {
-                                    getIt<BenefitRedeemCubit>()
-                                        .onPostRedeemBenefit(
-                                      benefitId: selectedBenefit.id,
-                                      tokenAddress: removeCurlyBraces(
-                                          selectedBenefit.tokenAddress),
-                                      spaceId: selectedBenefit.spaceId,
-                                      latitude: locationState.latitude,
-                                      longitude: locationState.longitude,
-                                    );
+                                  var result =
+                                      await showBenefitRedeemSuccessAlertDialog(
+                                    context: context,
+                                    buttonTitle:
+                                        LocaleKeys.employeeConfirmation.tr(),
+                                    title:
+                                        "직원에게 혜택 사용 화면을 보여주세요!\n혜택:${selectedBenefit.description} ",
+                                    onConfirm: () {
+                                      Navigator.pop(context, true);
+                                    },
+                                  );
+
+                                  if (result) {
+                                    final locationState =
+                                        getIt<EnableLocationCubit>().state;
+                                    // call the benefit redeem api here
+
+                                    "the token address is as ${selectedBenefit.tokenAddress}"
+                                        .log();
+
+                                    if (locationState.latitude != 0.0 ||
+                                        locationState.longitude != 0.0) {
+                                      getIt<BenefitRedeemCubit>()
+                                          .onPostRedeemBenefit(
+                                        benefitId: selectedBenefit.id,
+                                        tokenAddress: removeCurlyBraces(
+                                            selectedBenefit.tokenAddress),
+                                        spaceId: selectedBenefit.spaceId,
+                                        latitude: locationState.latitude,
+                                        longitude: locationState.longitude,
+                                      );
+                                    }
                                   }
                                 }
                                 // redeem submit  Ends
@@ -306,16 +331,108 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
     );
   }
 
+  Row buildAddressRow(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        DefaultImage(
+          path: "assets/icons/ic_space_enabled.svg",
+          width: 32,
+          height: 32,
+          color: white,
+        ),
+        const HorizontalSpace(8),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          child: Text(
+            widget.nearBySpaceEntity.address,
+            style: fontTitle04(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Padding buildTitleRow(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: DefaultImage(
+              path: 'assets/icons/ic_close.svg',
+              width: 32,
+              height: 32,
+              color: white,
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: Text(
+                  LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
+                  style: fontTitle05Medium(),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   onBenefitRedeemSuccess(SpaceBenefitsState state) async {
-    fetchBenefits();
+    await Future.delayed(const Duration(milliseconds: 200));
+    //fetchBenefits();
     await showBenefitRedeemSuccessAlertDialog(
       context: context,
-      title:
-          "${state.benefitGroupEntity.benefits[selectedPageIndex].spaceName}\n${LocaleKeys.youHaveBenefited.tr()}",
+      buttonTitle: LocaleKeys.confirm.tr(),
+      title: widget.selectedBenefitEntity == null
+          ? "${state.benefitGroupEntity.benefits[selectedPageIndex].spaceName}\n${LocaleKeys.youHaveBenefited.tr()}"
+          : "${widget.selectedBenefitEntity?.spaceName}\n${LocaleKeys.youHaveBenefited.tr()}",
       onConfirm: () {
         Navigator.pop(context);
       },
     );
+
+    Navigator.pop(context);
+  }
+
+  onShowTermsConcentAlert(String termsUrl) async {
+    if (termsUrl != "") {
+      final userId = getIt<ProfileCubit>().state.userProfileEntity.id;
+      // check if the user has already agreed to the terms
+      final hasAgreedTerms = await isUrlAlreadySaved(userId, termsUrl);
+
+      if (!hasAgreedTerms) {
+        await showBenefitRedeemAgreeTermsAlertDialog(
+          context: context,
+          title: LocaleKeys.agreeTermDialogMessage.tr(),
+          onConfirm: () {
+            Navigator.pop(context);
+            WebViewScreen.push(
+              context: context,
+              title: LocaleKeys.agreeTermsAlertMSG.tr(),
+              url: termsUrl,
+            );
+          },
+          onCancel: () {
+            Navigator.pop(context);
+          },
+        );
+      } else {
+        var result = await getAgreeTermsVisitedUrlDtoList();
+
+        for (var obj in result) {
+          "save url is: ${obj.termsUrl}".log();
+          "save userId is: ${obj.userId}".log();
+        }
+      }
+    }
   }
 
   String removeCurlyBraces(String input) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/shadow_text.dart';
 
 class BuildHidingCountWidget extends StatelessWidget {
   const BuildHidingCountWidget({
@@ -23,10 +24,10 @@ class BuildHidingCountWidget extends StatelessWidget {
             height: 18,
           ),
           const SizedBox(width: 5),
-          Text(
-            "$hidingCount 명 숨어있어요",
-            style: fontCompactSm(color: fore2),
-          ),
+          ShadowText(
+            data: "$hidingCount 명 숨어있어요",
+            style: fontCompactSm(color: white),
+          )
         ],
       ),
     );

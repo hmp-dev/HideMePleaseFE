@@ -1,32 +1,41 @@
 import 'package:equatable/equatable.dart';
 
 class UserProfileEntity extends Equatable {
+  final String id;
   final String nickName;
   final String introduction;
   final bool locationPublic;
   final bool notificationsEnabled;
+  final bool freeNftClaimed;
+  final String chatAccessToken;
   final String pfpNftId;
   final String pfpImageUrl;
-  final bool freeNftClaimed;
+  final String chatAppId;
 
   const UserProfileEntity({
+    required this.id,
     required this.nickName,
     required this.introduction,
     required this.locationPublic,
     required this.notificationsEnabled,
+    required this.freeNftClaimed,
+    required this.chatAccessToken,
     required this.pfpNftId,
     required this.pfpImageUrl,
-    required this.freeNftClaimed,
+    required this.chatAppId,
   });
 
   const UserProfileEntity.empty()
-      : nickName = '',
+      : id = '',
+        nickName = '',
         introduction = '',
         locationPublic = false,
         notificationsEnabled = false,
+        freeNftClaimed = false,
+        chatAccessToken = '',
         pfpNftId = '',
         pfpImageUrl = '',
-        this.freeNftClaimed = false;
+        chatAppId = '';
 
   @override
   List<Object?> get props {
@@ -35,9 +44,11 @@ class UserProfileEntity extends Equatable {
       introduction,
       locationPublic,
       notificationsEnabled,
+      freeNftClaimed,
+      chatAccessToken,
       pfpNftId,
       pfpImageUrl,
-      freeNftClaimed,
+      chatAppId
     ];
   }
 
@@ -46,18 +57,23 @@ class UserProfileEntity extends Equatable {
     String? introduction,
     bool? locationPublic,
     bool? notificationsEnabled,
+    bool? freeNftClaimed,
+    String? chatAccessToken,
     String? pfpNftId,
     String? pfpImageUrl,
-    bool? freeNftClaimed,
+    String? chatAppId,
   }) {
     return UserProfileEntity(
+      id: id,
       nickName: nickName ?? this.nickName,
       introduction: introduction ?? this.introduction,
       locationPublic: locationPublic ?? this.locationPublic,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+      freeNftClaimed: freeNftClaimed ?? this.freeNftClaimed,
+      chatAccessToken: chatAccessToken ?? this.chatAccessToken,
       pfpNftId: pfpNftId ?? this.pfpNftId,
       pfpImageUrl: pfpImageUrl ?? this.pfpImageUrl,
-      freeNftClaimed: freeNftClaimed ?? this.freeNftClaimed,
+      chatAppId: chatAppId ?? this.chatAppId,
     );
   }
 }

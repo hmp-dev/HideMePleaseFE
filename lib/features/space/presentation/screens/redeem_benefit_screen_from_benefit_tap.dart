@@ -226,6 +226,7 @@ class _RedeemBenefitScreenFromBenefitTapState
   onBenefitRedeemSuccess(SpaceState state) async {
     final result = await showBenefitRedeemSuccessAlertDialog(
       context: context,
+      buttonTitle: LocaleKeys.confirm.tr(),
       title:
           "@${state.benefitsGroupEntity.benefits[getSelectedIndex(state)].spaceName}\n${LocaleKeys.youHaveBenefited.tr()}",
       onConfirm: () {
