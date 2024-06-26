@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/svg_aware_image_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/not_selected_radio.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/selected_radio.dart';
 import 'package:mobile/features/nft/domain/entities/nft_token_entity.dart';
-import 'package:mobile/features/nft/infrastructure/dtos/select_token_toggle_request_dto.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 
 class NftTokenWidget extends StatelessWidget {
   const NftTokenWidget({
     super.key,
+    required this.onTap,
     required this.nftTokenEntity,
     required this.tokenAddress,
     required this.chain,
@@ -20,6 +18,7 @@ class NftTokenWidget extends StatelessWidget {
     required this.tokenOrder,
   });
 
+  final VoidCallback onTap;
   final NftTokenEntity nftTokenEntity;
   final String tokenAddress;
   final String chain;
@@ -31,16 +30,7 @@ class NftTokenWidget extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(right: 8.0),
       child: GestureDetector(
-        onTap: () {
-          getIt<NftCubit>().onSelectDeselectNftToken(
-            requestDto: SelectTokenToggleRequestDto(
-              nftId: nftTokenEntity.id,
-              selected: !nftTokenEntity.selected,
-              order: tokenOrder,
-            ),
-            selectedNft: nftTokenEntity,
-          );
-        },
+        onTap: onTap,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: Stack(

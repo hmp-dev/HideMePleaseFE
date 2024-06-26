@@ -19,6 +19,7 @@ import 'package:mobile/features/membership_settings/presentation/widgets/block_c
 import 'package:mobile/features/membership_settings/presentation/widgets/collection_title_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/connected_wallets_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/nft_token_widget.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -75,6 +76,12 @@ class _MyMembershipSettingsScreenState
     setState(() {
       _isLoadingMore = false;
     });
+  }
+
+  @override
+  void dispose() {
+    getIt<NftCubit>().onGetNftCollections();
+    super.dispose();
   }
 
   @override
@@ -269,14 +276,40 @@ class _MyMembershipSettingsScreenState
                                                         .length,
                                                     itemBuilder:
                                                         (context, tokenIndex) {
+                                                      final nftTokenEntity =
+                                                          collection.tokens[
+                                                              tokenIndex];
+
                                                       return NftTokenWidget(
+                                                        onTap: () {
+                                                          getIt<NftCubit>()
+                                                              .onSelectDeselectNftToken(
+                                                            collectionIndex:
+                                                                collectionIndex,
+                                                            requestDto:
+                                                                SelectTokenToggleRequestDto(
+                                                              nftId:
+                                                                  nftTokenEntity
+                                                                      .id,
+                                                              selected:
+                                                                  !nftTokenEntity
+                                                                      .selected,
+                                                              order:
+                                                                  collectionIndex,
+                                                            ),
+                                                            selectedNft:
+                                                                nftTokenEntity,
+                                                            selected:
+                                                                !nftTokenEntity
+                                                                    .selected,
+                                                          );
+                                                        },
                                                         key: ValueKey(
                                                             '$collectionName-$chainSymbol-$collectionIndex-${collection.tokenAddress}-$tokenIndex'),
                                                         tokenOrder:
                                                             collectionIndex,
                                                         nftTokenEntity:
-                                                            collection.tokens[
-                                                                tokenIndex],
+                                                            nftTokenEntity,
                                                         tokenAddress: collection
                                                             .tokenAddress,
                                                         walletAddress:
