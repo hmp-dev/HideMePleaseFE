@@ -241,7 +241,9 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                           ? const CircularProgressIndicator(color: Colors.white)
                           : SunriseWidget(
                               isButtonEnabled:
-                                  widget.isMatchedSpaceFound ?? false,
+                                  widget.isMatchedSpaceFound == null
+                                      ? true
+                                      : widget.isMatchedSpaceFound ?? false,
                               onSubmitRedeem: () {
                                 // redeem submit  starts
                                 if (widget.selectedBenefitEntity != null) {

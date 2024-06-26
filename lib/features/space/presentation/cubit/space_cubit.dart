@@ -12,6 +12,7 @@ import 'package:mobile/features/space/domain/entities/spaces_response_entity.dar
 import 'package:mobile/features/space/domain/entities/top_used_nft_entity.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+
 part 'space_state.dart';
 
 @lazySingleton
