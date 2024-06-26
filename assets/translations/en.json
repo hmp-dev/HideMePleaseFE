@@ -166,5 +166,12 @@
     "numberOfHolders":"Number Of Holders",
     "walletConnectionStatus":"Wallet connection status",
     "disconnect":"Disconnect",
-    "businessClosed":"Business Closed"
+    "businessClosed":"Business Closed",
+    "unavailable":"unavailable",
+    "retryButtonTitle": "Retry",
+    "serviceUpdatingMessage": "We are currently undergoing temporary maintenance to add new features. See you again in a moment",
+    "serviceUpdating": "Service Updating",
+    "benefitRedeemAgreeTermsMessage":"Do you agree to the use of your personal information?"
+    
+
 }

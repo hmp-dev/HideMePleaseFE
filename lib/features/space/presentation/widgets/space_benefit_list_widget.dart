@@ -61,18 +61,21 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
                 ],
               ),
               const VerticalSpace(20),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: state.benefitsGroupEntity.benefits.length,
-                itemBuilder: (context, index) {
-                  return SpaceBenefitItemWidget(
-                    spaceDetailEntity: widget.spaceDetailEntity,
-                    isShowImage: false,
-                    benefitEntity: state.benefitsGroupEntity.benefits[index],
-                  );
-                },
-              ),
+              state.benefitsGroupEntity.benefits.isEmpty
+                  ? const SizedBox(height: 30)
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: state.benefitsGroupEntity.benefits.length,
+                      itemBuilder: (context, index) {
+                        return SpaceBenefitItemWidget(
+                          spaceDetailEntity: widget.spaceDetailEntity,
+                          isShowImage: false,
+                          benefitEntity:
+                              state.benefitsGroupEntity.benefits[index],
+                        );
+                      },
+                    ),
               if (state.benefitsGroupEntity.benefits.length !=
                   state.benefitsGroupEntity.benefitCount)
                 LoadMoreIconButton(

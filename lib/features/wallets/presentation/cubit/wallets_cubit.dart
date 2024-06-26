@@ -200,8 +200,10 @@ class WalletsCubit extends BaseCubit<WalletsState> {
       if (Platform.isAndroid) {
         onConnectSolWallet(context);
       } else if (Platform.isIOS) {
-        Navigator.push(context,
-                MaterialPageRoute(builder: (_) => SolanaImportWalletView()))
+        Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const SolanaImportWalletView()))
             .then((value) async {
           if (value != null) {
             final mnemonic = value as String;
