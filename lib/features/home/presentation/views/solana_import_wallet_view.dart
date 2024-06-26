@@ -1,10 +1,8 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_field.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
-import 'package:mobile/generated/locale_keys.g.dart';
 
 class SolanaImportWalletView extends StatefulWidget {
   const SolanaImportWalletView({super.key});
