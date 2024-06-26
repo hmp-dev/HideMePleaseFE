@@ -154,9 +154,9 @@ class _MyMembershipSettingsScreenState
                                           },
                                         ),
                                         BlockChainSelectButton(
-                                          title: "Ethereum",
+                                          title: ChainType.ETHEREUM.label,
                                           imagePath:
-                                              "assets/chain-logos/ethereum_chain.svg",
+                                              ChainType.ETHEREUM.chainLogo,
                                           isSelected: state.selectedChain ==
                                               ChainType.ETHEREUM.name,
                                           onTap: () {
@@ -168,9 +168,9 @@ class _MyMembershipSettingsScreenState
                                           },
                                         ),
                                         BlockChainSelectButton(
-                                          title: "Polygon",
+                                          title: ChainType.POLYGON.label,
                                           imagePath:
-                                              "assets/chain-logos/polygon_chain.svg",
+                                              ChainType.POLYGON.chainLogo,
                                           isSelected: state.selectedChain ==
                                               ChainType.POLYGON.name,
                                           onTap: () {
@@ -182,15 +182,27 @@ class _MyMembershipSettingsScreenState
                                           },
                                         ),
                                         BlockChainSelectButton(
-                                          title: "Solana",
-                                          imagePath:
-                                              "assets/chain-logos/solana_chain.svg",
+                                          title: ChainType.SOLANA.label,
+                                          imagePath: ChainType.SOLANA.chainLogo,
                                           isSelected: state.selectedChain ==
                                               ChainType.SOLANA.name,
                                           onTap: () {
                                             getIt<NftCubit>()
                                                 .onGetNftCollections(
                                               chain: ChainType.SOLANA.name,
+                                              isChainTypeFetchTapped: true,
+                                            );
+                                          },
+                                        ),
+                                        BlockChainSelectButton(
+                                          title: ChainType.KLAYTN.label,
+                                          imagePath: ChainType.KLAYTN.chainLogo,
+                                          isSelected: state.selectedChain ==
+                                              ChainType.KLAYTN.name,
+                                          onTap: () {
+                                            getIt<NftCubit>()
+                                                .onGetNftCollections(
+                                              chain: ChainType.KLAYTN.name,
                                               isChainTypeFetchTapped: true,
                                             );
                                           },
