@@ -122,23 +122,23 @@ class _CommunityViewState extends State<CommunityView> {
             //       ),
             //     ),
             //   ),
-            if (widget.hotNftCommunities.isNotEmpty)
-              // SliverToBoxAdapter(
-              //   child: HotCommunitiesView(
-              //     onCommunityTap: widget.onCommunityTap,
-              //     hotNftCommunities: widget.hotNftCommunities,
-              //   ),
-              // ),
-              //const SliverToBoxAdapter(child: SizedBox(height: 16)),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: AllCommunitiesHeader(
-                      orderBy: widget.orderBy,
-                      onOrderByChanged: widget.onOrderByChanged,
-                      communityCount: widget.communityCount),
-                ),
+            //if (widget.hotNftCommunities.isNotEmpty)
+            // SliverToBoxAdapter(
+            //   child: HotCommunitiesView(
+            //     onCommunityTap: widget.onCommunityTap,
+            //     hotNftCommunities: widget.hotNftCommunities,
+            //   ),
+            // ),
+            //const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: AllCommunitiesHeader(
+                    orderBy: widget.orderBy,
+                    onOrderByChanged: widget.onOrderByChanged,
+                    communityCount: widget.communityCount),
               ),
+            ),
             const SliverToBoxAdapter(child: SizedBox(height: 20)),
             SliverGrid.builder(
               itemCount: widget.allNftCommunities.length,
