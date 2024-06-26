@@ -347,9 +347,6 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
   }
 
   String getOpenCloseString(String? start, String? end) {
-    "===========================the state hour is $start and end hour is $end"
-        .log();
-
     // Check for null values
     if (start == null || end == null) {
       return LocaleKeys.openingHours.tr();
