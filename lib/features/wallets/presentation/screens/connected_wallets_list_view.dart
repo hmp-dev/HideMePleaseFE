@@ -1,9 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/connected_wallet_item_widget.dart';
@@ -41,7 +44,16 @@ class _ConnectedWalletsListScreenState
   Widget build(BuildContext context) {
     return BlocConsumer<WalletsCubit, WalletsState>(
       bloc: getIt<WalletsCubit>(),
-      listener: (context, state) {},
+      listenWhen: (previous, current) =>
+          previous.connectedWallets.length != current.connectedWallets.length,
+      listener: (context, state) async {
+        await getIt.reset();
+
+        // DI
+        await configureDependencies();
+        Navigator.pushNamedAndRemoveUntil(
+            context, Routes.startUpScreen, (route) => false);
+      },
       builder: (context, state) {
         return Container(
           height: state.connectedWallets.length * 78 + 120,

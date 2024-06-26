@@ -5,8 +5,6 @@ import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_field.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
-import 'package:solana/solana.dart';
-import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 
 class SolanaImportWalletView extends StatefulWidget {
   const SolanaImportWalletView({super.key});
