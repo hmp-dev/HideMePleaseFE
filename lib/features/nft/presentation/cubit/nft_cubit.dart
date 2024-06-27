@@ -310,6 +310,8 @@ class NftCubit extends BaseCubit<NftState> {
             errorMessage: '',
           ),
         );
+
+        onGetSelectedNftTokens();
       },
     );
   }
