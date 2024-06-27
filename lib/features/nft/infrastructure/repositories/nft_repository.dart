@@ -149,7 +149,7 @@ class NftRepositoryImpl extends NftRepository {
       return right(response);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(
-        message: e.message,
+        message: e.response?.data['error']?['message'] ?? e.message,
         error: e,
         trace: t,
       ));
