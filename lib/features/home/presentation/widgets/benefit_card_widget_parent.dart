@@ -18,11 +18,13 @@ class BenefitCardWidgetParent extends StatelessWidget {
     required this.nearBySpaceEntity,
     required this.nftBenefitEntity,
     this.isBenefitRedeemSuccess,
+    required this.isMatchedSpaceFound,
   });
 
   final NearBySpaceEntity nearBySpaceEntity;
   final BenefitEntity nftBenefitEntity;
   final bool? isBenefitRedeemSuccess;
+  final bool isMatchedSpaceFound;
 
   @override
   Widget build(BuildContext context) {
@@ -115,12 +117,19 @@ class BenefitCardWidgetParent extends StatelessWidget {
                                   style: fontCompactMd(),
                                 ),
                               )
-                            : Center(
-                                child: Text(
-                                  getStateString(nftBenefitEntity.state),
-                                  style: fontCompactMd(),
-                                ),
-                              ),
+                            : isMatchedSpaceFound
+                                ? Center(
+                                    child: Text(
+                                      getStateString(nftBenefitEntity.state),
+                                      style: fontCompactMd(),
+                                    ),
+                                  )
+                                : Center(
+                                    child: Text(
+                                      LocaleKeys.unavailable.tr(),
+                                      style: fontCompactMd(),
+                                    ),
+                                  ),
                       ],
                     ),
                   ),

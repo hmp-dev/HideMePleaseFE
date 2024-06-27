@@ -200,6 +200,12 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                               widget.selectedBenefitEntity!,
                                           isBenefitRedeemSuccess:
                                               isBenefitRedeemSuccess,
+                                          isMatchedSpaceFound: widget
+                                                      .isMatchedSpaceFound ==
+                                                  null
+                                              ? true
+                                              : widget.isMatchedSpaceFound ??
+                                                  false,
                                         )
                                       ]
                                     : spaceBenefitsState
@@ -209,6 +215,12 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                           nearBySpaceEntity:
                                               widget.nearBySpaceEntity,
                                           nftBenefitEntity: item,
+                                          isMatchedSpaceFound: widget
+                                                      .isMatchedSpaceFound ==
+                                                  null
+                                              ? true
+                                              : widget.isMatchedSpaceFound ??
+                                                  false,
                                         );
                                       }).toList(),
                               ),

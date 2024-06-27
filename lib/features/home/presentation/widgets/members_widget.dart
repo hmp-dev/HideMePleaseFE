@@ -6,6 +6,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/community/presentation/cubit/community_details_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/home_member_item_widget.dart';
+import 'package:mobile/features/my/presentation/screens/member_details_screen.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class MemberWidget extends StatefulWidget {
@@ -36,7 +37,15 @@ class _MemberWidgetState extends State<MemberWidget> {
                 return HomeMemberItemWidget(
                   communityMemberEntity: state.communityMembers[index],
                   isLastItem: index == state.communityMembers.length - 1,
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MemberDetailsScreen(
+                            member: state.communityMembers[index]),
+                      ),
+                    );
+                  },
                 );
               },
             ),
