@@ -168,7 +168,7 @@
     "walletConnectionStatus":"지갑 연결 현황",
     "disconnect":"연결 해제",
     "businessClosed":"영업종료",
-    "unavailable":"사용불가능",
+    "unavailable":"사용불가",
     "retryButtonTitle": "새로고침",
     "serviceUpdatingMessage": "새로운 기능 추가를 위해 임시 점검 중이에요.\n잠시 후에 다시 만나요",
     "serviceUpdating": "서비스 업데이트 중",
