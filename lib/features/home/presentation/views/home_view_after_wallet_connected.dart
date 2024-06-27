@@ -99,6 +99,8 @@ class _HomeViewAfterWalletConnectedState
                 final bool isCurrentNftFreeNft =
                     _currentIndex == 0 && !widget.userProfile.freeNftClaimed;
 
+                final bool isFreeNftClaimed = widget.userProfile.freeNftClaimed;
+
                 return Column(
                   children: [
                     const SizedBox(height: 20),
@@ -203,13 +205,15 @@ class _HomeViewAfterWalletConnectedState
                     ),
                     const SizedBox(height: 20),
                     // not show this for first and last index
-                    if (_currentIndex != 0 &&
-                        _currentIndex != selectedNftsListForHome.length - 1)
+                    if ((_currentIndex != 0 &&
+                            _currentIndex !=
+                                selectedNftsListForHome.length - 1) ||
+                        isFreeNftClaimed)
                       CustomImageView(
                         svgPath: "assets/icons/ic_angle_arrow_down.svg",
                       ),
                     (!_isCurrentIndexIsLat &&
-                            _currentIndex != 0 &&
+                            (_currentIndex != 0 || isFreeNftClaimed) &&
                             !widget.isOverIconNavVisible)
                         ? AnimatedSlideFadeIn(
                             slideIndex: 0,

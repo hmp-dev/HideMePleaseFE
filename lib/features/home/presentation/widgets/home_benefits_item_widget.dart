@@ -46,7 +46,7 @@ class HomeBenefitItemWidget extends StatelessWidget {
                   ),
                 ),
                 const VerticalSpace(5),
-                Text(benefitEntity.spaceName,
+                Text(benefitEntity.nftCollectionName,
                     style: fontCompactSm(color: fore3)),
               ],
             ),
