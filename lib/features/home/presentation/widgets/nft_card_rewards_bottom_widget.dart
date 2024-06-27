@@ -90,10 +90,8 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.80,
               height: 60,
               onPressed: () {
-                if (getIt<WalletsCubit>()
-                    .state
-                    .connectedWallets
-                    .any((element) => element.provider == "klip")) {
+                if (getIt<WalletsCubit>().state.connectedWallets.any(
+                    (element) => element.provider.toLowerCase() == "klip")) {
                   if (welcomeNftEntity.remainingCount > 0) {
                     getIt<NftCubit>().onGetConsumeWelcomeNft();
                   } else {
