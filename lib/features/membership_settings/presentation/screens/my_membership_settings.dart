@@ -81,6 +81,8 @@ class _MyMembershipSettingsScreenState
   @override
   void dispose() {
     getIt<NftCubit>().onGetNftCollections();
+    getIt<NftCubit>().onGetSelectedNftTokens();
+
     super.dispose();
   }
 

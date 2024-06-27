@@ -8,6 +8,7 @@ import 'package:mobile/features/common/presentation/widgets/vertical_space.dart'
 import 'package:mobile/features/home/presentation/widgets/glassmorphic_button.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -89,12 +90,19 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.80,
               height: 60,
               onPressed: () {
-                if (welcomeNftEntity.remainingCount > 0) {
-                  getIt<NftCubit>().onGetConsumeWelcomeNft();
+                if (getIt<WalletsCubit>()
+                    .state
+                    .connectedWallets
+                    .any((element) => element.provider == "klip")) {
+                  if (welcomeNftEntity.remainingCount > 0) {
+                    getIt<NftCubit>().onGetConsumeWelcomeNft();
+                  } else {
+                    snackBarService.showSnackbar(
+                        message: "No Free NFT Available",
+                        duration: const Duration(seconds: 2));
+                  }
                 } else {
-                  snackBarService.showSnackbar(
-                      message: "No Free NFT Available",
-                      duration: const Duration(seconds: 2));
+                  getIt<WalletsCubit>().state.w3mService?.openModal(context);
                 }
               },
               child: Text(
