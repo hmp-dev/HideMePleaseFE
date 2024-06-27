@@ -34,7 +34,7 @@ abstract class NftRepository {
   Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft(
       {required double latitude, required double longitude});
 
-  Future<Either<HMPError, String>> getConsumeUserWelcomeNft(
+  Future<Either<HMPError, Unit>> getConsumeUserWelcomeNft(
       {required String tokenAddress});
 
   Future<Either<HMPError, NftBenefitsResponseDto>> getNftBenefits({

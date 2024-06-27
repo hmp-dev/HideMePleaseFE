@@ -7,6 +7,7 @@ import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/enum/usage_type_enum.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collection_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collections_group_entity.dart';
@@ -302,14 +303,15 @@ class NftCubit extends BaseCubit<NftState> {
           message: err.message,
         );
       },
-      (url) {
-        emit(
-          state.copyWith(
-            consumeWelcomeNftUrl: url,
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-          ),
-        );
+      (_) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.success,
+          errorMessage: '',
+        ));
+
+        getIt<ProfileCubit>().onGetUserProfile();
+        snackbarService.showSnackbar(
+            message: 'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요');
 
         onGetSelectedNftTokens();
       },
