@@ -50,14 +50,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       ),
     );
 
-    pageViewModelData.add(
-      PageViewData(
-        titleTextA: LocaleKeys.onBoardingSlide2TitleA.tr(),
-        titleTextB: LocaleKeys.onBoardingSlide2TitleB.tr(),
-        descText: LocaleKeys.onBoardingSlide2Desc.tr(),
-        animationPath: "assets/lottie/onboarding2.json",
-      ),
-    );
+    // pageViewModelData.add(
+    //   PageViewData(
+    //     titleTextA: LocaleKeys.onBoardingSlide2TitleA.tr(),
+    //     titleTextB: LocaleKeys.onBoardingSlide2TitleB.tr(),
+    //     descText: LocaleKeys.onBoardingSlide2Desc.tr(),
+    //     animationPath: "assets/lottie/onboarding2.json",
+    //   ),
+    // );
 
     pageViewModelData.add(
       PageViewData(
@@ -172,7 +172,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                         PagePopup(onBoardingSlideData: pageViewModelData[0]),
                         PagePopup(onBoardingSlideData: pageViewModelData[1]),
                         PagePopup(onBoardingSlideData: pageViewModelData[2]),
-                        PagePopup(onBoardingSlideData: pageViewModelData[3]),
                       ],
                     ),
                   ),
