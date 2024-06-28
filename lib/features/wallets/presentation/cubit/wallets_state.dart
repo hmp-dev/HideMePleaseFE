@@ -23,7 +23,7 @@ class WalletsState extends BaseState {
       );
 
   bool get isKlipWalletConnected => connectedWallets
-      .where((element) => element.provider == 'klip')
+      .where((element) => element.provider.toLowerCase() == 'klip')
       .isNotEmpty;
 
   @override
