@@ -43,7 +43,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
         if (state.isSubmitFailure) {
           snackBarService.showSnackbar(
             message: state.errorMessage,
-            duration: const Duration(seconds: 2),
+            duration: const Duration(seconds: 5),
           );
         }
       },
@@ -96,8 +96,9 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                     getIt<NftCubit>().onGetConsumeWelcomeNft();
                   } else {
                     snackBarService.showSnackbar(
-                        message: "No Free NFT Available",
-                        duration: const Duration(seconds: 2));
+                      message: "No Free NFT Available",
+                      duration: const Duration(seconds: 5),
+                    );
                   }
                 } else {
                   getIt<WalletsCubit>().state.w3mService?.openModal(context);

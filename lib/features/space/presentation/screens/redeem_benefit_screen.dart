@@ -258,7 +258,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                     buttonTitle:
                                         LocaleKeys.employeeConfirmation.tr(),
                                     title:
-                                        "직원에게 혜택 사용 화면을 보여주세요!\n혜택:${widget.selectedBenefitEntity?.description} ",
+                                        "직원에게 혜택 사용 화면을 보여주세요!\n${widget.selectedBenefitEntity?.description} ",
                                     onConfirm: () {
                                       Navigator.pop(context, true);
                                     },
@@ -301,7 +301,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                     buttonTitle:
                                         LocaleKeys.employeeConfirmation.tr(),
                                     title:
-                                        "직원에게 혜택 사용 화면을 보여주세요!\n혜택:${selectedBenefit.description} ",
+                                        "직원에게 혜택 사용 화면을 보여주세요!\n${selectedBenefit.description} ",
                                     onConfirm: () {
                                       Navigator.pop(context, true);
                                     },

@@ -301,6 +301,7 @@ class NftCubit extends BaseCubit<NftState> {
         snackbarService.showSnackbar(
           title: "Error",
           message: err.message,
+          duration: const Duration(seconds: 5),
         );
       },
       (_) {
@@ -311,7 +312,9 @@ class NftCubit extends BaseCubit<NftState> {
 
         getIt<ProfileCubit>().onGetUserProfile();
         snackbarService.showSnackbar(
-            message: 'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요');
+          message: 'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
+          duration: const Duration(seconds: 5),
+        );
 
         onGetSelectedNftTokens();
       },
