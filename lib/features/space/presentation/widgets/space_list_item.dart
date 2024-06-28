@@ -84,10 +84,14 @@ class SpaceListItem extends StatelessWidget {
                                 ),
                               ),
 
-                              Text(
-                                spaceEntity.benefitDescription,
-                                overflow: TextOverflow.ellipsis,
-                                style: fontCompactSm(),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                child: Text(
+                                  spaceEntity.benefitDescription,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                  style: fontCompactSm(),
+                                ),
                               ),
                               const Spacer(),
                               if (spaceEntity.hidingCount > 0)

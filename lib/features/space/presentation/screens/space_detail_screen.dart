@@ -98,6 +98,8 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
       body: SingleChildScrollView(
         child: BlocConsumer<SpaceCubit, SpaceState>(
           bloc: getIt<SpaceCubit>(),
+          listenWhen: (previous, current) =>
+              previous.currentSpaceId != current.currentSpaceId,
           listener: (context, state) {
             if (state.submitStatus == RequestStatus.success) {
               // fetch Space related Benefits
