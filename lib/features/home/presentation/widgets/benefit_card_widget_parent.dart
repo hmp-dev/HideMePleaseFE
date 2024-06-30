@@ -53,6 +53,7 @@ class BenefitCardWidgetParent extends StatelessWidget {
                       ),
               ),
               child: GlassContainer(
+                blur: 30.0,
                 width: 293,
                 height: 436,
                 radius: 8,

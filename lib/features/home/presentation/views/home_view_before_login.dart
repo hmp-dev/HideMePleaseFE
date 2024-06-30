@@ -30,10 +30,8 @@ class HomeViewBeforeLogin extends StatelessWidget {
         if (state.submitStatus == RequestStatus.failure) {
           // Map the error message to the appropriate enum message
           String errorMessage = getErrorMessage(state.errorMessage);
-
           // Show Error Snackbar If Wallet is Already Connected
           context.showErrorSnackBarDismissible(errorMessage);
-
           "inside listener++++++ error message is $errorMessage".log();
         }
       },
@@ -74,7 +72,7 @@ class HomeViewBeforeLogin extends StatelessWidget {
             imagePath: "assets/images/home_card_img.png",
             topWidget: const NftCardTopTitleWidget(
               title: "Ready To Hide",
-              chain: "ETHEREUM",
+              chain: "KLAYTN",
             ),
             badgeWidget: CustomImageView(
               imagePath: "assets/images/free-graphic-text.png",

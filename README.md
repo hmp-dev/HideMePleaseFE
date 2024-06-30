@@ -61,3 +61,9 @@ adb shell setprop debug.firebase.analytics.app packagename
 ## packages/web3modal_flutter/lib/widgets/web3modal.dart
 
 ## packages/web3modal_flutter/lib/widgets/navigation/navbar.dart
+
+```
+wallet list is being made by following
+```
+
+## packages/web3modal_flutter/lib/pages/wallets_list_short_page.dart

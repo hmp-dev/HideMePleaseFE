@@ -12,6 +12,7 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/screens/my_screen.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
+import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class HomeHeaderWidget extends StatelessWidget {
@@ -69,7 +70,9 @@ class HomeHeaderWidget extends StatelessWidget {
                       LinkedWalletButton(
                         titleText: LocaleKeys.linkedWallet.tr(),
                         count: connectedWallet.length,
-                        onTap: () {},
+                        onTap: () {
+                          ConnectedWalletsListScreen.show(context);
+                        },
                       ),
                     ],
                   ),

@@ -30,7 +30,7 @@ class Web3ModalNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Web3ModalTheme.getDataOf(context);
+    //final themeData = Web3ModalTheme.getDataOf(context);
     final themeColors = Web3ModalTheme.colorsOf(context);
     final keyboardOpened = ResponsiveData.isKeyboardShown(context);
     final paddingBottom =
