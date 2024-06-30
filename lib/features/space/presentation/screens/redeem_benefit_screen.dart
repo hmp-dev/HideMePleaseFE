@@ -15,7 +15,7 @@ import 'package:mobile/features/common/presentation/widgets/horizontal_space.dar
 import 'package:mobile/features/common/presentation/widgets/page_dot_indicator.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
-import 'package:mobile/features/home/presentation/widgets/benefit_card_widget_parent.dart';
+import 'package:mobile/features/home/presentation/widgets/benefit_card_widget_with_nearby_space_entityt.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
@@ -134,9 +134,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     buildTitleRow(context),
-                    // address currently shown is Space Address
-                    // [widget.nearBySpaceEntity.address]
-                    buildAddressRow(context),
+                    buildAddressRow(context, widget.nearBySpaceEntity),
                     widget.isMatchedSpaceFound != null &&
                             widget.isMatchedSpaceFound == false
                         ? Padding(
@@ -193,7 +191,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                 ),
                                 items: widget.selectedBenefitEntity != null
                                     ? [
-                                        BenefitCardWidgetParent(
+                                        BenefitCardWidgetWithNearBySpaceEntity(
                                           nearBySpaceEntity:
                                               widget.nearBySpaceEntity,
                                           nftBenefitEntity:
@@ -211,7 +209,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                     : spaceBenefitsState
                                         .benefitGroupEntity.benefits
                                         .map((item) {
-                                        return BenefitCardWidgetParent(
+                                        return BenefitCardWidgetWithNearBySpaceEntity(
                                           nearBySpaceEntity:
                                               widget.nearBySpaceEntity,
                                           nftBenefitEntity: item,
@@ -343,7 +341,10 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
     );
   }
 
-  Row buildAddressRow(BuildContext context) {
+  Row buildAddressRow(
+    BuildContext context,
+    NearBySpaceEntity nearBySpaceEntity,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -357,7 +358,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.7,
           child: Text(
-            widget.nearBySpaceEntity.address,
+            nearBySpaceEntity.address,
             style: fontTitle04(),
           ),
         ),

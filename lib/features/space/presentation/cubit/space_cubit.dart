@@ -220,6 +220,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
             spaceDetailEntity: result.toEntity(),
           ),
         );
+        onGetSpaceBenefitsOnSpaceDetailView(spaceId: spaceId);
       },
     );
   }

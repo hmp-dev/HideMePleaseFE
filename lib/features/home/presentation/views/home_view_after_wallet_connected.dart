@@ -168,7 +168,10 @@ class _HomeViewAfterWalletConnectedState
                                 return const GoToMemberShipCardWidget();
                               }
                               return BenefitRedeemInitiateWidget(
-                                tokenAddress: _currentTokenAddress,
+                                tokenAddress: _currentTokenAddress == ""
+                                    ? selectedNftsListForHome[_currentIndex]
+                                        .tokenAddress
+                                    : _currentTokenAddress,
                                 onAlertCancel: () {
                                   Navigator.pop(context);
                                 },

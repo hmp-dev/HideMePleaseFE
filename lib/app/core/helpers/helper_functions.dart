@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/pref_keys.dart';
@@ -13,6 +12,7 @@ import 'package:mobile/features/common/presentation/widgets/rounded_button_with_
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math' as math;
 
 String formatWalletAddress(String walletAddress) {
   if (walletAddress.length < 10) {
@@ -524,4 +524,36 @@ String checkTimeDifference(String dateString) {
 
     return "$days $dayString and $hours ${LocaleKeys.hoursAgo.tr()}";
   }
+}
+
+// Check if User is Near to Space
+
+bool isUserInSpace(
+    double userLat, double userLng, double spaceLat, double spaceLng,
+    {double threshold = 10.0}) {
+  double distance =
+      calculateDistanceInMeters(userLat, userLng, spaceLat, spaceLng);
+  return distance < threshold;
+}
+
+double calculateDistanceInMeters(
+    double startLat, double startLng, double endLat, double endLng) {
+  const earthRadiusInMeters = 6371000; // Radius of the Earth in meters
+
+  final dLat = _degreesToRadians(endLat - startLat);
+  final dLng = _degreesToRadians(endLng - startLng);
+
+  final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+      math.cos(_degreesToRadians(startLat)) *
+          math.cos(_degreesToRadians(endLat)) *
+          math.sin(dLng / 2) *
+          math.sin(dLng / 2);
+
+  final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+
+  return earthRadiusInMeters * c;
+}
+
+double _degreesToRadians(double degrees) {
+  return degrees * math.pi / 180;
 }
