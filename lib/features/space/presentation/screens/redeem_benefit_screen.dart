@@ -2,9 +2,7 @@
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -136,6 +134,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     buildTitleRow(context),
+                    // address currently shown is Space Address
+                    // [widget.nearBySpaceEntity.address]
                     buildAddressRow(context),
                     widget.isMatchedSpaceFound != null &&
                             widget.isMatchedSpaceFound == false

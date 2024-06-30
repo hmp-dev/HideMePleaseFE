@@ -57,12 +57,33 @@ class ConnectedWalletItemWidget extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          CustomImageView(
-                            svgPath:
-                                "assets/wallet-logos/${connectedWallet.provider.toLowerCase()}_wallet.svg",
-                            width: 28,
-                            height: 28,
-                          ),
+                          (connectedWallet.provider == "PHANTOM")
+                              ? Container(
+                                  height: 42,
+                                  width: 42,
+                                  decoration: BoxDecoration(
+                                    color: bgNega5,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: fore2.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: CustomImageView(
+                                      imagePath:
+                                          "assets/web3-wallet-logos/${connectedWallet.provider.toLowerCase()}_wallet.png",
+                                      width: 28,
+                                      height: 28,
+                                    ),
+                                  ),
+                                )
+                              : CustomImageView(
+                                  imagePath:
+                                      "assets/web3-wallet-logos/${connectedWallet.provider.toLowerCase()}_wallet.png",
+                                  width: 42,
+                                  height: 42,
+                                  radius: BorderRadius.circular(12),
+                                ),
                           const SizedBox(width: 10),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
