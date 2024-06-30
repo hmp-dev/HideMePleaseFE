@@ -41,6 +41,7 @@ class BenefitDto extends Equatable {
   final String? tokenAddress;
   final String? nftCollectionName;
   final String? termsUrl;
+  final String? nftCollectionImage;
 
   const BenefitDto({
     this.id,
@@ -54,6 +55,7 @@ class BenefitDto extends Equatable {
     this.tokenAddress,
     this.nftCollectionName,
     this.termsUrl,
+    this.nftCollectionImage,
   });
 
   factory BenefitDto.fromJson(Map<String, dynamic> json) =>
@@ -75,6 +77,7 @@ class BenefitDto extends Equatable {
       tokenAddress,
       nftCollectionName,
       termsUrl,
+      nftCollectionImage,
     ];
   }
 
@@ -91,6 +94,7 @@ class BenefitDto extends Equatable {
       tokenAddress: tokenAddress ?? '',
       nftCollectionName: nftCollectionName ?? '',
       termsUrl: termsUrl ?? '',
+      nftCollectionImage: nftCollectionImage ?? '',
     );
   }
 }

@@ -12,8 +12,8 @@ import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart'
 import 'package:mobile/features/space/presentation/widgets/benefit_title_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
-class BenefitCardWidgetParent extends StatelessWidget {
-  const BenefitCardWidgetParent({
+class BenefitCardWidgetWithNearBySpaceEntity extends StatelessWidget {
+  const BenefitCardWidgetWithNearBySpaceEntity({
     super.key,
     required this.nearBySpaceEntity,
     required this.nftBenefitEntity,
@@ -41,14 +41,15 @@ class BenefitCardWidgetParent extends StatelessWidget {
               height: 436,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                image: nftBenefitEntity.spaceImage == ""
+                image: nftBenefitEntity.nftCollectionImage == ""
                     ? const DecorationImage(
                         image:
                             AssetImage("assets/images/place_holder_card.png"),
                         fit: BoxFit.cover,
                       )
                     : DecorationImage(
-                        image: NetworkImage(nftBenefitEntity.spaceImage),
+                        image:
+                            NetworkImage(nftBenefitEntity.nftCollectionImage),
                         fit: BoxFit.cover,
                       ),
               ),
