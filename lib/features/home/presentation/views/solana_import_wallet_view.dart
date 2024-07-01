@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:bip39/bip39.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_field.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:solana/solana.dart';
+import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 
 class SolanaImportWalletView extends StatefulWidget {
   const SolanaImportWalletView({super.key});
@@ -14,7 +19,7 @@ class SolanaImportWalletView extends StatefulWidget {
 }
 
 class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
-  String mnemonic = "";
+  String publicKey = "";
 
   @override
   Widget build(BuildContext context) {
@@ -32,15 +37,15 @@ class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: DefaultField(
               onFocus: (isFocused) {},
-              hintText: '지갑 니모닉 입력',
+              hintText: '지갑 공개키 입력',
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))
               ],
               isBorderType: true,
               autoFocus: true,
               onChange: (text) {
                 setState(() {
-                  mnemonic = text;
+                  publicKey = text;
                 });
               },
             ),
@@ -53,11 +58,14 @@ class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
             child: HMPCustomButton(
               text: '계속하다',
               onPressed: () async {
-                if (validateMnemonic(mnemonic)) {
-                  return Navigator.pop(context, mnemonic);
-                } else {
-                  context.showErrorSnackBar('니모닉이 잘못되었습니다. 나중에 다시 시도 해주십시오.');
+                try {
+                  if (isPointOnEd25519Curve(base58Decode(publicKey))) {
+                    return Navigator.pop(context, publicKey);
+                  }
+                } catch (e) {
+                  e.log();
                 }
+                context.showErrorSnackBar('잘못된 공개 키.');
               },
             ),
           ),
