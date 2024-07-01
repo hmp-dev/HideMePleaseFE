@@ -149,7 +149,7 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                     height: 68,
                   )
                 : CustomImageView(
-                    imagePath: "assets/images/profile_img.png",
+                    imagePath: "assets/images/launcher-icon.png",
                     fit: BoxFit.cover,
                     width: 68,
                     height: 68,
