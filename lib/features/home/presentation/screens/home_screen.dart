@@ -16,6 +16,7 @@ import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
+import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_with_space.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -117,16 +118,37 @@ class _HomeScreenState extends State<HomeScreen> {
                   NearBySpaceEntity matchedSpace =
                       const NearBySpaceEntity.empty();
                   for (var space in state.spacesResponseEntity.spaces) {
-                    if (space.id == state.selectedBenefitEntity.spaceId) {
-                      isSpaceMatched = true;
-                      matchedSpace = space;
-                      break;
+                    if (state.selectedSpaceDetailEntity.id != "") {
+                      "inside Selected SpaceID is not null: ${state.selectedSpaceDetailEntity.id}"
+                          .log();
+                      if (space.id == state.selectedSpaceDetailEntity.id) {
+                        isSpaceMatched = true;
+                        matchedSpace = space;
+                        break;
+                      }
+                    } else {
+                      if (space.id == state.selectedBenefitEntity.spaceId) {
+                        isSpaceMatched = true;
+                        matchedSpace = space;
+                        break;
+                      }
                     }
                   }
 
                   await Future.delayed(const Duration(milliseconds: 500));
+                  // if Selected Space is present then show Redeem Benefit View with SpaceDetailEntity
+                  if (state.selectedSpaceDetailEntity.id != "") {
+                    RedeemBenefitScreenWithSpace.push(
+                      context,
+                      isMatchedSpaceFound: isSpaceMatched,
+                      space: state.selectedSpaceDetailEntity,
+                      selectedBenefitEntity: state.selectedBenefitEntity,
+                    );
+                  }
+
                   if (isSpaceMatched) {
                     "inside space selected".log();
+
                     RedeemBenefitScreen.push(
                       context,
                       nearBySpaceEntity: matchedSpace,
@@ -155,6 +177,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
                 }
+              } else if (state.selectedSpaceDetailEntity.id != "") {
+                RedeemBenefitScreenWithSpace.push(
+                  context,
+                  isMatchedSpaceFound: false,
+                  space: state.selectedSpaceDetailEntity,
+                  selectedBenefitEntity: state.selectedBenefitEntity,
+                );
               } else {
                 SpaceSelectionScreen.show(context, []);
               }

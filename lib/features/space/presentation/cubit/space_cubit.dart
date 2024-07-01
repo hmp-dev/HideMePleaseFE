@@ -3,6 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/space/domain/entities/benefits_group_entity.dart';
 import 'package:mobile/features/space/domain/entities/new_space_entity.dart';
 import 'package:mobile/features/space/domain/entities/recommendation_space_entity.dart';
@@ -128,6 +129,8 @@ class SpaceCubit extends BaseCubit<SpaceState> {
         emit(
           state.copyWith(
             spaceList: result.map((e) => e.toEntity()).toList(),
+            allSpacesLoaded: false,
+            spacesPage: 1,
           ),
         );
       },
@@ -141,12 +144,14 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     required double longitude,
   }) async {
     EasyLoading.show(dismissOnTap: true);
+
     final response = await _spaceRepository.getSpaceList(
       category: category == SpaceCategory.ENTIRE ? null : category?.name,
       page: page,
       latitude: latitude,
       longitude: longitude,
     );
+
     EasyLoading.dismiss();
 
     response.fold(
@@ -161,9 +166,46 @@ class SpaceCubit extends BaseCubit<SpaceState> {
           state.copyWith(
             spaceCategory: category,
             spaceList: result.map((e) => e.toEntity()).toList(),
+            allSpacesLoaded: false,
+            spacesPage: 1,
           ),
         );
       },
+    );
+  }
+
+  Future<void> onGetSpacesLoadMore({
+    required double latitude,
+    required double longitude,
+  }) async {
+    "onGetSpacesLoadMore is called".log();
+    if (state.allSpacesLoaded ||
+        state.loadingMoreStatus == RequestStatus.loading) {
+      return;
+    }
+
+    "onGetSpacesLoadMore is called".log();
+
+    emit(state.copyWith(loadingMoreStatus: RequestStatus.loading));
+
+    final spacesRes = await _spaceRepository.getSpaceList(
+      category: state.spaceCategory == SpaceCategory.ENTIRE
+          ? null
+          : state.spaceCategory.name,
+      page: state.spacesPage + 1,
+      latitude: latitude,
+      longitude: longitude,
+    );
+
+    spacesRes.fold(
+      (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
+      (data) => emit(state.copyWith(
+        allSpacesLoaded: data.isEmpty,
+        spaceList: List.from(state.spaceList)
+          ..addAll(data.map((e) => e.toEntity()).toList()),
+        loadingMoreStatus: RequestStatus.success,
+        spacesPage: state.spacesPage + 1,
+      )),
     );
   }
 

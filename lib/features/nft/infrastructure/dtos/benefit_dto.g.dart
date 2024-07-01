@@ -35,6 +35,7 @@ BenefitDto _$BenefitDtoFromJson(Map<String, dynamic> json) => BenefitDto(
       nftCollectionName: json['nftCollectionName'] as String?,
       termsUrl: json['termsUrl'] as String?,
       nftCollectionImage: json['nftCollectionImage'] as String?,
+      nftCollectionChain: json['nftCollectionChain'] as String?,
     );
 
 Map<String, dynamic> _$BenefitDtoToJson(BenefitDto instance) =>
@@ -51,4 +52,5 @@ Map<String, dynamic> _$BenefitDtoToJson(BenefitDto instance) =>
       'nftCollectionName': instance.nftCollectionName,
       'termsUrl': instance.termsUrl,
       'nftCollectionImage': instance.nftCollectionImage,
+      'nftCollectionChain': instance.nftCollectionChain,
     };

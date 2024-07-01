@@ -4,6 +4,7 @@ class NearBySpacesState extends BaseState {
   final String errorMessage;
   final SpacesResponseEntity spacesResponseEntity;
   final BenefitEntity selectedBenefitEntity;
+  final SpaceDetailEntity selectedSpaceDetailEntity;
 
   @override
   final RequestStatus submitStatus;
@@ -13,6 +14,7 @@ class NearBySpacesState extends BaseState {
     required this.spacesResponseEntity,
     required this.errorMessage,
     required this.selectedBenefitEntity,
+    required this.selectedSpaceDetailEntity,
   });
 
   factory NearBySpacesState.initial() => NearBySpacesState(
@@ -20,6 +22,7 @@ class NearBySpacesState extends BaseState {
         spacesResponseEntity: SpacesResponseEntity.empty(),
         errorMessage: "",
         selectedBenefitEntity: const BenefitEntity.empty(),
+        selectedSpaceDetailEntity: const SpaceDetailEntity.empty(),
       );
 
   @override
@@ -28,6 +31,7 @@ class NearBySpacesState extends BaseState {
         spacesResponseEntity,
         errorMessage,
         selectedBenefitEntity,
+        selectedSpaceDetailEntity
       ];
 
   @override
@@ -36,6 +40,7 @@ class NearBySpacesState extends BaseState {
     SpacesResponseEntity? spacesResponseEntity,
     BenefitEntity? selectedBenefitEntity,
     String? errorMessage,
+    SpaceDetailEntity? selectedSpaceDetailEntity,
   }) {
     return NearBySpacesState(
       submitStatus: submitStatus ?? this.submitStatus,
@@ -43,6 +48,8 @@ class NearBySpacesState extends BaseState {
       errorMessage: errorMessage ?? this.errorMessage,
       selectedBenefitEntity:
           selectedBenefitEntity ?? this.selectedBenefitEntity,
+      selectedSpaceDetailEntity:
+          selectedSpaceDetailEntity ?? this.selectedSpaceDetailEntity,
     );
   }
 }

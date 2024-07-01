@@ -123,7 +123,7 @@ class _RedeemBenefitScreenWithSpaceState
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     buildTitleRow(context),
-                    buildAddressRow(context, widget.space),
+                    buildSpaceNameRow(context, widget.space),
                     widget.isMatchedSpaceFound == false
                         ? Padding(
                             padding: const EdgeInsets.only(top: 5.0),
@@ -250,7 +250,7 @@ class _RedeemBenefitScreenWithSpaceState
     );
   }
 
-  Row buildAddressRow(
+  Row buildSpaceNameRow(
     BuildContext context,
     SpaceDetailEntity space,
   ) {
@@ -267,7 +267,7 @@ class _RedeemBenefitScreenWithSpaceState
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.7,
           child: Text(
-            space.address,
+            space.name,
             style: fontTitle04(),
           ),
         ),
