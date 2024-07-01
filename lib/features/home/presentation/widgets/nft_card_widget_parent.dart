@@ -34,7 +34,7 @@ class NFTCardWidgetParent extends StatelessWidget {
               ),
               child: imagePath == ""
                   ? CustomImageView(
-                      imagePath: "assets/images/home_card_img.png",
+                      imagePath: "assets/images/place_holder_card.png",
                       width: 326,
                       height: 486,
                       border: Border.all(
