@@ -80,6 +80,11 @@ class _SpaceScreenState extends State<SpaceScreen> {
                       latitude: locationState.latitude,
                       longitude: locationState.longitude,
                     ),
+                    onLoadMore: () => getIt<SpaceCubit>().onGetSpacesLoadMore(
+                      latitude: locationState.latitude,
+                      longitude: locationState.longitude,
+                    ),
+                    isAllSpacesLoaded: state.allSpacesLoaded,
                     topUsedNfts: state.topUsedNfts,
                     newSpaceList: state.newSpaceList,
                     recommendedSpace: state.recommendationSpaceList.isNotEmpty
@@ -87,6 +92,8 @@ class _SpaceScreenState extends State<SpaceScreen> {
                         : const RecommendationSpaceEntity.empty(),
                     spaceList: state.spaceList,
                     spaceCategory: state.spaceCategory,
+                    isLoadingMore:
+                        state.loadingMoreStatus == RequestStatus.loading,
                     onSpaceByCategoryTap: (spaceCategory) {
                       getIt<SpaceCubit>().onGetSpaceListByCategory(
                         latitude: locationState.latitude,

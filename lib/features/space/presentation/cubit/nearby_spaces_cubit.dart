@@ -3,6 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
+import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/domain/entities/spaces_response_entity.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -32,6 +33,17 @@ class NearBySpacesCubit extends BaseCubit<NearBySpacesState> {
 
   onResetSelectedBenefitEntity() {
     emit(state.copyWith(selectedBenefitEntity: const BenefitEntity.empty()));
+  }
+
+  // write a method to pass selected SpaceId adn send it to state
+
+  onSetSelectedSpace(SpaceDetailEntity spaceDetailEntity) {
+    emit(state.copyWith(selectedSpaceDetailEntity: spaceDetailEntity));
+  }
+
+  onReSetSelectedSpace() {
+    emit(state.copyWith(
+        selectedSpaceDetailEntity: const SpaceDetailEntity.empty()));
   }
 
   Future<void> onGetNearBySpacesListData({

@@ -60,7 +60,7 @@ class HomeBenefitItemWidget extends StatelessWidget {
                       Navigator.pop(context);
                     },
                     childWidget: const BenefitAvailableText(),
-                  )
+                  ),
           ],
         ),
         const Padding(

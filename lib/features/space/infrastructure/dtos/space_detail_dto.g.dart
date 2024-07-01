@@ -8,6 +8,7 @@ part of 'space_detail_dto.dart';
 
 SpaceDetailDto _$SpaceDetailDtoFromJson(Map<String, dynamic> json) =>
     SpaceDetailDto(
+      id: json['id'] as String?,
       name: json['name'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
@@ -22,6 +23,7 @@ SpaceDetailDto _$SpaceDetailDtoFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$SpaceDetailDtoToJson(SpaceDetailDto instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
       'latitude': instance.latitude,
       'longitude': instance.longitude,

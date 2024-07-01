@@ -34,31 +34,16 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
         if (state.benefitsGroupEntity.benefits.isEmpty) {
           return Column(
             children: [
-              Text(LocaleKeys.memberShipBenefits.tr(),
-                  style: fontTitle06Medium()),
+              SpaceBenefitsTitleWidget(
+                benefitCount: state.benefitsGroupEntity.benefitCount,
+              ),
             ],
           );
         } else {
           return Column(
             children: [
-              Row(
-                children: [
-                  DefaultImage(
-                    path: "assets/icons/ic_tick_badge.svg",
-                    width: 20,
-                    height: 20,
-                  ),
-                  const HorizontalSpace(8),
-                  Text(
-                    LocaleKeys.benefitInfo.tr(),
-                    style: fontTitle06Medium(),
-                  ),
-                  const HorizontalSpace(8),
-                  Text(
-                    "${state.benefitsGroupEntity.benefitCount}",
-                    style: fontTitle07(color: fore2),
-                  )
-                ],
+              SpaceBenefitsTitleWidget(
+                benefitCount: state.benefitsGroupEntity.benefitCount,
               ),
               const VerticalSpace(20),
               state.benefitsGroupEntity.benefits.isEmpty
@@ -71,7 +56,7 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
                         return SpaceBenefitItemWidget(
                           spaceDetailEntity: widget.spaceDetailEntity,
                           isShowImage: false,
-                        benefitEntity:
+                          benefitEntity:
                               state.benefitsGroupEntity.benefits[index],
                         );
                       },
@@ -89,6 +74,38 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
           );
         }
       },
+    );
+  }
+}
+
+class SpaceBenefitsTitleWidget extends StatelessWidget {
+  const SpaceBenefitsTitleWidget({
+    super.key,
+    required this.benefitCount,
+  });
+
+  final int benefitCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        DefaultImage(
+          path: "assets/icons/ic_tick_badge.svg",
+          width: 20,
+          height: 20,
+        ),
+        const HorizontalSpace(8),
+        Text(
+          LocaleKeys.benefitInfo.tr(),
+          style: fontTitle06Medium(),
+        ),
+        const HorizontalSpace(8),
+        Text(
+          "$benefitCount",
+          style: fontTitle07(color: fore2),
+        )
+      ],
     );
   }
 }

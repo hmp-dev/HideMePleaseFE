@@ -14,6 +14,7 @@ class BenefitEntity extends Equatable {
   final String nftCollectionName;
   final String termsUrl;
   final String nftCollectionImage;
+  final String nftCollectionChain;
 
   const BenefitEntity({
     required this.id,
@@ -28,6 +29,7 @@ class BenefitEntity extends Equatable {
     required this.nftCollectionName,
     required this.termsUrl,
     required this.nftCollectionImage,
+    required this.nftCollectionChain,
   });
 
   @override
@@ -44,7 +46,8 @@ class BenefitEntity extends Equatable {
       tokenAddress,
       nftCollectionName,
       termsUrl,
-      nftCollectionImage
+      nftCollectionImage,
+      nftCollectionChain,
     ];
   }
 
@@ -61,6 +64,7 @@ class BenefitEntity extends Equatable {
     String? nftCollectionName,
     String? termsUrl,
     String? nftCollectionImage,
+    String? nftCollectionChain,
   }) {
     return BenefitEntity(
       id: id ?? this.id,
@@ -75,6 +79,7 @@ class BenefitEntity extends Equatable {
       nftCollectionName: nftCollectionName ?? this.nftCollectionName,
       termsUrl: termsUrl ?? this.termsUrl,
       nftCollectionImage: nftCollectionImage ?? this.nftCollectionImage,
+      nftCollectionChain: nftCollectionChain ?? this.nftCollectionChain,
     );
   }
 
@@ -90,5 +95,6 @@ class BenefitEntity extends Equatable {
         tokenAddress = '',
         nftCollectionName = '',
         termsUrl = '',
-        nftCollectionImage = '';
+        nftCollectionImage = '',
+        nftCollectionChain = '';
 }
