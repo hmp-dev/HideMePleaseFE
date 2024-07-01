@@ -134,7 +134,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     buildTitleRow(context),
-                    buildAddressRow(context, widget.nearBySpaceEntity),
+                    buildSpaceNameRow(context, widget.nearBySpaceEntity),
                     widget.isMatchedSpaceFound != null &&
                             widget.isMatchedSpaceFound == false
                         ? Padding(
@@ -341,7 +341,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
     );
   }
 
-  Row buildAddressRow(
+  Row buildSpaceNameRow(
     BuildContext context,
     NearBySpaceEntity nearBySpaceEntity,
   ) {
@@ -358,7 +358,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.7,
           child: Text(
-            nearBySpaceEntity.address,
+            nearBySpaceEntity.name,
             style: fontTitle04(),
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -7,6 +8,7 @@ import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
+import 'package:mobile/features/common/presentation/widgets/load_more_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/space/domain/entities/new_space_entity.dart';
 import 'package:mobile/features/space/domain/entities/recommendation_space_entity.dart';
@@ -24,21 +26,27 @@ class SpaceView extends StatefulWidget {
   const SpaceView({
     super.key,
     required this.onRefresh,
+    required this.onLoadMore,
     required this.topUsedNfts,
     required this.newSpaceList,
     required this.recommendedSpace,
     required this.spaceList,
     required this.spaceCategory,
     required this.onSpaceByCategoryTap,
+    required this.isLoadingMore,
+    required this.isAllSpacesLoaded,
   });
 
   final Future<void> Function() onRefresh;
+  final Future<void> Function() onLoadMore;
   final List<TopUsedNftEntity> topUsedNfts;
   final List<NewSpaceEntity> newSpaceList;
   final RecommendationSpaceEntity recommendedSpace;
   final List<SpaceEntity> spaceList;
   final SpaceCategory spaceCategory;
   final void Function(SpaceCategory) onSpaceByCategoryTap;
+  final bool isLoadingMore;
+  final bool isAllSpacesLoaded;
 
   @override
   State<SpaceView> createState() => _SpaceViewState();
@@ -48,7 +56,7 @@ class _SpaceViewState extends State<SpaceView> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 30),
+      padding: const EdgeInsets.only(bottom: 0),
       child: RefreshIndicator(
         onRefresh: widget.onRefresh,
         child: SingleChildScrollView(
@@ -116,7 +124,7 @@ class _SpaceViewState extends State<SpaceView> {
     SpaceCategory spaceCategory,
   ) {
     return BlocConsumer<EnableLocationCubit, EnableLocationState>(
-      bloc: getIt<EnableLocationCubit>()..onAskDeviceLocation(),
+      bloc: getIt<EnableLocationCubit>(),
       listener: (context, locationState) {},
       builder: (context, locationState) {
         return Column(
@@ -193,6 +201,19 @@ class _SpaceViewState extends State<SpaceView> {
                           );
                         },
                       ),
+                widget.isLoadingMore
+                    ? Lottie.asset('assets/lottie/loader.json')
+                    : widget.isAllSpacesLoaded
+                        ? const SizedBox.shrink()
+                        : Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: LoadMoreIconButton(
+                              onTap: () {
+                                widget.onLoadMore();
+                              },
+                            ),
+                          ),
+                const VerticalSpace(40),
               ],
             ),
           ],

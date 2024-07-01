@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:bip39/bip39.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';

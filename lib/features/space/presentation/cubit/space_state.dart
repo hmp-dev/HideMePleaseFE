@@ -15,6 +15,9 @@ class SpaceState extends BaseState {
   final BenefitsGroupEntity benefitsGroupEntity;
   final bool isLoadingMoreFetch;
   final String currentSpaceId;
+  final bool allSpacesLoaded;
+  final RequestStatus loadingMoreStatus;
+  final int spacesPage;
 
   @override
   final RequestStatus submitStatus;
@@ -35,6 +38,9 @@ class SpaceState extends BaseState {
     required this.benefitsGroupEntity,
     required this.isLoadingMoreFetch,
     required this.currentSpaceId,
+    required this.allSpacesLoaded,
+    required this.loadingMoreStatus,
+    required this.spacesPage,
   });
 
   factory SpaceState.initial() => SpaceState(
@@ -53,7 +59,12 @@ class SpaceState extends BaseState {
         benefitsGroupEntity: BenefitsGroupEntity.empty(),
         isLoadingMoreFetch: false,
         currentSpaceId: "",
+        allSpacesLoaded: false,
+        loadingMoreStatus: RequestStatus.initial,
+        spacesPage: 1,
       );
+
+  //bool get isLoadingMore => loadingMoreStatus == RequestStatus.loading;
 
   @override
   List<Object?> get props => [
@@ -72,6 +83,9 @@ class SpaceState extends BaseState {
         benefitsGroupEntity,
         isLoadingMoreFetch,
         currentSpaceId,
+        allSpacesLoaded,
+        loadingMoreStatus,
+        spacesPage,
       ];
 
   @override
@@ -91,6 +105,9 @@ class SpaceState extends BaseState {
     BenefitsGroupEntity? benefitsGroupEntity,
     bool? isLoadingMoreFetch,
     String? currentSpaceId,
+    bool? allSpacesLoaded,
+    RequestStatus? loadingMoreStatus,
+    int? spacesPage,
   }) {
     return SpaceState(
       submitStatus: submitStatus ?? this.submitStatus,
@@ -110,6 +127,9 @@ class SpaceState extends BaseState {
       benefitsGroupEntity: benefitsGroupEntity ?? this.benefitsGroupEntity,
       isLoadingMoreFetch: isLoadingMoreFetch ?? this.isLoadingMoreFetch,
       currentSpaceId: currentSpaceId ?? this.currentSpaceId,
+      allSpacesLoaded: allSpacesLoaded ?? this.allSpacesLoaded,
+      loadingMoreStatus: loadingMoreStatus ?? this.loadingMoreStatus,
+      spacesPage: spacesPage ?? this.spacesPage,
     );
   }
 }

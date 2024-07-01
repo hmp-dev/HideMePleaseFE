@@ -42,7 +42,8 @@ class BenefitTitleWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4.0, top: 4),
                   child: DefaultImage(
-                    path: "assets/chain-logos/ethereum_chain.svg",
+                    path:
+                        "assets/chain-logos/${nftBenefitEntity.nftCollectionChain.toLowerCase()}_chain.svg",
                     width: 14,
                     height: 14,
                   ),

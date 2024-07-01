@@ -6,6 +6,8 @@ part 'space_detail_dto.g.dart';
 
 @JsonSerializable()
 class SpaceDetailDto extends Equatable {
+  @JsonKey(name: "id")
+  final String? id;
   @JsonKey(name: "name")
   final String? name;
   @JsonKey(name: "latitude")
@@ -28,6 +30,7 @@ class SpaceDetailDto extends Equatable {
   final String? image;
 
   const SpaceDetailDto({
+    this.id,
     this.name,
     this.latitude,
     this.longitude,
@@ -48,6 +51,7 @@ class SpaceDetailDto extends Equatable {
   @override
   List<Object?> get props {
     return [
+      id,
       name,
       latitude,
       longitude,
@@ -62,6 +66,7 @@ class SpaceDetailDto extends Equatable {
   }
 
   SpaceDetailEntity toEntity() => SpaceDetailEntity(
+        id: id ?? "",
         name: name ?? "",
         latitude: latitude ?? 0,
         longitude: longitude ?? 0,

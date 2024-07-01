@@ -8,18 +8,12 @@ import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_toggle.dart';
-import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
-import 'package:mobile/features/settings/presentation/screens/announcement_screen.dart';
-import 'package:mobile/features/settings/presentation/screens/membership_withdrawal_screen.dart';
-import 'package:mobile/features/settings/presentation/screens/terms_of_use_main_screen.dart';
-import 'package:mobile/features/settings/presentation/widgets/feature_tile.dart';
-import 'package:mobile/features/settings/presentation/widgets/fore3_text_button.dart';
-import 'package:mobile/features/settings/presentation/widgets/version_info_tile.dart';
+import 'package:mobile/features/settings/presentation/views/settings_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -69,79 +63,83 @@ class _SettingsScreenState extends State<SettingsScreen> {
             builder: (context, state) {
               return state.submitStatus == RequestStatus.loading
                   ? const SizedBox.shrink()
-                  : SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                buildTopHmpBlueBannerBox(state),
-                                const VerticalSpace(10),
-                                Fore3TextButton(
-                                  title: LocaleKeys.userSettings.tr(),
-                                  onTap: () {},
-                                ),
-                                buildNotificationsSettingsToggleRow(),
-                                buildLocationConcent(),
-                              ],
-                            ),
-                          ),
-                          const ThickDivider(paddingTop: 5, paddingBottom: 10),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Fore3TextButton(
-                                  title: LocaleKeys.etc.tr(),
-                                  onTap: () {},
-                                ),
-                                FeatureTile(
-                                  title: LocaleKeys.announcement.tr(),
-                                  onTap: () {
-                                    getIt<SettingsCubit>().onGetAnnouncements();
-                                    AnnouncementScreen.push(context);
-                                  },
-                                ),
-                                const VerticalSpace(10),
-                                FeatureTile(
-                                  title: LocaleKeys.termsOfUse.tr(),
-                                  onTap: () {
-                                    TermsOfUseMainScreen.push(context);
-                                  },
-                                ),
-                                const VerticalSpace(10),
-                                const VersionInfoTile(),
-                                FeatureTile(
-                                  isShowArrowIcon: false,
-                                  title: LocaleKeys.logout.tr(),
-                                  onTap: () {
-                                    getIt<AppCubit>().onLogOut();
-                                  },
-                                ),
-                                const VerticalSpace(10),
-                                FeatureTile(
-                                  isShowArrowIcon: false,
-                                  title: LocaleKeys.membershipWithdrawal.tr(),
-                                  onTap: () {
-                                    MembershipWithdrawalScreen.push(context);
-                                  },
-                                ),
-                                const VerticalSpace(100),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                  : SettingsView(
+                      settingsBannerEntity: state.settingsBannerEntity,
                     );
+
+              // SingleChildScrollView(
+              //     child: Column(
+              //       crossAxisAlignment: CrossAxisAlignment.start,
+              //       mainAxisAlignment: MainAxisAlignment.start,
+              //       children: [
+              //         Padding(
+              //           padding: const EdgeInsets.symmetric(
+              //               horizontal: 20, vertical: 10),
+              //           child: Column(
+              //             crossAxisAlignment: CrossAxisAlignment.start,
+              //             mainAxisAlignment: MainAxisAlignment.start,
+              //             children: [
+              //               buildTopHmpBlueBannerBox(state),
+              //               const VerticalSpace(10),
+              //               Fore3TextButton(
+              //                 title: LocaleKeys.userSettings.tr(),
+              //                 onTap: () {},
+              //               ),
+              //               buildNotificationsSettingsToggleRow(),
+              //               buildLocationConcent(),
+              //             ],
+              //           ),
+              //         ),
+              //         const ThickDivider(paddingTop: 5, paddingBottom: 10),
+              //         Padding(
+              //           padding: const EdgeInsets.symmetric(
+              //               horizontal: 20, vertical: 10),
+              //           child: Column(
+              //             crossAxisAlignment: CrossAxisAlignment.start,
+              //             mainAxisAlignment: MainAxisAlignment.start,
+              //             children: [
+              //               Fore3TextButton(
+              //                 title: LocaleKeys.etc.tr(),
+              //                 onTap: () {},
+              //               ),
+              //               FeatureTile(
+              //                 title: LocaleKeys.announcement.tr(),
+              //                 onTap: () {
+              //                   getIt<SettingsCubit>().onGetAnnouncements();
+              //                   AnnouncementScreen.push(context);
+              //                 },
+              //               ),
+              //               const VerticalSpace(10),
+              //               FeatureTile(
+              //                 title: LocaleKeys.termsOfUse.tr(),
+              //                 onTap: () {
+              //                   TermsOfUseMainScreen.push(context);
+              //                 },
+              //               ),
+              //               const VerticalSpace(10),
+              //               const VersionInfoTile(),
+              //               FeatureTile(
+              //                 isShowArrowIcon: false,
+              //                 title: LocaleKeys.logout.tr(),
+              //                 onTap: () {
+              //                   getIt<AppCubit>().onLogOut();
+              //                 },
+              //               ),
+              //               const VerticalSpace(10),
+              //               FeatureTile(
+              //                 isShowArrowIcon: false,
+              //                 title: LocaleKeys.membershipWithdrawal.tr(),
+              //                 onTap: () {
+              //                   MembershipWithdrawalScreen.push(context);
+              //                 },
+              //               ),
+              //               const VerticalSpace(100),
+              //             ],
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   );
             },
           ),
         ),

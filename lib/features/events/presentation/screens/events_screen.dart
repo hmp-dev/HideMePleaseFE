@@ -15,7 +15,7 @@ class _EventsScreenState extends State<EventsScreen> {
       child: EventsView(
         onBoardingSlideData: EventsViewData(
             titleTextA: "이벤트 페이지는 준비중이에요!",
-            titleTextB: "커지는 혜택",
+            titleTextB: "커지는 혜택", // Growing benefits"
             descText: "HideMePlease 멤버들과 함께\n이벤트를 참여해보아요!",
             animationPath: "assets/lottie/onboarding4.json"),
       ),

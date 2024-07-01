@@ -34,7 +34,7 @@ class EventsView extends StatelessWidget {
           ),
         ),
         Expanded(
-          flex: 2,
+          flex: 1,
           child: Column(
             children: [
               const VerticalSpace(10),
@@ -43,20 +43,15 @@ class EventsView extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: fontTitle03Bold(),
               ),
-              Text(
-                onBoardingSlideData.titleTextB,
-                textAlign: TextAlign.center,
-                style: fontTitle03Bold(color: hmpBlue),
-              ),
             ],
           ),
         ),
         Expanded(
-          flex: 3,
+          flex: 4,
           child: SizedBox(
             width: 250,
             child: Text(
-              onBoardingSlideData.descText,
+              '', //onBoardingSlideData.descText,
               textAlign: TextAlign.center,
               style: fontCompactMd(color: fore2),
             ),

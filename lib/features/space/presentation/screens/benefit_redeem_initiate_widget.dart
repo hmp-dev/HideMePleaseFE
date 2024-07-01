@@ -5,6 +5,7 @@ import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
+import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -15,12 +16,14 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
     required this.tokenAddress,
     required this.onAlertCancel,
     this.selectedBenefitEntity,
+    this.space,
   });
 
   final Widget childWidget;
   final String tokenAddress;
   final VoidCallback onAlertCancel;
   final BenefitEntity? selectedBenefitEntity;
+  final SpaceDetailEntity? space;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +34,13 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             if (!state.isLocationDenied) {
+              if (space != null) {
+                getIt<NearBySpacesCubit>().onSetSelectedSpace(
+                    space ?? const SpaceDetailEntity.empty());
+              } else {
+                getIt<NearBySpacesCubit>().onReSetSelectedSpace();
+              }
+
               if (selectedBenefitEntity != null) {
                 getIt<NearBySpacesCubit>()
                     .onSetSelectedBenefitEntity(selectedBenefitEntity!);
