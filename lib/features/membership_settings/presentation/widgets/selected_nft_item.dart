@@ -33,7 +33,7 @@ class SelectedNftItem extends StatelessWidget {
                         height: 64,
                       )
                     : DefaultImage(
-                        path: "assets/images/home_card_img.png",
+                        path: "assets/images/place_holder_card.png",
                         width: 63,
                         height: 64,
                         boxFit: BoxFit.cover,

@@ -66,7 +66,7 @@ class NftTokenWidget extends StatelessWidget {
                                   ),
                           ),
                           child: DefaultImage(
-                            path: "assets/images/home_card_img.png",
+                            path: "assets/images/place_holder_card.png",
                             width: 120,
                             height: 160,
                             boxFit: BoxFit.cover,
