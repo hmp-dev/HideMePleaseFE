@@ -58,6 +58,13 @@ class NftState extends BaseState {
         nextCursor: "",
       );
 
+  int get selectedCollectionCount => nftCollectionsGroupEntity.collections.fold(
+      0,
+      (value, element) =>
+          element.tokens.where((element) => element.selected).length + value);
+
+  int get maxSelectableCount => 3;
+
   @override
   List<Object?> get props => [
         nftCollectionsGroupEntity,
