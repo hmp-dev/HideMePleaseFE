@@ -153,8 +153,8 @@ class EnableLocationCubit extends BaseCubit<EnableLocationState> {
       Position position = locationResult.position!;
 
       // Log the latitude and longitude
-      // Log.debug(
-      //     'Latitude: ${position.latitude}, Longitude: ${position.longitude}');
+      Log.debug(
+          'Latitude: ${position.latitude}, Longitude: ${position.longitude}');
 
       // Emit the success state with the latitude, longitude, and set
       // [isLocationDenied] to false

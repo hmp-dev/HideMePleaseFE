@@ -14,7 +14,6 @@ import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.
 import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/domain/repositories/wallets_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:solana/solana.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
