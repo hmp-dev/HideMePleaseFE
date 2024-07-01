@@ -53,7 +53,7 @@ class _Web3ModalState extends State<Web3Modal> {
 
   @override
   Widget build(BuildContext context) {
-    final themeColors = Web3ModalTheme.colorsOf(context);
+    //final themeColors = Web3ModalTheme.colorsOf(context);
     final radiuses = Web3ModalTheme.radiusesOf(context);
     final bottomSheet = platformUtils.instance.isBottomSheet();
     final isTabletSize = platformUtils.instance.isTablet(context);

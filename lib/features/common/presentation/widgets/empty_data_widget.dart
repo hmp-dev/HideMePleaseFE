@@ -7,12 +7,15 @@ import 'package:mobile/generated/locale_keys.g.dart';
 class EmptyDataWidget extends StatelessWidget {
   const EmptyDataWidget({
     super.key,
+    this.height = 150.0,
   });
+
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 150,
+      height: height,
       width: MediaQuery.of(context).size.width,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,

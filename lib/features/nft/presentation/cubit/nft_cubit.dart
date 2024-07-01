@@ -7,6 +7,7 @@ import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/enum/usage_type_enum.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collection_entity.dart';
@@ -29,9 +30,11 @@ part 'nft_state.dart';
 @lazySingleton
 class NftCubit extends BaseCubit<NftState> {
   final NftRepository _nftRepository;
+  final ProfileRepository _profileRepository;
 
   NftCubit(
     this._nftRepository,
+    this._profileRepository,
   ) : super(NftState.initial());
 
   final SnackbarService snackbarService = getIt<SnackbarService>();
@@ -177,45 +180,53 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
-  Future<void> onGetSelectedNftTokens({
-    bool isShowLoader = true,
-  }) async {
-    final response = await _nftRepository.getSelectNftCollections();
+  Future<void> onGetSelectedNftTokens() async {
+    final profileResponse = await _profileRepository.getUserProfileData();
+    profileResponse.fold(
+      (err) {},
+      (user) async {
+        final isFreeNftClaimed = user.freeNftClaimed ?? false;
 
-    response.fold(
-      (err) {
-        Log.error(err);
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
-        ));
-      },
-      (selectedNftTokensList) {
-        final resultList =
-            selectedNftTokensList.map((e) => e.toEntity()).toList();
+        final response = await _nftRepository.getSelectNftCollections();
 
-        _selectedNftTokensListCached = List.from(resultList);
+        response.fold(
+          (err) {
+            Log.error(err);
+            emit(state.copyWith(
+              submitStatus: RequestStatus.failure,
+              errorMessage: LocaleKeys.somethingError.tr(),
+            ));
+          },
+          (selectedNftTokensList) {
+            final resultList =
+                selectedNftTokensList.map((e) => e.toEntity()).toList();
 
-        emit(
-          state.copyWith(
-            selectedNftTokensList: resultList,
-            nftsListHome: getNftListForHomeWithEmptyAt1stAndLast(resultList),
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-          ),
+            _selectedNftTokensListCached = List.from(resultList);
+
+            emit(
+              state.copyWith(
+                selectedNftTokensList: resultList,
+                nftsListHome: getNftListForHomeWithEmptyAt1stAndLast(
+                    resultList, isFreeNftClaimed),
+                submitStatus: RequestStatus.success,
+                errorMessage: '',
+              ),
+            );
+          },
         );
       },
     );
   }
 
   List<SelectedNFTEntity> getNftListForHomeWithEmptyAt1stAndLast(
-      List<SelectedNFTEntity> resultList) {
+      List<SelectedNFTEntity> resultList, bool isFreeNftClaimed) {
     List<SelectedNFTEntity> result = List.from(resultList);
     //
 
     result.add(const SelectedNFTEntity.empty());
-
-    result.insert(0, const SelectedNFTEntity.emptyForHome1st());
+    if (!isFreeNftClaimed) {
+      result.insert(0, const SelectedNFTEntity.emptyForHome1st());
+    }
 
     Log.info("result.length: ${result.length}");
     Log.info("result[0].imageUrl: ${result[0].imageUrl}");

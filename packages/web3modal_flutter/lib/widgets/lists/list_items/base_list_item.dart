@@ -22,7 +22,7 @@ class BaseListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeColors = Web3ModalTheme.colorsOf(context);
-    final radiuses = Web3ModalTheme.radiusesOf(context);
+    //final radiuses = Web3ModalTheme.radiusesOf(context);
     return FilledButton(
       onPressed: onTap,
       style: ButtonStyle(

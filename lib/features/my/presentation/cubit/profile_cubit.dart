@@ -45,6 +45,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
 
   Future<void> onGetUserProfile() async {
     emit(state.copyWith(submitStatus: RequestStatus.loading));
+    
     final response = await _profileRepository.getUserProfileData();
     response.fold(
       (err) {

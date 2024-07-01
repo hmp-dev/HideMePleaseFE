@@ -24,7 +24,7 @@ class BenefitTitleWidget extends StatelessWidget {
           children: [
             Stack(
               children: [
-                nftBenefitEntity.spaceImage == ""
+                nftBenefitEntity.nftCollectionImage == ""
                     ? CustomImageView(
                         imagePath: "assets/images/place_holder_card.png",
                         width: 48,
@@ -33,7 +33,7 @@ class BenefitTitleWidget extends StatelessWidget {
                         fit: BoxFit.cover,
                       )
                     : CustomImageView(
-                        url: nftBenefitEntity.spaceImage,
+                        url: nftBenefitEntity.nftCollectionImage,
                         width: 48,
                         height: 64,
                         radius: BorderRadius.circular(2),
@@ -50,7 +50,15 @@ class BenefitTitleWidget extends StatelessWidget {
               ],
             ),
             const HorizontalSpace(20),
-            Text(nftBenefitEntity.spaceName, style: fontTitle05Bold()),
+            SizedBox(
+              width: 185,
+              child: Text(
+                nftBenefitEntity.nftCollectionName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: fontTitle05Bold(),
+              ),
+            ),
           ],
         ),
         const VerticalSpace(20),

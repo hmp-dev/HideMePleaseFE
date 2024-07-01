@@ -26,6 +26,8 @@ class W3MListAvatar extends StatelessWidget {
     final radiuses = Web3ModalTheme.radiusesOf(context);
     final radius = borderRadius ?? radiuses.radiusM;
     final projectId = explorerService.instance.projectId;
+    print(
+        '********************projectId: ${coreUtils.instance.getAPIHeaders(projectId)}');
     return Stack(
       children: [
         AspectRatio(
