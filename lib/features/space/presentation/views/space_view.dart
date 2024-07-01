@@ -124,7 +124,7 @@ class _SpaceViewState extends State<SpaceView> {
     SpaceCategory spaceCategory,
   ) {
     return BlocConsumer<EnableLocationCubit, EnableLocationState>(
-      bloc: getIt<EnableLocationCubit>()..onAskDeviceLocation(),
+      bloc: getIt<EnableLocationCubit>(),
       listener: (context, locationState) {},
       builder: (context, locationState) {
         return Column(

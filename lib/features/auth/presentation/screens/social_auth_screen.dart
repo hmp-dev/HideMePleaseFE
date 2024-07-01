@@ -16,7 +16,6 @@ import 'package:mobile/features/auth/presentation/widgets/my_social_login_button
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
-import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -114,27 +113,27 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    MySocialLoginButton(
-                      imagePath: "assets/social-auth-logos/ic_worldcoin.svg",
-                      imgHeightWidth: 45,
-                      onTap: () {
-                        if (isAgreeWithTerms) {
-                          getIt<AuthCubit>().onWorldIdLogin();
-                        } else {
-                          showHmpAlertDialog(
-                            context: context,
-                            title: LocaleKeys
-                                .requiresAgreementToTermsAndConditions
-                                .tr(),
-                            content: LocaleKeys.agreeTermDialogMessage.tr(),
-                            onConfirm: () {
-                              Navigator.pop(context);
-                            },
-                          );
-                        }
-                      },
-                    ),
-                    const HorizontalSpace(20),
+                    // MySocialLoginButton(
+                    //   imagePath: "assets/social-auth-logos/ic_worldcoin.svg",
+                    //   imgHeightWidth: 45,
+                    //   onTap: () {
+                    //     if (isAgreeWithTerms) {
+                    //       getIt<AuthCubit>().onWorldIdLogin();
+                    //     } else {
+                    //       showHmpAlertDialog(
+                    //         context: context,
+                    //         title: LocaleKeys
+                    //             .requiresAgreementToTermsAndConditions
+                    //             .tr(),
+                    //         content: LocaleKeys.agreeTermDialogMessage.tr(),
+                    //         onConfirm: () {
+                    //           Navigator.pop(context);
+                    //         },
+                    //       );
+                    //     }
+                    //   },
+                    // ),
+                    // const HorizontalSpace(20),
                     MySocialLoginButton(
                       imagePath: "assets/social-auth-logos/google-logo.png",
                       imgHeightWidth: 32,
