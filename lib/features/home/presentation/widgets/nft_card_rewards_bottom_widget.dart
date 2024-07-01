@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +14,7 @@ import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class NftCardRewardsBottomWidget extends StatelessWidget {
   NftCardRewardsBottomWidget({
@@ -86,22 +89,55 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               ],
             ),
             const VerticalSpace(10),
+            if (!getIt<WalletsCubit>().state.isKlipWalletConnected) ...[
+              GlassmorphicButton(
+                width: MediaQuery.of(context).size.width * 0.80,
+                height: 60,
+                onPressed: () {
+                  if (Platform.isAndroid) {
+                    launchUrlString(
+                        'https://play.google.com/store/apps/details?id=com.klipwallet.app');
+                  } else {
+                    launchUrlString('https://apps.apple.com/app/id1627665524');
+                  }
+                },
+                child: Text(
+                  'Klip 설치',
+                  style: fontCompactLgMedium(),
+                ),
+              ),
+              const VerticalSpace(12),
+              GlassmorphicButton(
+                width: MediaQuery.of(context).size.width * 0.80,
+                height: 60,
+                onPressed: () {
+                  getIt<WalletsCubit>().state.w3mService?.openModal(context);
+                },
+                child: Text(
+                  'Klip 연동',
+                  style: fontCompactLgMedium(),
+                ),
+              ),
+              const VerticalSpace(12),
+            ],
             GlassmorphicButton(
               width: MediaQuery.of(context).size.width * 0.80,
               height: 60,
               onPressed: () {
-                if (getIt<WalletsCubit>().state.connectedWallets.any(
-                    (element) => element.provider.toLowerCase() == "klip")) {
-                  if (welcomeNftEntity.remainingCount > 0) {
-                    getIt<NftCubit>().onGetConsumeWelcomeNft();
-                  } else {
-                    snackBarService.showSnackbar(
-                      message: "No Free NFT Available",
-                      duration: const Duration(seconds: 5),
-                    );
-                  }
+                if (!getIt<WalletsCubit>().state.isKlipWalletConnected) {
+                  return snackBarService.showSnackbar(
+                    message: "클립월렛에 접속해주세요",
+                    duration: const Duration(seconds: 5),
+                  );
+                }
+
+                if (welcomeNftEntity.remainingCount > 0) {
+                  getIt<NftCubit>().onGetConsumeWelcomeNft();
                 } else {
-                  getIt<WalletsCubit>().state.w3mService?.openModal(context);
+                  snackBarService.showSnackbar(
+                    message: "무료 NFT를 사용할 수 없습니다",
+                    duration: const Duration(seconds: 5),
+                  );
                 }
               },
               child: Text(

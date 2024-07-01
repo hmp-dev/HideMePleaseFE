@@ -358,7 +358,7 @@ class _MyEditViewState extends State<MyEditView> {
                       height: 88,
                     )
                   : DefaultImage(
-                      path: "assets/images/profile_img.png",
+                      path: "assets/images/launcher-icon.png",
                       width: 88,
                       height: 88,
                     ),

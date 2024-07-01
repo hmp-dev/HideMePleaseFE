@@ -131,6 +131,13 @@ class NftCubit extends BaseCubit<NftState> {
     required NftTokenEntity selectedNft,
     required bool selected,
   }) async {
+    if (state.selectedCollectionCount >= state.maxSelectableCount &&
+        selected &&
+        !state.nftCollectionsGroupEntity.collections[collectionIndex].tokens
+            .any((element) => element.selected)) {
+      return;
+    }
+
     final collections = List<NftCollectionEntity>.from(
         state.nftCollectionsGroupEntity.collections);
     final tokenIdx = collections[collectionIndex]

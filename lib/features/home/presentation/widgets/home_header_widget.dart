@@ -51,7 +51,7 @@ class HomeHeaderWidget extends StatelessWidget {
                           height: 54,
                         )
                       : CustomImageView(
-                          imagePath: "assets/images/profile_img.png",
+                          imagePath: "assets/images/launcher-icon.png",
                           width: 54,
                           height: 54,
                         ),
