@@ -102,6 +102,7 @@ flutter:
     - assets/lottie/
     - assets/fonts/
     - assets/wallet-logos/
+    - assets/web3-wallet-logos/
     - assets/chain-logos/
   fonts:
     - family: Pretendard

@@ -15,9 +15,7 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
-import 'package:mobile/features/space/presentation/cubit/space_detail_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
-import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_from_benefit_tap.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -159,17 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               } else {
                 SpaceSelectionScreen.show(context, []);
-              }
-            }
-          },
-        ),
-        BlocListener<SpaceDetailCubit, SpaceDetailState>(
-          bloc: getIt<SpaceDetailCubit>(),
-          listener: (context, state) {
-            if (state.isSubmitSuccess) {
-              if (state.submitStatus == RequestStatus.success) {
-                RedeemBenefitScreenFromBenefitTap.push(context,
-                    state.selectedBenefitEntity, state.spaceDetailEntity);
               }
             }
           },

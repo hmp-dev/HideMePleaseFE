@@ -163,8 +163,10 @@ extension GetItInjectableX on _i1.GetIt {
         () => _i35.NearBySpacesCubit(gh<_i21.SpaceRepository>()));
     gh.lazySingleton<_i36.NftBenefitsCubit>(
         () => _i36.NftBenefitsCubit(gh<_i11.NftRepository>()));
-    gh.lazySingleton<_i37.NftCubit>(
-        () => _i37.NftCubit(gh<_i11.NftRepository>()));
+    gh.lazySingleton<_i37.NftCubit>(() => _i37.NftCubit(
+          gh<_i11.NftRepository>(),
+          gh<_i15.ProfileRepository>(),
+        ));
     gh.lazySingleton<_i38.NickNameCubit>(
         () => _i38.NickNameCubit(gh<_i15.ProfileRepository>()));
     gh.lazySingleton<_i39.NotificationsCubit>(

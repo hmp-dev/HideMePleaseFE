@@ -232,7 +232,7 @@ extension SnackBarExtension on BuildContext {
     DefaultSnackBar.instance.showToastMsg(
       this,
       message: message ?? LocaleKeys.somethingError.tr(),
-      toastDuration: const Duration(minutes: 2),
+      toastDuration: const Duration(seconds: 5),
     );
   }
 

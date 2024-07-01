@@ -71,7 +71,7 @@ class _SpaceBenefitListWidgetState extends State<SpaceBenefitListWidget> {
                         return SpaceBenefitItemWidget(
                           spaceDetailEntity: widget.spaceDetailEntity,
                           isShowImage: false,
-                          benefitEntity:
+                        benefitEntity:
                               state.benefitsGroupEntity.benefits[index],
                         );
                       },

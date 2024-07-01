@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_available_text.dart';
@@ -7,7 +10,7 @@ import 'package:mobile/features/home/presentation/widgets/benefit_unavailable_te
 import 'package:mobile/features/home/presentation/widgets/benefit_used_text.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
-import 'package:mobile/features/space/presentation/screens/benefit_redeem_initiate_widget.dart';
+import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_with_space.dart';
 
 class SpaceBenefitItemWidget extends StatelessWidget {
   const SpaceBenefitItemWidget({
@@ -40,14 +43,23 @@ class SpaceBenefitItemWidget extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(benefitEntity.description, style: fontCompactMdMedium()),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  child: Text(
+                    benefitEntity.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: fontCompactMdMedium(),
+                  ),
+                ),
                 const VerticalSpace(5),
                 Text(benefitEntity.nftCollectionName,
                     style: fontCompactSm(color: fore3)),
               ],
             ),
             const Spacer(),
-            getKoreanTranslation(context, benefitEntity.state),
+            getKoreanTranslation(
+                context, benefitEntity.state, spaceDetailEntity),
           ],
         ),
         const Padding(
@@ -58,16 +70,27 @@ class SpaceBenefitItemWidget extends StatelessWidget {
     );
   }
 
-  Widget getKoreanTranslation(BuildContext context, String state) {
+  Widget getKoreanTranslation(
+      BuildContext context, String state, SpaceDetailEntity space) {
     switch (state) {
       case 'available':
-        return BenefitRedeemInitiateWidget(
-          tokenAddress: benefitEntity.tokenAddress,
-          selectedBenefitEntity: benefitEntity,
-          onAlertCancel: () {
-            Navigator.pop(context);
+        return GestureDetector(
+          onTap: () {
+            final user = getIt<EnableLocationCubit>().state;
+
+            // if locationState (user Current Location is same as spaceDetailEntity latitude)
+
+            bool isMatchedSpaceFound = isUserInSpace(
+                user.latitude, user.longitude, space.latitude, space.longitude);
+
+            RedeemBenefitScreenWithSpace.push(
+              context,
+              space: spaceDetailEntity,
+              selectedBenefitEntity: benefitEntity,
+              isMatchedSpaceFound: isMatchedSpaceFound,
+            );
           },
-          childWidget: const BenefitAvailableText(),
+          child: const BenefitAvailableText(),
         );
       case 'unavailable':
         return const BenefitUnavailableText();
