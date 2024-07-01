@@ -331,7 +331,7 @@ class _MyMembershipSettingsScreenState
                           left: 20.0, right: 20, bottom: 20),
                       child: HMPCustomButton(
                         text:
-                            "${LocaleKeys.next.tr()} (${state.nftCollectionsGroupEntity.selectedNftCount}/20)",
+                            "${LocaleKeys.next.tr()} (${state.selectedCollectionCount}/${state.maxSelectableCount})",
                         onPressed: () {
                           getIt<NftCubit>().onGetSelectedNftTokens();
                           EditMembershipListScreen.push(context, false);
