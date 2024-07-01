@@ -206,13 +206,11 @@ class WalletsCubit extends BaseCubit<WalletsState> {
                     builder: (_) => const SolanaImportWalletView()))
             .then((value) async {
           if (value != null) {
-            final mnemonic = value as String;
-            final keypair = await Ed25519HDKeyPair.fromMnemonic(mnemonic,
-                account: 0, change: 0);
+            final publicKey = value as String;
 
             onPostWallet(
               saveWalletRequestDto: SaveWalletRequestDto(
-                publicAddress: keypair.address,
+                publicAddress: publicKey,
                 provider: getWalletProvider('phantom'),
               ),
             );
