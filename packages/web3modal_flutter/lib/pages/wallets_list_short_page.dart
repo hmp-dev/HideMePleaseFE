@@ -85,7 +85,7 @@ class _WalletsListShortPageState extends State<WalletsListShortPage> {
             );
           }
 
-          items.add(GridItem<W3MWalletInfo>(
+          final _phantomWallet = GridItem<W3MWalletInfo>(
             image:
                 'https://firebasestorage.googleapis.com/v0/b/hidemeplease2024-dev.appspot.com/o/public%2Fphantom-wallet.png?alt=media&token=9ad22838-f0b0-4d31-b603-9ca0725963aa',
             id: 'phantom',
@@ -101,7 +101,12 @@ class _WalletsListShortPageState extends State<WalletsListShortPage> {
               installed: true,
               recent: false,
             ),
-          ));
+          );
+          if (items.length >= kShortWalletListCount - 1) {
+            items[kShortWalletListCount - 1] = _phantomWallet;
+          } else {
+            items.add(_phantomWallet);
+          }
 
           final itemsCount = min(kShortWalletListCount, items.length);
           if (itemsCount < kShortWalletListCount) {

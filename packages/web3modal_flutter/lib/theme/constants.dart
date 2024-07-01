@@ -4,7 +4,7 @@ const kGridItemWidth = 76.0;
 const kGridItemHeight = 96.0;
 
 const kNavbarHeight = 64.0;
-const kShortWalletListCount = 4;
+const kShortWalletListCount = 5;
 const kLShortWalletListCount = 3;
 const kSearchFieldHeight = 40.0;
 

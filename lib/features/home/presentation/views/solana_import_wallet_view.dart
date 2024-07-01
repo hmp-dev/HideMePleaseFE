@@ -56,7 +56,7 @@ class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
             padding: EdgeInsets.fromLTRB(20.0, .0, 20.0,
                 MediaQuery.of(context).viewInsets.bottom + 20.0),
             child: HMPCustomButton(
-              text: '계속하다',
+              text: '연결하기',
               onPressed: () async {
                 try {
                   if (isPointOnEd25519Curve(base58Decode(publicKey))) {
