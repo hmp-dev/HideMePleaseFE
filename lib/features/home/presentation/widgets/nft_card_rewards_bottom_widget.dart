@@ -106,7 +106,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                   style: fontCompactLgMedium(),
                 ),
               ),
-              const VerticalSpace(20),
+              const VerticalSpace(12),
               GlassmorphicButton(
                 width: MediaQuery.of(context).size.width * 0.80,
                 height: 60,
@@ -118,7 +118,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                   style: fontCompactLgMedium(),
                 ),
               ),
-              const VerticalSpace(20),
+              const VerticalSpace(12),
             ],
             GlassmorphicButton(
               width: MediaQuery.of(context).size.width * 0.80,
