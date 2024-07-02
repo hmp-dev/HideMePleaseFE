@@ -7,7 +7,7 @@ class Web3Constants {
     //KLIP
     '3c2c985c0adff6f46a0d0e466b3924ed8a059043882cd1944ad7f2adf697ed54',
     //PHANTOM
-    'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393',
+    // 'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393',
     //WALLET_CONNECT
     '304bb44bf87f84cdd1c30839b10c31c286bcd9c8d3577276e039d204e34ed013',
   };
