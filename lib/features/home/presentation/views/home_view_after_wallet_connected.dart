@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
 import 'package:mobile/app/core/animations/fade_indexed_widget.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
@@ -66,15 +65,11 @@ class _HomeViewAfterWalletConnectedState
   @override
   void didUpdateWidget(covariant HomeViewAfterWalletConnected oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    "HomeViewAfterWalletConnected: ${widget.isOverIconNavVisible}".log();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    "HomeViewAfterWalletConnected: didChangeDependencies".log();
   }
 
   @override
@@ -130,8 +125,8 @@ class _HomeViewAfterWalletConnectedState
                                           .tokenAddress;
                                 });
 
-                                "the Current TokenAddress is $_currentTokenAddress"
-                                    .log();
+                                // "the Current TokenAddress is $_currentTokenAddress"
+                                //     .log();
 
                                 // if index is last item,
                                 // and set _isCurrentIndexIsLat as true
@@ -207,11 +202,11 @@ class _HomeViewAfterWalletConnectedState
                       ],
                     ),
                     const SizedBox(height: 20),
-                    // not show this for first and last index
-                    if ((_currentIndex != 0 &&
-                            _currentIndex !=
-                                selectedNftsListForHome.length - 1) ||
-                        isFreeNftClaimed)
+
+                    // not show this for first (if free NFT not claimed )
+                    // and and not show for the last index
+                    if (!isFreeNftClaimed && _currentIndex == 0 ||
+                        _currentIndex != selectedNftsListForHome.length - 1)
                       CustomImageView(
                         svgPath: "assets/icons/ic_angle_arrow_down.svg",
                       ),
@@ -239,7 +234,7 @@ class _HomeViewAfterWalletConnectedState
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 20, top: 10, right: 20, bottom: 30),
+                                      left: 20, top: 10, right: 20, bottom: 0),
                                   child: SizedBox(
                                     child: FadeIndexedWidget(
                                       index: _currentSelectWidgetIndex,
