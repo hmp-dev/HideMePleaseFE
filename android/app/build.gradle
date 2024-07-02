@@ -72,9 +72,12 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
-            // signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
         }
+        debug {
+            signingConfig signingConfigs.release
+        }
+        
     }
 }
 
