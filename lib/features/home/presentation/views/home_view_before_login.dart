@@ -106,12 +106,7 @@ class HomeViewBeforeLogin extends StatelessWidget {
                   GlassmorphicButton(
                     width: MediaQuery.of(context).size.width * 0.80,
                     height: 60,
-                    onPressed: () {
-                      getIt<WalletsCubit>()
-                          .state
-                          .w3mService
-                          ?.openModal(context);
-                    },
+                    onPressed: onConnectWallet,
                     child: Text(
                       'Klip 연동',
                       style: fontCompactLgMedium(),
@@ -123,7 +118,7 @@ class HomeViewBeforeLogin extends StatelessWidget {
                     height: 60,
                     onPressed: onConnectWallet,
                     child: Text(
-                      'Klip 연결하고 무료 NFT 받기',
+                      LocaleKeys.getNftForFree.tr(),
                       style: fontCompactMdMedium(),
                     ),
                   ),
