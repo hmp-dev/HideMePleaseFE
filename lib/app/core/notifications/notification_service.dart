@@ -371,23 +371,7 @@ class NotificationServices {
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       iOS: DarwinInitializationSettings(),
     );
-    await _flutterLocalNotificationsPlugin.initialize(
-      initializationSetting,
-      onDidReceiveNotificationResponse: (details) {
-        ('NOTI::onDidReceiveNotificationResponse ${jsonDecode(details.payload!)}')
-            .log();
-
-        handleMessageAction(
-            NotificationActionPayload.fromJson(jsonDecode(details.payload!)));
-      },
-      onDidReceiveBackgroundNotificationResponse: (details) {
-        ('NOTI::onDidReceiveNotificationResponse ${jsonDecode(details.payload!)}')
-            .log();
-
-        handleMessageAction(
-            NotificationActionPayload.fromJson(jsonDecode(details.payload!)));
-      },
-    );
+    await _flutterLocalNotificationsPlugin.initialize(initializationSetting);
   }
 
   Future<void> _showNotification(RemoteMessage message) async {
