@@ -5,6 +5,8 @@ import 'package:mobile/features/common/presentation/widgets/custom_image_view.da
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
+import 'package:mobile/features/community/presentation/screens/community_details_screen.dart';
 import 'package:mobile/features/space/domain/entities/top_used_nft_entity.dart';
 
 class SpaceTopNFTListItem extends StatelessWidget {
@@ -19,53 +21,69 @@ class SpaceTopNFTListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: getWidth(score),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          getImageWidget(score),
-          const VerticalSpace(8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                children: [
-                  Text('$score', style: fontCompactLgBold()),
-                  topUsedNftEntity.pointFluctuation > 0
-                      ? CustomImageView(
-                          svgPath: "assets/icons/ic_arrow_up_pink.svg",
-                          width: 10,
-                          height: 10,
-                        )
-                      : CustomImageView(
-                          svgPath: "assets/icons/ic_arrow_blue_down.svg",
-                          width: 10,
-                          height: 10,
-                        )
-                ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CommunityDetailsScreen(
+              nftCommunity: const NftCommunityEntity.empty().copyWith(
+                tokenAddress: topUsedNftEntity.tokenAddress,
+                name: topUsedNftEntity.name,
+                collectionLogo: topUsedNftEntity.collectionLogo,
               ),
-              const HorizontalSpace(8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    width: getWidth(score) - 20,
-                    child: Text(
-                      topUsedNftEntity.name,
-                      overflow: TextOverflow.ellipsis,
-                      style: fontCompactMd(),
-                    ),
-                  ),
-                  Text("${topUsedNftEntity.totalPoints} P",
-                      style: fontCompactSmBold()),
-                ],
-              ),
-            ],
+            ),
           ),
-        ],
+        );
+      },
+      child: SizedBox(
+        width: getWidth(score),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            getImageWidget(score),
+            const VerticalSpace(8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  children: [
+                    Text('$score', style: fontCompactLgBold()),
+                    topUsedNftEntity.pointFluctuation > 0
+                        ? CustomImageView(
+                            svgPath: "assets/icons/ic_arrow_up_pink.svg",
+                            width: 10,
+                            height: 10,
+                          )
+                        : CustomImageView(
+                            svgPath: "assets/icons/ic_arrow_blue_down.svg",
+                            width: 10,
+                            height: 10,
+                          )
+                  ],
+                ),
+                const HorizontalSpace(8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: getWidth(score) - 20,
+                      child: Text(
+                        topUsedNftEntity.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: fontCompactMd(),
+                      ),
+                    ),
+                    Text("${topUsedNftEntity.totalPoints} P",
+                        style: fontCompactSmBold()),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

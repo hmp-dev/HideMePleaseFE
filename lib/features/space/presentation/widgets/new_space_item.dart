@@ -70,13 +70,23 @@ class NewSpaceItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const SizedBox(height: 5),
-                          Text(
-                            newSpaceEntity.name,
-                            style: fontTitle05Bold(),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.50,
+                            child: Text(
+                              newSpaceEntity.name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: fontTitle05Bold(),
+                            ),
                           ),
-                          Text(
-                            newSpaceEntity.mainBenefitDescription,
-                            style: fontCompactSm(),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.50,
+                            child: Text(
+                              newSpaceEntity.mainBenefitDescription,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: fontCompactSm(),
+                            ),
                           ),
                           const Spacer(),
                           //[4.1] Space
