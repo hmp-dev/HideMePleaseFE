@@ -12,6 +12,7 @@ import 'package:mobile/features/home/presentation/views/home_view_before_login.d
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
@@ -49,18 +50,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      getIt<NftBenefitsCubit>().onGetNftBenefitsLoadMore();
+    }
+
     if (_scrollController.offset >= 80 && _isVisible) {
       setState(() {
         _isVisible = false;
       });
-
-      "ScrollController: ${_scrollController.offset} $_isVisible".log();
     } else if (_scrollController.offset < 80 && !_isVisible) {
       setState(() {
         _isVisible = true;
       });
-
-      "ScrollController: ${_scrollController.offset} $_isVisible".log();
     }
   }
 
@@ -100,25 +102,112 @@ class _HomeScreenState extends State<HomeScreen> {
               current.spacesResponseEntity.spaces !=
               previous.spacesResponseEntity.spaces,
           listener: (context, state) async {
+            // if (state.isSubmitSuccess) {
+            //   if (state.spacesResponseEntity.spaces.isNotEmpty) {
+            //     // check if state.selectedBenefitEntity is null
+            //     // if null then show Space Selection View
+            //     // otherwise show Redeem Benefit View
+
+            //     if (state.selectedBenefitEntity.spaceId != '') {
+            //       "inside state.selectedBenefitEntity.spaceId != '' :${state.selectedBenefitEntity.spaceId} "
+            //           .log();
+
+            //       // check if in state.spacesResponseEntity.spaces  any of space id is equal
+            //       // to state.selectedBenefitEntity.id
+            //       // if yes then show Space Selection View
+            //       // otherwise show Redeem Benefit View
+            //       bool isSpaceMatched = false;
+            //       NearBySpaceEntity matchedSpace =
+            //           const NearBySpaceEntity.empty();
+            //       for (var space in state.spacesResponseEntity.spaces) {
+            //         if (state.selectedSpaceDetailEntity.id != "") {
+            //           "inside Selected SpaceID is not null: ${state.selectedSpaceDetailEntity.id}"
+            //               .log();
+            //           if (space.id == state.selectedSpaceDetailEntity.id) {
+            //             isSpaceMatched = true;
+            //             matchedSpace = space;
+            //             break;
+            //           }
+            //         } else {
+            //           if (space.id == state.selectedBenefitEntity.spaceId) {
+            //             isSpaceMatched = true;
+            //             matchedSpace = space;
+            //             break;
+            //           }
+            //         }
+            //       }
+
+            //       await Future.delayed(const Duration(milliseconds: 500));
+            //       // if Selected Space is present then show Redeem Benefit View with SpaceDetailEntity
+            //       if (state.selectedSpaceDetailEntity.id != "") {
+            //         RedeemBenefitScreenWithSpace.push(
+            //           context,
+            //           isMatchedSpaceFound: isSpaceMatched,
+            //           space: state.selectedSpaceDetailEntity,
+            //           selectedBenefitEntity: state.selectedBenefitEntity,
+            //         );
+            //       }
+
+            //       if (isSpaceMatched) {
+            //         "inside space selected".log();
+
+            //         RedeemBenefitScreen.push(
+            //           context,
+            //           nearBySpaceEntity: matchedSpace,
+            //           selectedBenefitEntity: state.selectedBenefitEntity,
+            //           isMatchedSpaceFound: true,
+            //         );
+            //       } else {
+            //         "inside space ELSE selected".log();
+            //         RedeemBenefitScreen.push(
+            //           context,
+            //           nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
+            //           selectedBenefitEntity: state.selectedBenefitEntity,
+            //           isMatchedSpaceFound: false,
+            //         );
+            //       }
+            //     } else {
+            //       // space list has more than 1 show Space Selection View
+            //       // otherwise show Redeem Benefit View
+            //       if (state.spacesResponseEntity.spaces.length > 1) {
+            //         SpaceSelectionScreen.show(
+            //             context, state.spacesResponseEntity.spaces);
+            //       } else {
+            //         RedeemBenefitScreen.push(
+            //           context,
+            //           nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
+            //         );
+            //       }
+            //     }
+            //   } else if (state.selectedSpaceDetailEntity.id != "") {
+            //     "inside nearby spaces are empty and state.selectedSpaceDetailEntity.id != "
+            //             " "
+            //         .log();
+
+            //     RedeemBenefitScreenWithSpace.push(
+            //       context,
+            //       isMatchedSpaceFound: false,
+            //       space: state.selectedSpaceDetailEntity,
+            //       selectedBenefitEntity: state.selectedBenefitEntity,
+            //     );
+            //   } else {
+            //     SpaceSelectionScreen.show(context, []);
+            //   }
+            // }
+
             if (state.isSubmitSuccess) {
               if (state.spacesResponseEntity.spaces.isNotEmpty) {
-                // check if state.selectedBenefitEntity is null
-                // if null then show Space Selection View
-                // otherwise show Redeem Benefit View
-
-                if (state.selectedBenefitEntity.spaceId != '') {
-                  "inside state.selectedBenefitEntity.spaceId != '' :${state.selectedBenefitEntity.spaceId} "
+                // Determine which view to show based on selectedBenefitEntity
+                if (state.selectedBenefitEntity.spaceId.isNotEmpty) {
+                  "inside state.selectedBenefitEntity.spaceId != '' :${state.selectedBenefitEntity.spaceId}"
                       .log();
 
-                  // check if in state.spacesResponseEntity.spaces  any of space id is equal
-                  // to state.selectedBenefitEntity.id
-                  // if yes then show Space Selection View
-                  // otherwise show Redeem Benefit View
                   bool isSpaceMatched = false;
                   NearBySpaceEntity matchedSpace =
                       const NearBySpaceEntity.empty();
+
                   for (var space in state.spacesResponseEntity.spaces) {
-                    if (state.selectedSpaceDetailEntity.id != "") {
+                    if (state.selectedSpaceDetailEntity.id.isNotEmpty) {
                       "inside Selected SpaceID is not null: ${state.selectedSpaceDetailEntity.id}"
                           .log();
                       if (space.id == state.selectedSpaceDetailEntity.id) {
@@ -126,29 +215,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         matchedSpace = space;
                         break;
                       }
-                    } else {
-                      if (space.id == state.selectedBenefitEntity.spaceId) {
-                        isSpaceMatched = true;
-                        matchedSpace = space;
-                        break;
-                      }
+                    } else if (space.id ==
+                        state.selectedBenefitEntity.spaceId) {
+                      isSpaceMatched = true;
+                      matchedSpace = space;
+                      break;
                     }
                   }
 
                   await Future.delayed(const Duration(milliseconds: 500));
-                  // if Selected Space is present then show Redeem Benefit View with SpaceDetailEntity
-                  if (state.selectedSpaceDetailEntity.id != "") {
+
+                  if (state.selectedSpaceDetailEntity.id.isNotEmpty) {
                     RedeemBenefitScreenWithSpace.push(
                       context,
                       isMatchedSpaceFound: isSpaceMatched,
                       space: state.selectedSpaceDetailEntity,
                       selectedBenefitEntity: state.selectedBenefitEntity,
                     );
-                  }
-
-                  if (isSpaceMatched) {
+                  } else if (isSpaceMatched) {
                     "inside space selected".log();
-
                     RedeemBenefitScreen.push(
                       context,
                       nearBySpaceEntity: matchedSpace,
@@ -165,8 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
                 } else {
-                  // space list has more than 1 show Space Selection View
-                  // otherwise show Redeem Benefit View
+                  // Show Space Selection View if there are multiple spaces, otherwise show Redeem Benefit View
                   if (state.spacesResponseEntity.spaces.length > 1) {
                     SpaceSelectionScreen.show(
                         context, state.spacesResponseEntity.spaces);
@@ -177,7 +261,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
                 }
-              } else if (state.selectedSpaceDetailEntity.id != "") {
+              } else if (state.selectedSpaceDetailEntity.id.isNotEmpty) {
+                "inside nearby spaces are empty and state.selectedSpaceDetailEntity.id != ''"
+                    .log();
                 RedeemBenefitScreenWithSpace.push(
                   context,
                   isMatchedSpaceFound: false,

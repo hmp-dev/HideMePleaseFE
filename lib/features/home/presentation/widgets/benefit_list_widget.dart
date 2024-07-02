@@ -50,7 +50,7 @@ class _BenefitListWidgetState extends State<BenefitListWidget> {
                   Text(LocaleKeys.memberShipBenefits.tr(),
                       style: fontTitle06Medium()),
                   const HorizontalSpace(10),
-                  Text("${state.nftBenefitList.length}", style: fontTitle07()),
+                  Text("${state.totalBenefitCount}", style: fontTitle07()),
                 ],
               ),
               const VerticalSpace(20),
@@ -63,7 +63,13 @@ class _BenefitListWidgetState extends State<BenefitListWidget> {
                     benefitEntity: state.nftBenefitList[index],
                   );
                 },
-              )
+              ),
+              state.loadingMoreStatus == RequestStatus.loading
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: Lottie.asset('assets/lottie/loader.json'),
+                    )
+                  : const SizedBox.shrink(),
             ],
           );
         }
