@@ -36,15 +36,22 @@ class _BenefitListWidgetState extends State<BenefitListWidget> {
         }
         if (state.submitStatus == RequestStatus.success &&
             state.nftBenefitList.isEmpty) {
-          return Column(
-            children: [
-              Text(LocaleKeys.memberShipBenefits.tr(),
-                  style: fontTitle06Medium()),
-            ],
+          return SizedBox(
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VerticalSpace(10),
+                Text(LocaleKeys.memberShipBenefits.tr(),
+                    style: fontTitle06Medium()),
+                const VerticalSpace(20),
+              ],
+            ),
           );
         } else {
           return Column(
             children: [
+              const VerticalSpace(10),
               Row(
                 children: [
                   Text(LocaleKeys.memberShipBenefits.tr(),

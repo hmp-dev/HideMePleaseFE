@@ -50,21 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC34ZypssIyxhziS2uMnGeJ3etF8fv8GWk',
-    appId: '1:125892280544:android:d475ae2e943e8ecf1ad085',
-    messagingSenderId: '125892280544',
-    projectId: 'hidemeplease2024-dev',
-    storageBucket: 'hidemeplease2024-dev.appspot.com',
+    apiKey: 'AIzaSyBlRHo6V70qc_8vOtPoA0rkLt567GdNVik',
+    appId: '1:307052986452:android:ff8ecdb5b6b73645f66dc1',
+    messagingSenderId: '307052986452',
+    projectId: 'hidemeplease-9a0dd',
+    storageBucket: 'hidemeplease-9a0dd.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD3dPy2GP0TA8lloQsbX0cHbLLy2NiUNO8',
-    appId: '1:125892280544:ios:e09f9f0d79745e321ad085',
-    messagingSenderId: '125892280544',
-    projectId: 'hidemeplease2024-dev',
-    storageBucket: 'hidemeplease2024-dev.appspot.com',
-    androidClientId: '125892280544-e08040me4mkli7rvrsrueu63qp08omhu.apps.googleusercontent.com',
-    iosClientId: '125892280544-gf2eq6ekng6053cqr3hnpvgfa6ug9h0t.apps.googleusercontent.com',
+    apiKey: 'AIzaSyC-CFFZKqWwrlrpnij-Q-zzkWoeZTdQAw4',
+    appId: '1:307052986452:ios:f277f56ccf5c184ef66dc1',
+    messagingSenderId: '307052986452',
+    projectId: 'hidemeplease-9a0dd',
+    storageBucket: 'hidemeplease-9a0dd.appspot.com',
+    androidClientId: '307052986452-0tm1e9fo0uka8hkrkhle92fp1jvakaot.apps.googleusercontent.com',
+    iosClientId: '307052986452-nbhra1i8igok1bnjs6iq3ohiuj1bqmth.apps.googleusercontent.com',
     iosBundleId: 'com.kr.hideme',
   );
 }
