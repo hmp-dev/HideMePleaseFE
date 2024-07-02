@@ -5,22 +5,22 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:web3modal_flutter/constants/string_constants.dart';
 import 'package:web3modal_flutter/models/listing.dart';
 import 'package:web3modal_flutter/services/coinbase_service/coinbase_service.dart';
+import 'package:web3modal_flutter/services/explorer_service/i_explorer_service.dart';
+import 'package:web3modal_flutter/services/explorer_service/models/api_response.dart';
 import 'package:web3modal_flutter/services/explorer_service/models/native_app_data.dart';
 import 'package:web3modal_flutter/services/explorer_service/models/redirect.dart';
 import 'package:web3modal_flutter/services/explorer_service/models/request_params.dart';
 import 'package:web3modal_flutter/services/explorer_service/models/wc_sample_wallets.dart';
 import 'package:web3modal_flutter/services/logger_service/logger_service_singleton.dart';
-import 'package:web3modal_flutter/utils/debouncer.dart';
-import 'package:web3modal_flutter/utils/url/url_utils_singleton.dart';
-import 'package:web3modal_flutter/constants/string_constants.dart';
-import 'package:web3modal_flutter/services/explorer_service/i_explorer_service.dart';
-import 'package:web3modal_flutter/services/explorer_service/models/api_response.dart';
 import 'package:web3modal_flutter/services/storage_service/storage_service_singleton.dart';
 import 'package:web3modal_flutter/utils/core/core_utils_singleton.dart';
+import 'package:web3modal_flutter/utils/debouncer.dart';
 import 'package:web3modal_flutter/utils/platform/i_platform_utils.dart';
 import 'package:web3modal_flutter/utils/platform/platform_utils_singleton.dart';
+import 'package:web3modal_flutter/utils/url/url_utils_singleton.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
 const int _defaultEntriesCount = 48;
@@ -131,8 +131,21 @@ class ExplorerService implements IExplorerService {
 
     _listings = [
       ...allListings[0],
-      ...allListings[1].sortByFeaturedIds(featuredWalletIds),
       ...allListings[2].sortByFeaturedIds(featuredWalletIds),
+      W3MWalletInfo(
+        listing: Listing.fromJson({
+          'id': 'phantom-custom',
+          'name': 'Phantom',
+          'image_id':
+              'https://firebasestorage.googleapis.com/v0/b/hidemeplease2024-dev.appspot.com/o/public%2Fphantom-wallet.png?alt=media&token=9ad22838-f0b0-4d31-b603-9ca0725963aa',
+          'homepage': 'https://phantom.app/',
+          'order': 4,
+          // 'mobile_link': schema,
+        }),
+        installed: true,
+        recent: true,
+      ),
+      ...allListings[1].sortByFeaturedIds(featuredWalletIds),
       ...allListings[3].sortByFeaturedIds(featuredWalletIds),
     ];
     listings.value = _listings;

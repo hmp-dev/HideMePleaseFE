@@ -112,7 +112,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
       _solanaWallet = solWallet;
 
       // Wallet Connect
-      var w3mService = W3MService(
+      _w3mService = W3MService(
         logLevel: LogLevel.nothing,
         featuredWalletIds: Web3Constants.allowedWalletIds,
         includedWalletIds: Web3Constants.allowedWalletIds,
@@ -129,7 +129,6 @@ class WalletsCubit extends BaseCubit<WalletsState> {
         ),
       );
 
-      _w3mService = w3mService;
       await _w3mService!.init();
 
       // Subscribe to events
@@ -141,7 +140,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
       _w3mService!.onModalDisconnect.subscribe(_onModalDisconnect);
 
       emit(state.copyWith(
-        w3mService: w3mService,
+        w3mService: _w3mService,
         submitStatus: RequestStatus.success,
       )); // Emit success state
     } catch (e) {
@@ -193,9 +192,9 @@ class WalletsCubit extends BaseCubit<WalletsState> {
   }
 
   onConnectWallet(BuildContext context) async {
-    await state.w3mService!.openModal(context);
+    await _w3mService!.openModal(context);
 
-    if (state.w3mService!.selectedWallet?.listing.id == 'phantom') {
+    if (_w3mService!.selectedWallet?.listing.id == 'phantom-custom') {
       if (Platform.isAndroid) {
         onConnectSolWallet(context);
       } else if (Platform.isIOS) {
