@@ -46,8 +46,15 @@ class HomeBenefitItemWidget extends StatelessWidget {
                   ),
                 ),
                 const VerticalSpace(5),
-                Text(benefitEntity.nftCollectionName,
-                    style: fontCompactSm(color: fore3)),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  child: Text(
+                    benefitEntity.spaceName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: fontCompactSm(color: fore3),
+                  ),
+                ),
               ],
             ),
             const Spacer(),

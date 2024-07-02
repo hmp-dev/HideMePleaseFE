@@ -19,24 +19,24 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
 
   Future<void> onGetNftBenefits({
     required String tokenAddress,
-    String? spaceId,
-    int? pageSize,
-    int? page,
   }) async {
+    "******* Get NFT Benefits CUBIT CALLED onGetNftBenefits".log();
     "Current Token Address passed is $tokenAddress".log();
+
     emit(state.copyWith(
       submitStatus: RequestStatus.loading,
       selectedTokenAddress: tokenAddress,
+      nftBenefitsPage: 1,
+      totalBenefitCount: 0,
       errorMessage: '',
       nftBenefitList: [],
+      isAllBenefitsLoaded: false,
     ));
 
+    await Future.delayed(const Duration(milliseconds: 100));
+
     final response = await _nftRepository.getNftBenefits(
-      tokenAddress: tokenAddress,
-      spaceId: spaceId,
-      pageSize: pageSize,
-      page: page,
-    );
+        tokenAddress: tokenAddress, pageSize: 10, page: 1);
 
     response.fold(
       (err) {
@@ -46,18 +46,49 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
-      (nftBenefitsList) {
+      (data) {
         final resultList =
-            nftBenefitsList.benefits?.map((e) => e.toEntity()).toList() ?? [];
+            data.benefits?.map((e) => e.toEntity()).toList() ?? [];
 
         emit(
           state.copyWith(
+            totalBenefitCount: data.benefitCount,
             nftBenefitList: resultList,
             submitStatus: RequestStatus.success,
             errorMessage: '',
           ),
         );
       },
+    );
+  }
+
+  Future<void> onGetNftBenefitsLoadMore() async {
+    "onGetSpacesLoadMore is called".log();
+    if (state.isAllBenefitsLoaded ||
+        state.loadingMoreStatus == RequestStatus.loading) {
+      return;
+    }
+
+    "onGetSpacesLoadMore is called".log();
+
+    emit(state.copyWith(loadingMoreStatus: RequestStatus.loading));
+
+    final benefitsRes = await _nftRepository.getNftBenefits(
+      tokenAddress: state.selectedTokenAddress,
+      pageSize: 10,
+      page: state.nftBenefitsPage + 1,
+    );
+
+    benefitsRes.fold(
+      (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
+      (data) => emit(state.copyWith(
+        totalBenefitCount: data.benefitCount,
+        isAllBenefitsLoaded: data.benefits?.isEmpty,
+        nftBenefitList: List.from(state.nftBenefitList)
+          ..addAll(data.benefits?.map((e) => e.toEntity()).toList() ?? []),
+        loadingMoreStatus: RequestStatus.success,
+        nftBenefitsPage: state.nftBenefitsPage + 1,
+      )),
     );
   }
 }
