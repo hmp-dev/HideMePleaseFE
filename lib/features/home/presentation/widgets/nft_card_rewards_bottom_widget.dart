@@ -33,16 +33,6 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
       listenWhen: (previous, current) =>
           previous.consumeWelcomeNftUrl != current.consumeWelcomeNftUrl,
       listener: (context, state) {
-        if (state.consumeWelcomeNftUrl.isNotEmpty) {
-          //klipwallet://wc?uri=wc%3A62eb85e29589e38710517c3391d12e9f21875ea495c5eb9b5badd4f56c0d755e%402%3Frelay-protocol%3Dirn%26symKey%3Dc3a3426d4c3ad540e8401b726eaee27f56c0e1fbcc4cee50e62367e3366d5651%26methods%3D%255Bwc_sessionPropose%252Cwc_sessionRequest%255D%252C%255Bwc_authRequest%255D
-
-          try {
-            _launchUrl(state.consumeWelcomeNftUrl);
-          } on Exception catch (e) {
-            "Could not launch ${state.consumeWelcomeNftUrl}: $e".log();
-          }
-        }
-
         if (state.isSubmitFailure) {
           snackBarService.showSnackbar(
             message: state.errorMessage,
@@ -111,7 +101,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.80,
                 height: 60,
                 onPressed: () {
-                  getIt<WalletsCubit>().state.w3mService?.openModal(context);
+                  getIt<WalletsCubit>().onConnectWallet(context);
                 },
                 child: Text(
                   'Klip 연동',

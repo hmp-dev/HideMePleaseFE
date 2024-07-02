@@ -56,10 +56,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         onEnterChat: (community) {},
                         onConnectWallet: () {
                           if (getIt<WalletsCubit>().state.w3mService != null) {
-                            getIt<WalletsCubit>()
-                                .state
-                                .w3mService!
-                                .openModal(context);
+                            getIt<WalletsCubit>().onConnectWallet(context);
                           }
                         },
                         onGetFreeNft: () {},

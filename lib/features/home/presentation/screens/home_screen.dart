@@ -313,7 +313,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return HomeViewBeforeLogin(
         onConnectWallet: () {
           if (getIt<WalletsCubit>().state.w3mService != null) {
-            getIt<WalletsCubit>().state.w3mService!.openModal(context);
+            getIt<WalletsCubit>().onConnectWallet(context);
           }
         },
       );
