@@ -129,7 +129,8 @@ class SpaceCubit extends BaseCubit<SpaceState> {
         emit(
           state.copyWith(
             spaceList: result.map((e) => e.toEntity()).toList(),
-            allSpacesLoaded: false,
+            allSpacesLoaded:
+                result.isEmpty || result.length < 10 ? true : false,
             spacesPage: 1,
           ),
         );
@@ -166,7 +167,8 @@ class SpaceCubit extends BaseCubit<SpaceState> {
           state.copyWith(
             spaceCategory: category,
             spaceList: result.map((e) => e.toEntity()).toList(),
-            allSpacesLoaded: false,
+            allSpacesLoaded:
+                result.isEmpty || result.length < 10 ? true : false,
             spacesPage: 1,
           ),
         );
@@ -200,7 +202,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     spacesRes.fold(
       (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
       (data) => emit(state.copyWith(
-        allSpacesLoaded: data.isEmpty,
+        allSpacesLoaded: data.isEmpty || data.length < 10,
         spaceList: List.from(state.spaceList)
           ..addAll(data.map((e) => e.toEntity()).toList()),
         loadingMoreStatus: RequestStatus.success,
