@@ -75,7 +75,9 @@ class GoToMemberShipCardWidget extends StatelessWidget {
               CustomRoundedButton(
                 title: LocaleKeys.editMembershipList.tr(),
                 onTap: () {
-                  EditMembershipListScreen.push(context, true);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    EditMembershipListScreen.push(context, true);
+                  });
                 },
               ),
             ],

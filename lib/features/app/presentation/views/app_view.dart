@@ -5,7 +5,6 @@ import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/preload_page_view/preload_page_view.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/notifications/notification_service.dart';
-import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
@@ -14,7 +13,6 @@ import 'package:mobile/features/events/presentation/screens/events_screen_coming
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
-import 'package:mobile/features/my/presentation/screens/my_screen.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
@@ -51,76 +49,76 @@ class _AppViewState extends State<AppView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: bg1,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0C0C0E), Color(0xCC0C0C0E)],
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF0C0C0E),
+            Color(0xCC0C0C0E),
+          ],
         ),
-        child: SafeArea(
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              BlocConsumer<PageCubit, PageState>(
-                bloc: getIt<PageCubit>(),
-                listener: (context, state) {},
-                builder: (context, state) {
-                  "state is changed $state".log();
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: PreloadPageView.builder(
-                          onPageChanged: (value) {},
-                          itemBuilder: (context, index) {
-                            if (index == MenuType.space.menuIndex) {
-                              return const SpaceScreen();
-                            } else if (index == MenuType.events.menuIndex) {
-                              return const EventsScreenComingSoon();
-                            } else if (index == MenuType.home.menuIndex) {
-                              return const HomeScreen();
-                            } else if (index == MenuType.community.menuIndex) {
-                              return const CommunityScreen();
-                            } else if (index == MenuType.settings.menuIndex) {
-                              return const MyScreen();
-                            }
+      ),
+      child: SafeArea(
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            BlocConsumer<PageCubit, PageState>(
+              bloc: getIt<PageCubit>(),
+              listener: (context, state) {},
+              builder: (context, state) {
+                "state is changed $state".log();
+                return Column(
+                  children: [
+                    Expanded(
+                      child: PreloadPageView.builder(
+                        onPageChanged: (value) {},
+                        itemBuilder: (context, index) {
+                          if (index == MenuType.space.menuIndex) {
+                            return const SpaceScreen();
+                          } else if (index == MenuType.events.menuIndex) {
+                            return const EventsScreenComingSoon();
+                          } else if (index == MenuType.home.menuIndex) {
+                            return const HomeScreen();
+                          } else if (index == MenuType.community.menuIndex) {
+                            return const CommunityScreen();
+                          } else if (index == MenuType.settings.menuIndex) {
                             return Container();
+                          }
+                          return Container();
+                        },
+                        itemCount: MenuType.values.length,
+                        controller: state.pageController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        preloadPagesCount: 5,
+                      ),
+                    ),
+                    Stack(
+                      alignment: Alignment.topCenter,
+                      children: [
+                        BottomBar(
+                          onTap: (type) {
+                            ('type: $type').log();
+                            if (type == MenuType.settings) {
+                              // fetch SettingBannerInfo and AppVersionInfo
+                              getIt<SettingsCubit>().onGetSettingBannerInfo();
+                              // Navigate to Settings Screen
+                              SettingsScreen.push(context);
+                            } else {
+                              _onChangeMenu(type);
+                            }
                           },
-                          itemCount: MenuType.values.length,
-                          controller: state.pageController,
-                          physics: const NeverScrollableScrollPhysics(),
-                          preloadPagesCount: 5,
+                          selectedType: state.menuType,
+                          opacity: _opacity,
                         ),
-                      ),
-                      Stack(
-                        alignment: Alignment.topCenter,
-                        children: [
-                          BottomBar(
-                            onTap: (type) {
-                              ('type: $type').log();
-                              if (type == MenuType.settings) {
-                                // fetch SettingBannerInfo and AppVersionInfo
-                                getIt<SettingsCubit>().onGetSettingBannerInfo();
-                                // Navigate to Settings Screen
-                                SettingsScreen.push(context);
-                              } else {
-                                _onChangeMenu(type);
-                              }
-                            },
-                            selectedType: state.menuType,
-                            opacity: _opacity,
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
