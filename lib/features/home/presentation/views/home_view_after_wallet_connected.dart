@@ -176,8 +176,12 @@ class _HomeViewAfterWalletConnectedState
                                       : item.imageUrl,
                                   topWidget: widget.isOverIconNavVisible
                                       ? NftCardTopTitleWidget(
-                                          title: item.name,
-                                          chain: item.chain,
+                                          title: showFreeNftClaim
+                                              ? nftState.welcomeNftEntity.name
+                                              : item.name,
+                                          chain: showFreeNftClaim
+                                              ? "KLAYTN"
+                                              : item.chain,
                                         )
                                       : const SizedBox.shrink(),
                                   bottomWidget: _getBottomWidget(
