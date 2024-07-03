@@ -156,6 +156,11 @@ class EnableLocationCubit extends BaseCubit<EnableLocationState> {
       Log.debug(
           'Latitude: ${position.latitude}, Longitude: ${position.longitude}');
 
+      await _profileRepository.updateUserLocation(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
       // Emit the success state with the latitude, longitude, and set
       // [isLocationDenied] to false
       emit(state.copyWith(

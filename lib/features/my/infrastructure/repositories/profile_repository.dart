@@ -93,4 +93,25 @@ class ProfileRepositoryImpl implements ProfileRepository {
       ));
     }
   }
+
+  @override
+  Future<Either<HMPError, Unit>> updateUserLocation(
+      {required double latitude, required double longitude}) async {
+    try {
+      await _remoteDataSource.updateUserLocation(
+          latitude: latitude, longitude: longitude);
+      return right(unit);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
 }
