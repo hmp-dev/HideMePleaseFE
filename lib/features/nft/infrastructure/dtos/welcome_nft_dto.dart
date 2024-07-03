@@ -44,6 +44,7 @@ class WelcomeNftDto extends Equatable {
       ];
 
   WelcomeNftEntity toEntity() => WelcomeNftEntity(
+        name: name ?? '',
         image: image ?? '',
         totalCount: totalCount ?? 0,
         usedCount: usedCount ?? 0,

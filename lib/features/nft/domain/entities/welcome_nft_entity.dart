@@ -6,12 +6,14 @@ import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.
 final koreanNumFormat = NumberFormat("###,###,###", "en_US");
 
 class WelcomeNftEntity extends Equatable {
+  final String name;
   final String image;
   final int totalCount;
   final int usedCount;
   final String tokenAddress;
 
   const WelcomeNftEntity({
+    required this.name,
     required this.image,
     required this.totalCount,
     required this.usedCount,
@@ -29,6 +31,7 @@ class WelcomeNftEntity extends Equatable {
 
   @override
   List<Object?> get props => [
+        name,
         image,
         totalCount,
         usedCount,
@@ -36,18 +39,21 @@ class WelcomeNftEntity extends Equatable {
       ];
 
   const WelcomeNftEntity.empty()
-      : image = '',
+      : name = '',
+        image = '',
         totalCount = 0,
         usedCount = 0,
         tokenAddress = '';
 
   WelcomeNftEntity copyWith({
+    String? name,
     String? image,
     int? totalCount,
     int? usedCount,
     String? tokenAddress,
   }) {
     return WelcomeNftEntity(
+      name: name ?? this.name,
       image: image ?? this.image,
       totalCount: totalCount ?? this.totalCount,
       usedCount: usedCount ?? this.usedCount,
