@@ -46,4 +46,14 @@ class ProfileRemoteDataSource {
       return true;
     }
   }
+
+  Future<void> updateUserLocation({
+    required double latitude,
+    required double longitude,
+  }) {
+    return _network.post("user/location", {
+      "latitude": latitude,
+      "longitude": longitude,
+    });
+  }
 }

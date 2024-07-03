@@ -14,4 +14,9 @@ abstract class ProfileRepository {
   });
 
   Future<Either<HMPError, bool>> getRequestCheckNickNameExists(String nickName);
+
+  Future<Either<HMPError, Unit>> updateUserLocation({
+    required double latitude,
+    required double longitude,
+  });
 }
