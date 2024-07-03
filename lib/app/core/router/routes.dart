@@ -9,20 +9,39 @@ import 'package:mobile/features/onboarding/presentation/screens/onboarding_scree
 Route<dynamic>? generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case Routes.onboardingScreen:
-      return _route(const OnBoardingScreen());
+      return _route(
+        Routes.onboardingScreen,
+        const OnBoardingScreen(),
+      );
+
     case Routes.startUpScreen:
-      return _route(const StartUpScreen());
+      return _route(
+        Routes.startUpScreen,
+        const StartUpScreen(),
+      );
     case Routes.socialLogin:
-      return _route(const SocialAuthScreen());
+      return _route(
+        Routes.socialLogin,
+        const SocialAuthScreen(),
+      );
     case Routes.appScreen:
-      return _route(const AppScreen());
+      return _route(
+        Routes.appScreen,
+        const AppScreen(),
+      );
     case Routes.serverErrorPage:
-      return _route(const ServeErrorPage());
+      return _route(
+        Routes.serverErrorPage,
+        const ServeErrorPage(),
+      );
     default:
       return null;
   }
 }
 
-Route<dynamic> _route(Widget page) {
-  return MaterialPageRoute(builder: (_) => page);
+Route<dynamic> _route(String name, Widget page) {
+  return MaterialPageRoute(
+    builder: (_) => page,
+    settings: RouteSettings(name: name),
+  );
 }
