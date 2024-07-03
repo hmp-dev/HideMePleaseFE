@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/features/common/presentation/widgets/svg_aware_image_widget.dart';
+// import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 
 class NFTCardWidgetParentLocal extends StatelessWidget {
   const NFTCardWidgetParentLocal({
@@ -31,11 +33,23 @@ class NFTCardWidgetParentLocal extends StatelessWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    DefaultImage(
-                      path: imagePath,
-                      width: 326,
-                      height: 486,
-                    ),
+                    imagePath == ""
+                        ? CustomImageView(
+                            imagePath: "assets/images/place_holder_card.png",
+                            width: 326,
+                            height: 486,
+                            border: Border.all(
+                              color: fore4,
+                              width: 1,
+                            ),
+                          )
+                        : CustomImageView(
+                            svgPath: imagePath,
+                            width: 326,
+                            height: 486,
+                            border: Border.all(color: fore4, width: 1),
+                            fit: BoxFit.fitHeight,
+                          ),
                     ColorFiltered(
                       colorFilter: ColorFilter.mode(
                         Colors.white.withOpacity(0.5),
@@ -57,11 +71,25 @@ class NFTCardWidgetParentLocal extends StatelessWidget {
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              DefaultImage(
-                                path: imagePath,
-                                width: 318,
-                                height: 478,
-                              ),
+                              imagePath == ""
+                                  ? CustomImageView(
+                                      imagePath:
+                                          "assets/images/home_card_img.png",
+                                      width: 326,
+                                      height: 486,
+                                      border: Border.all(
+                                        color: fore4,
+                                        width: 1,
+                                      ),
+                                    )
+                                  : CustomImageView(
+                                      svgPath: imagePath,
+                                      width: 326,
+                                      height: 486,
+                                      border:
+                                          Border.all(color: fore4, width: 1),
+                                      fit: BoxFit.fitHeight,
+                                    ),
                               ColorFiltered(
                                 colorFilter: ColorFilter.mode(
                                   Colors.white.withOpacity(0.5),
@@ -75,10 +103,11 @@ class NFTCardWidgetParentLocal extends StatelessWidget {
                               ),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
-                                child: DefaultImage(
-                                  path: imagePath,
-                                  width: 316,
-                                  height: 476,
+                                child: SvgAwareImageWidget(
+                                  imageUrl: imagePath,
+                                  imageWidth: 316,
+                                  imageHeight: 476,
+                                  imageBorderRadius: 2,
                                 ),
                               ),
                             ],
