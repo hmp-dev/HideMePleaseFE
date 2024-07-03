@@ -1,81 +1,67 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
 
-class EventsView extends StatelessWidget {
-  final EventsViewData onBoardingSlideData;
+class EventsView extends StatefulWidget {
+  const EventsView({
+    super.key,
+    required this.onRefresh,
+  });
 
-  const EventsView({super.key, required this.onBoardingSlideData});
+  final Future<void> Function() onRefresh;
+
+  @override
+  State<EventsView> createState() => _EventsViewState();
+}
+
+class _EventsViewState extends State<EventsView> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.removeListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      // widget.onLoadMore();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        const Expanded(
-          flex: 3,
-          child: SizedBox(),
-        ),
-        Expanded(
-          flex: 5,
-          child: Center(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width - 120,
-              child: AspectRatio(
-                aspectRatio: 0.5,
-                child: SizedBox(
-                  width: 182,
-                  height: 158,
-                  child: Lottie.asset(onBoardingSlideData.animationPath,
-                      fit: BoxFit.contain, alignment: Alignment.center),
-                ),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: Column(
-            children: [
-              const VerticalSpace(10),
-              Text(
-                onBoardingSlideData.titleTextA,
-                textAlign: TextAlign.center,
-                style: fontTitle03Bold(),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          flex: 4,
-          child: SizedBox(
-            width: 250,
-            child: Text(
-              '', //onBoardingSlideData.descText,
-              textAlign: TextAlign.center,
-              style: fontCompactMd(color: fore2),
-            ),
-          ),
-        ),
-        const Expanded(
-          flex: 1,
-          child: SizedBox(),
-        ),
-      ],
+    return RefreshIndicator(
+      onRefresh: widget.onRefresh,
+      child: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverToBoxAdapter(child: buildTopTitleBar()),
+        ],
+      ),
     );
   }
-}
 
-class EventsViewData {
-  final String titleTextA;
-  final String titleTextB;
-  final String descText;
-  final String animationPath;
-
-  EventsViewData({
-    required this.titleTextA,
-    required this.titleTextB,
-    required this.descText,
-    required this.animationPath,
-  });
+  Container buildTopTitleBar() {
+    return Container(
+      margin: const EdgeInsets.only(left: 20, right: 20),
+      height: 75,
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Join me", style: fontBody2Bold()),
+            const AlarmsIconButton(),
+          ],
+        ),
+      ),
+    );
+  }
 }

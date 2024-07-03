@@ -1,14 +1,11 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
-import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
@@ -22,6 +19,57 @@ class StartUpScreen extends StatefulWidget {
 }
 
 class _StartUpScreenState extends State<StartUpScreen>
+    with TickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  bool isAnimationCompleteAndShowStartUpView = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: isAnimationCompleteAndShowStartUpView
+            ? const StartUpWidget()
+            : Lottie.asset(
+                "assets/lottie/splash.json",
+                controller: _controller,
+                onLoaded: (composition) {
+                  _controller
+                    ..duration = composition.duration
+                    ..forward().whenComplete(() async {
+                      setState(() {
+                        isAnimationCompleteAndShowStartUpView = true;
+                      });
+                    });
+                },
+              ),
+      ),
+    );
+  }
+}
+
+// ignore_for_file: use_build_context_synchronously
+
+class StartUpWidget extends StatefulWidget {
+  const StartUpWidget({super.key});
+
+  @override
+  State<StartUpWidget> createState() => _StartUpWidgetState();
+}
+
+class _StartUpWidgetState extends State<StartUpWidget>
     with TickerProviderStateMixin {
   @override
   void initState() {
@@ -45,17 +93,9 @@ class _StartUpScreenState extends State<StartUpScreen>
           bloc: getIt<AppCubit>(),
           listener: (context, state) async {
             if (!state.isLoggedIn) {
-              // wait to complete the SPlash Animation
-              await Future.delayed(const Duration(milliseconds: 3800));
-              // User is not logged in navigate to Social Login View
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                Routes.socialLogin,
-                (route) => false,
-              );
-            }
-
-            if (state.isLoggedIn) {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  Routes.socialLogin, (Route<dynamic> route) => false);
+            } else {
               ("-------inside state.isLoggedIn: ${state.isLoggedIn}").log();
               // User is logged in
               // a - fetch Base User Data
@@ -81,11 +121,17 @@ class _StartUpScreenState extends State<StartUpScreen>
         ),
         BlocListener<WalletsCubit, WalletsState>(
           bloc: getIt<WalletsCubit>(),
+          listenWhen: (previous, current) =>
+              previous.connectedWallets != current.connectedWallets,
           listener: (context, walletsState) async {
-            if (walletsState.isSubmitSuccess) {
+            if (walletsState.submitStatus == RequestStatus.success) {
+              "inside walletsState.submitStatus == RequestStatus.success "
+                  .log();
+
               //on fetching Tokens navigate to Home
               ("++++++++++++++++++++++++++++++Profile: ${walletsState.connectedWallets}")
                   .log();
+
               if (walletsState.connectedWallets.isEmpty) {
                 // If a wallet is NOT Connected
                 // Update Home View to Show with Before Wallet Connected
@@ -93,13 +139,8 @@ class _StartUpScreenState extends State<StartUpScreen>
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
                 // pass value to appHome with Navigator.pushNamedAndRemoveUntil to disconnect wallet
-
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  Routes.appHome,
-                  (route) => false,
-                  arguments: {'isWalletSavedIntoProfile': false},
-                );
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    Routes.appScreen, (Route<dynamic> route) => false);
               } else {
                 // If a wallet is Connected
                 // Update Home View to Show with Wallet Connected
@@ -107,31 +148,23 @@ class _StartUpScreenState extends State<StartUpScreen>
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
 
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  Routes.appHome,
-                  (route) => false,
-                );
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    Routes.appScreen, (Route<dynamic> route) => false);
               }
             }
 
-            if (walletsState.isSubmitFailure) {
+            if (walletsState.submitStatus == RequestStatus.failure) {
               await getIt.reset();
               await configureDependencies();
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                Routes.serverErrorPage,
-                (route) => false,
-              );
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  Routes.serverErrorPage, (Route<dynamic> route) => false);
             }
           },
         ),
       ],
-      child: BaseScaffold(
-        body: Container(
-          child: Lottie.asset(
-            'assets/lottie/loader.json',
-          ),
+      child: Container(
+        child: Lottie.asset(
+          'assets/lottie/loader.json',
         ),
       ),
     );

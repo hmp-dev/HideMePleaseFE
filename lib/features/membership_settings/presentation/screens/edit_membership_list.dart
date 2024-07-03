@@ -157,11 +157,10 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                               text: LocaleKeys.next.tr(),
                               onPressed: () {
                                 getIt<NftCubit>().onCollectionOrderChanged();
-
                                 // Navigate to Home
                                 Navigator.pushNamedAndRemoveUntil(
                                   context,
-                                  Routes.appHome,
+                                  Routes.appScreen,
                                   (route) => false,
                                 );
                               },
