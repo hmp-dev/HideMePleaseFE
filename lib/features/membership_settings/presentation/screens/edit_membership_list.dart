@@ -121,6 +121,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                               CrossAxisAlignment.center,
                                           children: [
                                             buildMyMembershipSettingsTextIconButton(),
+                                            const VerticalSpace(10),
                                             HMPCustomButton(
                                               text: LocaleKeys.confirm.tr(),
                                               onPressed: () {
@@ -187,9 +188,9 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
         MyMembershipSettingsScreen.push(context);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          vertical: 30.0,
-        ),
+        width: double.infinity,
+        height: 60,
+        color: Colors.transparent,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
