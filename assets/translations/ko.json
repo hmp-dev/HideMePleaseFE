@@ -172,5 +172,7 @@
     "retryButtonTitle": "새로고침",
     "serviceUpdatingMessage": "새로운 기능 추가를 위해 임시 점검 중이에요.\n잠시 후에 다시 만나요",
     "serviceUpdating": "서비스 업데이트 중",
-    "benefitRedeemAgreeTermsMessage": "개인정보 이용에 동의하시겠습니까?"
+    "benefitRedeemAgreeTermsMessage": "개인정보 이용에 동의하시겠습니까?",
+    "nonPermitLocation": "미허용",
+    "permittedLocation": "허용"
 }

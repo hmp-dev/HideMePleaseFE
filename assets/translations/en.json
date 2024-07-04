@@ -171,5 +171,7 @@
     "retryButtonTitle": "Retry",
     "serviceUpdatingMessage": "We are currently undergoing temporary maintenance to add new features. See you again in a moment",
     "serviceUpdating": "Service Updating",
-    "benefitRedeemAgreeTermsMessage": "Do you agree to the use of your personal information?"
+    "benefitRedeemAgreeTermsMessage": "Do you agree to the use of your personal information?",
+     "nonPermitLocation": "Not Allowed",
+     "permittedLocation": "Allowed"
 }

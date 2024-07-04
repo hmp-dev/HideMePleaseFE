@@ -186,39 +186,33 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Widget buildLocationConcent() {
-    return BlocConsumer<EnableLocationCubit, EnableLocationState>(
-      bloc: getIt<EnableLocationCubit>()..checkLocationPermission(),
-      listener: (context, state) {},
-      builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          child: GestureDetector(
-            onTap: () {
-              "is the location is enabled ${state.isLocationEnabled}".log();
-              getIt<EnableLocationCubit>()
-                  .onAskDeviceLocationWithOpenSettings();
-            },
-            child: Row(
-              children: [
-                Text(
-                  LocaleKeys.locationInfoAgreement.tr(),
-                  style: fontCompactMd(),
-                ),
-                const Spacer(),
-                state.isLocationPermissionGranted
-                    ? Text(
-                        LocaleKeys.allowed.tr(),
-                        style: fontCompactSmMedium(color: hmpBlue),
-                      )
-                    : Text(
-                        LocaleKeys.permit.tr(),
-                        style: fontCompactSmMedium(color: hmpBlue),
-                      ),
-              ],
+    final state = getIt<EnableLocationCubit>().state;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      child: GestureDetector(
+        onTap: () {
+          "is the location is enabled ${state.isLocationEnabled}".log();
+          getIt<EnableLocationCubit>().onAskDeviceLocationWithOpenSettings();
+        },
+        child: Row(
+          children: [
+            Text(
+              LocaleKeys.locationInfoAgreement.tr(),
+              style: fontCompactMd(),
             ),
-          ),
-        );
-      },
+            const Spacer(),
+            state.isLocationPermissionGranted
+                ? Text(
+                    LocaleKeys.permittedLocation.tr(),
+                    style: fontCompactSmMedium(color: hmpBlue),
+                  )
+                : Text(
+                    LocaleKeys.nonPermitLocation.tr(),
+                    style: fontCompactSmMedium(color: fore3),
+                  ),
+          ],
+        ),
+      ),
     );
   }
 }

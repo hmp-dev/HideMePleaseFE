@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -19,57 +20,6 @@ class StartUpScreen extends StatefulWidget {
 }
 
 class _StartUpScreenState extends State<StartUpScreen>
-    with TickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  bool isAnimationCompleteAndShowStartUpView = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: isAnimationCompleteAndShowStartUpView
-            ? const StartUpWidget()
-            : Lottie.asset(
-                "assets/lottie/splash.json",
-                controller: _controller,
-                onLoaded: (composition) {
-                  _controller
-                    ..duration = composition.duration
-                    ..forward().whenComplete(() async {
-                      setState(() {
-                        isAnimationCompleteAndShowStartUpView = true;
-                      });
-                    });
-                },
-              ),
-      ),
-    );
-  }
-}
-
-// ignore_for_file: use_build_context_synchronously
-
-class StartUpWidget extends StatefulWidget {
-  const StartUpWidget({super.key});
-
-  @override
-  State<StartUpWidget> createState() => _StartUpWidgetState();
-}
-
-class _StartUpWidgetState extends State<StartUpWidget>
     with TickerProviderStateMixin {
   @override
   void initState() {
@@ -156,15 +106,19 @@ class _StartUpWidgetState extends State<StartUpWidget>
             if (walletsState.submitStatus == RequestStatus.failure) {
               await getIt.reset();
               await configureDependencies();
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  Routes.serverErrorPage, (Route<dynamic> route) => false);
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    Routes.serverErrorPage, (Route<dynamic> route) => false);
+              }
             }
           },
         ),
       ],
-      child: Container(
-        child: Lottie.asset(
-          'assets/lottie/loader.json',
+      child: Scaffold(
+        body: Center(
+          child: Lottie.asset(
+            'assets/lottie/loader.json',
+          ),
         ),
       ),
     );

@@ -39,6 +39,7 @@ class _MyAppState extends State<MyApp> {
         httpCluster: Cluster.mainnet,
         identity: kSolanaAppId,
         child: MaterialApp(
+          debugShowCheckedModeBanner: false,
           navigatorKey: StackedService.navigatorKey,
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
@@ -46,7 +47,7 @@ class _MyAppState extends State<MyApp> {
           title: '하이드미플리즈', //Hyde Me Please
           theme: theme(),
           onGenerateRoute: generateRoute,
-          initialRoute: Routes.startUpScreen,
+          initialRoute: Routes.splashScreen,
           navigatorObservers: [
             ObserverUtils.routeObserver,
             //FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),

@@ -162,7 +162,7 @@ class _SpaceViewState extends State<SpaceView> {
                         },
                       ),
                       CategoryIconWidget(
-                        icon: "assets/icons/ic_space_category_pub.svg",
+                        icon: "assets/icons/ic_space_category_coworking.svg",
                         title: LocaleKeys.coworking.tr(),
                         isSelected: spaceCategory == SpaceCategory.COWORKING,
                         onTap: () {
