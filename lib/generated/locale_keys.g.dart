@@ -174,5 +174,7 @@ abstract class  LocaleKeys {
   static const serviceUpdatingMessage = 'serviceUpdatingMessage';
   static const serviceUpdating = 'serviceUpdating';
   static const benefitRedeemAgreeTermsMessage = 'benefitRedeemAgreeTermsMessage';
+  static const nonPermitLocation = 'nonPermitLocation';
+  static const permittedLocation = 'permittedLocation';
 
 }

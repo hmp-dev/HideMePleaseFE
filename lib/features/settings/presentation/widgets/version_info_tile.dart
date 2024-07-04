@@ -36,7 +36,7 @@ class VersionInfoTile extends StatelessWidget {
                       ),
                       const VerticalSpace(7),
                       Text(
-                        "${LocaleKeys.latestVersion.tr()}: ${state.storeVersion}",
+                        "${LocaleKeys.latestVersion.tr()}: ${state.installedVersion}",
                         style: fontCompactXs(color: fore3),
                       ),
                     ],
