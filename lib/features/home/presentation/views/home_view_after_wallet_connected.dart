@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
@@ -94,8 +96,6 @@ class _HomeViewAfterWalletConnectedState
                 final bool isCurrentNftFreeNft =
                     _currentIndex == 0 && !widget.userProfile.freeNftClaimed;
 
-                final bool isFreeNftClaimed = widget.userProfile.freeNftClaimed;
-
                 return Column(
                   children: [
                     const SizedBox(height: 20),
@@ -137,10 +137,19 @@ class _HomeViewAfterWalletConnectedState
                                   // else set isItemFirstOrLast as false
                                   setState(() => _isCurrentIndexIsLat = false);
 
-                                  //call NFt Benefits API
-                                  if (_currentIndex > 0) {
-                                    getIt<NftBenefitsCubit>().onGetNftBenefits(
-                                        tokenAddress: _currentTokenAddress);
+                                  //call NFt Benefits API for all index
+                                  // if user has not claimed free NFT not for 0 index
+                                  // as it is Free NFT Redeem Card
+                                  if (widget.userProfile.freeNftClaimed) {
+                                    getIt<NftBenefitsCubit>()
+                                        .onGetNftBenefitsLoadMore();
+                                  } else {
+                                    if (_currentIndex > 0) {
+                                      getIt<NftBenefitsCubit>()
+                                          .onGetNftBenefits(
+                                              tokenAddress:
+                                                  _currentTokenAddress);
+                                    }
                                   }
 
                                   if (_currentSelectWidgetIndex == 2) {
@@ -206,16 +215,16 @@ class _HomeViewAfterWalletConnectedState
                       ],
                     ),
                     const SizedBox(height: 20),
-
+                    // Text(_currentTokenAddress),
                     // not show this for first (if free NFT not claimed )
                     // and and not show for the last index
-                    if (!isFreeNftClaimed && _currentIndex == 0 ||
-                        _currentIndex != selectedNftsListForHome.length - 1)
+                    if (shouldShowWidget(widget.userProfile, _currentIndex,
+                        selectedNftsListForHome))
                       CustomImageView(
                         svgPath: "assets/icons/ic_angle_arrow_down.svg",
                       ),
-                    (!_isCurrentIndexIsLat &&
-                            (_currentIndex != 0 || isFreeNftClaimed) &&
+                    (shouldShowWidget(widget.userProfile, _currentIndex,
+                                selectedNftsListForHome) &&
                             !widget.isOverIconNavVisible)
                         ? AnimatedSlideFadeIn(
                             slideIndex: 0,
@@ -263,6 +272,19 @@ class _HomeViewAfterWalletConnectedState
         );
       },
     );
+  }
+
+  bool shouldShowWidget(UserProfileEntity userProfile, int currentIndex,
+      List<SelectedNFTEntity> selectedNftsListForHome) {
+    // Do not show for the first index if free NFT not claimed
+    if (!userProfile.freeNftClaimed && currentIndex == 0) {
+      return false;
+    }
+    // Do not show for the last index
+    if (currentIndex == selectedNftsListForHome.length - 1) {
+      return false;
+    }
+    return true;
   }
 
   Widget _getBadgeWidget(bool showFreeNftClaim, int itemIndex,

@@ -28,6 +28,8 @@ class SpaceDetailDto extends Equatable {
   final String? locationDescription;
   @JsonKey(name: "image")
   final String? image;
+  @JsonKey(name: "hidingCount")
+  final int? hidingCount;
 
   const SpaceDetailDto({
     this.id,
@@ -41,6 +43,7 @@ class SpaceDetailDto extends Equatable {
     this.introduction,
     this.locationDescription,
     this.image,
+    this.hidingCount,
   });
 
   factory SpaceDetailDto.fromJson(Map<String, dynamic> json) =>
@@ -62,6 +65,7 @@ class SpaceDetailDto extends Equatable {
       introduction,
       locationDescription,
       image,
+      hidingCount,
     ];
   }
 
@@ -77,5 +81,6 @@ class SpaceDetailDto extends Equatable {
         introduction: introduction ?? "",
         locationDescription: locationDescription ?? "",
         image: image ?? "",
+        hidingCount: hidingCount ?? 0,
       );
 }

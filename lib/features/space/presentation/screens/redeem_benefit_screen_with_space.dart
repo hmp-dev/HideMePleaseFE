@@ -21,6 +21,7 @@ import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/infrastructure/dtos/agree_terms_url_dto.dart';
 import 'package:mobile/features/space/presentation/cubit/benefit_redeem_cubit.dart';
+import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
 import 'package:mobile/features/space/presentation/cubit/space_benefits_cubit.dart';
 import 'package:mobile/features/space/presentation/widgets/sunrise_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -88,161 +89,184 @@ class _RedeemBenefitScreenWithSpaceState
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SpaceBenefitsCubit, SpaceBenefitsState>(
-      bloc: getIt<SpaceBenefitsCubit>(),
-      listener: (context, spaceBenefitsState) {},
-      builder: (context, spaceBenefitsState) {
-        return BlocConsumer<BenefitRedeemCubit, BenefitRedeemState>(
-          bloc: getIt<BenefitRedeemCubit>(),
-          listener: (context, benefitRedeemState) async {
-            if (benefitRedeemState.submitStatus == RequestStatus.failure) {
-              // Show Error Snackbar If Error in Redeeming Benefit
-              context.showErrorSnackBar(benefitRedeemState.errorMessage);
-            }
+    return BlocConsumer<NearBySpacesCubit, NearBySpacesState>(
+      bloc: getIt<NearBySpacesCubit>(),
+      listener: (context, nearBySpaceState) {},
+      builder: (context, nearBySpaceState) {
+        return BlocConsumer<SpaceBenefitsCubit, SpaceBenefitsState>(
+          bloc: getIt<SpaceBenefitsCubit>(),
+          listener: (context, spaceBenefitsState) {},
+          builder: (context, spaceBenefitsState) {
+            return BlocConsumer<BenefitRedeemCubit, BenefitRedeemState>(
+              bloc: getIt<BenefitRedeemCubit>(),
+              listener: (context, benefitRedeemState) async {
+                if (benefitRedeemState.submitStatus == RequestStatus.failure) {
+                  // Show Error Snackbar If Error in Redeeming Benefit
+                  context.showErrorSnackBar(benefitRedeemState.errorMessage);
+                }
 
-            if (benefitRedeemState.submitStatus == RequestStatus.success) {
-              //update Success Status
-              setState(() {
-                isBenefitRedeemSuccess = true;
-              });
-              onBenefitRedeemSuccess(spaceBenefitsState);
+                if (benefitRedeemState.submitStatus == RequestStatus.success) {
+                  //update Success Status
+                  setState(() {
+                    isBenefitRedeemSuccess = true;
+                  });
+                  onBenefitRedeemSuccess(spaceBenefitsState);
 
-              // if selected Entity in not null
-              final state = getIt<NftBenefitsCubit>().state;
-              //call NFt Benefits API
-              getIt<NftBenefitsCubit>()
-                  .onGetNftBenefits(tokenAddress: state.selectedTokenAddress);
-            }
-          },
-          builder: (context, benefitRedeemState) {
-            return BaseScaffold(
-              body: SafeArea(
-                child: SingleChildScrollView(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    buildTitleRow(context),
-                    buildSpaceNameRow(context, widget.space),
-                    widget.isMatchedSpaceFound == false
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 5.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                DefaultImage(
-                                  path: "assets/icons/ic_info_icon.svg",
-                                  width: 16,
-                                  height: 16,
-                                  color: fore2,
+                  // if selected Entity in not null
+                  final state = getIt<NftBenefitsCubit>().state;
+                  //call NFt Benefits API
+                  getIt<NftBenefitsCubit>().onGetNftBenefits(
+                      tokenAddress: state.selectedTokenAddress);
+                }
+              },
+              builder: (context, benefitRedeemState) {
+                return BaseScaffold(
+                  body: SafeArea(
+                    child: SingleChildScrollView(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        buildTitleRow(context),
+                        buildSpaceNameRow(context, widget.space),
+                        widget.isMatchedSpaceFound == false
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 5.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    DefaultImage(
+                                      path: "assets/icons/ic_info_icon.svg",
+                                      width: 16,
+                                      height: 16,
+                                      color: fore2,
+                                    ),
+                                    const HorizontalSpace(8),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7,
+                                      child: Text(
+                                        LocaleKeys
+                                            .notInSpaceCanSpaceCannotUseBenefit
+                                            .tr(),
+                                        style: fontBodyXs(color: fore2),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const HorizontalSpace(8),
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.7,
-                                  child: Text(
-                                    LocaleKeys
-                                        .notInSpaceCanSpaceCannotUseBenefit
-                                        .tr(),
-                                    style: fontBodyXs(color: fore2),
+                              )
+                            : const SizedBox.shrink(),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: 436,
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: CarouselSlider(
+                                  carouselController: _carouselController,
+                                  options: CarouselOptions(
+                                    height: 436,
+                                    viewportFraction: 0.9,
+                                    aspectRatio: 16 / 9,
+                                    enableInfiniteScroll: false,
+                                    enlargeCenterPage: false,
+                                    initialPage: selectedPageIndex,
+                                    autoPlayInterval:
+                                        const Duration(seconds: 3),
+                                    onPageChanged: (int index, _) {
+                                      setState(() {
+                                        selectedPageIndex = index;
+                                      });
+                                    },
                                   ),
+                                  items: [
+                                    BenefitCardWidgetWithSpaceDetailEntity(
+                                      space: widget.space,
+                                      nftBenefitEntity: widget.benefit,
+                                      isBenefitRedeemSuccess:
+                                          isBenefitRedeemSuccess,
+                                      isMatchedSpaceFound:
+                                          widget.isMatchedSpaceFound
+                                              ? true
+                                              : widget.isMatchedSpaceFound,
+                                    )
+                                  ],
                                 ),
-                              ],
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      height: 436,
-                      child: Stack(
-                        alignment: Alignment.bottomCenter,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 20.0),
-                            child: CarouselSlider(
-                              carouselController: _carouselController,
-                              options: CarouselOptions(
-                                height: 436,
-                                viewportFraction: 0.9,
-                                aspectRatio: 16 / 9,
-                                enableInfiniteScroll: false,
-                                enlargeCenterPage: false,
-                                initialPage: selectedPageIndex,
-                                autoPlayInterval: const Duration(seconds: 3),
-                                onPageChanged: (int index, _) {
-                                  setState(() {
-                                    selectedPageIndex = index;
-                                  });
-                                },
                               ),
-                              items: [
-                                BenefitCardWidgetWithSpaceDetailEntity(
-                                  space: widget.space,
-                                  nftBenefitEntity: widget.benefit,
-                                  isBenefitRedeemSuccess:
-                                      isBenefitRedeemSuccess,
-                                  isMatchedSpaceFound:
-                                      widget.isMatchedSpaceFound
-                                          ? true
-                                          : widget.isMatchedSpaceFound,
-                                )
-                              ],
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    const VerticalSpace(20),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20.0, right: 20, top: 50, bottom: 20),
-                      child: (benefitRedeemState.submitStatus ==
-                              RequestStatus.loading)
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : SunriseWidget(
-                              isButtonEnabled: widget.isMatchedSpaceFound,
-                              onSubmitRedeem: () async {
-                                // redeem submit  starts
-                                var result =
-                                    await showBenefitRedeemSuccessAlertDialog(
-                                  context: context,
-                                  buttonTitle:
-                                      LocaleKeys.employeeConfirmation.tr(),
-                                  title:
-                                      "직원에게 혜택 사용 화면을 보여주세요!\n${widget.benefit.description} ",
-                                  onConfirm: () {
-                                    Navigator.pop(context, true);
-                                  },
-                                );
+                        ),
+                        const VerticalSpace(20),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 20.0, right: 20, top: 50, bottom: 20),
+                          child: (benefitRedeemState.submitStatus ==
+                                  RequestStatus.loading)
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
+                              : SunriseWidget(
+                                  tokenAddress: removeCurlyBraces(
+                                      widget.benefit.tokenAddress),
+                                  isButtonEnabled: widget.isMatchedSpaceFound,
+                                  onSubmitRedeem: () async {
+                                    // bool isUserInSpace = false;
+                                    // for (var space in nearBySpaceState
+                                    //     .spacesResponseEntity.spaces) {
+                                    //   if (space.id == widget.space.id) {
+                                    //     isUserInSpace = true;
 
-                                if (result) {
-                                  final locationState =
-                                      getIt<EnableLocationCubit>().state;
-                                  // call the benefit redeem api here
+                                    //     break;
+                                    //   }
+                                    // }
 
-                                  "the token address is as ${widget.benefit.tokenAddress}"
-                                      .log();
+                                    // await Future.delayed(
+                                    //     const Duration(milliseconds: 100));
 
-                                  if (locationState.latitude != 0.0 ||
-                                      locationState.longitude != 0.0) {
-                                    getIt<BenefitRedeemCubit>()
-                                        .onPostRedeemBenefit(
-                                      benefitId: widget.benefit.id,
-                                      tokenAddress: removeCurlyBraces(
-                                          widget.benefit.tokenAddress),
-                                      spaceId: widget.benefit.spaceId,
-                                      latitude: locationState.latitude,
-                                      longitude: locationState.longitude,
+                                    //if (isUserInSpace) {
+                                    // redeem submit  starts
+                                    var result =
+                                        await showBenefitRedeemSuccessAlertDialog(
+                                      context: context,
+                                      buttonTitle:
+                                          LocaleKeys.employeeConfirmation.tr(),
+                                      title:
+                                          "직원에게 혜택 사용 화면을 보여주세요!\n${widget.benefit.description} ",
+                                      onConfirm: () {
+                                        Navigator.pop(context, true);
+                                      },
                                     );
-                                  }
-                                }
-                                // redeem submit  Ends
-                              },
-                            ),
-                    ),
-                  ],
-                )),
-              ),
+
+                                    if (result) {
+                                      "the token address is as ${widget.benefit.tokenAddress}"
+                                          .log();
+
+                                      getIt<BenefitRedeemCubit>()
+                                          .onPostRedeemBenefit(
+                                        benefitId: widget.benefit.id,
+                                        tokenAddress: removeCurlyBraces(
+                                            widget.benefit.tokenAddress),
+                                        spaceId: widget.benefit.spaceId,
+                                      );
+                                    }
+                                    // } else {
+                                    //   context.showSnackBar(
+                                    //     LocaleKeys
+                                    //         .notInSpaceCanSpaceCannotUseBenefit
+                                    //         .tr(),
+                                    //   );
+                                    // }
+
+                                    // redeem submit  Ends
+                                  },
+                                ),
+                        ),
+                      ],
+                    )),
+                  ),
+                );
+              },
             );
           },
         );

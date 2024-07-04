@@ -10,8 +10,10 @@ class SunriseWidget extends StatefulWidget {
     super.key,
     required this.onSubmitRedeem,
     required this.isButtonEnabled,
+    required this.tokenAddress,
   });
 
+  final String tokenAddress;
   final VoidCallback onSubmitRedeem;
   final bool isButtonEnabled;
 
@@ -74,6 +76,10 @@ class _SunriseWidgetState extends State<SunriseWidget>
   }
 
   void _onLongPressStart(LongPressStartDetails details) {
+    // call the  Api to Check if User in the Space
+    // getIt<NearBySpacesCubit>()
+    //     .onGetNearBySpacesListData(tokenAddress: widget.tokenAddress);
+
     _fillFull = false;
     _controller.forward().whenComplete(() async {
       await Future.delayed(const Duration(milliseconds: 200));
