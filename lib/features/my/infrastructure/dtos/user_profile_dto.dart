@@ -11,19 +11,13 @@ part 'user_profile_dto.g.dart';
 @JsonSerializable()
 class UserProfileDto extends Equatable {
   final String? id;
-  @JsonKey(name: "nickName")
   final String? nickName;
-  @JsonKey(name: "introduction")
   final String? introduction;
-  @JsonKey(name: "locationPublic")
   final bool? locationPublic;
-  @JsonKey(name: "notificationsEnabled")
   final bool? notificationsEnabled;
   final bool? freeNftClaimed;
   final String? chatAccessToken;
-  @JsonKey(name: "pfpNftId")
   final String? pfpNftId;
-  @JsonKey(name: "pfpImageUrl")
   final String? pfpImageUrl;
   final String? chatAppId;
 

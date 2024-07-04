@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/features/chat/presentation/screens/chat_screen.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/community/presentation/cubit/community_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_details_screen.dart';
@@ -9,6 +10,7 @@ import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:sendbird_uikit/sendbird_uikit.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -53,7 +55,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   builder: (context) => CommunityDetailsScreen(
                                       nftCommunity: community)));
                         },
-                        onEnterChat: (community) {},
+                        onEnterChat: (community) {
+                          CommunityChatScreen.push(context,
+                              channel: community.tokenAddress);
+                        },
                         onConnectWallet: () {
                           if (getIt<WalletsCubit>().state.w3mService != null) {
                             getIt<WalletsCubit>().onConnectWallet(context);

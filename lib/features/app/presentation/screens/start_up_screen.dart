@@ -48,10 +48,8 @@ class _StartUpScreenState extends State<StartUpScreen>
             } else {
               ("-------inside state.isLoggedIn: ${state.isLoggedIn}").log();
               // User is logged in
-              // a - fetch Base User Data
-              getIt<ProfileCubit>().onGetBaseUser();
-              // b- get User Profile Data
-              getIt<ProfileCubit>().onGetUserProfile();
+              // a - init
+              getIt<ProfileCubit>().init();
               // c - fetch user connected Wallets
               getIt<WalletsCubit>().onGetAllWallets();
               // d - fetch user selected NFT Tokens

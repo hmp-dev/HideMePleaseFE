@@ -10,6 +10,7 @@ import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/core/util/observer_utils.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:sendbird_uikit/sendbird_uikit.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -38,22 +39,24 @@ class _MyAppState extends State<MyApp> {
       child: SolanaWalletProvider.create(
         httpCluster: Cluster.mainnet,
         identity: kSolanaAppId,
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          navigatorKey: StackedService.navigatorKey,
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          title: '하이드미플리즈', //Hyde Me Please
-          theme: theme(),
-          onGenerateRoute: generateRoute,
-          initialRoute: Routes.splashScreen,
-          navigatorObservers: [
-            ObserverUtils.routeObserver,
-            //FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
-          ],
-          builder: EasyLoading.init(
-            builder: FToastBuilder(),
+        child: SendbirdUIKit.provider(
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            navigatorKey: StackedService.navigatorKey,
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+            title: '하이드미플리즈', //Hyde Me Please
+            theme: theme(),
+            onGenerateRoute: generateRoute,
+            initialRoute: Routes.splashScreen,
+            navigatorObservers: [
+              ObserverUtils.routeObserver,
+              //FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+            ],
+            builder: EasyLoading.init(
+              builder: FToastBuilder(),
+            ),
           ),
         ),
       ),
