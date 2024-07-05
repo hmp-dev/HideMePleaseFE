@@ -139,10 +139,11 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           buildTitleRow(context),
-                          buildSpaceNameRow(context, widget.nearBySpaceEntity),
                           widget.selectedBenefitEntity != null
                               ? Column(
                                   children: [
+                                    buildSpaceNameRowWithSpaceNameInBenefit(
+                                        context, widget.selectedBenefitEntity!),
                                     widget.isMatchedSpaceFound != null &&
                                             widget.isMatchedSpaceFound == false
                                         ? const NotInSpaceCanSpaceCannotUseBenefit()
@@ -243,6 +244,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                   ? const SizedBox.shrink()
                                   : Column(
                                       children: [
+                                        buildSpaceNameRowWithNearBySpace(
+                                            context, widget.nearBySpaceEntity),
                                         widget.isMatchedSpaceFound != null &&
                                                 widget.isMatchedSpaceFound ==
                                                     false
@@ -419,7 +422,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
     return true;
   }
 
-  Row buildSpaceNameRow(
+  Row buildSpaceNameRowWithNearBySpace(
     BuildContext context,
     NearBySpaceEntity nearBySpaceEntity,
   ) {
@@ -437,6 +440,31 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
           width: MediaQuery.of(context).size.width * 0.7,
           child: Text(
             nearBySpaceEntity.name,
+            style: fontTitle04(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Row buildSpaceNameRowWithSpaceNameInBenefit(
+    BuildContext context,
+    BenefitEntity benefitEntity,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        DefaultImage(
+          path: "assets/icons/ic_space_enabled.svg",
+          width: 32,
+          height: 32,
+          color: white,
+        ),
+        const HorizontalSpace(8),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          child: Text(
+            benefitEntity.spaceName,
             style: fontTitle04(),
           ),
         ),
