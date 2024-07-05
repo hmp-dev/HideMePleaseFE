@@ -397,6 +397,7 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
                             width: 68.0,
@@ -409,22 +410,24 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                             ),
                           ),
                           const SizedBox(width: 16.0),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                benefit.description,
-                                style: fontTitle07Medium(color: fore2),
-                              ),
-                              const SizedBox(height: 4.0),
-                              SizedBox(
-                                height: 43.0,
-                                child: Text(
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  benefit.description,
+                                  maxLines: 2,
+                                  style: fontTitle07Medium(color: fore2),
+                                ),
+                                const SizedBox(height: 4.0),
+                                Text(
                                   benefit.spaceName,
+                                  maxLines: 2,
                                   style: fontCompactSm(color: fore3),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
