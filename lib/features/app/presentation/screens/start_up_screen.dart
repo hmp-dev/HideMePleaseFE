@@ -64,9 +64,7 @@ class _StartUpScreenState extends State<StartUpScreen>
         BlocListener<ProfileCubit, ProfileState>(
           bloc: getIt<ProfileCubit>(),
           listener: (context, profileState) {
-            if (profileState.isSubmitSuccess) {
-              ("Profile: ${profileState.baseUserData}").log();
-            }
+            if (profileState.isSubmitSuccess) {}
           },
         ),
         BlocListener<WalletsCubit, WalletsState>(
@@ -75,13 +73,6 @@ class _StartUpScreenState extends State<StartUpScreen>
               previous.connectedWallets != current.connectedWallets,
           listener: (context, walletsState) async {
             if (walletsState.submitStatus == RequestStatus.success) {
-              "inside walletsState.submitStatus == RequestStatus.success "
-                  .log();
-
-              //on fetching Tokens navigate to Home
-              ("++++++++++++++++++++++++++++++Profile: ${walletsState.connectedWallets}")
-                  .log();
-
               if (walletsState.connectedWallets.isEmpty) {
                 // If a wallet is NOT Connected
                 // Update Home View to Show with Before Wallet Connected

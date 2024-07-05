@@ -50,7 +50,6 @@ class WalletsRemoteDataSource {
   Future<List<ConnectedWalletDto>> getAllConnectedWallets() async {
     final response = await _network.get("wallet", {});
 
-    "getAllConnectedWallets: ${response.data}".log();
     return response.data
         .map<ConnectedWalletDto>(
             (e) => ConnectedWalletDto.fromJson(e as Map<String, dynamic>))

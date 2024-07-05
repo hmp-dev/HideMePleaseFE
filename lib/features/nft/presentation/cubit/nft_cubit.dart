@@ -228,9 +228,6 @@ class NftCubit extends BaseCubit<NftState> {
       result.insert(0, const SelectedNFTEntity.emptyForHome1st());
     }
 
-    Log.info("result.length: ${result.length}");
-    Log.info("result[0].imageUrl: ${result[0].imageUrl}");
-
     return result;
   }
 
