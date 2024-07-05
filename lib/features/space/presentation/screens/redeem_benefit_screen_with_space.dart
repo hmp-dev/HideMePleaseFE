@@ -299,6 +299,31 @@ class _RedeemBenefitScreenWithSpaceState
     );
   }
 
+  Row buildSpaceNameRowWithBenefit(
+    BuildContext context,
+    BenefitEntity benefitEntity,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        DefaultImage(
+          path: "assets/icons/ic_space_enabled.svg",
+          width: 32,
+          height: 32,
+          color: white,
+        ),
+        const HorizontalSpace(8),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          child: Text(
+            benefitEntity.spaceName,
+            style: fontTitle04(),
+          ),
+        ),
+      ],
+    );
+  }
+
   Padding buildTitleRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
