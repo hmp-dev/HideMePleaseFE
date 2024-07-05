@@ -135,8 +135,10 @@ class _HomeViewAfterWalletConnectedState
                                 // if current index is less than last call to fetch NFT benefit
                                 if (_currentIndex <
                                     selectedNftsListForHome.length - 1) {
-                                  getIt<NftBenefitsCubit>().onGetNftBenefits(
-                                      tokenAddress: _currentTokenAddress);
+                                  if (_currentTokenAddress != "") {
+                                    getIt<NftBenefitsCubit>().onGetNftBenefits(
+                                        tokenAddress: _currentTokenAddress);
+                                  }
                                 }
                                 // if current _currentSelectWidgetIndex is fetch NFT members
                                 if (_currentSelectWidgetIndex == 2) {
@@ -161,7 +163,7 @@ class _HomeViewAfterWalletConnectedState
                               }
                               return BenefitRedeemInitiateWidget(
                                 tokenAddress: _currentTokenAddress == ""
-                                    ? selectedNftsListForHome[_currentIndex]
+                                    ? nftState.nftsListHome[_currentIndex]
                                         .tokenAddress
                                     : _currentTokenAddress,
                                 onAlertCancel: () {
