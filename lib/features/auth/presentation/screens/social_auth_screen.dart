@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/helpers/target.dart';
@@ -78,7 +79,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
         listenWhen: (previous, current) =>
             previous.isLogInSuccessful != current.isLogInSuccessful,
         listener: (context, state) {
-          if (state.isSubmitSuccess && state.isLogInSuccessful) {
+          if (state.submitStatus == RequestStatus.success &&
+              state.isLogInSuccessful) {
             isShowOnBoarding == 0 || isShowOnBoarding == null
                 ? Navigator.pushNamedAndRemoveUntil(
                     context, Routes.onboardingScreen, (route) => false)
@@ -86,7 +88,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                     context, Routes.startUpScreen, (route) => false);
           }
 
-          if (state.isSubmitFailure) {
+          if (state.submitStatus == RequestStatus.failure) {
             context.showErrorSnackBar(state.message);
           }
         },
