@@ -37,6 +37,12 @@ class _AnimatedSlideFadeInState extends State<AnimatedSlideFadeIn>
   }
 
   @override
+  void dispose() {
+    anim?.dispose(); 
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     anim!.forward();
     return FadeTransition(

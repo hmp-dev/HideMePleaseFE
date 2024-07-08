@@ -195,8 +195,17 @@ class _HomeViewAfterWalletConnectedState
                     // and and not show for the last index
                     if (shouldShowWidget(widget.userProfile, _currentIndex,
                         selectedNftsListForHome))
-                      CustomImageView(
-                        svgPath: "assets/icons/ic_angle_arrow_down.svg",
+                      GestureDetector(
+                        onTap: () {
+                          widget.homeViewScrollController.animateTo(
+                            150,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        },
+                        child: CustomImageView(
+                          svgPath: "assets/icons/ic_angle_arrow_down.svg",
+                        ),
                       ),
                     (shouldShowWidget(widget.userProfile, _currentIndex,
                                 selectedNftsListForHome) &&
