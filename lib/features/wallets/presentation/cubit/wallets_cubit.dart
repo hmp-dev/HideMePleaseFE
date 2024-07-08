@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:appcheck/appcheck.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -15,6 +16,7 @@ import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_
 import 'package:mobile/features/wallets/domain/repositories/wallets_repository.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
 
 part 'wallets_state.dart';
@@ -219,6 +221,14 @@ class WalletsCubit extends BaseCubit<WalletsState> {
   }
 
   onConnectSolWallet(BuildContext context) async {
+    final bool isPhantomWalletAvailable =
+        (await AppCheck.checkAvailability('app.phantom')) != null;
+    if (!isPhantomWalletAvailable) {
+      launchUrlString(
+          'https://play.google.com/store/apps/details?id=app.phantom');
+      return;
+    }
+
     if (_solanaWallet != null) {
       if (_solanaWallet!.adapter.isAuthorized) {
         await _solanaWallet!.adapter.deauthorize(
