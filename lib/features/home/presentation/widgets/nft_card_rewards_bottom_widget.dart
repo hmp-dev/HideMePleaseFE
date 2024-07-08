@@ -114,7 +114,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               onPressed: () {
                 if (!getIt<WalletsCubit>().state.isKlipWalletConnected) {
                   return snackBarService.showSnackbar(
-                    message: "클립월렛에 접속해주세요",
+                    message: "Klip월렛에 연동해주세요.",
                     duration: const Duration(seconds: 5),
                   );
                 }
