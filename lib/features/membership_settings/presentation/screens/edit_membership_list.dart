@@ -1,11 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
@@ -66,10 +68,14 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
               children: [
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
-                  child: state.isSubmitLoading
-                      ? const SizedBox.shrink()
-                      : state.isSubmitFailure
-                          ? const Center(child: Text("Something went wrong"))
+                  child: state.submitStatus == RequestStatus.loading
+                      ? Center(
+                          child: Lottie.asset(
+                            'assets/lottie/loader.json',
+                          ),
+                        )
+                      : state.submitStatus == RequestStatus.failure
+                          ? const Center(child: EmptyDataWidget())
                           : Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Column(

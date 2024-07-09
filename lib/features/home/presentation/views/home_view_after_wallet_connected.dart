@@ -29,7 +29,6 @@ import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
-import 'package:mobile/features/space/presentation/screens/benefit_redeem_initiate_widget.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
 class HomeViewAfterWalletConnected extends StatefulWidget {
@@ -161,28 +160,30 @@ class _HomeViewAfterWalletConnectedState
                                   !widget.userProfile.freeNftClaimed) {
                                 return const FreeWelcomeNftCard();
                               }
-                              return BenefitRedeemInitiateWidget(
-                                tokenAddress: _currentTokenAddress == ""
-                                    ? nftState.nftsListHome[_currentIndex]
-                                        .tokenAddress
-                                    : _currentTokenAddress,
-                                onAlertCancel: () {
-                                  Navigator.pop(context);
-                                },
-                                childWidget: NFTCardWidgetParent(
-                                  imagePath: item.imageUrl,
-                                  topWidget: widget.isOverIconNavVisible
-                                      ? NftCardTopTitleWidget(
-                                          title: item.name,
-                                          chain: item.chain,
-                                        )
-                                      : const SizedBox.shrink(),
-                                  bottomWidget: _getBottomWidget(
-                                      nftState.welcomeNftEntity,
-                                      widget.isOverIconNavVisible,
-                                      item),
-                                  index: itemIndex,
-                                ),
+
+                              /// Remove the getting Benefit on NFT card Tap
+                              //  return BenefitRedeemInitiateWidget(
+                              //   tokenAddress: _currentTokenAddress == ""
+                              //       ? nftState.nftsListHome[_currentIndex]
+                              //           .tokenAddress
+                              //       : _currentTokenAddress,
+                              //   onAlertCancel: () {
+                              //     Navigator.pop(context);
+                              //   },
+                              //   childWidget:
+                              return NFTCardWidgetParent(
+                                imagePath: item.imageUrl,
+                                topWidget: widget.isOverIconNavVisible
+                                    ? NftCardTopTitleWidget(
+                                        title: item.name,
+                                        chain: item.chain,
+                                      )
+                                    : const SizedBox.shrink(),
+                                bottomWidget: _getBottomWidget(
+                                    nftState.welcomeNftEntity,
+                                    widget.isOverIconNavVisible,
+                                    item),
+                                index: itemIndex,
                               );
                             }).toList(),
                           ),
