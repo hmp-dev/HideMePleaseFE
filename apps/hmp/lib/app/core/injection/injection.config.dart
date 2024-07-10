@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart' as _i1;
 import 'package:injectable/injectable.dart' as _i2;
 import 'package:mobile/app/core/network/network.dart' as _i9;
 import 'package:mobile/app/core/storage/secure_storage.dart' as _i7;
-import 'package:mobile/features/app/presentation/cubit/app_cubit.dart' as _i49;
+import 'package:mobile/features/app/presentation/cubit/app_cubit.dart' as _i50;
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart' as _i6;
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart'
     as _i27;
@@ -24,7 +24,7 @@ import 'package:mobile/features/auth/infrastructure/datasources/auth_remote_data
 import 'package:mobile/features/auth/infrastructure/repositoriies/auth_repository.dart'
     as _i28;
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart'
-    as _i50;
+    as _i51;
 import 'package:mobile/features/chat/domain/repositories/chat_repository.dart'
     as _i31;
 import 'package:mobile/features/chat/infrastrucuture/datasources/chat_remote_data_source.dart'
@@ -48,14 +48,16 @@ import 'package:mobile/features/my/infrastructure/data_sources/profile_remote_da
     as _i14;
 import 'package:mobile/features/my/infrastructure/repositories/profile_repository.dart'
     as _i16;
-import 'package:mobile/features/my/presentation/cubit/membership_cubit.dart'
+import 'package:mobile/features/my/presentation/cubit/member_details_cubit.dart'
     as _i37;
+import 'package:mobile/features/my/presentation/cubit/membership_cubit.dart'
+    as _i38;
 import 'package:mobile/features/my/presentation/cubit/nick_name_cubit.dart'
-    as _i41;
+    as _i42;
 import 'package:mobile/features/my/presentation/cubit/points_cubit.dart'
     as _i13;
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart'
-    as _i43;
+    as _i44;
 import 'package:mobile/features/nft/domain/repositories/nft_repository.dart'
     as _i11;
 import 'package:mobile/features/nft/infrastructure/datasources/nft_remote_data_source.dart'
@@ -63,8 +65,8 @@ import 'package:mobile/features/nft/infrastructure/datasources/nft_remote_data_s
 import 'package:mobile/features/nft/infrastructure/repositories/nft_repository.dart'
     as _i12;
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart'
-    as _i39;
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart' as _i40;
+    as _i40;
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart' as _i41;
 import 'package:mobile/features/settings/domain/repositories/settings_repository.dart'
     as _i18;
 import 'package:mobile/features/settings/infrastructure/data_sources/settings_remote_data_source.dart'
@@ -72,9 +74,9 @@ import 'package:mobile/features/settings/infrastructure/data_sources/settings_re
 import 'package:mobile/features/settings/infrastructure/repositries/settings_repository.dart'
     as _i19;
 import 'package:mobile/features/settings/presentation/cubit/notifications_cubit.dart'
-    as _i42;
+    as _i43;
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart'
-    as _i44;
+    as _i45;
 import 'package:mobile/features/space/domain/repositories/space_repository.dart'
     as _i21;
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart'
@@ -84,13 +86,13 @@ import 'package:mobile/features/space/infrastructure/repositories/space_reposito
 import 'package:mobile/features/space/presentation/cubit/benefit_redeem_cubit.dart'
     as _i29;
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart'
-    as _i38;
+    as _i39;
 import 'package:mobile/features/space/presentation/cubit/space_benefits_cubit.dart'
-    as _i45;
-import 'package:mobile/features/space/presentation/cubit/space_cubit.dart'
     as _i46;
-import 'package:mobile/features/space/presentation/cubit/space_detail_cubit.dart'
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart'
     as _i47;
+import 'package:mobile/features/space/presentation/cubit/space_detail_cubit.dart'
+    as _i48;
 import 'package:mobile/features/wallets/domain/repositories/wallets_repository.dart'
     as _i24;
 import 'package:mobile/features/wallets/infrastructure/data_sources/wallets_remote_data_source.dart'
@@ -98,7 +100,7 @@ import 'package:mobile/features/wallets/infrastructure/data_sources/wallets_remo
 import 'package:mobile/features/wallets/infrastructure/repositories/wallets_repository.dart'
     as _i25;
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart'
-    as _i48;
+    as _i49;
 
 extension GetItInjectableX on _i1.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -167,38 +169,40 @@ extension GetItInjectableX on _i1.GetIt {
         () => _i35.CommunityRankingsCubit(gh<_i11.NftRepository>()));
     gh.lazySingleton<_i36.EnableLocationCubit>(
         () => _i36.EnableLocationCubit(gh<_i15.ProfileRepository>()));
-    gh.lazySingleton<_i37.MembershipCubit>(
-        () => _i37.MembershipCubit(gh<_i11.NftRepository>()));
-    gh.lazySingleton<_i38.NearBySpacesCubit>(
-        () => _i38.NearBySpacesCubit(gh<_i21.SpaceRepository>()));
-    gh.lazySingleton<_i39.NftBenefitsCubit>(
-        () => _i39.NftBenefitsCubit(gh<_i11.NftRepository>()));
-    gh.lazySingleton<_i40.NftCubit>(() => _i40.NftCubit(
+    gh.lazySingleton<_i37.MemberDetailsCubit>(
+        () => _i37.MemberDetailsCubit(gh<_i15.ProfileRepository>()));
+    gh.lazySingleton<_i38.MembershipCubit>(
+        () => _i38.MembershipCubit(gh<_i11.NftRepository>()));
+    gh.lazySingleton<_i39.NearBySpacesCubit>(
+        () => _i39.NearBySpacesCubit(gh<_i21.SpaceRepository>()));
+    gh.lazySingleton<_i40.NftBenefitsCubit>(
+        () => _i40.NftBenefitsCubit(gh<_i11.NftRepository>()));
+    gh.lazySingleton<_i41.NftCubit>(() => _i41.NftCubit(
           gh<_i11.NftRepository>(),
           gh<_i15.ProfileRepository>(),
         ));
-    gh.lazySingleton<_i41.NickNameCubit>(
-        () => _i41.NickNameCubit(gh<_i15.ProfileRepository>()));
-    gh.lazySingleton<_i42.NotificationsCubit>(
-        () => _i42.NotificationsCubit(gh<_i18.SettingsRepository>()));
-    gh.lazySingleton<_i43.ProfileCubit>(() => _i43.ProfileCubit(
+    gh.lazySingleton<_i42.NickNameCubit>(
+        () => _i42.NickNameCubit(gh<_i15.ProfileRepository>()));
+    gh.lazySingleton<_i43.NotificationsCubit>(
+        () => _i43.NotificationsCubit(gh<_i18.SettingsRepository>()));
+    gh.lazySingleton<_i44.ProfileCubit>(() => _i44.ProfileCubit(
           gh<_i15.ProfileRepository>(),
           gh<_i31.ChatRepository>(),
         ));
-    gh.lazySingleton<_i44.SettingsCubit>(
-        () => _i44.SettingsCubit(gh<_i18.SettingsRepository>()));
-    gh.lazySingleton<_i45.SpaceBenefitsCubit>(
-        () => _i45.SpaceBenefitsCubit(gh<_i21.SpaceRepository>()));
-    gh.lazySingleton<_i46.SpaceCubit>(
-        () => _i46.SpaceCubit(gh<_i21.SpaceRepository>()));
-    gh.lazySingleton<_i47.SpaceDetailCubit>(
-        () => _i47.SpaceDetailCubit(gh<_i21.SpaceRepository>()));
-    gh.lazySingleton<_i48.WalletsCubit>(
-        () => _i48.WalletsCubit(gh<_i24.WalletsRepository>()));
-    gh.lazySingleton<_i49.AppCubit>(
-        () => _i49.AppCubit(gh<_i27.AuthRepository>()));
-    gh.lazySingleton<_i50.AuthCubit>(
-        () => _i50.AuthCubit(gh<_i27.AuthRepository>()));
+    gh.lazySingleton<_i45.SettingsCubit>(
+        () => _i45.SettingsCubit(gh<_i18.SettingsRepository>()));
+    gh.lazySingleton<_i46.SpaceBenefitsCubit>(
+        () => _i46.SpaceBenefitsCubit(gh<_i21.SpaceRepository>()));
+    gh.lazySingleton<_i47.SpaceCubit>(
+        () => _i47.SpaceCubit(gh<_i21.SpaceRepository>()));
+    gh.lazySingleton<_i48.SpaceDetailCubit>(
+        () => _i48.SpaceDetailCubit(gh<_i21.SpaceRepository>()));
+    gh.lazySingleton<_i49.WalletsCubit>(
+        () => _i49.WalletsCubit(gh<_i24.WalletsRepository>()));
+    gh.lazySingleton<_i50.AppCubit>(
+        () => _i50.AppCubit(gh<_i27.AuthRepository>()));
+    gh.lazySingleton<_i51.AuthCubit>(
+        () => _i51.AuthCubit(gh<_i27.AuthRepository>()));
     return this;
   }
 }

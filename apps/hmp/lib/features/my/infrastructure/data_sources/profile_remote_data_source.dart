@@ -21,6 +21,11 @@ class ProfileRemoteDataSource {
     return UserProfileDto.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<UserProfileDto> getUserProfile({required String userId}) async {
+    final response = await _network.get("users/$userId/profile", {});
+    return UserProfileDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
   Future<UserProfileDto> putProfileData({
     required UpdateProfileRequestDto updateProfileRequestDto,
   }) async {

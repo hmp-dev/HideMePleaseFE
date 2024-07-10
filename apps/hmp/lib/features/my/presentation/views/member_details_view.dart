@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
-import 'package:mobile/features/community/domain/entities/community_member_entity.dart';
+import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/presentation/widgets/my_membership_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/my_points_widget.dart';
 import 'package:mobile/features/nft/domain/entities/nft_points_entity.dart';
@@ -13,13 +13,13 @@ import 'package:mobile/generated/locale_keys.g.dart';
 class MemberDetailsView extends StatelessWidget {
   const MemberDetailsView(
       {super.key,
-      required this.member,
+      required this.user,
       required this.selectedNftTokensList,
       required this.nftPointsList,
       required this.isMembersLoading,
       required this.isPointsLoading});
 
-  final CommunityMemberEntity member;
+  final UserProfileEntity user;
   final List<SelectedNFTEntity> selectedNftTokensList;
   final List<NftPointsEntity> nftPointsList;
   final bool isMembersLoading;
@@ -40,7 +40,7 @@ class MemberDetailsView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            _buildTitleRow(context, member),
+            _buildTitleRow(context, user),
             const SizedBox(height: 24),
             _buildTabView(context),
             const SizedBox(height: 15),
@@ -67,7 +67,7 @@ class MemberDetailsView extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleRow(BuildContext context, CommunityMemberEntity member) {
+  Widget _buildTitleRow(BuildContext context, UserProfileEntity member) {
     return Padding(
       padding: const EdgeInsets.only(
         left: 20,
@@ -79,10 +79,11 @@ class MemberDetailsView extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(34),
             child: CustomImageView(
-              url: member.pfpImage,
+              url: member.pfpImageUrl,
               fit: BoxFit.cover,
               width: 68,
               height: 68,
+              placeHolder: "assets/images/launcher-icon.png",
             ),
           ),
           Expanded(
@@ -92,7 +93,7 @@ class MemberDetailsView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    member.name,
+                    member.nickName,
                     style: fontCompactLgBold(),
                   ),
                   const SizedBox(height: 7),

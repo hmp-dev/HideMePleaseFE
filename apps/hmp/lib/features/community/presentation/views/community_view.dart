@@ -101,13 +101,10 @@ class _CommunityViewState extends State<CommunityView> {
                 widget.redeemedFreeNft &&
                 widget.userNftCommunities.isNotEmpty)
               SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: UserCommunitiesView(
-                    onTap: widget.onCommunityTap,
-                    onEnterChat: widget.onEnterChat,
-                    userNftCommunities: widget.userNftCommunities,
-                  ),
+                child: UserCommunitiesView(
+                  onTap: widget.onCommunityTap,
+                  onEnterChat: widget.onEnterChat,
+                  userNftCommunities: widget.userNftCommunities,
                 ),
               )
             else if (widget.isWalletConnected && !widget.redeemedFreeNft)

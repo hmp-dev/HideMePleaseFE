@@ -16,6 +16,8 @@ class HotCommunitiesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (hotNftCommunities.isEmpty) return const SizedBox();
+
     return Column(
       children: [
         Padding(
