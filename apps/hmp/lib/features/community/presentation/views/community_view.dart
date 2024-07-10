@@ -100,16 +100,16 @@ class _CommunityViewState extends State<CommunityView> {
             // if (widget.isWalletConnected &&
             //     widget.redeemedFreeNft &&
             //     widget.userNftCommunities.isNotEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: UserCommunitiesView(
-                  onTap: widget.onCommunityTap,
-                  onEnterChat: widget.onEnterChat,
-                  userNftCommunities: widget.userNftCommunities,
-                ),
-              ),
-            ),
+            // SliverToBoxAdapter(
+            //   child: Padding(
+            //     padding: const EdgeInsets.symmetric(horizontal: 20),
+            //     child: UserCommunitiesView(
+            //       onTap: widget.onCommunityTap,
+            //       onEnterChat: widget.onEnterChat,
+            //       userNftCommunities: widget.userNftCommunities,
+            //     ),
+            //   ),
+            // ),
             // else if (widget.isWalletConnected && !widget.redeemedFreeNft)
             //   SliverToBoxAdapter(
             //     child: Padding(
@@ -131,14 +131,14 @@ class _CommunityViewState extends State<CommunityView> {
             //       ),
             //     ),
             //   ),
-            if (widget.hotNftCommunities.isNotEmpty)
-              SliverToBoxAdapter(
-                child: HotCommunitiesView(
-                  onCommunityTap: widget.onCommunityTap,
-                  hotNftCommunities: widget.hotNftCommunities,
-                ),
-              ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            // if (widget.hotNftCommunities.isNotEmpty)
+            //   SliverToBoxAdapter(
+            //     child: HotCommunitiesView(
+            //       onCommunityTap: widget.onCommunityTap,
+            //       hotNftCommunities: widget.hotNftCommunities,
+            //     ),
+            //   ),
+            // const SliverToBoxAdapter(child: SizedBox(height: 16)),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
