@@ -26,13 +26,13 @@ Map<String, dynamic> _$NftCommunityMemberResponseDtoToJson(
 NftCommunityMemberDto _$NftCommunityMemberDtoFromJson(
         Map<String, dynamic> json) =>
     NftCommunityMemberDto(
-      totalPoints: json['totalPoints'] as int,
-      pointFluctuation: json['pointFluctuation'] as int,
-      memberRank: json['memberRank'] as int,
-      name: json['name'] as String,
-      userId: json['userId'] as String,
-      introduction: json['introduction'] as String,
-      pfpImage: json['pfpImage'] as String,
+      totalPoints: json['totalPoints'] as int?,
+      pointFluctuation: json['pointFluctuation'] as int?,
+      memberRank: json['memberRank'] as int?,
+      name: json['name'] as String?,
+      userId: json['userId'] as String?,
+      introduction: json['introduction'] as String?,
+      pfpImage: json['pfpImage'] as String?,
     );
 
 Map<String, dynamic> _$NftCommunityMemberDtoToJson(
