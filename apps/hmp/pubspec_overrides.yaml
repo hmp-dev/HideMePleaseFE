@@ -1,0 +1,5 @@
+# melos_managed_dependency_overrides: web3modal_flutter,web_socket_channel
+dependency_overrides:
+  web3modal_flutter:
+    path: ../../packages/web3modal_flutter
+  web_socket_channel: ^2.4.4
