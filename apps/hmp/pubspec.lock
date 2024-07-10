@@ -1936,10 +1936,9 @@ packages:
   sendbird_uikit:
     dependency: "direct main"
     description:
-      name: sendbird_uikit
-      sha256: "816f6e3e860242fe0b0e8d15f36156d8182aacf9cf809360c27c46760beda2d0"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../packages/sendbird_uikit"
+      relative: true
+    source: path
     version: "1.0.0-beta.3"
   share_plus:
     dependency: "direct main"

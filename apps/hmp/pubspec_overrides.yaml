@@ -1,5 +1,7 @@
-# melos_managed_dependency_overrides: web3modal_flutter,web_socket_channel
+# melos_managed_dependency_overrides: web3modal_flutter,web_socket_channel,sendbird_uikit
 dependency_overrides:
+  sendbird_uikit:
+    path: ../../packages/sendbird_uikit
   web3modal_flutter:
     path: ../../packages/web3modal_flutter
   web_socket_channel: ^2.4.4
