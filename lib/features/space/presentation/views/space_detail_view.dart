@@ -83,7 +83,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                     fit: BoxFit.cover,
                   ),
             buildBackArrowIconButton(context),
-            const BuildHidingCountWidget(hidingCount: 0),
+            if (widget.space.hidingCount > 0)
+              BuildHidingCountWidget(hidingCount: widget.space.hidingCount),
           ],
         ),
         buildNameTypeRow(widget.space),

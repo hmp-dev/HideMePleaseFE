@@ -27,51 +27,57 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<EnableLocationCubit, EnableLocationState>(
-      bloc: getIt<EnableLocationCubit>()..checkLocationEnabled(),
-      listener: (context, state) {},
-      builder: (context, state) {
-        return GestureDetector(
-          onTap: () {
-            if (!state.isLocationDenied) {
-              if (space != null) {
-                getIt<NearBySpacesCubit>().onSetSelectedSpace(
-                    space ?? const SpaceDetailEntity.empty());
-              } else {
-                getIt<NearBySpacesCubit>().onReSetSelectedSpace();
-              }
+    return BlocConsumer<NearBySpacesCubit, NearBySpacesState>(
+      bloc: getIt<NearBySpacesCubit>(),
+      listener: (context, nearBySpacesState) {},
+      builder: (context, nearBySpacesState) {
+        return BlocConsumer<EnableLocationCubit, EnableLocationState>(
+          bloc: getIt<EnableLocationCubit>()..checkLocationEnabled(),
+          listener: (context, state) {},
+          builder: (context, state) {
+            return GestureDetector(
+              onTap: nearBySpacesState.submitStatus == RequestStatus.loading
+                  ? () {}
+                  : () {
+                      if (!state.isLocationDenied) {
+                        if (space != null) {
+                          getIt<NearBySpacesCubit>().onSetSelectedSpace(
+                              space ?? const SpaceDetailEntity.empty());
+                        } else {
+                          getIt<NearBySpacesCubit>().onReSetSelectedSpace();
+                        }
 
-              if (selectedBenefitEntity != null) {
-                getIt<NearBySpacesCubit>()
-                    .onSetSelectedBenefitEntity(selectedBenefitEntity!);
-              } else {
-                getIt<NearBySpacesCubit>().onResetSelectedBenefitEntity();
-              }
+                        if (selectedBenefitEntity != null) {
+                          getIt<NearBySpacesCubit>().onSetSelectedBenefitEntity(
+                              selectedBenefitEntity!);
+                        } else {
+                          getIt<NearBySpacesCubit>()
+                              .onResetSelectedBenefitEntity();
+                        }
 
-              getIt<NearBySpacesCubit>().onGetNearBySpacesListData(
-                tokenAddress: tokenAddress,
-                latitude: state.latitude,
-                longitude: state.longitude,
-              );
-            } else {
-              // open Alert Dialogue to Show Info and Ask to enable Location
-              showEnableLocationAlertDialog(
-                context: context,
-                title: LocaleKeys.enableLocationAlertMessage.tr(),
-                onConfirm: () {
-                  getIt<EnableLocationCubit>()
-                      .onAskDeviceLocationWithOpenSettings();
-                },
-                onCancel: onAlertCancel,
-              );
-            }
+                        getIt<NearBySpacesCubit>().onGetNearBySpacesListData(
+                            tokenAddress: tokenAddress);
+                      } else {
+                        // open Alert Dialogue to Show Info and Ask to enable Location
+                        showEnableLocationAlertDialog(
+                          context: context,
+                          title: LocaleKeys.enableLocationAlertMessage.tr(),
+                          onConfirm: () {
+                            getIt<EnableLocationCubit>()
+                                .onAskDeviceLocationWithOpenSettings();
+                          },
+                          onCancel: onAlertCancel,
+                        );
+                      }
 
-            "latitude: ${state.latitude}".log();
-            "longitude: ${state.longitude}".log();
+                      "latitude: ${state.latitude}".log();
+                      "longitude: ${state.longitude}".log();
+                    },
+              child: Container(
+                child: childWidget,
+              ),
+            );
           },
-          child: Container(
-            child: childWidget,
-          ),
         );
       },
     );

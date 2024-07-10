@@ -154,9 +154,29 @@ class NftCubit extends BaseCubit<NftState> {
       collections[collectionIndex] =
           collections[collectionIndex].copyWith(tokens: tokens);
     }
+
+    final nftCollectionsGroupEntity =
+        state.nftCollectionsGroupEntity.copyWith(collections: collections);
+
+    /// Updates selected nft collection count
+    ///
+    /// To get previously selected nft collection count, we get [selectedNftTokensList]
+    /// And from [selectedNftTokensList] we filter out nft tokens which are not in the current collection
+    /// And then we get the count of selected nft tokens from the current collection
+    /// And add it to the previously selected nft collection count
+    final selectedCollectionCount = nftCollectionsGroupEntity.collections.fold(
+        state.selectedNftTokensList
+            .where((element) => !nftCollectionsGroupEntity.collections.any(
+                (nftCollectionElement) =>
+                    nftCollectionElement.tokenAddress == element.tokenAddress))
+            .length,
+        (value, element) =>
+            element.tokens.where((element) => element.selected).length + value);
+
     emit(state.copyWith(
-        nftCollectionsGroupEntity: state.nftCollectionsGroupEntity
-            .copyWith(collections: collections)));
+      nftCollectionsGroupEntity: nftCollectionsGroupEntity,
+      selectedCollectionCount: selectedCollectionCount,
+    ));
 
     final response = await _nftRepository.postNftSelectDeselectToken(
         selectTokenToggleRequestDto: requestDto);
@@ -210,6 +230,7 @@ class NftCubit extends BaseCubit<NftState> {
                     resultList, isFreeNftClaimed),
                 submitStatus: RequestStatus.success,
                 errorMessage: '',
+                selectedCollectionCount: resultList.length,
               ),
             );
           },
@@ -227,9 +248,6 @@ class NftCubit extends BaseCubit<NftState> {
     if (!isFreeNftClaimed) {
       result.insert(0, const SelectedNFTEntity.emptyForHome1st());
     }
-
-    Log.info("result.length: ${result.length}");
-    Log.info("result[0].imageUrl: ${result[0].imageUrl}");
 
     return result;
   }

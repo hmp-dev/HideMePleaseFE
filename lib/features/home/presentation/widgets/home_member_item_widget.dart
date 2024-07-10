@@ -30,18 +30,19 @@ class HomeMemberItemWidget extends StatelessWidget {
                 children: [
                   Text("${communityMemberEntity.memberRank}",
                       style: fontCompactSmBold()),
-                  CustomImageView(
-                    svgPath: communityMemberEntity.pointFluctuation < 0
-                        ? "assets/icons/ic_rectangle_arrow_down_blue.svg"
-                        : "assets/icons/ic_rectangle_arrow_up_pink.svg",
-                    width: 20,
-                    height: 20,
-                    radius: BorderRadius.circular(50),
-                    fit: BoxFit.cover,
-                  ),
+                  if (communityMemberEntity.pointFluctuation != 0)
+                    CustomImageView(
+                      svgPath: communityMemberEntity.pointFluctuation < 0
+                          ? "assets/icons/ic_rectangle_arrow_down_blue.svg"
+                          : "assets/icons/ic_rectangle_arrow_up_pink.svg",
+                      width: 20,
+                      height: 20,
+                      radius: BorderRadius.circular(50),
+                      fit: BoxFit.cover,
+                    ),
                 ],
               ),
-              const HorizontalSpace(3),
+              const HorizontalSpace(5),
               Stack(
                 children: [
                   communityMemberEntity.pfpImage == ""
@@ -76,7 +77,7 @@ class HomeMemberItemWidget extends StatelessWidget {
                     "${communityMemberEntity.totalPoints} P",
                     style: fontCompactMdBold(),
                   ),
-                  const HorizontalSpace(35),
+                  const HorizontalSpace(5),
                   GestureDetector(
                     onTap: () {},
                     child: DefaultImage(

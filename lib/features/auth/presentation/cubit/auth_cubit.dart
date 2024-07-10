@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 
 part 'auth_state.dart';
@@ -54,12 +55,19 @@ class AuthCubit extends BaseCubit<AuthState> {
 
     //
     response.fold(
-      (err) => emit(state.copyWith(
-          submitStatus: RequestStatus.failure, isLogInSuccessful: false)),
+      (err) {
+        "inside error ****************** ${err.message}".log();
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          isLogInSuccessful: false,
+          message: err.message,
+        ));
+      },
       (success) => emit(
         state.copyWith(
           submitStatus: RequestStatus.success,
           isLogInSuccessful: true,
+          message: '',
         ),
       ),
     );

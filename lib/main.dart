@@ -37,7 +37,7 @@ void main() async {
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('ko')],
       path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
+      fallbackLocale: const Locale('ko'),
       startLocale: AppEnv.flavor.isProd && kReleaseMode
           ? const Locale('ko')
           : const Locale('ko'),

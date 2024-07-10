@@ -1,9 +1,5 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:web3modal_flutter/models/grid_item.dart';
-import 'package:web3modal_flutter/models/listing.dart';
-
 import 'package:web3modal_flutter/pages/about_wallets.dart';
 import 'package:web3modal_flutter/pages/confirm_email_page.dart';
 import 'package:web3modal_flutter/pages/connect_wallet_page.dart';

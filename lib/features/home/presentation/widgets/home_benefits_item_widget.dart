@@ -37,7 +37,7 @@ class HomeBenefitItemWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
+                  width: MediaQuery.of(context).size.width * 0.4,
                   child: Text(
                     benefitEntity.description,
                     maxLines: 1,
@@ -47,7 +47,7 @@ class HomeBenefitItemWidget extends StatelessWidget {
                 ),
                 const VerticalSpace(5),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
+                  width: MediaQuery.of(context).size.width * 0.4,
                   child: Text(
                     benefitEntity.spaceName,
                     maxLines: 1,

@@ -19,6 +19,7 @@ SpaceDetailDto _$SpaceDetailDtoFromJson(Map<String, dynamic> json) =>
       introduction: json['introduction'] as String?,
       locationDescription: json['locationDescription'] as String?,
       image: json['image'] as String?,
+      hidingCount: json['hidingCount'] as int?,
     );
 
 Map<String, dynamic> _$SpaceDetailDtoToJson(SpaceDetailDto instance) =>
@@ -34,4 +35,5 @@ Map<String, dynamic> _$SpaceDetailDtoToJson(SpaceDetailDto instance) =>
       'introduction': instance.introduction,
       'locationDescription': instance.locationDescription,
       'image': instance.image,
+      'hidingCount': instance.hidingCount,
     };

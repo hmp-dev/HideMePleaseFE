@@ -20,9 +20,6 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
   Future<void> onGetNftBenefits({
     required String tokenAddress,
   }) async {
-    "******* Get NFT Benefits CUBIT CALLED onGetNftBenefits".log();
-    "Current Token Address passed is $tokenAddress".log();
-
     emit(state.copyWith(
       submitStatus: RequestStatus.loading,
       selectedTokenAddress: tokenAddress,

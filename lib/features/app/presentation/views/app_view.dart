@@ -68,7 +68,6 @@ class _AppViewState extends State<AppView> {
               bloc: getIt<PageCubit>(),
               listener: (context, state) {},
               builder: (context, state) {
-                "state is changed $state".log();
                 return Column(
                   children: [
                     Expanded(

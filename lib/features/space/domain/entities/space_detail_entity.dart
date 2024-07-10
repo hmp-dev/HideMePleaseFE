@@ -12,6 +12,7 @@ class SpaceDetailEntity extends Equatable {
   final String introduction;
   final String locationDescription;
   final String image;
+  final int hidingCount;
 
   const SpaceDetailEntity({
     required this.id,
@@ -25,6 +26,7 @@ class SpaceDetailEntity extends Equatable {
     required this.introduction,
     required this.locationDescription,
     required this.image,
+    required this.hidingCount,
   });
 
   @override
@@ -41,6 +43,7 @@ class SpaceDetailEntity extends Equatable {
       introduction,
       locationDescription,
       image,
+      hidingCount,
     ];
   }
 
@@ -56,6 +59,7 @@ class SpaceDetailEntity extends Equatable {
     String? introduction,
     String? locationDescription,
     String? image,
+    int? hidingCount,
   }) {
     return SpaceDetailEntity(
       id: id ?? this.id,
@@ -69,6 +73,7 @@ class SpaceDetailEntity extends Equatable {
       introduction: introduction ?? this.introduction,
       locationDescription: locationDescription ?? this.locationDescription,
       image: image ?? this.image,
+      hidingCount: hidingCount ?? this.hidingCount,
     );
   }
 
@@ -83,5 +88,6 @@ class SpaceDetailEntity extends Equatable {
         category = '',
         introduction = '',
         locationDescription = '',
-        image = '';
+        image = '',
+        hidingCount = 0;
 }

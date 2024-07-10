@@ -50,7 +50,7 @@ packages:
     source: hosted
     version: "5.1.1"
   appcheck:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: appcheck
       sha256: "2682c9c270c28d83f8d87d68bb607a83882778b14c6a8da19df423be1b386520"
