@@ -26,46 +26,54 @@ class SpaceBenefitItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          children: [
-            if (isShowImage)
-              Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: CustomImageView(
-                  url: benefitEntity.spaceImage,
-                  width: 54,
-                  height: 54,
-                  radius: BorderRadius.circular(2),
+        BenefitRedeemInitiateWidget(
+          tokenAddress: benefitEntity.tokenAddress,
+          selectedBenefitEntity: benefitEntity,
+          space: spaceDetailEntity,
+          onAlertCancel: () {
+            Navigator.pop(context);
+          },
+          childWidget: Row(
+            children: [
+              if (isShowImage)
+                Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: CustomImageView(
+                    url: benefitEntity.spaceImage,
+                    width: 54,
+                    height: 54,
+                    radius: BorderRadius.circular(2),
+                  ),
                 ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    child: Text(
+                      benefitEntity.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: fontCompactMdMedium(),
+                    ),
+                  ),
+                  const VerticalSpace(5),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    child: Text(
+                      benefitEntity.nftCollectionName,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: fontCompactSm(color: fore3),
+                    ),
+                  ),
+                ],
               ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
-                  child: Text(
-                    benefitEntity.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: fontCompactMdMedium(),
-                  ),
-                ),
-                const VerticalSpace(5),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
-                  child: Text(
-                    benefitEntity.nftCollectionName,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: fontCompactSm(color: fore3),
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            getKoreanTranslation(
-                context, benefitEntity.state, spaceDetailEntity),
-          ],
+              const Spacer(),
+              getKoreanTranslation(
+                  context, benefitEntity.state, spaceDetailEntity),
+            ],
+          ),
         ),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 20),
@@ -94,7 +102,7 @@ class SpaceBenefitItemWidget extends StatelessWidget {
       case 'used':
         return const BenefitUsedText();
       default:
-        return const SizedBox.shrink();
+        return const BenefitUnavailableText();
     }
   }
 }

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/events/presentation/screens/event_detail_screen.dart';
 import 'package:mobile/features/events/presentation/widgets/event_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/rounded_select_button.dart';
 
-class EventsView extends StatefulWidget {
-  const EventsView({
+class EventDetailView extends StatefulWidget {
+  const EventDetailView({
     super.key,
     required this.onRefresh,
   });
@@ -15,10 +16,10 @@ class EventsView extends StatefulWidget {
   final Future<void> Function() onRefresh;
 
   @override
-  State<EventsView> createState() => _EventsViewState();
+  State<EventDetailView> createState() => _EventDetailViewState();
 }
 
-class _EventsViewState extends State<EventsView> {
+class _EventDetailViewState extends State<EventDetailView> {
   final ScrollController _scrollController = ScrollController();
 
   bool isAgreeWithTerms = false;
@@ -49,38 +50,61 @@ class _EventsViewState extends State<EventsView> {
       child: CustomScrollView(
         controller: _scrollController,
         slivers: [
-          SliverToBoxAdapter(child: buildTopTitleBar()),
-          SliverToBoxAdapter(child: buildEventTypeSelectButtonRow()),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Checkbox(
-                    side: const BorderSide(color: fore3),
-                    activeColor: hmpBlue,
-                    checkColor: white,
-                    value: false,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isAgreeWithTerms = value ?? false;
-                      });
-                    },
-                  ),
-                  Text(
-                    "진행 중인 이벤트만 보기",
-                    style: fontCompactMd(),
-                  ),
-                ],
-              ),
+            child: Stack(
+              children: [
+                (1 != 1)
+                    ? CustomImageView(
+                        imagePath: "assets/images/place_holder_card.png",
+                        width: MediaQuery.of(context).size.width,
+                        height: 250,
+                        radius: BorderRadius.circular(2),
+                        fit: BoxFit.cover,
+                      )
+                    : CustomImageView(
+                        imagePath: "assets/images/event-bg-1.png",
+                        width: MediaQuery.of(context).size.width,
+                        height: 250,
+                        radius: BorderRadius.circular(2),
+                        fit: BoxFit.cover,
+                      ),
+                buildBackArrowIconButton(context),
+              ],
             ),
           ),
-          SliverToBoxAdapter(
-            child: buildTopHmpBlueBannerBox(),
-          ),
-          SliverToBoxAdapter(child: buildEventList()),
         ],
+      ),
+    );
+  }
+
+  Positioned buildBackArrowIconButton(BuildContext context) {
+    return Positioned(
+      top: 40,
+      left: 28,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 10,
+              blurRadius: 10,
+              offset: const Offset(0, 0),
+            ),
+          ],
+        ),
+        child: Center(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: DefaultImage(
+              path: "assets/icons/img_icon_arrow.svg",
+              width: 32,
+              height: 32,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -140,9 +164,7 @@ class _EventsViewState extends State<EventsView> {
       children: List.generate(
           5,
           (index) => EventWidget(
-                onTap: () {
-                  EventDetailScreen.push(context);
-                },
+                onTap: () {},
                 bgImage: "assets/images/event-bg-${index + 1}.png",
               )),
     );

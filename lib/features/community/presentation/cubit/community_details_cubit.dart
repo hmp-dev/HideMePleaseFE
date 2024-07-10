@@ -1,3 +1,4 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/community/domain/entities/community_member_entity.dart';
@@ -52,9 +53,14 @@ class CommunityDetailsCubit extends BaseCubit<CommunityDetailsState> {
   }
 
   Future<void> onGetNftBenefits({required String tokenAddress}) async {
+    final position = await Geolocator.getCurrentPosition();
+
     final userNftCommsRes = await _nftRepository.getNftBenefits(
       tokenAddress: tokenAddress,
+      latitude: position.latitude,
+      longitude: position.longitude,
     );
+
     userNftCommsRes.fold(
       (_) {},
       (data) => emit(state.copyWith(

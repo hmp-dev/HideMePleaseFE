@@ -39,6 +39,8 @@ abstract class NftRepository {
 
   Future<Either<HMPError, NftBenefitsResponseDto>> getNftBenefits({
     required String tokenAddress,
+    required double latitude,
+    required double longitude,
     String? spaceId,
     int? pageSize,
     int? page,

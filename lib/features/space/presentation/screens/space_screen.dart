@@ -17,12 +17,8 @@ class SpaceScreen extends StatefulWidget {
 class _SpaceScreenState extends State<SpaceScreen> {
   @override
   void initState() {
-    final locationState = getIt<EnableLocationCubit>().state;
-    getIt<SpaceCubit>().onFetchAllSpaceViewData(
-      latitude: locationState.latitude,
-      longitude: locationState.longitude,
-    );
     super.initState();
+    getIt<SpaceCubit>().onFetchAllSpaceViewData();
   }
 
   @override
@@ -76,10 +72,7 @@ class _SpaceScreenState extends State<SpaceScreen> {
                   ),
                   SpaceView(
                     onRefresh: () =>
-                        getIt<SpaceCubit>().onFetchAllSpaceViewData(
-                      latitude: locationState.latitude,
-                      longitude: locationState.longitude,
-                    ),
+                        getIt<SpaceCubit>().onFetchAllSpaceViewData(),
                     onLoadMore: () => getIt<SpaceCubit>().onGetSpacesLoadMore(
                       latitude: locationState.latitude,
                       longitude: locationState.longitude,

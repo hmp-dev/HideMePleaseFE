@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
@@ -202,7 +203,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     spacesRes.fold(
       (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
       (data) => emit(state.copyWith(
-        allSpacesLoaded: data.isEmpty || data.length < 10,
+        allSpacesLoaded: data.isEmpty,
         spaceList: List.from(state.spaceList)
           ..addAll(data.map((e) => e.toEntity()).toList()),
         loadingMoreStatus: RequestStatus.success,
@@ -211,28 +212,39 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     );
   }
 
-  onFetchAllSpaceViewData({
-    required double latitude,
-    required double longitude,
-  }) async {
-    EasyLoading.show(dismissOnTap: true);
-    await Future.wait([
-      onGetTopUsedNfts(),
-      onGetNewSpaceList(),
-      onGetRecommendSpaceList(),
-      onGetSpaceList(
-        latitude: latitude,
-        longitude: longitude,
-      ),
-    ]);
+  onFetchAllSpaceViewData() async {
+    try {
+      final position = await Geolocator.getCurrentPosition();
 
-    EasyLoading.dismiss();
+      EasyLoading.show(dismissOnTap: true);
 
-    // Assuming success if no errors were emitted
-    emit(state.copyWith(
-      submitStatus: RequestStatus.success,
-      errorMessage: '',
-    ));
+      await Future.wait([
+        onGetTopUsedNfts(),
+        onGetNewSpaceList(),
+        onGetRecommendSpaceList(),
+        onGetSpaceList(
+          latitude: position.latitude,
+          longitude: position.longitude,
+        ),
+      ]);
+
+      EasyLoading.dismiss();
+
+      // Assuming success if no errors were emitted
+      emit(state.copyWith(
+        submitStatus: RequestStatus.success,
+        errorMessage: '',
+      ));
+    } catch (e) {
+      "inside error getting position $e".log();
+
+      // Handle any other errors that might occur
+      EasyLoading.dismiss();
+      emit(state.copyWith(
+        submitStatus: RequestStatus.failure,
+        errorMessage: e.toString(),
+      ));
+    }
   }
 
   onGetSpaceDetailBySpaceId({required String spaceId}) async {

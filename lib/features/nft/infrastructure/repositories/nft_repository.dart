@@ -163,6 +163,8 @@ class NftRepositoryImpl extends NftRepository {
   @override
   Future<Either<HMPError, NftBenefitsResponseDto>> getNftBenefits({
     required String tokenAddress,
+    required double latitude,
+    required double longitude,
     String? spaceId,
     int? pageSize,
     int? page,
@@ -170,6 +172,8 @@ class NftRepositoryImpl extends NftRepository {
     try {
       final response = await _nftRemoteDataSource.requestGetNftBenefits(
         tokenAddress: tokenAddress,
+        latitude: latitude,
+        longitude: longitude,
         spaceId: spaceId,
         pageSize: pageSize,
         page: page,

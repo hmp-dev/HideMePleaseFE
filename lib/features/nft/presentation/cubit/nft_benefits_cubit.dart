@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -32,8 +33,15 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
 
     await Future.delayed(const Duration(milliseconds: 100));
 
+    final position = await Geolocator.getCurrentPosition();
+
     final response = await _nftRepository.getNftBenefits(
-        tokenAddress: tokenAddress, pageSize: 10, page: 1);
+      tokenAddress: tokenAddress,
+      latitude: position.latitude,
+      longitude: position.longitude,
+      pageSize: 10,
+      page: 1,
+    );
 
     response.fold(
       (err) {
@@ -67,11 +75,14 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
     }
 
     "onGetSpacesLoadMore is called".log();
+    final position = await Geolocator.getCurrentPosition();
 
     emit(state.copyWith(loadingMoreStatus: RequestStatus.loading));
 
     final benefitsRes = await _nftRepository.getNftBenefits(
       tokenAddress: state.selectedTokenAddress,
+      latitude: position.latitude,
+      longitude: position.longitude,
       pageSize: 10,
       page: state.nftBenefitsPage + 1,
     );

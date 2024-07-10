@@ -15,14 +15,14 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
     required this.childWidget,
     required this.tokenAddress,
     required this.onAlertCancel,
-    this.selectedBenefitEntity,
+    required this.selectedBenefitEntity,
     this.space,
   });
 
   final Widget childWidget;
   final String tokenAddress;
   final VoidCallback onAlertCancel;
-  final BenefitEntity? selectedBenefitEntity;
+  final BenefitEntity selectedBenefitEntity;
   final SpaceDetailEntity? space;
 
   @override
@@ -38,41 +38,40 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
             return GestureDetector(
               onTap: nearBySpacesState.submitStatus == RequestStatus.loading
                   ? () {}
-                  : () {
-                      if (!state.isLocationDenied) {
-                        if (space != null) {
-                          getIt<NearBySpacesCubit>().onSetSelectedSpace(
-                              space ?? const SpaceDetailEntity.empty());
-                        } else {
-                          getIt<NearBySpacesCubit>().onReSetSelectedSpace();
-                        }
+                  : selectedBenefitEntity.state != "available"
+                      ? () {}
+                      : () {
+                          if (!state.isLocationDenied) {
+                            if (space != null) {
+                              getIt<NearBySpacesCubit>().onSetSelectedSpace(
+                                  space ?? const SpaceDetailEntity.empty());
+                            } else {
+                              getIt<NearBySpacesCubit>().onReSetSelectedSpace();
+                            }
 
-                        if (selectedBenefitEntity != null) {
-                          getIt<NearBySpacesCubit>().onSetSelectedBenefitEntity(
-                              selectedBenefitEntity!);
-                        } else {
-                          getIt<NearBySpacesCubit>()
-                              .onResetSelectedBenefitEntity();
-                        }
+                            getIt<NearBySpacesCubit>()
+                                .onSetSelectedBenefitEntity(
+                                    selectedBenefitEntity);
 
-                        getIt<NearBySpacesCubit>().onGetNearBySpacesListData(
-                            tokenAddress: tokenAddress);
-                      } else {
-                        // open Alert Dialogue to Show Info and Ask to enable Location
-                        showEnableLocationAlertDialog(
-                          context: context,
-                          title: LocaleKeys.enableLocationAlertMessage.tr(),
-                          onConfirm: () {
-                            getIt<EnableLocationCubit>()
-                                .onAskDeviceLocationWithOpenSettings();
-                          },
-                          onCancel: onAlertCancel,
-                        );
-                      }
+                            getIt<NearBySpacesCubit>()
+                                .onGetNearBySpacesListData(
+                                    tokenAddress: tokenAddress);
+                          } else {
+                            // open Alert Dialogue to Show Info and Ask to enable Location
+                            showEnableLocationAlertDialog(
+                              context: context,
+                              title: LocaleKeys.enableLocationAlertMessage.tr(),
+                              onConfirm: () {
+                                getIt<EnableLocationCubit>()
+                                    .onAskDeviceLocationWithOpenSettings();
+                              },
+                              onCancel: onAlertCancel,
+                            );
+                          }
 
-                      "latitude: ${state.latitude}".log();
-                      "longitude: ${state.longitude}".log();
-                    },
+                          "latitude: ${state.latitude}".log();
+                          "longitude: ${state.longitude}".log();
+                        },
               child: Container(
                 child: childWidget,
               ),
