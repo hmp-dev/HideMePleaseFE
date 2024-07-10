@@ -30,22 +30,22 @@ class NftCommunityMemberResponseDto extends Equatable {
 
 @JsonSerializable()
 class NftCommunityMemberDto extends Equatable {
-  final int totalPoints;
-  final int pointFluctuation;
-  final int memberRank;
-  final String name;
-  final String userId;
-  final String introduction;
-  final String pfpImage;
+  final int? totalPoints;
+  final int? pointFluctuation;
+  final int? memberRank;
+  final String? name;
+  final String? userId;
+  final String? introduction;
+  final String? pfpImage;
 
   const NftCommunityMemberDto({
-    required this.totalPoints,
-    required this.pointFluctuation,
-    required this.memberRank,
-    required this.name,
-    required this.userId,
-    required this.introduction,
-    required this.pfpImage,
+    this.totalPoints,
+    this.pointFluctuation,
+    this.memberRank,
+    this.name,
+    this.userId,
+    this.introduction,
+    this.pfpImage,
   });
 
   factory NftCommunityMemberDto.fromJson(Map<String, dynamic> json) =>
@@ -54,13 +54,13 @@ class NftCommunityMemberDto extends Equatable {
   Map<String, dynamic> toJson() => _$NftCommunityMemberDtoToJson(this);
 
   CommunityMemberEntity toEntity() => CommunityMemberEntity(
-        totalPoints: totalPoints,
-        pointFluctuation: pointFluctuation,
-        memberRank: memberRank,
-        name: name,
-        userId: userId,
-        introduction: introduction,
-        pfpImage: pfpImage,
+        totalPoints: totalPoints!,
+        pointFluctuation: pointFluctuation!,
+        memberRank: memberRank!,
+        name: name!,
+        userId: userId!,
+        introduction: introduction ?? '',
+        pfpImage: pfpImage ?? '',
       );
 
   @override
