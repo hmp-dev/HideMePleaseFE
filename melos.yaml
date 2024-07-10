@@ -1,0 +1,60 @@
+name: hmp_mobile
+
+packages:
+  - apps/hmp
+  - packages/web3modal_flutter
+
+repository: https://github.com/hyperhire-dev/HideMePleaseFE
+
+sdkPath: .fvm/flutter_sdk
+
+scripts:
+  pre-commit:
+    description: pre-commit git hook script
+    steps:
+      # - format --output none
+      # - analyze --no-fatal-warnings
+      - dart fix --dry-run
+
+  lint:all:
+    run: melos run analyze && melos run format
+    description: Run all static analysis checks
+
+  analyze:all:
+    run: melos run analyze && melos run metrics
+    description: Run all
+
+  analyze:
+    run: |
+      melos exec -c 5 --ignore="*example*" -- \
+        dart analyze --fatal-infos .
+    description: |
+      Run `dart analyze` in all packages.
+       - Note: you can also rely on your IDEs Dart Analysis / Issues window.
+
+  format:
+    run: dart format --set-exit-if-changed .
+    description: |
+      Run `dart format --set-exit-if-changed .` in all packages.
+
+  generate:all:
+    run: melos run generate:dart && melos run generate:flutter
+    description: Build all generated files for Dart & Flutter packages in this project.
+
+  generate:dart:
+    run: melos exec -c 1 --depends-on="build_runner" --no-flutter -- "dart run build_runner build --delete-conflicting-outputs"
+    description: Build all generated files for Dart packages in this project.
+
+  generate:flutter:
+    run: melos exec -c 1 --depends-on="build_runner" --flutter -- "flutter pub run build_runner build --delete-conflicting-outputs"
+    description: Build all generated files for Flutter packages in this project.
+
+  clean:flutter:
+    run: melos exec -c 4 --fail-fast -- "flutter clean"
+    description: Run Flutter clean for a specific package in this project.
+    packageFilters:
+      flutter: true
+
+ide:
+  intellij:
+    enabled: false
