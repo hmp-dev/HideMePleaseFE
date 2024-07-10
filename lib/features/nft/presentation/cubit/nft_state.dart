@@ -16,7 +16,7 @@ class NftState extends BaseState {
   final BenefitUsageType benefitUsageType;
   final bool isLoadingMore;
   final String nextCursor;
-
+  final int selectedCollectionCount;
   @override
   final RequestStatus submitStatus;
 
@@ -37,6 +37,7 @@ class NftState extends BaseState {
     required this.isLoadingMore,
     required this.benefitUsageType,
     required this.nextCursor,
+    required this.selectedCollectionCount,
   });
 
   factory NftState.initial() => NftState(
@@ -56,12 +57,13 @@ class NftState extends BaseState {
         isLoadingMore: false,
         benefitUsageType: BenefitUsageType.ENTIRE,
         nextCursor: "",
+        selectedCollectionCount: 0,
       );
 
-  int get selectedCollectionCount => nftCollectionsGroupEntity.collections.fold(
-      0,
-      (value, element) =>
-          element.tokens.where((element) => element.selected).length + value);
+  // int get selectedCollectionCount => nftCollectionsGroupEntity.collections.fold(
+  //     0,
+  //     (value, element) =>
+  //         element.tokens.where((element) => element.selected).length + value);
 
   int get maxSelectableCount => 3;
 
@@ -83,6 +85,7 @@ class NftState extends BaseState {
         isLoadingMore,
         benefitUsageType,
         nextCursor,
+        selectedCollectionCount,
       ];
 
   @override
@@ -104,6 +107,7 @@ class NftState extends BaseState {
     bool? isLoadingMore,
     BenefitUsageType? benefitUsageType,
     String? nextCursor,
+    int? selectedCollectionCount,
   }) {
     return NftState(
       nftCollectionsGroupEntity:
@@ -125,6 +129,8 @@ class NftState extends BaseState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       benefitUsageType: benefitUsageType ?? this.benefitUsageType,
       nextCursor: nextCursor ?? this.nextCursor,
+      selectedCollectionCount:
+          selectedCollectionCount ?? this.selectedCollectionCount,
     );
   }
 }

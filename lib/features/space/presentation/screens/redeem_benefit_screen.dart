@@ -22,6 +22,7 @@ import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/infrastructure/dtos/agree_terms_url_dto.dart';
 import 'package:mobile/features/space/presentation/cubit/benefit_redeem_cubit.dart';
+import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
 import 'package:mobile/features/space/presentation/cubit/space_benefits_cubit.dart';
 import 'package:mobile/features/space/presentation/widgets/sunrise_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -97,243 +98,271 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SpaceBenefitsCubit, SpaceBenefitsState>(
-      bloc: getIt<SpaceBenefitsCubit>(),
-      listener: (context, spaceBenefitsState) {},
-      builder: (context, spaceBenefitsState) {
-        return BlocConsumer<BenefitRedeemCubit, BenefitRedeemState>(
-          bloc: getIt<BenefitRedeemCubit>(),
-          listener: (context, benefitRedeemState) async {
-            if (benefitRedeemState.submitStatus == RequestStatus.failure) {
-              // Show Error Snackbar If Error in Redeeming Benefit
-              context.showErrorSnackBar(benefitRedeemState.errorMessage);
-            }
+    return BlocConsumer<NearBySpacesCubit, NearBySpacesState>(
+      bloc: getIt<NearBySpacesCubit>(),
+      listener: (context, nearBySpaceState) {},
+      builder: (context, nearBySpaceState) {
+        return BlocConsumer<SpaceBenefitsCubit, SpaceBenefitsState>(
+          bloc: getIt<SpaceBenefitsCubit>(),
+          listener: (context, spaceBenefitsState) {},
+          builder: (context, spaceBenefitsState) {
+            return BlocConsumer<BenefitRedeemCubit, BenefitRedeemState>(
+              bloc: getIt<BenefitRedeemCubit>(),
+              listener: (context, benefitRedeemState) async {
+                if (benefitRedeemState.submitStatus == RequestStatus.failure) {
+                  // Show Error Snackbar If Error in Redeeming Benefit
+                  context.showErrorSnackBar(benefitRedeemState.errorMessage);
+                }
 
-            if (benefitRedeemState.submitStatus == RequestStatus.success) {
-              //update Success Status
-              setState(() {
-                isBenefitRedeemSuccess = true;
-              });
-              onBenefitRedeemSuccess(spaceBenefitsState);
+                if (benefitRedeemState.submitStatus == RequestStatus.success) {
+                  //update Success Status
+                  setState(() {
+                    isBenefitRedeemSuccess = true;
+                  });
+                  onBenefitRedeemSuccess(spaceBenefitsState);
 
-              // if selected Entity in not null
-              if (widget.selectedBenefitEntity != null) {
-                final state = getIt<NftBenefitsCubit>().state;
-                //call NFt Benefits API
-                getIt<NftBenefitsCubit>()
-                    .onGetNftBenefits(tokenAddress: state.selectedTokenAddress);
-              }
-            }
-          },
-          builder: (context, benefitRedeemState) {
-            return BaseScaffold(
-              body: SafeArea(
-                child: SingleChildScrollView(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    buildTitleRow(context),
-                    buildSpaceNameRow(context, widget.nearBySpaceEntity),
-                    widget.isMatchedSpaceFound != null &&
-                            widget.isMatchedSpaceFound == false
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 5.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                DefaultImage(
-                                  path: "assets/icons/ic_info_icon.svg",
-                                  width: 16,
-                                  height: 16,
-                                  color: fore2,
-                                ),
-                                const HorizontalSpace(8),
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.7,
-                                  child: Text(
-                                    LocaleKeys
-                                        .notInSpaceCanSpaceCannotUseBenefit
-                                        .tr(),
-                                    style: fontBodyXs(color: fore2),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                    const SizedBox(height: 24),
-                    if (spaceBenefitsState.isSubmitSuccess ||
-                        widget.selectedBenefitEntity != null)
-                      SizedBox(
-                        height: 436,
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: CarouselSlider(
-                                carouselController: _carouselController,
-                                options: CarouselOptions(
-                                  height: 436,
-                                  viewportFraction: 0.9,
-                                  aspectRatio: 16 / 9,
-                                  enableInfiniteScroll: false,
-                                  enlargeCenterPage: false,
-                                  initialPage: selectedPageIndex,
-                                  autoPlayInterval: const Duration(seconds: 3),
-                                  onPageChanged: (int index, _) {
-                                    setState(() {
-                                      selectedPageIndex = index;
-                                    });
-                                  },
-                                ),
-                                items: widget.selectedBenefitEntity != null
-                                    ? [
-                                        BenefitCardWidgetWithNearBySpaceEntity(
-                                          nearBySpaceEntity:
-                                              widget.nearBySpaceEntity,
-                                          nftBenefitEntity:
-                                              widget.selectedBenefitEntity!,
-                                          isBenefitRedeemSuccess:
-                                              isBenefitRedeemSuccess,
-                                          isMatchedSpaceFound: widget
-                                                      .isMatchedSpaceFound ==
-                                                  null
-                                              ? true
-                                              : widget.isMatchedSpaceFound ??
-                                                  false,
-                                        )
-                                      ]
-                                    : spaceBenefitsState
-                                        .benefitGroupEntity.benefits
-                                        .map((item) {
-                                        return BenefitCardWidgetWithNearBySpaceEntity(
-                                          nearBySpaceEntity:
-                                              widget.nearBySpaceEntity,
-                                          nftBenefitEntity: item,
-                                          isMatchedSpaceFound: widget
-                                                      .isMatchedSpaceFound ==
-                                                  null
-                                              ? true
-                                              : widget.isMatchedSpaceFound ??
-                                                  false,
-                                        );
-                                      }).toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else
-                      const SizedBox(height: 436),
-                    const VerticalSpace(20),
-                    widget.selectedBenefitEntity == null
-                        ? PageDotIndicator(
-                            length: spaceBenefitsState
-                                .benefitGroupEntity.benefits.length,
-                            selectedIndex: selectedPageIndex,
-                          )
-                        : const SizedBox.shrink(),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20.0, right: 20, top: 50, bottom: 20),
-                      child: (benefitRedeemState.submitStatus ==
-                              RequestStatus.loading)
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : SunriseWidget(
-                              isButtonEnabled:
-                                  widget.isMatchedSpaceFound == null
-                                      ? true
-                                      : widget.isMatchedSpaceFound ?? false,
-                              onSubmitRedeem: () async {
-                                // redeem submit  starts
-                                if (widget.selectedBenefitEntity != null) {
-                                  var result =
-                                      await showBenefitRedeemSuccessAlertDialog(
-                                    context: context,
-                                    buttonTitle:
-                                        LocaleKeys.employeeConfirmation.tr(),
-                                    title:
-                                        "직원에게 혜택 사용 화면을 보여주세요!\n${widget.selectedBenefitEntity?.description} ",
-                                    onConfirm: () {
-                                      Navigator.pop(context, true);
-                                    },
-                                  );
-
-                                  if (result) {
-                                    final locationState =
-                                        getIt<EnableLocationCubit>().state;
-                                    // call the benefit redeem api here
-
-                                    "the token address is as ${widget.selectedBenefitEntity?.tokenAddress}"
-                                        .log();
-
-                                    if (locationState.latitude != 0.0 ||
-                                        locationState.longitude != 0.0) {
-                                      getIt<BenefitRedeemCubit>()
-                                          .onPostRedeemBenefit(
-                                        benefitId:
-                                            widget.selectedBenefitEntity!.id,
-                                        tokenAddress: removeCurlyBraces(widget
-                                            .selectedBenefitEntity!
-                                            .tokenAddress),
-                                        spaceId: widget
-                                            .selectedBenefitEntity!.spaceId,
-                                        latitude: locationState.latitude,
-                                        longitude: locationState.longitude,
-                                      );
-                                    }
-                                  }
-                                } else {
-                                  final selectedBenefit = spaceBenefitsState
-                                      .benefitGroupEntity
-                                      .benefits[selectedPageIndex];
-
-                                  //show info dialogue
-
-                                  var result =
-                                      await showBenefitRedeemSuccessAlertDialog(
-                                    context: context,
-                                    buttonTitle:
-                                        LocaleKeys.employeeConfirmation.tr(),
-                                    title:
-                                        "직원에게 혜택 사용 화면을 보여주세요!\n${selectedBenefit.description} ",
-                                    onConfirm: () {
-                                      Navigator.pop(context, true);
-                                    },
-                                  );
-
-                                  if (result) {
-                                    final locationState =
-                                        getIt<EnableLocationCubit>().state;
-                                    // call the benefit redeem api here
-
-                                    "the token address is as ${selectedBenefit.tokenAddress}"
-                                        .log();
-
-                                    if (locationState.latitude != 0.0 ||
-                                        locationState.longitude != 0.0) {
-                                      getIt<BenefitRedeemCubit>()
-                                          .onPostRedeemBenefit(
-                                        benefitId: selectedBenefit.id,
-                                        tokenAddress: removeCurlyBraces(
-                                            selectedBenefit.tokenAddress),
-                                        spaceId: selectedBenefit.spaceId,
-                                        latitude: locationState.latitude,
-                                        longitude: locationState.longitude,
-                                      );
-                                    }
-                                  }
-                                }
-                                // redeem submit  Ends
-                              },
-                            ),
+                  // if selected Entity in not null
+                  if (widget.selectedBenefitEntity != null) {
+                    final state = getIt<NftBenefitsCubit>().state;
+                    //call NFt Benefits API
+                    getIt<NftBenefitsCubit>().onGetNftBenefits(
+                        tokenAddress: state.selectedTokenAddress);
+                  }
+                }
+              },
+              builder: (context, benefitRedeemState) {
+                return BaseScaffold(
+                  body: SafeArea(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          buildTitleRow(context),
+                          widget.selectedBenefitEntity != null
+                              ? Column(
+                                  children: [
+                                    buildSpaceNameRowWithSpaceNameInBenefit(
+                                        context, widget.selectedBenefitEntity!),
+                                    widget.isMatchedSpaceFound != null &&
+                                            widget.isMatchedSpaceFound == false
+                                        ? const NotInSpaceCanSpaceCannotUseBenefit()
+                                        : const SizedBox.shrink(),
+                                    const SizedBox(height: 24),
+                                    if (spaceBenefitsState.isSubmitSuccess ||
+                                        widget.selectedBenefitEntity != null)
+                                      SizedBox(
+                                        height: 436,
+                                        child: Stack(
+                                          alignment: Alignment.bottomCenter,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20.0),
+                                              child: CarouselSlider(
+                                                  carouselController:
+                                                      _carouselController,
+                                                  options: CarouselOptions(
+                                                    height: 436,
+                                                    viewportFraction: 0.9,
+                                                    aspectRatio: 16 / 9,
+                                                    enableInfiniteScroll: false,
+                                                    enlargeCenterPage: false,
+                                                    initialPage:
+                                                        selectedPageIndex,
+                                                    autoPlayInterval:
+                                                        const Duration(
+                                                            seconds: 3),
+                                                    onPageChanged:
+                                                        (int index, _) {
+                                                      setState(() {
+                                                        selectedPageIndex =
+                                                            index;
+                                                      });
+                                                    },
+                                                  ),
+                                                  items: [
+                                                    BenefitCardWidgetWithNearBySpaceEntity(
+                                                      nearBySpaceEntity: widget
+                                                          .nearBySpaceEntity,
+                                                      nftBenefitEntity: widget
+                                                          .selectedBenefitEntity!,
+                                                      isBenefitRedeemSuccess:
+                                                          isBenefitRedeemSuccess,
+                                                      isMatchedSpaceFound: widget
+                                                                  .isMatchedSpaceFound ==
+                                                              null
+                                                          ? true
+                                                          : widget.isMatchedSpaceFound ??
+                                                              false,
+                                                    )
+                                                  ]),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    else
+                                      const SizedBox(height: 436),
+                                    const VerticalSpace(20),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 20.0,
+                                          right: 20,
+                                          top: 50,
+                                          bottom: 20),
+                                      child: (benefitRedeemState.submitStatus ==
+                                              RequestStatus.loading)
+                                          ? const CircularProgressIndicator(
+                                              color: Colors.white)
+                                          : SunriseWidget(
+                                              tokenAddress: removeCurlyBraces(
+                                                  widget.selectedBenefitEntity
+                                                          ?.tokenAddress ??
+                                                      ""),
+                                              isButtonEnabled: widget
+                                                          .isMatchedSpaceFound ==
+                                                      null
+                                                  ? true
+                                                  : widget.isMatchedSpaceFound ??
+                                                      false,
+                                              onSubmitRedeem: () async {
+                                                final selectedBenefit = widget
+                                                    .selectedBenefitEntity!;
+                                                submitToRedeemBenefit(
+                                                  nearBySpaceState:
+                                                      nearBySpaceState,
+                                                  selectedBenefit:
+                                                      selectedBenefit,
+                                                );
+                                              },
+                                            ),
+                                    ),
+                                  ],
+                                )
+                              : spaceBenefitsState
+                                      .benefitGroupEntity.benefits.isEmpty
+                                  ? const SizedBox.shrink()
+                                  : Column(
+                                      children: [
+                                        buildSpaceNameRowWithNearBySpace(
+                                            context, widget.nearBySpaceEntity),
+                                        widget.isMatchedSpaceFound != null &&
+                                                widget.isMatchedSpaceFound ==
+                                                    false
+                                            ? const NotInSpaceCanSpaceCannotUseBenefit()
+                                            : const SizedBox.shrink(),
+                                        const SizedBox(height: 24),
+                                        if (spaceBenefitsState
+                                                .isSubmitSuccess ||
+                                            widget.selectedBenefitEntity !=
+                                                null)
+                                          SizedBox(
+                                            height: 436,
+                                            child: Stack(
+                                              alignment: Alignment.bottomCenter,
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 20.0),
+                                                  child: CarouselSlider(
+                                                    carouselController:
+                                                        _carouselController,
+                                                    options: CarouselOptions(
+                                                      height: 436,
+                                                      viewportFraction: 0.9,
+                                                      aspectRatio: 16 / 9,
+                                                      enableInfiniteScroll:
+                                                          false,
+                                                      enlargeCenterPage: false,
+                                                      initialPage:
+                                                          selectedPageIndex,
+                                                      autoPlayInterval:
+                                                          const Duration(
+                                                              seconds: 3),
+                                                      onPageChanged:
+                                                          (int index, _) {
+                                                        setState(() {
+                                                          selectedPageIndex =
+                                                              index;
+                                                        });
+                                                      },
+                                                    ),
+                                                    items: spaceBenefitsState
+                                                        .benefitGroupEntity
+                                                        .benefits
+                                                        .map((item) {
+                                                      return BenefitCardWidgetWithNearBySpaceEntity(
+                                                        nearBySpaceEntity: widget
+                                                            .nearBySpaceEntity,
+                                                        nftBenefitEntity: item,
+                                                        isMatchedSpaceFound:
+                                                            item.state ==
+                                                                "available",
+                                                      );
+                                                    }).toList(),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        else
+                                          const SizedBox(height: 436),
+                                        const VerticalSpace(20),
+                                        PageDotIndicator(
+                                          length: spaceBenefitsState
+                                              .benefitGroupEntity
+                                              .benefits
+                                              .length,
+                                          selectedIndex: selectedPageIndex,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 20.0,
+                                              right: 20,
+                                              top: 50,
+                                              bottom: 20),
+                                          child: (benefitRedeemState
+                                                      .submitStatus ==
+                                                  RequestStatus.loading)
+                                              ? const CircularProgressIndicator(
+                                                  color: Colors.white)
+                                              : SunriseWidget(
+                                                  tokenAddress: removeCurlyBraces(
+                                                      spaceBenefitsState
+                                                          .benefitGroupEntity
+                                                          .benefits[
+                                                              selectedPageIndex]
+                                                          .tokenAddress),
+                                                  isButtonEnabled: spaceBenefitsState
+                                                          .benefitGroupEntity
+                                                          .benefits[
+                                                              selectedPageIndex]
+                                                          .state ==
+                                                      "available",
+                                                  onSubmitRedeem: () async {
+                                                    final selectedBenefit =
+                                                        spaceBenefitsState
+                                                                .benefitGroupEntity
+                                                                .benefits[
+                                                            selectedPageIndex];
+                                                    submitToRedeemBenefit(
+                                                      nearBySpaceState:
+                                                          nearBySpaceState,
+                                                      selectedBenefit:
+                                                          selectedBenefit,
+                                                    );
+                                                  },
+                                                ),
+                                        ),
+                                      ],
+                                    ),
+                        ],
+                      ),
                     ),
-                  ],
-                )),
-              ),
+                  ),
+                );
+              },
             );
           },
         );
@@ -341,7 +370,59 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
     );
   }
 
-  Row buildSpaceNameRow(
+  void submitToRedeemBenefit({
+    required NearBySpacesState nearBySpaceState,
+    required BenefitEntity selectedBenefit,
+  }) async {
+    if (ifUserIsSpace(nearBySpaceState, widget.nearBySpaceEntity)) {
+      // redeem submit  starts
+
+      //show info dialogue
+
+      var result = await showBenefitRedeemSuccessAlertDialog(
+        context: context,
+        buttonTitle: LocaleKeys.employeeConfirmation.tr(),
+        title: "직원에게 혜택 사용 화면을 보여주세요!\n${selectedBenefit.description} ",
+        onConfirm: () {
+          Navigator.pop(context, true);
+        },
+      );
+
+      if (result) {
+        // call the benefit redeem api here
+
+        "the token address is as ${selectedBenefit.tokenAddress}".log();
+
+        getIt<BenefitRedeemCubit>().onPostRedeemBenefit(
+          benefitId: selectedBenefit.id,
+          tokenAddress: removeCurlyBraces(selectedBenefit.tokenAddress),
+          spaceId: selectedBenefit.spaceId,
+        );
+      }
+    } else {
+      context.showSnackBar(
+        LocaleKeys.notInSpaceCanSpaceCannotUseBenefit.tr(),
+      );
+    }
+  }
+
+  bool ifUserIsSpace(
+      NearBySpacesState nearBySpaceState, NearBySpaceEntity nearBySpaceEntity) {
+    // bool isUserInSpace = false;
+    // for (var space in nearBySpaceState.spacesResponseEntity.spaces) {
+    //   if (space.id == nearBySpaceEntity.id) {
+    //     isUserInSpace = true;
+
+    //     break;
+    //   }
+    // }
+
+    // return isUserInSpace;
+
+    return true;
+  }
+
+  Row buildSpaceNameRowWithNearBySpace(
     BuildContext context,
     NearBySpaceEntity nearBySpaceEntity,
   ) {
@@ -359,6 +440,31 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
           width: MediaQuery.of(context).size.width * 0.7,
           child: Text(
             nearBySpaceEntity.name,
+            style: fontTitle04(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Row buildSpaceNameRowWithSpaceNameInBenefit(
+    BuildContext context,
+    BenefitEntity benefitEntity,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        DefaultImage(
+          path: "assets/icons/ic_space_enabled.svg",
+          width: 32,
+          height: 32,
+          color: white,
+        ),
+        const HorizontalSpace(8),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          child: Text(
+            benefitEntity.spaceName,
             style: fontTitle04(),
           ),
         ),
@@ -450,5 +556,37 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
 
   String removeCurlyBraces(String input) {
     return input.replaceAll(RegExp(r'[{}]'), '');
+  }
+}
+
+class NotInSpaceCanSpaceCannotUseBenefit extends StatelessWidget {
+  const NotInSpaceCanSpaceCannotUseBenefit({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          DefaultImage(
+            path: "assets/icons/ic_info_icon.svg",
+            width: 16,
+            height: 16,
+            color: fore2,
+          ),
+          const HorizontalSpace(8),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: Text(
+              LocaleKeys.notInSpaceCanSpaceCannotUseBenefit.tr(),
+              style: fontBodyXs(color: fore2),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

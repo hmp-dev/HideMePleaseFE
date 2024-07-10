@@ -103,7 +103,15 @@ class _HomeScreenState extends State<HomeScreen> {
               previous.spacesResponseEntity.spaces,
           listener: (context, state) async {
             if (state.isSubmitSuccess) {
-              if (state.spacesResponseEntity.spaces.isNotEmpty) {
+              if (state.spacesResponseEntity.spaces.isEmpty &&
+                  state.selectedBenefitEntity.spaceId.isNotEmpty) {
+                RedeemBenefitScreen.push(
+                  context,
+                  nearBySpaceEntity: const NearBySpaceEntity.empty(),
+                  selectedBenefitEntity: state.selectedBenefitEntity,
+                  isMatchedSpaceFound: false,
+                );
+              } else if (state.spacesResponseEntity.spaces.isNotEmpty) {
                 // Determine which view to show based on selectedBenefitEntity
                 if (state.selectedBenefitEntity.spaceId.isNotEmpty) {
                   "inside state.selectedBenefitEntity.spaceId != '' :${state.selectedBenefitEntity.spaceId}"

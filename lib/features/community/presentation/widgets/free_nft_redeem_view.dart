@@ -73,7 +73,7 @@ class FreeNftRedeemView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomImageView(
-                    svgPath: 'assets/icons/etherium_icon.svg',
+                    svgPath: 'assets/chain-logos/klaytn_chain.svg',
                     width: 28,
                     height: 28,
                   ),

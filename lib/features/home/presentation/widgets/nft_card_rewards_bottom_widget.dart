@@ -12,7 +12,6 @@ import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:stacked_services/stacked_services.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class NftCardRewardsBottomWidget extends StatelessWidget {
@@ -115,7 +114,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               onPressed: () {
                 if (!getIt<WalletsCubit>().state.isKlipWalletConnected) {
                   return snackBarService.showSnackbar(
-                    message: "클립월렛에 접속해주세요",
+                    message: "Klip월렛에 연동해주세요.",
                     duration: const Duration(seconds: 5),
                   );
                 }
@@ -138,11 +137,5 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _launchUrl(String urlToOpen) async {
-    if (!await launchUrl(Uri.parse(urlToOpen))) {
-      throw Exception('Could not launch $urlToOpen');
-    }
   }
 }

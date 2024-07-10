@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
@@ -48,10 +49,10 @@ class NearBySpacesCubit extends BaseCubit<NearBySpacesState> {
 
   Future<void> onGetNearBySpacesListData({
     required String tokenAddress,
-    required double latitude,
-    required double longitude,
     BenefitEntity? selectedBenefitEntity,
   }) async {
+    final position = await Geolocator.getCurrentPosition();
+
     emit(state.copyWith(
       submitStatus: RequestStatus.loading,
       selectedBenefitEntity: selectedBenefitEntity,
@@ -62,8 +63,8 @@ class NearBySpacesCubit extends BaseCubit<NearBySpacesState> {
     EasyLoading.show(dismissOnTap: true);
     final response = await _spaceRepository.getNearBySpacesListData(
       tokenAddress: tokenAddress,
-      latitude: latitude,
-      longitude: longitude,
+      latitude: position.latitude,
+      longitude: position.longitude,
     );
 
     EasyLoading.dismiss();

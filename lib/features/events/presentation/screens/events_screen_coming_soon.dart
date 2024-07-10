@@ -28,60 +28,31 @@ class _EventsScreenComingSoonState extends State<EventsScreenComingSoon> {
 class EventsComingSoonChildView extends StatelessWidget {
   final EventsViewData onBoardingSlideData;
 
-  const EventsComingSoonChildView({super.key, required this.onBoardingSlideData});
+  const EventsComingSoonChildView(
+      {super.key, required this.onBoardingSlideData});
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        const Expanded(
-          flex: 3,
-          child: SizedBox(),
-        ),
-        Expanded(
-          flex: 5,
-          child: Center(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width - 120,
-              child: AspectRatio(
-                aspectRatio: 0.5,
-                child: SizedBox(
-                  width: 182,
-                  height: 158,
-                  child: Lottie.asset(onBoardingSlideData.animationPath,
-                      fit: BoxFit.contain, alignment: Alignment.center),
-                ),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: Column(
-            children: [
-              const VerticalSpace(10),
-              Text(
-                onBoardingSlideData.titleTextA,
-                textAlign: TextAlign.center,
-                style: fontTitle03Bold(),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          flex: 4,
+        Center(
           child: SizedBox(
-            width: 250,
-            child: Text(
-              '', //onBoardingSlideData.descText,
-              textAlign: TextAlign.center,
-              style: fontCompactMd(color: fore2),
+            width: MediaQuery.of(context).size.width - 120,
+            child: SizedBox(
+              width: 182,
+              height: 158,
+              child: Lottie.asset(onBoardingSlideData.animationPath,
+                  fit: BoxFit.contain, alignment: Alignment.center),
             ),
           ),
         ),
-        const Expanded(
-          flex: 1,
-          child: SizedBox(),
+        const VerticalSpace(10),
+        Text(
+          onBoardingSlideData.titleTextA,
+          textAlign: TextAlign.center,
+          style: fontTitle03Bold(),
         ),
       ],
     );

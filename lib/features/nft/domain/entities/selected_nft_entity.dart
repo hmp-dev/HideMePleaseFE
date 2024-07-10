@@ -86,9 +86,9 @@ class SelectedNFTEntity extends Equatable {
   const SelectedNFTEntity.emptyForHome1st()
       : id = '',
         order = 0,
-        name = 'Ready to Hide',
+        name = '',
         symbol = '',
-        chain = 'ETHEREUM',
+        chain = 'KLAYTN',
         imageUrl = '',
         tokenAddress = '',
         totalPoints = 0,

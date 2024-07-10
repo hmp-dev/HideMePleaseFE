@@ -34,7 +34,7 @@ class PagePopup extends StatelessWidget {
           ),
         ),
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Column(
             children: [
               const VerticalSpace(10),

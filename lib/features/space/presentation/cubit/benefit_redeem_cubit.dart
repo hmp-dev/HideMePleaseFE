@@ -1,3 +1,4 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
@@ -16,17 +17,17 @@ class BenefitRedeemCubit extends BaseCubit<BenefitRedeemState> {
     required String benefitId,
     required String tokenAddress,
     required String spaceId,
-    required double latitude,
-    required double longitude,
   }) async {
+    final position = await Geolocator.getCurrentPosition();
+
     emit(state.copyWith(submitStatus: RequestStatus.loading));
 
     final response = await _spaceRepository.postRedeemBenefit(
       benefitId: benefitId,
       tokenAddress: tokenAddress,
       spaceId: spaceId,
-      latitude: latitude,
-      longitude: longitude,
+      latitude: position.latitude,
+      longitude: position.longitude,
     );
 
     response.fold(

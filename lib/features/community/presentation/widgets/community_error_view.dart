@@ -6,7 +6,7 @@ class CommunityErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
   const CommunityErrorView(
-      {super.key, this.message = '뭔가 잘못됐어', required this.onRetry});
+      {super.key, this.message = '데이터를 불러오지 못하였습니다.', required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class CommunityErrorView extends StatelessWidget {
             width: 200.0,
             child: HMPCustomButton(
               bgColor: backgroundGr1,
-              text: '다시 장전하다',
+              text: '다시 불러오기',
               onPressed: onRetry,
             ),
           ),
