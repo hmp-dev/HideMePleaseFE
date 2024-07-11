@@ -21,6 +21,18 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
   Future<void> onGetNftBenefits({
     required String tokenAddress,
   }) async {
+    double latitude = 0;
+    double longitude = 0;
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 0;
+      longitude = 0;
+    }
+
     emit(state.copyWith(
       submitStatus: RequestStatus.loading,
       selectedTokenAddress: tokenAddress,
@@ -33,12 +45,10 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
 
     await Future.delayed(const Duration(milliseconds: 100));
 
-    final position = await Geolocator.getCurrentPosition();
-
     final response = await _nftRepository.getNftBenefits(
       tokenAddress: tokenAddress,
-      latitude: position.latitude,
-      longitude: position.longitude,
+      latitude: latitude,
+      longitude: longitude,
       pageSize: 10,
       page: 1,
     );
@@ -73,16 +83,24 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
         state.loadingMoreStatus == RequestStatus.loading) {
       return;
     }
+    double latitude = 0;
+    double longitude = 0;
+    try {
+      final position = await Geolocator.getCurrentPosition();
 
-    "onGetSpacesLoadMore is called".log();
-    final position = await Geolocator.getCurrentPosition();
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 0;
+      longitude = 0;
+    }
 
     emit(state.copyWith(loadingMoreStatus: RequestStatus.loading));
 
     final benefitsRes = await _nftRepository.getNftBenefits(
       tokenAddress: state.selectedTokenAddress,
-      latitude: position.latitude,
-      longitude: position.longitude,
+      latitude: latitude,
+      longitude: longitude,
       pageSize: 10,
       page: state.nftBenefitsPage + 1,
     );

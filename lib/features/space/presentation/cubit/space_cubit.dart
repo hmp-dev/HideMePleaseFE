@@ -213,38 +213,33 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   }
 
   onFetchAllSpaceViewData() async {
+    double latitude = 0;
+    double longitude = 0;
     try {
       final position = await Geolocator.getCurrentPosition();
 
-      EasyLoading.show(dismissOnTap: true);
-
-      await Future.wait([
-        onGetTopUsedNfts(),
-        onGetNewSpaceList(),
-        onGetRecommendSpaceList(),
-        onGetSpaceList(
-          latitude: position.latitude,
-          longitude: position.longitude,
-        ),
-      ]);
-
-      EasyLoading.dismiss();
-
-      // Assuming success if no errors were emitted
-      emit(state.copyWith(
-        submitStatus: RequestStatus.success,
-        errorMessage: '',
-      ));
+      latitude = position.latitude;
+      longitude = position.longitude;
     } catch (e) {
-      "inside error getting position $e".log();
-
-      // Handle any other errors that might occur
-      EasyLoading.dismiss();
-      emit(state.copyWith(
-        submitStatus: RequestStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      latitude = 0;
+      longitude = 0;
     }
+
+    await Future.wait([
+      onGetTopUsedNfts(),
+      onGetNewSpaceList(),
+      onGetRecommendSpaceList(),
+      onGetSpaceList(
+        latitude: latitude,
+        longitude: longitude,
+      ),
+    ]);
+
+    // Assuming success if no errors were emitted
+    emit(state.copyWith(
+      submitStatus: RequestStatus.success,
+      errorMessage: '',
+    ));
   }
 
   onGetSpaceDetailBySpaceId({required String spaceId}) async {

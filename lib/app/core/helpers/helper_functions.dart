@@ -108,7 +108,7 @@ Future<bool> showHmpAlertDialog({
   required String content,
   required Function onConfirm,
 }) async {
-  return await showDialog(
+  bool? result = await showDialog(
     context: context,
     builder: (BuildContext context) {
       return BackdropFilter(
@@ -144,6 +144,7 @@ Future<bool> showHmpAlertDialog({
       );
     },
   );
+  return result ?? false;
 }
 
 Future<bool> showBenefitRedeemSuccessAlertDialog({
@@ -234,9 +235,7 @@ Future<bool> showBenefitRedeemAgreeTermsAlertDialog({
                     height: 44,
                     bgColor: bg4,
                     text: LocaleKeys.confirm.tr(),
-                    onPressed: () {
-                      onConfirm();
-                    },
+                    onPressed: () => onConfirm(),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -245,9 +244,7 @@ Future<bool> showBenefitRedeemAgreeTermsAlertDialog({
                     height: 44,
                     bgColor: fore4,
                     text: LocaleKeys.cancel.tr(),
-                    onPressed: () {
-                      onCancel();
-                    },
+                    onPressed: () => onCancel(),
                   ),
                 ),
               ],

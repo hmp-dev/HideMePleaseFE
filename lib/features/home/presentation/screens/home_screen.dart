@@ -166,15 +166,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 } else {
                   // Show Space Selection View if there are multiple spaces, otherwise show Redeem Benefit View
-                  if (state.spacesResponseEntity.spaces.length > 1) {
-                    SpaceSelectionScreen.show(
-                        context, state.spacesResponseEntity.spaces);
-                  } else {
-                    RedeemBenefitScreen.push(
-                      context,
-                      nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
-                    );
-                  }
+                  // if (state.spacesResponseEntity.spaces.length > 1) {
+                  //   SpaceSelectionScreen.show(
+                  //       context, state.spacesResponseEntity.spaces);
+                  // } else {
+
+                  // Do not Show SpaceSelectionScreen Directly Go to RedeemBenefitScreen
+                  RedeemBenefitScreen.push(
+                    context,
+                    nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
+                  );
+                  //}
                 }
               } else if (state.selectedSpaceDetailEntity.id.isNotEmpty) {
                 "inside nearby spaces are empty and state.selectedSpaceDetailEntity.id != ''"
@@ -187,6 +189,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               } else {
                 SpaceSelectionScreen.show(context, []);
+
+                // here I need the Token Address to pass and  fetch and show the NFT benefits list
               }
             }
           },

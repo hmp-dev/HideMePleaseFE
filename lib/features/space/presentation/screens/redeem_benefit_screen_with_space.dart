@@ -75,7 +75,8 @@ class _RedeemBenefitScreenWithSpaceState
     super.initState();
   }
 
-  showTermsAlert() {
+  showTermsAlert() async {
+    await Future.delayed(const Duration(seconds: 2));
     if (widget.benefit.termsUrl != "") {
       onShowTermsConcentAlert(widget.benefit.termsUrl);
     }
@@ -317,7 +318,6 @@ class _RedeemBenefitScreenWithSpaceState
           width: MediaQuery.of(context).size.width * 0.7,
           child: Text(
             benefitEntity.spaceName,
-            
             style: fontTitle04(),
           ),
         ),
@@ -375,18 +375,20 @@ class _RedeemBenefitScreenWithSpaceState
   onShowTermsConcentAlert(String termsUrl) async {
     if (termsUrl != "") {
       final userId = getIt<ProfileCubit>().state.userProfileEntity.id;
-      // check if the user has already agreed to the terms
+      //check if the user has already agreed to the terms
       final hasAgreedTerms = await isUrlAlreadySaved(userId, termsUrl);
 
       if (!hasAgreedTerms) {
         await showBenefitRedeemAgreeTermsAlertDialog(
           context: context,
-          title: LocaleKeys.agreeTermDialogMessage.tr(),
+          //title: LocaleKeys.agreeTermDialogMessage.tr(),
+          title: "[워커힐 마을호텔] 경품 응모 이벤트\n참여를 위한 개인정보 수집, 이용에\n동의하시겠습니까?",
           onConfirm: () {
             Navigator.pop(context);
             WebViewScreen.push(
               context: context,
-              title: LocaleKeys.agreeTermsAlertMSG.tr(),
+              //title: LocaleKeys.agreeTermsAlertMSG.tr(),
+              title: "이벤트 참여 양식", // Event Participation Form
               url: termsUrl,
             );
           },

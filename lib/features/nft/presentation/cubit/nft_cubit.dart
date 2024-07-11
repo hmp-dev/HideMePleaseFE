@@ -286,11 +286,21 @@ class NftCubit extends BaseCubit<NftState> {
     if (isShowLoader) {
       EasyLoading.show();
     }
-    final position = await Geolocator.getCurrentPosition();
+    double latitude = 0;
+    double longitude = 0;
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 0;
+      longitude = 0;
+    }
 
     final response = await _nftRepository.getWelcomeNft(
-      latitude: position.latitude,
-      longitude: position.longitude,
+      latitude: latitude,
+      longitude: longitude,
     );
 
     if (EasyLoading.isShow) {

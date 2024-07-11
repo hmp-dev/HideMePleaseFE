@@ -6,6 +6,7 @@ import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
+import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
@@ -107,8 +108,18 @@ class _StartUpScreenState extends State<StartUpScreen>
       ],
       child: Scaffold(
         body: Center(
-          child: Lottie.asset(
-            'assets/lottie/loader.json',
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Lottie.asset(
+                'assets/lottie/loader.json',
+              ),
+              Text(
+                "It is Startup Screen",
+                style: fontBodyMd(color: Colors.transparent),
+              )
+            ],
           ),
         ),
       ),

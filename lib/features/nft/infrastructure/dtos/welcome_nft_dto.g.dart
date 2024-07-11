@@ -14,6 +14,7 @@ WelcomeNftDto _$WelcomeNftDtoFromJson(Map<String, dynamic> json) =>
       usedCount: json['usedCount'] as int?,
       name: json['name'] as String?,
       tokenAddress: json['tokenAddress'] as String?,
+      redeemTermsUrl: json['redeemTermsUrl'] as String?,
     );
 
 Map<String, dynamic> _$WelcomeNftDtoToJson(WelcomeNftDto instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$WelcomeNftDtoToJson(WelcomeNftDto instance) =>
       'usedCount': instance.usedCount,
       'name': instance.name,
       'tokenAddress': instance.tokenAddress,
+      'redeemTermsUrl': instance.redeemTermsUrl,
     };

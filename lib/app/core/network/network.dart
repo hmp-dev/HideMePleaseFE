@@ -19,8 +19,8 @@ class Network {
   Future<void> initialize() async {
     _dio = Dio(BaseOptions(
       baseUrl: appEnv.apiUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
+      connectTimeout: const Duration(seconds: 45),
+      receiveTimeout: const Duration(seconds: 45),
       headers: {'user-agent': 'Dio/4.0.6'},
     ))
       ..interceptors.add(DioRequestLogger(level: Level.BODY))
