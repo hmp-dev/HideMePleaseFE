@@ -1,121 +1,15 @@
+<<<<<<< HEAD
 name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
 version: 2.0.6+42
+=======
+name: hmp_mobile
+>>>>>>> c739f69608e37634dec400a1b7cf58eda1559382
 
 environment:
-  sdk: ">=3.3.3 <4.0.0"
-
-dependencies:
-  app_settings: ^5.1.1
-  appcheck: ^1.1.0
-  auto_size_text: ^3.0.0
-  cached_network_image: ^3.3.1
-  carousel_slider: ^4.2.1
-  collection: ^1.18.0
-  connectivity_plus: ^6.0.1
-  crypto: ^3.0.3
-  cupertino_icons: ^1.0.6
-  darq: ^2.0.0
-  dartz: ^0.10.1
-  device_info_plus: ^10.0.1
-  device_preview: ^1.1.0
-  dio: ^5.4.2+1
-  dropdown_button2: ^2.3.9
-  easy_localization: ^3.0.5
-  envied: ^0.5.4
-  equatable: ^2.0.5
-  firebase_analytics: ^10.9.0
-  firebase_auth: ^4.19.0
-  firebase_core: ^2.27.2
-  firebase_crashlytics: ^3.4.20
-  firebase_messaging: ^14.7.21
-  firebase_performance: ^0.9.3+19
-  flutter:
-    sdk: flutter
-  flutter_appauth: ^6.0.6
-  flutter_bloc: ^8.1.5
-  flutter_easyloading: ^3.0.5
-  flutter_inappwebview: ^6.0.0
-  flutter_local_notifications: ^17.0.0
-  flutter_native_splash: ^2.4.0
-  flutter_secure_storage: ^9.0.0
-  flutter_slidable: ^3.1.0
-  flutter_svg: ^2.0.10+1
-  flutter_widget_from_html: ^0.15.0
-  fluttertoast: ^8.2.4
-  geolocator: ^11.0.0
-  get_it: ^7.6.7
-  go_router: ^13.2.2
-  google_maps_flutter: ^2.6.1
-  google_sign_in: ^6.2.1
-  http: ^1.2.1
-  injectable: ^2.4.1
-  internet_connection_checker: ^1.0.0+1
-  intl: ^0.18.1
-  isar: ^3.1.0+1
-  jovial_svg: ^1.1.21
-  json_annotation: ^4.8.1
-  location: ^5.0.3
-  logger: ^2.3.0
-  lottie: ^3.1.0
-  package_info_plus: ^7.0.0
-  page_transition: ^2.1.0
-  path_provider: ^2.1.3
-  permission_handler: ^11.3.1
-  share_plus: ^8.0.2
-  shared_preferences: ^2.2.3
-  sign_in_with_apple: ^6.1.0
-  smooth_page_indicator: ^1.1.0
-  solana: ^0.30.4
-  solana_wallet_provider: ^0.1.9
-  stacked_services: ^1.5.0
-  timeago: ^3.6.1
-  upgrader: ^10.3.0
-  url_launcher: ^6.2.5
-  web3modal_flutter:
-    path: ./packages/web3modal_flutter
+  sdk: ">=3.0.0 <4.0.0"
 
 dev_dependencies:
-  analyzer: ^5.13.0
-  build_runner: ^2.4.9
-  build_verify: ^3.1.0
-  change_app_package_name: ^1.1.0
-  envied_generator: ^0.5.4
-  flutter_launcher_icons: ^0.13.1
-  flutter_lints: ^3.0.0
-  flutter_test:
-    sdk: flutter
-  go_router_builder: ^2.4.1
-  injectable_generator: ^2.4.2
-  isar_generator: ^3.1.0+1
-  json_serializable: ^6.7.1
-
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/translations/
-    - assets/icons/
-    - assets/images/
-    - assets/social-auth-logos/
-    - assets/lottie/
-    - assets/fonts/
-    - assets/wallet-logos/
-    - assets/web3-wallet-logos/
-    - assets/chain-logos/
-  fonts:
-    - family: Pretendard
-      fonts:
-        - asset: assets/fonts/pretendard/Pretendard-Light.otf
-          weight: 300
-        - asset: assets/fonts/pretendard/Pretendard-Regular.otf
-          weight: 400
-        - asset: assets/fonts/pretendard/Pretendard-Medium.otf
-          weight: 500
-        - asset: assets/fonts/pretendard/Pretendard-SemiBold.otf
-          weight: 600
-        - asset: assets/fonts/pretendard/Pretendard-Bold.otf
-          weight: 700
-        - asset: assets/fonts/pretendard/Pretendard-ExtraBold.otf
-          weight: 800
+  melos: ^6.0.0

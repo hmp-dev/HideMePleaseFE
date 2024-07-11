@@ -1,0 +1,6 @@
+framework module appcheck {
+  umbrella header "appcheck-umbrella.h"
+
+  export *
+  module * { export * }
+}
