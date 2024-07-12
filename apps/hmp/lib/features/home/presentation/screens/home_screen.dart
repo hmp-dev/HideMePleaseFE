@@ -18,6 +18,7 @@ import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart'
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_with_space.dart';
+import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -91,8 +92,24 @@ class _HomeScreenState extends State<HomeScreen> {
               // show the AfterLoginWithNFT screen
               getIt<HomeCubit>()
                   .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
-              // navigate to MyMembershipSettingsScreen
-              MyMembershipSettingsScreen.push(context);
+              // apply to not move to MyMembershipSettingsScreen
+              // if the newly connected Wallet is Klip
+              // and user freeNftClaimed  status is false
+              if (state.connectedWallets.isNotEmpty &&
+                  hasKlipProvider(state.connectedWallets)) {
+                final userProfileEntity =
+                    getIt<ProfileCubit>().state.userProfileEntity;
+
+                if (userProfileEntity.freeNftClaimed == false) {
+                  getIt<HomeCubit>()
+                      .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
+                }
+              } else {
+                getIt<HomeCubit>()
+                    .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
+                // navigate to MyMembershipSettingsScreen
+                MyMembershipSettingsScreen.push(context);
+              }
             }
           },
         ),
@@ -237,5 +254,18 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       );
     }
+  }
+
+  bool hasKlipProvider(List<ConnectedWalletEntity> connectedWallets) {
+    bool result = false;
+    if (connectedWallets.isEmpty) {
+      result = false;
+    }
+    for (var wallet in connectedWallets) {
+      if (wallet.provider == 'KLIP') {
+        result = true;
+      }
+    }
+    return result;
   }
 }

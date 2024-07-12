@@ -29,6 +29,7 @@ import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
 class HomeViewAfterWalletConnected extends StatefulWidget {
@@ -192,6 +193,16 @@ class _HomeViewAfterWalletConnectedState
                     ),
                     const SizedBox(height: 20),
                     //Text(_currentTokenAddress),
+                    // ElevatedButton(
+                    //   child: const Text("Claim NFT"),
+                    //   onPressed: () {
+                    //     final connectedWallet =
+                    //         getIt<WalletsCubit>().state.connectedWallets;
+                    //     "isKLIP: ${hasKlipProvider(connectedWallet)}".log();
+                    //     "is User freeNftClaimed:${getIt<ProfileCubit>().state.userProfileEntity.freeNftClaimed}"
+                    //         .log();
+                    //   },
+                    // ),
                     // not show this for first (if free NFT not claimed )
                     // and and not show for the last index
                     if (shouldShowWidget(widget.userProfile, _currentIndex,
@@ -257,6 +268,19 @@ class _HomeViewAfterWalletConnectedState
         );
       },
     );
+  }
+
+  bool hasKlipProvider(List<ConnectedWalletEntity> connectedWallets) {
+    bool result = false;
+    if (connectedWallets.isEmpty) {
+      result = false;
+    }
+    for (var wallet in connectedWallets) {
+      if (wallet.provider == 'KLIP') {
+        result = true;
+      }
+    }
+    return result;
   }
 
   bool shouldShowWidget(UserProfileEntity userProfile, int currentIndex,
