@@ -80,12 +80,9 @@ class _SpaceScreenState extends State<SpaceScreen> {
                     isAllSpacesLoaded: state.allSpacesLoaded,
                     topUsedNfts: state.topUsedNfts,
                     newSpaceList: state.newSpaceList,
-                    recommendedSpace:
-                        // state.recommendationSpaceList.isNotEmpty
-                        //     ? state.recommendationSpaceList[0]
-                        //     :
-
-                        const RecommendationSpaceEntity.empty(),
+                    recommendedSpace: state.recommendationSpaceList.isNotEmpty
+                        ? state.recommendationSpaceList[0]
+                        : const RecommendationSpaceEntity.empty(),
                     spaceList: state.spaceList,
                     spaceCategory: state.spaceCategory,
                     isLoadingMore:
