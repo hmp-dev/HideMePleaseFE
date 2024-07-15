@@ -96,7 +96,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
       onShowTermsConcentAlert(widget.selectedBenefitEntity?.termsUrl ?? "");
     }
 
-    //onShowTermsConcentAlert(widget.selectedBenefitEntity?.termsUrl ?? "");
+    //onShowTermsConcentAlert("https://developer.android.com/");
   }
 
   @override

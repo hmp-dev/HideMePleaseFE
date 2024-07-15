@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -225,16 +226,25 @@ class _HomeScreenState extends State<HomeScreen> {
               return BlocBuilder<NftCubit, NftState>(
                 bloc: getIt<NftCubit>(),
                 builder: (context, sftState) {
-                  return UpgradeAlert(
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      child: getHomeView(
-                        state.homeViewType,
-                        profileState.userProfileEntity,
-                        sftState.welcomeNftEntity,
-                      ),
-                    ),
-                  );
+                  return kDebugMode
+                      ? SingleChildScrollView(
+                          controller: _scrollController,
+                          child: getHomeView(
+                            state.homeViewType,
+                            profileState.userProfileEntity,
+                            sftState.welcomeNftEntity,
+                          ),
+                        )
+                      : UpgradeAlert(
+                          child: SingleChildScrollView(
+                            controller: _scrollController,
+                            child: getHomeView(
+                              state.homeViewType,
+                              profileState.userProfileEntity,
+                              sftState.welcomeNftEntity,
+                            ),
+                          ),
+                        );
                 },
               );
             },

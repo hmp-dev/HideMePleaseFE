@@ -221,12 +221,12 @@ Future<bool> showBenefitRedeemAgreeTermsAlertDialog({
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
-          title: Text(
+          content: Text(
             title,
             textAlign: TextAlign.center,
-            style: fontBodySm(),
+            style: fontBodyMd(),
           ),
-
+          //content: const SizedBox.shrink(),
           actions: <Widget>[
             Row(
               children: [
