@@ -33,7 +33,7 @@ class ParticipatedCommunityNftView extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(top: 16.0, bottom: 32.0),
+        margin: const EdgeInsets.only(top: 16.0, bottom: 16.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: black100),
@@ -131,19 +131,22 @@ class ParticipatedCommunityNftView extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text('채팅방 입장', style: fontCompactMdMedium()),
-                            const SizedBox(width: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                color: hmpBlue,
-                                borderRadius: BorderRadius.circular(100),
+                            if (unreadMsgCount > 0)
+                              Container(
+                                margin: const EdgeInsets.only(left: 4.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: hmpBlue,
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                                child: Text(
+                                  unreadMsgCount > 999
+                                      ? '999+'
+                                      : unreadMsgCount.toString(),
+                                  style: fontCompact2XsBold(),
+                                ),
                               ),
-                              child: Text(
-                                unreadMsgCount.toString(),
-                                style: fontCompact2XsBold(),
-                              ),
-                            ),
                           ],
                         ),
                       ),

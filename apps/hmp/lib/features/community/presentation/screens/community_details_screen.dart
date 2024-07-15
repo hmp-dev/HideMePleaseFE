@@ -36,6 +36,14 @@ class CommunityDetailsScreen extends StatelessWidget {
                   builder: (_) => MemberDetailsScreen(member: member)),
             );
           },
+          onMembersLoadMore: () {
+            getIt<CommunityDetailsCubit>()
+                .onGetMoreNftMembers(tokenAddress: nftCommunity.tokenAddress);
+          },
+          onBenefitsLoadMore: () {
+            getIt<CommunityDetailsCubit>()
+                .onGetMoreNftBenefits(tokenAddress: nftCommunity.tokenAddress);
+          },
           nftEntity: TopCollectionNftEntity(
             index: 0,
             pointFluctuation: state.nftInfo.pointFluctuation,
@@ -57,6 +65,8 @@ class CommunityDetailsScreen extends StatelessWidget {
           infoError: state.isFailure,
           membersLoading: state.isMembersLoading,
           membersError: state.isMembersError,
+          isMembersLoadingMore: state.isMembersLoadingMore,
+          isBenefitsLoadingMore: state.isBenefitsLoadingMore,
         );
       },
     );

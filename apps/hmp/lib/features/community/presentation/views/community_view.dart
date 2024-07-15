@@ -7,11 +7,10 @@ import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.d
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
-import 'package:mobile/features/community/presentation/widgets/free_nft_redeem_view.dart';
-import 'package:mobile/features/community/presentation/widgets/get_free_nft_view.dart';
 import 'package:mobile/features/community/presentation/widgets/hot_communities_view.dart';
 import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
 import 'package:mobile/features/community/presentation/widgets/user_communities_view.dart';
+import 'package:mobile/features/home/presentation/widgets/free_welcome_nft_card.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class CommunityView extends StatefulWidget {
@@ -88,98 +87,105 @@ class _CommunityViewState extends State<CommunityView> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 30),
-      child: RefreshIndicator(
-        onRefresh: widget.onRefresh,
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            SliverToBoxAdapter(child: buildTopTitleBar()),
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            if (widget.isWalletConnected &&
-                widget.redeemedFreeNft &&
-                widget.userNftCommunities.isNotEmpty)
-              SliverToBoxAdapter(
-                child: UserCommunitiesView(
-                  onTap: widget.onCommunityTap,
-                  onEnterChat: widget.onEnterChat,
-                  userNftCommunities: widget.userNftCommunities,
-                ),
-              )
-            else if (widget.isWalletConnected && !widget.redeemedFreeNft)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: FreeNftRedeemView(
-                    totalNfts: widget.totalFreeNfts,
-                    redeemedNfts: widget.redeemedFreeNfts,
-                    remainingNfts: widget.remainingFreeNfts,
-                    onTap: widget.onGetFreeNft,
-                  ),
-                ),
-              )
-            else if (!widget.isWalletConnected)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: GetFreeNftView(
-                    onTap: widget.onConnectWallet,
-                  ),
-                ),
+    return RefreshIndicator(
+      onRefresh: widget.onRefresh,
+      child: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverToBoxAdapter(child: buildTopTitleBar()),
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          if (widget.redeemedFreeNft && widget.userNftCommunities.isNotEmpty)
+            SliverToBoxAdapter(
+              child: UserCommunitiesView(
+                onTap: widget.onCommunityTap,
+                onEnterChat: widget.onEnterChat,
+                userNftCommunities: widget.userNftCommunities,
               ),
-            if (widget.hotNftCommunities.isNotEmpty)
-              SliverToBoxAdapter(
+            )
+          else if (!widget.redeemedFreeNft)
+            SliverToBoxAdapter(
+              child: Container(
+                height: 500.0,
+                margin: const EdgeInsets.only(bottom: 16.0),
+                alignment: Alignment.center,
+                child: const FreeWelcomeNftCard(enableFreeGraphic: false),
+              ),
+            ),
+          // else if (widget.isWalletConnected && !widget.redeemedFreeNft)
+          //   SliverToBoxAdapter(
+          //     child: Padding(
+          //       padding: const EdgeInsets.symmetric(horizontal: 20),
+          //       child: FreeNftRedeemView(
+          //         totalNfts: widget.totalFreeNfts,
+          //         redeemedNfts: widget.redeemedFreeNfts,
+          //         remainingNfts: widget.remainingFreeNfts,
+          //         onTap: widget.onGetFreeNft,
+          //       ),
+          //     ),
+          //   )
+          // else if (!widget.isWalletConnected)
+          //   SliverToBoxAdapter(
+          //     child: Padding(
+          //       padding: const EdgeInsets.symmetric(horizontal: 20),
+          //       child: GetFreeNftView(
+          //         onTap: widget.onConnectWallet,
+          //       ),
+          //     ),
+          //   )
+          if (widget.hotNftCommunities.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16.0),
                 child: HotCommunitiesView(
                   onCommunityTap: widget.onCommunityTap,
                   hotNftCommunities: widget.hotNftCommunities,
                 ),
               ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: AllCommunitiesHeader(
-                    orderBy: widget.orderBy,
-                    onOrderByChanged: widget.onOrderByChanged,
-                    communityCount: widget.communityCount),
-              ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverGrid.builder(
-              itemCount: widget.allNftCommunities.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 20.0,
-                crossAxisSpacing: 20.0,
-              ),
-              itemBuilder: (_, index) {
-                return Container(
-                  padding: index % 2 == 0
-                      ? const EdgeInsets.only(left: 20)
-                      : const EdgeInsets.only(right: 20),
-                  child: NftCommunityCardWidget(
-                    onTap: () =>
-                        widget.onCommunityTap(widget.allNftCommunities[index]),
-                    title: widget.allNftCommunities[index].name,
-                    networkLogo: widget.allNftCommunities[index].chainLogo,
-                    imagePath: widget.allNftCommunities[index].collectionLogo,
-                    people: widget.allNftCommunities[index].people,
-                    rank: widget.allNftCommunities[index].rank,
-                    timeAgo: widget.allNftCommunities[index].timeAgo,
-                  ),
-                );
-              },
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: AllCommunitiesHeader(
+                  orderBy: widget.orderBy,
+                  onOrderByChanged: widget.onOrderByChanged,
+                  communityCount: widget.communityCount),
             ),
-            SliverToBoxAdapter(
-              child: widget.isLoadingMore
-                  ? Lottie.asset(
-                      'assets/lottie/loader.json',
-                    )
-                  : const SizedBox(),
-            )
-          ],
-        ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          SliverGrid.builder(
+            itemCount: widget.allNftCommunities.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 20.0,
+              crossAxisSpacing: 20.0,
+            ),
+            itemBuilder: (_, index) {
+              return Container(
+                padding: index % 2 == 0
+                    ? const EdgeInsets.only(left: 20)
+                    : const EdgeInsets.only(right: 20),
+                child: NftCommunityCardWidget(
+                  onTap: () =>
+                      widget.onCommunityTap(widget.allNftCommunities[index]),
+                  title: widget.allNftCommunities[index].name,
+                  networkLogo: widget.allNftCommunities[index].chainLogo,
+                  imagePath: widget.allNftCommunities[index].collectionLogo,
+                  people: widget.allNftCommunities[index].people,
+                  rank: widget.allNftCommunities[index].rank,
+                  timeAgo: widget.allNftCommunities[index].timeAgo,
+                ),
+              );
+            },
+          ),
+          SliverToBoxAdapter(
+            child: widget.isLoadingMore
+                ? Lottie.asset(
+                    'assets/lottie/loader.json',
+                  )
+                : const SizedBox(),
+          )
+        ],
       ),
     );
   }

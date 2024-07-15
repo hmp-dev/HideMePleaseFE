@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/presentation/cubit/dummy_data.dart';
 import 'package:mobile/features/community/presentation/widgets/participated_community_nft_view.dart';
@@ -45,21 +44,21 @@ class UserCommunitiesView extends StatelessWidget {
                   ],
                 ),
               ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    '전체 리스트',
-                    style: fontCompactSm(color: fore2),
-                  ),
-                  const SizedBox(width: 5),
-                  DefaultImage(
-                    path: "assets/icons/arrow_right.svg",
-                    width: 14,
-                    height: 14,
-                  ),
-                ],
-              ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.center,
+              //   children: [
+              //     Text(
+              //       '전체 리스트',
+              //       style: fontCompactSm(color: fore2),
+              //     ),
+              //     const SizedBox(width: 5),
+              //     DefaultImage(
+              //       path: "assets/icons/arrow_right.svg",
+              //       width: 14,
+              //       height: 14,
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
@@ -80,13 +79,18 @@ class UserCommunitiesView extends StatelessWidget {
                   onTap: () => onTap(userNftCommunities[index]),
                   onEnterChat: () => onEnterChat(userNftCommunities[index]),
                   communityPeoples: userNftCommunities[index].people,
-                  recentMsgs: recentDummyMsgs,
+                  recentMsgs: userNftCommunities[index]
+                      .recentMessages
+                      .map((e) => ChatMessage(
+                          senderName: e.sender?.nickname ?? '',
+                          message: e.message))
+                      .toList(),
                   communityName: userNftCommunities[index].name,
                   collectionLogo: userNftCommunities[index].collectionLogo,
                   networkLogo:
                       ChainType.fromString(userNftCommunities[index].chain)
                           .chainLogo,
-                  unreadMsgCount: 99,
+                  unreadMsgCount: userNftCommunities[index].unreadCount,
                 ),
               );
             },

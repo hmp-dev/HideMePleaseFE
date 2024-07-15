@@ -17,6 +17,8 @@ class CommunityDetailsView extends StatelessWidget {
   final VoidCallback onRetry;
   final VoidCallback onTapRank;
   final void Function(CommunityMemberEntity) onMemberTap;
+  final VoidCallback onMembersLoadMore;
+  final VoidCallback onBenefitsLoadMore;
   final TopCollectionNftEntity nftEntity;
   final int benefitCount;
   final List<BenefitEntity> nftBenefits;
@@ -27,6 +29,8 @@ class CommunityDetailsView extends StatelessWidget {
   final bool infoError;
   final bool membersLoading;
   final bool membersError;
+  final bool isMembersLoadingMore;
+  final bool isBenefitsLoadingMore;
 
   const CommunityDetailsView({
     super.key,
@@ -44,6 +48,10 @@ class CommunityDetailsView extends StatelessWidget {
     required this.infoError,
     required this.membersLoading,
     required this.membersError,
+    required this.onMembersLoadMore,
+    required this.onBenefitsLoadMore,
+    required this.isMembersLoadingMore,
+    required this.isBenefitsLoadingMore,
   });
 
   @override
@@ -144,12 +152,15 @@ class CommunityDetailsView extends StatelessWidget {
                 CommunityErrorView(onRetry: onRetry)
               else
                 _CommunityInfoView(
-                    onTapRank: onTapRank,
-                    koreanNumFormat: koreanNumFormat,
-                    nftEntity: nftEntity,
-                    benefitCount: benefitCount,
-                    nftBenefits: nftBenefits,
-                    nftNetwork: nftNetwork),
+                  onTapRank: onTapRank,
+                  koreanNumFormat: koreanNumFormat,
+                  nftEntity: nftEntity,
+                  benefitCount: benefitCount,
+                  nftBenefits: nftBenefits,
+                  nftNetwork: nftNetwork,
+                  onLoadMore: onBenefitsLoadMore,
+                  isLoadingMore: isBenefitsLoadingMore,
+                ),
               Container(
                 color: bg1,
                 child: membersLoading
@@ -185,67 +196,118 @@ class CommunityDetailsView extends StatelessWidget {
                                   ),
                                 ],
                               )
-                            : ListView.separated(
-                                itemCount: communityMembers.length,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 32.0,
-                                  horizontal: 16.0,
-                                ),
-                                separatorBuilder: (context, index) => Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 16.0),
-                                  height: 1.0,
-                                  width: double.infinity,
-                                  color: fore5.withOpacity(0.05),
-                                ),
-                                itemBuilder: (context, index) {
-                                  final member = communityMembers[index];
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      if (index == 0)
-                                        Text('총 $membersCount명',
-                                            style: fontTitle07Medium(
-                                                color: fore1)),
-                                      GestureDetector(
-                                        onTap: () => onMemberTap(member),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 16.0),
-                                          child: Row(
-                                            children: [
-                                              CustomImageView(
-                                                svgPath:
-                                                    'assets/images/hmp_eyes_up.svg',
-                                                height: 48.0,
-                                                width: 48.0,
-                                              ),
-                                              const SizedBox(width: 12.5),
-                                              Expanded(
-                                                  child: Text(member.name,
-                                                      style:
-                                                          fontTitle07SemiBold())),
-                                              const SizedBox(width: 16),
-                                              DefaultImage(
-                                                path:
-                                                    'assets/icons/arrow_right.svg',
-                                                height: 24.0,
-                                                width: 24.0,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
+                            : _CommunityMembersList(
+                                communityMembers: communityMembers,
+                                membersCount: membersCount,
+                                onMemberTap: onMemberTap,
+                                onLoadMore: onMembersLoadMore,
+                                isLoadingMore: isMembersLoadingMore,
                               ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CommunityMembersList extends StatefulWidget {
+  const _CommunityMembersList({
+    super.key,
+    required this.communityMembers,
+    required this.membersCount,
+    required this.onMemberTap,
+    required this.onLoadMore,
+    required this.isLoadingMore,
+  });
+
+  final List<CommunityMemberEntity> communityMembers;
+  final int membersCount;
+  final void Function(CommunityMemberEntity p1) onMemberTap;
+  final bool isLoadingMore;
+  final VoidCallback onLoadMore;
+
+  @override
+  State<_CommunityMembersList> createState() => _CommunityMembersListState();
+}
+
+class _CommunityMembersListState extends State<_CommunityMembersList> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.removeListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!widget.isLoadingMore &&
+        _scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent * 0.7) {
+      widget.onLoadMore();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      controller: _scrollController,
+      itemCount: widget.communityMembers.length,
+      padding: const EdgeInsets.symmetric(
+        vertical: 32.0,
+        horizontal: 16.0,
+      ),
+      separatorBuilder: (context, index) => Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+        height: 1.0,
+        width: double.infinity,
+        color: fore5.withOpacity(0.05),
+      ),
+      itemBuilder: (context, index) {
+        final member = widget.communityMembers[index];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (index == 0)
+              Text('총 ${widget.membersCount}명',
+                  style: fontTitle07Medium(color: fore1)),
+            GestureDetector(
+              onTap: () => widget.onMemberTap(member),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Row(
+                  children: [
+                    CustomImageView(
+                      svgPath: 'assets/images/hmp_eyes_up.svg',
+                      height: 48.0,
+                      width: 48.0,
+                    ),
+                    const SizedBox(width: 12.5),
+                    Expanded(
+                        child: Text(member.name, style: fontTitle07SemiBold())),
+                    const SizedBox(width: 16),
+                    DefaultImage(
+                      path: 'assets/icons/arrow_right.svg',
+                      height: 24.0,
+                      width: 24.0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (index == widget.communityMembers.length - 1 &&
+                widget.isLoadingMore)
+              Lottie.asset('assets/lottie/loader.json')
+          ],
+        );
+      },
     );
   }
 }
@@ -259,6 +321,8 @@ class _CommunityInfoView extends StatefulWidget {
     required this.benefitCount,
     required this.nftBenefits,
     required this.nftNetwork,
+    required this.onLoadMore,
+    required this.isLoadingMore,
   });
 
   final NumberFormat koreanNumFormat;
@@ -267,6 +331,8 @@ class _CommunityInfoView extends StatefulWidget {
   final List<BenefitEntity> nftBenefits;
   final NftNetworkEntity nftNetwork;
   final VoidCallback onTapRank;
+  final VoidCallback onLoadMore;
+  final bool isLoadingMore;
 
   @override
   State<_CommunityInfoView> createState() => _CommunityInfoViewState();
@@ -275,9 +341,33 @@ class _CommunityInfoView extends StatefulWidget {
 class _CommunityInfoViewState extends State<_CommunityInfoView> {
   bool _benefitsExpanded = false;
 
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.removeListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!widget.isLoadingMore &&
+        _benefitsExpanded &&
+        _scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent * 0.7) {
+      widget.onLoadMore();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
+      controller: _scrollController,
       padding: EdgeInsets.zero,
       children: [
         Container(
@@ -394,43 +484,50 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                   itemCount: _benefitsExpanded ? widget.nftBenefits.length : 1,
                   itemBuilder: (context, index) {
                     final benefit = widget.nftBenefits[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 68.0,
-                            height: 68.0,
-                            child: CustomImageView(
-                              url: benefit.spaceImage,
-                              width: 68.0,
-                              height: 68.0,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  benefit.description,
-                                  maxLines: 2,
-                                  style: fontTitle07Medium(color: fore2),
+                    return Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 68.0,
+                                height: 68.0,
+                                child: CustomImageView(
+                                  url: benefit.spaceImage,
+                                  width: 68.0,
+                                  height: 68.0,
+                                  fit: BoxFit.cover,
                                 ),
-                                const SizedBox(height: 4.0),
-                                Text(
-                                  benefit.spaceName,
-                                  maxLines: 2,
-                                  style: fontCompactSm(color: fore3),
+                              ),
+                              const SizedBox(width: 16.0),
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      benefit.description,
+                                      maxLines: 2,
+                                      style: fontTitle07Medium(color: fore2),
+                                    ),
+                                    const SizedBox(height: 4.0),
+                                    Text(
+                                      benefit.spaceName,
+                                      maxLines: 2,
+                                      style: fontCompactSm(color: fore3),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        if (index == widget.nftBenefits.length - 1 &&
+                            widget.isLoadingMore)
+                          Lottie.asset('assets/lottie/loader.json')
+                      ],
                     );
                   },
                 ),

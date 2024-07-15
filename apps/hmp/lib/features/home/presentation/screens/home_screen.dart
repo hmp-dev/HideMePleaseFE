@@ -200,12 +200,14 @@ class _HomeScreenState extends State<HomeScreen> {
             buildWhen: (previous, current) =>
                 previous.userProfileEntity != current.userProfileEntity,
             builder: (context, profileState) {
-              return UpgradeAlert(
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: getHomeView(
-                      state.homeViewType, profileState.userProfileEntity),
-                ),
+              return
+                  //  UpgradeAlert(
+                  //   child:
+                  SingleChildScrollView(
+                controller: _scrollController,
+                child: getHomeView(
+                    state.homeViewType, profileState.userProfileEntity),
+                // ),
               );
             },
           );

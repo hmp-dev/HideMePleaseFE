@@ -11,7 +11,10 @@ import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 class FreeWelcomeNftCard extends StatelessWidget {
   const FreeWelcomeNftCard({
     super.key,
+    this.enableFreeGraphic = true,
   });
+
+  final bool enableFreeGraphic;
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +40,14 @@ class FreeWelcomeNftCard extends StatelessWidget {
                     index: 0,
                   ),
                 ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: CustomImageView(
-                    imagePath: "assets/images/free-graphic-text.png",
+                if (enableFreeGraphic)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: CustomImageView(
+                      imagePath: "assets/images/free-graphic-text.png",
+                    ),
                   ),
-                ),
               ],
             );
           },

@@ -33,7 +33,6 @@ NftCommunityDto _$NftCommunityDtoFromJson(Map<String, dynamic> json) =>
       collectionLogo: json['collectionLogo'] as String?,
       chain: json['chain'] as String?,
       lastConversation: json['lastConversation'] as String?,
-      eventCount: json['eventCount'] as int?,
     );
 
 Map<String, dynamic> _$NftCommunityDtoToJson(NftCommunityDto instance) =>
@@ -45,5 +44,4 @@ Map<String, dynamic> _$NftCommunityDtoToJson(NftCommunityDto instance) =>
       'collectionLogo': instance.collectionLogo,
       'chain': instance.chain,
       'lastConversation': instance.lastConversation,
-      'eventCount': instance.eventCount,
     };

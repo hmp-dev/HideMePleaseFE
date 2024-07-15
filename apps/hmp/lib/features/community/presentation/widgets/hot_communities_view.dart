@@ -43,7 +43,7 @@ class HotCommunitiesView extends StatelessWidget {
           height: 290,
           child: ListView.separated(
             padding: const EdgeInsets.only(
-                top: 32, bottom: 8.0, left: 32.0, right: 16.0),
+                top: 32, bottom: 8.0, left: 20.0, right: 16.0),
             scrollDirection: Axis.horizontal,
             itemCount: hotNftCommunities.length,
             separatorBuilder: (_, __) => const SizedBox(width: 20),
