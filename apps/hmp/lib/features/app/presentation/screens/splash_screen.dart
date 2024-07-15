@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
+import 'package:mobile/features/common/presentation/cubit/submit_location_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,18 +15,38 @@ class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late final AnimationController _controller;
 
-  bool isAnimationCompleteAndShowStartUpView = false;
+  bool isAnimationComplete = false;
+  bool isLocationSubmitted = false;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this);
+
+    _submitDeviceLocationToBackend();
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _submitDeviceLocationToBackend() async {
+    await getIt<SubmitLocationCubit>().onSubmitUserDeviceLocation();
+    setState(() {
+      isLocationSubmitted = true;
+    });
+  }
+
+  void _navigateIfReady() {
+    if (isAnimationComplete && isLocationSubmitted) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.startUpScreen,
+        (route) => false,
+      );
+    }
   }
 
   @override
@@ -38,8 +60,10 @@ class _SplashScreenState extends State<SplashScreen>
             _controller
               ..duration = composition.duration
               ..forward().whenComplete(() async {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, Routes.startUpScreen, (route) => false);
+                setState(() {
+                  isAnimationComplete = true;
+                });
+                _navigateIfReady();
               });
           },
         ),

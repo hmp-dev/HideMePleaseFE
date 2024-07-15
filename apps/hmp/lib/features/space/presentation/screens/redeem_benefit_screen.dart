@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/constants/app_constants.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -94,6 +95,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
 
       onShowTermsConcentAlert(widget.selectedBenefitEntity?.termsUrl ?? "");
     }
+
+    //onShowTermsConcentAlert(widget.selectedBenefitEntity?.termsUrl ?? "");
   }
 
   @override
@@ -539,7 +542,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
         await showBenefitRedeemAgreeTermsAlertDialog(
           context: context,
           // title: LocaleKeys.agreeTermDialogMessage.tr(),
-          title: "[워커힐 마을호텔] 경품 응모 이벤트\n참여를 위한 개인정보 수집, 이용에\n동의하시겠습니까?",
+          title: invitationModelTile,
           onConfirm: () {
             Navigator.of(context).pop();
 

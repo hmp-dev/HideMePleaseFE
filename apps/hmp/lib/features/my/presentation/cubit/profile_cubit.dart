@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/chat/domain/repositories/chat_repository.dart';
 import 'package:mobile/features/my/domain/entities/base_user_entity.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';

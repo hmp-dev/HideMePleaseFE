@@ -453,6 +453,8 @@ String getLocalCategoryName(String categoryName) {
   switch (categoryName) {
     case 'ENTIRE':
       return LocaleKeys.entire.tr();
+    case 'WALKERHILL':
+      return LocaleKeys.walkerhill.tr();
     case "PUB":
       return LocaleKeys.pub.tr();
     case "CAFE":

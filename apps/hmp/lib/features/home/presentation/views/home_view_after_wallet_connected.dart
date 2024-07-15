@@ -38,11 +38,13 @@ class HomeViewAfterWalletConnected extends StatefulWidget {
     required this.isOverIconNavVisible,
     required this.homeViewScrollController,
     required this.userProfile,
+    required this.welcomeNftEntity,
   });
 
   final bool isOverIconNavVisible;
   final ScrollController homeViewScrollController;
   final UserProfileEntity userProfile;
+  final WelcomeNftEntity welcomeNftEntity;
 
   @override
   State<HomeViewAfterWalletConnected> createState() =>
@@ -158,7 +160,7 @@ class _HomeViewAfterWalletConnectedState
                               }
 
                               if (itemIndex == 0 &&
-                                  !widget.userProfile.freeNftClaimed) {
+                                  widget.welcomeNftEntity.freeNftAvailable) {
                                 return const FreeWelcomeNftCard();
                               }
 
@@ -205,7 +207,9 @@ class _HomeViewAfterWalletConnectedState
                     // ),
                     // not show this for first (if free NFT not claimed )
                     // and and not show for the last index
-                    if (shouldShowWidget(widget.userProfile, _currentIndex,
+                    if (shouldShowWidget(
+                        widget.welcomeNftEntity.freeNftAvailable,
+                        _currentIndex,
                         selectedNftsListForHome))
                       GestureDetector(
                         onTap: () {
@@ -219,8 +223,8 @@ class _HomeViewAfterWalletConnectedState
                           svgPath: "assets/icons/ic_angle_arrow_down.svg",
                         ),
                       ),
-                    (shouldShowWidget(widget.userProfile, _currentIndex,
-                                selectedNftsListForHome) &&
+                    (shouldShowWidget(widget.welcomeNftEntity.freeNftAvailable,
+                                _currentIndex, selectedNftsListForHome) &&
                             !widget.isOverIconNavVisible)
                         ? AnimatedSlideFadeIn(
                             slideIndex: 0,
@@ -283,12 +287,14 @@ class _HomeViewAfterWalletConnectedState
     return result;
   }
 
-  bool shouldShowWidget(UserProfileEntity userProfile, int currentIndex,
+  bool shouldShowWidget(bool isFreeNftAvailable, int currentIndex,
       List<SelectedNFTEntity> selectedNftsListForHome) {
-    // Do not show for the first index if free NFT not claimed
-    if (!userProfile.freeNftClaimed && currentIndex == 0) {
+    // Do not show for the first index if isFreeNftAvailable is false
+
+    if (!isFreeNftAvailable == false && currentIndex == 0) {
       return false;
     }
+
     // Do not show for the last index
     if (currentIndex == selectedNftsListForHome.length - 1) {
       return false;

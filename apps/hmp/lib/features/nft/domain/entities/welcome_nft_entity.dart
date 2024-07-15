@@ -12,6 +12,7 @@ class WelcomeNftEntity extends Equatable {
   final int totalCount;
   final int usedCount;
   final String image;
+  final bool freeNftAvailable;
 
   const WelcomeNftEntity({
     required this.name,
@@ -20,6 +21,7 @@ class WelcomeNftEntity extends Equatable {
     required this.usedCount,
     required this.tokenAddress,
     required this.redeemTermsUrl,
+    required this.freeNftAvailable,
   });
 
   String get totalNfts => koreanNumFormat.format(totalCount);
@@ -41,7 +43,8 @@ class WelcomeNftEntity extends Equatable {
         totalCount = 0,
         usedCount = 0,
         tokenAddress = '',
-        redeemTermsUrl = '';
+        redeemTermsUrl = '',
+        freeNftAvailable = false;
 
   WelcomeNftEntity copyWith({
     String? name,
@@ -50,6 +53,7 @@ class WelcomeNftEntity extends Equatable {
     int? usedCount,
     String? tokenAddress,
     String? redeemTermsUrl,
+    bool? freeNftAvailable,
   }) {
     return WelcomeNftEntity(
       name: name ?? this.name,
@@ -58,6 +62,7 @@ class WelcomeNftEntity extends Equatable {
       usedCount: usedCount ?? this.usedCount,
       tokenAddress: tokenAddress ?? this.tokenAddress,
       redeemTermsUrl: redeemTermsUrl ?? this.redeemTermsUrl,
+      freeNftAvailable: freeNftAvailable ?? this.freeNftAvailable,
     );
   }
 }

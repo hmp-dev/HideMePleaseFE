@@ -146,6 +146,14 @@ class _SpaceViewState extends State<SpaceView> {
                         },
                       ),
                       CategoryIconWidget(
+                        icon: "assets/icons/walkerhill_prev_ui1.png",
+                        title: LocaleKeys.walkerhill.tr(),
+                        isSelected: spaceCategory == SpaceCategory.WALKERHILL,
+                        onTap: () {
+                          widget.onSpaceByCategoryTap(SpaceCategory.WALKERHILL);
+                        },
+                      ),
+                      CategoryIconWidget(
                         icon: "assets/icons/ic_space_category_pub.svg",
                         title: LocaleKeys.pub.tr(),
                         isSelected: spaceCategory == SpaceCategory.PUB,
@@ -279,24 +287,34 @@ class _SpaceViewState extends State<SpaceView> {
                       width: double.infinity,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 2, right: 2),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            SpaceTopNFTListItem(
-                              topUsedNftEntity: topUsedNfts[0],
-                              score: 1,
-                            ),
-                            SpaceTopNFTListItem(
-                              topUsedNftEntity: topUsedNfts[1],
-                              score: 2,
-                            ),
-                            SpaceTopNFTListItem(
-                              topUsedNftEntity: topUsedNfts[2],
-                              score: 3,
-                            ),
-                          ],
-                        ),
+                        child:
+                            (topUsedNfts.isNotEmpty && topUsedNfts.isNotEmpty)
+                                ? Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      if (topUsedNfts.isNotEmpty &&
+                                          topUsedNfts[0].name != "")
+                                        SpaceTopNFTListItem(
+                                          topUsedNftEntity: topUsedNfts[0],
+                                          score: 1,
+                                        ),
+                                      if (topUsedNfts.length > 1 &&
+                                          topUsedNfts[1].name != "")
+                                        SpaceTopNFTListItem(
+                                          topUsedNftEntity: topUsedNfts[1],
+                                          score: 2,
+                                        ),
+                                      if (topUsedNfts.length > 2 &&
+                                          topUsedNfts[2].name != "")
+                                        SpaceTopNFTListItem(
+                                          topUsedNftEntity: topUsedNfts[2],
+                                          score: 3,
+                                        ),
+                                    ],
+                                  )
+                                : const SizedBox.shrink(),
                       ),
                     ),
                   ],

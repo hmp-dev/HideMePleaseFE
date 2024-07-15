@@ -7,7 +7,6 @@ import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/enum/usage_type_enum.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
-import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collection_entity.dart';
@@ -30,11 +29,9 @@ part 'nft_state.dart';
 @lazySingleton
 class NftCubit extends BaseCubit<NftState> {
   final NftRepository _nftRepository;
-  final ProfileRepository _profileRepository;
 
   NftCubit(
     this._nftRepository,
-    this._profileRepository,
   ) : super(NftState.initial());
 
   final SnackbarService snackbarService = getIt<SnackbarService>();
@@ -201,11 +198,27 @@ class NftCubit extends BaseCubit<NftState> {
   }
 
   Future<void> onGetSelectedNftTokens() async {
-    final profileResponse = await _profileRepository.getUserProfileData();
-    profileResponse.fold(
+    double latitude = 0;
+    double longitude = 0;
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 0;
+      longitude = 0;
+    }
+
+    final welcomeNFtResponse = await _nftRepository.getWelcomeNft(
+      latitude: latitude,
+      longitude: longitude,
+    );
+
+    welcomeNFtResponse.fold(
       (err) {},
-      (user) async {
-        final isFreeNftClaimed = user.freeNftClaimed ?? false;
+      (welcomeNftData) async {
+        final isFreeNftAvailable = welcomeNftData.freeNftAvailable ?? false;
 
         final response = await _nftRepository.getSelectNftCollections();
 
@@ -227,7 +240,7 @@ class NftCubit extends BaseCubit<NftState> {
               state.copyWith(
                 selectedNftTokensList: resultList,
                 nftsListHome: getNftListForHomeWithEmptyAt1stAndLast(
-                    resultList, isFreeNftClaimed),
+                    resultList, isFreeNftAvailable),
                 submitStatus: RequestStatus.success,
                 errorMessage: '',
                 selectedCollectionCount: resultList.length,
@@ -240,12 +253,12 @@ class NftCubit extends BaseCubit<NftState> {
   }
 
   List<SelectedNFTEntity> getNftListForHomeWithEmptyAt1stAndLast(
-      List<SelectedNFTEntity> resultList, bool isFreeNftClaimed) {
+      List<SelectedNFTEntity> resultList, bool isFreeNftAvailable) {
     List<SelectedNFTEntity> result = List.from(resultList);
     //
 
     result.add(const SelectedNFTEntity.empty());
-    if (!isFreeNftClaimed) {
+    if (isFreeNftAvailable) {
       result.insert(0, const SelectedNFTEntity.emptyForHome1st());
     }
 
@@ -350,7 +363,7 @@ class NftCubit extends BaseCubit<NftState> {
           duration: const Duration(seconds: 5),
         );
       },
-      (_) {
+      (_) async {
         emit(state.copyWith(
           submitStatus: RequestStatus.success,
           errorMessage: '',
@@ -361,7 +374,7 @@ class NftCubit extends BaseCubit<NftState> {
           message: 'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
           duration: const Duration(seconds: 5),
         );
-
+        await onGetWelcomeNft();
         onGetSelectedNftTokens();
       },
     );

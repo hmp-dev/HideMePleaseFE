@@ -213,6 +213,10 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   Padding buildOpenTimeRow(SpaceDetailEntity spaceDetailEntity) {
     final start = spaceDetailEntity.businessHoursStart;
     final end = spaceDetailEntity.businessHoursEnd;
+
+    bool isSpaceOpen = spaceDetailEntity.spaceOpen == true;
+    Color color = isSpaceOpen ? hmpBlue : fore3;
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
       child: Row(
@@ -223,19 +227,13 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
             width: 5,
             height: 5,
             decoration: BoxDecoration(
-              color: (getOpenCloseString(start, end) ==
-                      LocaleKeys.businessClosed.tr())
-                  ? fore3
-                  : hmpBlue,
+              color: color,
               shape: BoxShape.circle,
             ),
           ),
           Text(
             getOpenCloseString(start, end),
-            style: (getOpenCloseString(start, end) ==
-                    LocaleKeys.businessClosed.tr())
-                ? fontCompactSm(color: fore3)
-                : fontCompactSm(color: hmpBlue),
+            style: fontCompactSm(color: color),
           ),
           Container(
             margin: const EdgeInsets.only(right: 10, left: 10),

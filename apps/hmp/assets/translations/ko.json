@@ -174,5 +174,6 @@
     "serviceUpdating": "서비스 업데이트 중",
     "benefitRedeemAgreeTermsMessage": "개인정보 이용에 동의하시겠습니까?",
     "nonPermitLocation": "미허용",
-    "permittedLocation": "허용"
+    "permittedLocation": "허용",
+    "walkerhill":"워커힐"
 }

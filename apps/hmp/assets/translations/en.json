@@ -173,5 +173,6 @@
     "serviceUpdating": "Service Updating",
     "benefitRedeemAgreeTermsMessage": "Do you agree to the use of your personal information?",
      "nonPermitLocation": "Not Allowed",
-     "permittedLocation": "Allowed"
+     "permittedLocation": "Allowed",
+     "walkerhill":"Walkerhill"
 }
