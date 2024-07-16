@@ -213,16 +213,16 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   }
 
   onFetchAllSpaceViewData() async {
-    double latitude = 0;
-    double longitude = 0;
+    double latitude = 1;
+    double longitude = 1;
     try {
       final position = await Geolocator.getCurrentPosition();
 
       latitude = position.latitude;
       longitude = position.longitude;
     } catch (e) {
-      latitude = 0;
-      longitude = 0;
+      latitude = 1;
+      longitude = 1;
     }
 
     await Future.wait([

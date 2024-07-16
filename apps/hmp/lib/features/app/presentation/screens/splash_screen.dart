@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
+import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/submit_location_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -33,19 +34,11 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _submitDeviceLocationToBackend() async {
-    await getIt<SubmitLocationCubit>().onSubmitUserDeviceLocation();
-    setState(() {
-      isLocationSubmitted = true;
-    });
-  }
+    // call to submit location only user is logged in
+    // use AppCubit to Check if user isLogged in
 
-  void _navigateIfReady() {
-    if (isAnimationComplete && isLocationSubmitted) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        Routes.startUpScreen,
-        (route) => false,
-      );
+    if (getIt<AppCubit>().state.isLoggedIn) {
+      getIt<SubmitLocationCubit>().onSubmitUserDeviceLocation();
     }
   }
 
@@ -63,7 +56,11 @@ class _SplashScreenState extends State<SplashScreen>
                 setState(() {
                   isAnimationComplete = true;
                 });
-                _navigateIfReady();
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  Routes.startUpScreen,
+                  (route) => false,
+                );
               });
           },
         ),

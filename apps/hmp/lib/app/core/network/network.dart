@@ -75,10 +75,14 @@ class Network {
       try {
         //await _refreshAccessToken();
         getIt<AppCubit>().onLogOut();
+
+   
       } on DioException catch (_) {
         // TODO Implement logout
         return;
       }
+
+      
       try {
         var response = await _dio!.request(
           error.requestOptions.path,

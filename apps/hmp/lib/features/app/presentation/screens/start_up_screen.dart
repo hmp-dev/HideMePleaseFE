@@ -48,15 +48,16 @@ class _StartUpScreenState extends State<StartUpScreen>
                   Routes.socialLogin, (Route<dynamic> route) => false);
             } else {
               ("-------inside state.isLoggedIn: ${state.isLoggedIn}").log();
+
+              await getIt<NftCubit>().onGetWelcomeNft();
               // User is logged in
               // a - init
-              getIt<ProfileCubit>().init();
-              // c - fetch user connected Wallets
-              getIt<WalletsCubit>().onGetAllWallets();
-              // d - fetch user selected NFT Tokens
-              getIt<NftCubit>().onGetSelectedNftTokens();
-              // e-
-              getIt<NftCubit>().onGetWelcomeNft(isShowLoader: false);
+              await getIt<ProfileCubit>().init();
+
+              Future.delayed(const Duration(milliseconds: 200)).then((value) {
+                // c - fetch user connected Wallets
+                getIt<WalletsCubit>().onGetAllWallets();
+              });
             }
           },
         ),
@@ -72,6 +73,8 @@ class _StartUpScreenState extends State<StartUpScreen>
               previous.connectedWallets != current.connectedWallets,
           listener: (context, walletsState) async {
             if (walletsState.submitStatus == RequestStatus.success) {
+              // e- fetch Free Welcome NFT which also calls to fetch Selected NFTs
+
               if (walletsState.connectedWallets.isEmpty) {
                 // If a wallet is NOT Connected
                 // Update Home View to Show with Before Wallet Connected
@@ -79,8 +82,11 @@ class _StartUpScreenState extends State<StartUpScreen>
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
                 // pass value to appHome with Navigator.pushNamedAndRemoveUntil to disconnect wallet
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    Routes.appScreen, (Route<dynamic> route) => false);
+
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      Routes.appScreen, (Route<dynamic> route) => false);
+                }
               } else {
                 // If a wallet is Connected
                 // Update Home View to Show with Wallet Connected

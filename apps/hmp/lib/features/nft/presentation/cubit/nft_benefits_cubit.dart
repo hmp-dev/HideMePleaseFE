@@ -21,16 +21,16 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
   Future<void> onGetNftBenefits({
     required String tokenAddress,
   }) async {
-    double latitude = 0;
-    double longitude = 0;
+    double latitude = 1;
+    double longitude = 1;
     try {
       final position = await Geolocator.getCurrentPosition();
 
       latitude = position.latitude;
       longitude = position.longitude;
     } catch (e) {
-      latitude = 0;
-      longitude = 0;
+      latitude = 1;
+      longitude = 1;
     }
 
     emit(state.copyWith(
@@ -83,16 +83,16 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
         state.loadingMoreStatus == RequestStatus.loading) {
       return;
     }
-    double latitude = 0;
-    double longitude = 0;
+    double latitude = 1;
+    double longitude = 1;
     try {
       final position = await Geolocator.getCurrentPosition();
 
       latitude = position.latitude;
       longitude = position.longitude;
     } catch (e) {
-      latitude = 0;
-      longitude = 0;
+      latitude = 1;
+      longitude = 1;
     }
 
     emit(state.copyWith(loadingMoreStatus: RequestStatus.loading));

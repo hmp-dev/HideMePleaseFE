@@ -197,17 +197,50 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
+  Future<void> onGetSelectedNftTokensViaAfterWelcomeNftFetch({
+    required bool isFreeNftAvailable,
+  }) async {
+    final response = await _nftRepository.getSelectNftCollections();
+
+    response.fold(
+      (err) {
+        Log.error(err);
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (selectedNftTokensList) {
+        final resultList =
+            selectedNftTokensList.map((e) => e.toEntity()).toList();
+
+        _selectedNftTokensListCached = List.from(resultList);
+
+        emit(
+          state.copyWith(
+            selectedNftTokensList: resultList,
+            nftsListHome: getNftListForHomeWithEmptyAt1stAndLast(
+                resultList, isFreeNftAvailable),
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+            selectedCollectionCount: resultList.length,
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> onGetSelectedNftTokens() async {
-    double latitude = 0;
-    double longitude = 0;
+    double latitude = 1;
+    double longitude = 1;
     try {
       final position = await Geolocator.getCurrentPosition();
 
       latitude = position.latitude;
       longitude = position.longitude;
     } catch (e) {
-      latitude = 0;
-      longitude = 0;
+      latitude = 1;
+      longitude = 1;
     }
 
     final welcomeNFtResponse = await _nftRepository.getWelcomeNft(
@@ -295,30 +328,23 @@ class NftCubit extends BaseCubit<NftState> {
     }
   }
 
-  Future<void> onGetWelcomeNft({bool isShowLoader = true}) async {
-    if (isShowLoader) {
-      EasyLoading.show();
-    }
-    double latitude = 0;
-    double longitude = 0;
+  Future<void> onGetWelcomeNft() async {
+    double latitude = 1;
+    double longitude = 1;
     try {
       final position = await Geolocator.getCurrentPosition();
 
       latitude = position.latitude;
       longitude = position.longitude;
     } catch (e) {
-      latitude = 0;
-      longitude = 0;
+      latitude = 1;
+      longitude = 1;
     }
 
     final response = await _nftRepository.getWelcomeNft(
       latitude: latitude,
       longitude: longitude,
     );
-
-    if (EasyLoading.isShow) {
-      EasyLoading.dismiss();
-    }
 
     response.fold(
       (err) {
@@ -329,6 +355,13 @@ class NftCubit extends BaseCubit<NftState> {
         ));
       },
       (welcomeNft) {
+        // fetch Selected NFTs
+        final isFreeNftAvailable = welcomeNft.freeNftAvailable ?? false;
+        onGetSelectedNftTokensViaAfterWelcomeNftFetch(
+          isFreeNftAvailable: isFreeNftAvailable,
+        );
+
+        // emit Welcome NFT State
         emit(
           state.copyWith(
             welcomeNftEntity: welcomeNft.toEntity(),
@@ -364,6 +397,8 @@ class NftCubit extends BaseCubit<NftState> {
         );
       },
       (_) async {
+        onGetWelcomeNft();
+
         emit(state.copyWith(
           submitStatus: RequestStatus.success,
           errorMessage: '',
@@ -374,8 +409,6 @@ class NftCubit extends BaseCubit<NftState> {
           message: 'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
           duration: const Duration(seconds: 5),
         );
-        await onGetWelcomeNft();
-        onGetSelectedNftTokens();
       },
     );
   }

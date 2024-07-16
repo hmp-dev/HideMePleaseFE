@@ -194,17 +194,9 @@ class _HomeViewAfterWalletConnectedState
                       ],
                     ),
                     const SizedBox(height: 20),
-                    //Text(_currentTokenAddress),
-                    // ElevatedButton(
-                    //   child: const Text("Claim NFT"),
-                    //   onPressed: () {
-                    //     final connectedWallet =
-                    //         getIt<WalletsCubit>().state.connectedWallets;
-                    //     "isKLIP: ${hasKlipProvider(connectedWallet)}".log();
-                    //     "is User freeNftClaimed:${getIt<ProfileCubit>().state.userProfileEntity.freeNftClaimed}"
-                    //         .log();
-                    //   },
-                    // ),
+                    // Text(
+                    //     "selectedNftsListForHome.length:${selectedNftsListForHome.length}"),
+
                     // not show this for first (if free NFT not claimed )
                     // and and not show for the last index
                     if (shouldShowWidget(
