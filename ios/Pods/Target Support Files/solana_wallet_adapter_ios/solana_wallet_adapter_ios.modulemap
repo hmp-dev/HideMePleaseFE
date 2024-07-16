@@ -1,6 +1,0 @@
-framework module solana_wallet_adapter_ios {
-  umbrella header "solana_wallet_adapter_ios-umbrella.h"
-
-  export *
-  module * { export * }
-}

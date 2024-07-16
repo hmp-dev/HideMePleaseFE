@@ -1,6 +1,0 @@
-framework module coinbase_wallet_sdk {
-  umbrella header "coinbase_wallet_sdk-umbrella.h"
-
-  export *
-  module * { export * }
-}
