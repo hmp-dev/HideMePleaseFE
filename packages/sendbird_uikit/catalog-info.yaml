@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sendbird-uikit-flutter
+  description: Flutter UIKit (for release)
+  annotations:
+    github.com/project-slug: sendbird/sendbird-uikit-flutter
+spec:
+  type: library
+  lifecycle: production
+  owner: dep-client-platform
+  system: sendbird-uikit
