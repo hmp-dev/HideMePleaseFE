@@ -40,7 +40,6 @@ class NftCommunityDto extends Equatable {
   final String? collectionLogo;
   final String? chain;
   final String? lastConversation;
-  final int? eventCount;
 
   const NftCommunityDto({
     this.communityRank,
@@ -50,7 +49,6 @@ class NftCommunityDto extends Equatable {
     this.collectionLogo,
     this.chain,
     this.lastConversation,
-    this.eventCount,
   });
 
   factory NftCommunityDto.fromJson(Map<String, dynamic> json) =>
@@ -68,7 +66,6 @@ class NftCommunityDto extends Equatable {
       collectionLogo,
       chain,
       lastConversation,
-      eventCount,
     ];
   }
 
@@ -79,8 +76,9 @@ class NftCommunityDto extends Equatable {
         name: name ?? '',
         collectionLogo: collectionLogo ?? '',
         chain: chain ?? '',
-        lastConversation: lastConversation ?? '',
-        eventCount: eventCount ?? 0,
+        lastConversation: '',
+        recentMessages: [],
+        unreadCount: 0,
       );
 }
 

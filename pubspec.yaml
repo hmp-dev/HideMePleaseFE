@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-name: mobile
-description: "A new Flutter project."
-
-publish_to: "none"
-version: 2.0.6+42
-=======
 name: hmp_mobile
->>>>>>> c739f69608e37634dec400a1b7cf58eda1559382
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

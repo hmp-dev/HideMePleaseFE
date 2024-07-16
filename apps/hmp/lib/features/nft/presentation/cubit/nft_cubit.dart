@@ -7,6 +7,7 @@ import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/enum/usage_type_enum.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collection_entity.dart';
@@ -29,9 +30,11 @@ part 'nft_state.dart';
 @lazySingleton
 class NftCubit extends BaseCubit<NftState> {
   final NftRepository _nftRepository;
+  final ProfileRepository _profileRepository;
 
   NftCubit(
     this._nftRepository,
+    this._profileRepository,
   ) : super(NftState.initial());
 
   final SnackbarService snackbarService = getIt<SnackbarService>();
@@ -409,6 +412,8 @@ class NftCubit extends BaseCubit<NftState> {
           message: 'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
           duration: const Duration(seconds: 5),
         );
+
+        onGetSelectedNftTokens();
       },
     );
   }

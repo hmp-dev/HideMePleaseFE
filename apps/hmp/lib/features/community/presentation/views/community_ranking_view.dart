@@ -296,14 +296,13 @@ class _CommunityRankingViewState extends State<CommunityRankingView> {
                               curve: Curves.easeIn,
                             );
                           },
-                          backgroundColor: bg1,
-                          shape: const CircleBorder(
-                              side: BorderSide(color: fore4)),
                           child: DefaultImage(
                             path: 'assets/icons/arrow_up.svg',
                             width: 20,
                             height: 20,
                           ),
+                          backgroundColor: bg1,
+                          shape: CircleBorder(side: BorderSide(color: fore4)),
                         ),
                       ),
                     ),

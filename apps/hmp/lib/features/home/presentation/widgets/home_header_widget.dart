@@ -41,20 +41,13 @@ class HomeHeaderWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: userProfile.pfpImageUrl.isNotEmpty
-                      ? CustomImageView(
-                          url: userProfile.pfpImageUrl,
-                          fit: BoxFit.fill,
-                          width: 54,
-                          height: 54,
-                        )
-                      : CustomImageView(
-                          imagePath: "assets/images/launcher-icon.png",
-                          width: 54,
-                          height: 54,
-                        ),
+                CustomImageView(
+                  url: userProfile.pfpImageUrl,
+                  fit: BoxFit.cover,
+                  width: 54,
+                  height: 54,
+                  radius: BorderRadius.circular(50),
+                  placeHolder: "assets/images/launcher-icon.png",
                 ),
                 const HorizontalSpace(10),
                 Expanded(

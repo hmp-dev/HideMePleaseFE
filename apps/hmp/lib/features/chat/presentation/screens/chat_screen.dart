@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/chat/presentation/screens/chat_user_detail_popup_screen.dart';
 import 'package:sendbird_uikit/sendbird_uikit.dart';
 
 class CommunityChatScreen extends StatelessWidget {
@@ -20,6 +21,26 @@ class CommunityChatScreen extends StatelessWidget {
       body: SafeArea(
         child: SBUGroupChannelScreen(
           channelUrl: channel,
+          onOtherUserProfileTapped: (message) {
+            if (message.sender != null) {
+              showModalBottomSheet(
+                context: context,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    topRight: Radius.circular(8),
+                  ),
+                ),
+                builder: (context) {
+                  return ChatUserDetailPopupScreen(
+                    userId: message.sender!.userId,
+                    userNickname: message.sender!.nickname,
+                    userProfileImg: message.sender!.profileUrl,
+                  );
+                },
+              );
+            }
+          },
         ),
       ),
     );

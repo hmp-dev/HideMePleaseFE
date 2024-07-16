@@ -1,5 +1,6 @@
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
+import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class NftCommunityEntity extends Equatable {
@@ -10,7 +11,8 @@ class NftCommunityEntity extends Equatable {
   final String collectionLogo;
   final String chain;
   final String lastConversation;
-  final int eventCount;
+  final List<BaseMessage> recentMessages;
+  final int unreadCount;
 
   const NftCommunityEntity({
     required this.communityRank,
@@ -20,7 +22,8 @@ class NftCommunityEntity extends Equatable {
     required this.collectionLogo,
     required this.chain,
     required this.lastConversation,
-    required this.eventCount,
+    required this.recentMessages,
+    required this.unreadCount,
   });
 
   const NftCommunityEntity.empty()
@@ -31,7 +34,8 @@ class NftCommunityEntity extends Equatable {
         collectionLogo = '',
         chain = '',
         lastConversation = '',
-        eventCount = 0;
+        recentMessages = const [],
+        unreadCount = 0;
 
   String get timeAgo => DateTime.tryParse(lastConversation) == null
       ? ''
@@ -54,7 +58,8 @@ class NftCommunityEntity extends Equatable {
       collectionLogo,
       chain,
       lastConversation,
-      eventCount,
+      recentMessages,
+      unreadCount,
     ];
   }
 
@@ -66,7 +71,8 @@ class NftCommunityEntity extends Equatable {
     String? collectionLogo,
     String? chain,
     String? lastConversation,
-    int? eventCount,
+    List<BaseMessage>? recentMessages,
+    int? unreadCount,
   }) {
     return NftCommunityEntity(
       communityRank: communityRank ?? this.communityRank,
@@ -76,7 +82,8 @@ class NftCommunityEntity extends Equatable {
       collectionLogo: collectionLogo ?? this.collectionLogo,
       chain: chain ?? this.chain,
       lastConversation: lastConversation ?? this.lastConversation,
-      eventCount: eventCount ?? this.eventCount,
+      recentMessages: recentMessages ?? this.recentMessages,
+      unreadCount: unreadCount ?? this.unreadCount,
     );
   }
 }

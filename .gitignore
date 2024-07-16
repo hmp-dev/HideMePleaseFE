@@ -47,4 +47,3 @@ app.*.map.json
 .fvm/
 .DS_Store
 
-android/.gradle/

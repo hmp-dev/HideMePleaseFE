@@ -10,6 +10,12 @@ class CommunityDetailsState extends BaseState {
   @override
   final RequestStatus status;
   final RequestStatus membersStatus;
+  final RequestStatus membersLoadMoreStatus;
+  final RequestStatus benefitsLoadMoreStatus;
+  final bool isAllMembersLoaded;
+  final bool isAllBenefitsLoaded;
+  final int currentMembersPage;
+  final int currentBenefitsPage;
 
   const CommunityDetailsState({
     required this.status,
@@ -20,6 +26,12 @@ class CommunityDetailsState extends BaseState {
     required this.nftBenefits,
     required this.membersCount,
     required this.communityMembers,
+    required this.membersLoadMoreStatus,
+    required this.benefitsLoadMoreStatus,
+    required this.isAllMembersLoaded,
+    required this.isAllBenefitsLoaded,
+    required this.currentMembersPage,
+    required this.currentBenefitsPage,
   });
 
   factory CommunityDetailsState.initial() => const CommunityDetailsState(
@@ -31,11 +43,23 @@ class CommunityDetailsState extends BaseState {
         nftBenefits: [],
         membersCount: 0,
         communityMembers: [],
+        membersLoadMoreStatus: RequestStatus.initial,
+        benefitsLoadMoreStatus: RequestStatus.initial,
+        isAllMembersLoaded: false,
+        isAllBenefitsLoaded: false,
+        currentMembersPage: 1,
+        currentBenefitsPage: 1,
       );
 
   bool get isMembersLoading =>
       membersStatus == RequestStatus.initial ||
       membersStatus == RequestStatus.loading;
+
+  bool get isMembersLoadingMore =>
+      membersLoadMoreStatus == RequestStatus.loading;
+
+  bool get isBenefitsLoadingMore =>
+      benefitsLoadMoreStatus == RequestStatus.loading;
 
   bool get isMembersSuccess => membersStatus == RequestStatus.success;
 
@@ -51,6 +75,12 @@ class CommunityDetailsState extends BaseState {
         nftBenefits,
         membersCount,
         communityMembers,
+        membersLoadMoreStatus,
+        benefitsLoadMoreStatus,
+        isAllMembersLoaded,
+        isAllBenefitsLoaded,
+        currentMembersPage,
+        currentBenefitsPage,
       ];
 
   @override
@@ -63,6 +93,12 @@ class CommunityDetailsState extends BaseState {
     List<CommunityMemberEntity>? communityMembers,
     RequestStatus? status,
     RequestStatus? membersStatus,
+    RequestStatus? membersLoadMoreStatus,
+    RequestStatus? benefitsLoadMoreStatus,
+    bool? isAllMembersLoaded,
+    bool? isAllBenefitsLoaded,
+    int? currentMembersPage,
+    int? currentBenefitsPage,
   }) {
     return CommunityDetailsState(
       nftInfo: nftInfo ?? this.nftInfo,
@@ -73,11 +109,14 @@ class CommunityDetailsState extends BaseState {
       communityMembers: communityMembers ?? this.communityMembers,
       status: status ?? this.status,
       membersStatus: membersStatus ?? this.membersStatus,
+      membersLoadMoreStatus:
+          membersLoadMoreStatus ?? this.membersLoadMoreStatus,
+      benefitsLoadMoreStatus:
+          benefitsLoadMoreStatus ?? this.benefitsLoadMoreStatus,
+      isAllMembersLoaded: isAllMembersLoaded ?? this.isAllMembersLoaded,
+      isAllBenefitsLoaded: isAllBenefitsLoaded ?? this.isAllBenefitsLoaded,
+      currentMembersPage: currentMembersPage ?? this.currentMembersPage,
+      currentBenefitsPage: currentBenefitsPage ?? this.currentBenefitsPage,
     );
-  }
-
-  @override
-  String toString() {
-    return 'CommunityDetailsState(nftInfo: $nftInfo, nftNetworkInfo: $nftNetworkInfo, benefitCount: $benefitCount, nftBenefits: $nftBenefits, membersCount: $membersCount, communityMembers: $communityMembers, status: $status, membersStatus: $membersStatus)';
   }
 }

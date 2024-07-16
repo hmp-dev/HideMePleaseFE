@@ -139,21 +139,13 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(34),
-            child: userProfile.pfpImageUrl.isNotEmpty
-                ? CustomImageView(
-                    url: userProfile.pfpImageUrl,
-                    fit: BoxFit.cover,
-                    width: 68,
-                    height: 68,
-                  )
-                : CustomImageView(
-                    imagePath: "assets/images/launcher-icon.png",
-                    fit: BoxFit.cover,
-                    width: 68,
-                    height: 68,
-                  ),
+          CustomImageView(
+            url: userProfile.pfpImageUrl,
+            fit: BoxFit.cover,
+            width: 68,
+            height: 68,
+            radius: BorderRadius.circular(34),
+            placeHolder: "assets/images/launcher-icon.png",
           ),
           Expanded(
             child: Padding(

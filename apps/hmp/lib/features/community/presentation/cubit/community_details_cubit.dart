@@ -53,19 +53,65 @@ class CommunityDetailsCubit extends BaseCubit<CommunityDetailsState> {
   }
 
   Future<void> onGetNftBenefits({required String tokenAddress}) async {
-    final position = await Geolocator.getCurrentPosition();
+    double latitude = 1;
+    double longitude = 1;
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 1;
+      longitude = 1;
+    }
 
     final userNftCommsRes = await _nftRepository.getNftBenefits(
       tokenAddress: tokenAddress,
-      latitude: position.latitude,
-      longitude: position.longitude,
+      latitude: latitude,
+      longitude: longitude,
+      pageSize: 10,
     );
-
     userNftCommsRes.fold(
       (_) {},
       (data) => emit(state.copyWith(
         nftBenefits: data.benefits?.map((e) => e.toEntity()).toList() ?? [],
         benefitCount: data.benefitCount,
+      )),
+    );
+  }
+
+  Future<void> onGetMoreNftBenefits({required String tokenAddress}) async {
+    if (state.isAllBenefitsLoaded) return;
+    emit(state.copyWith(benefitsLoadMoreStatus: RequestStatus.loading));
+
+    double latitude = 1;
+    double longitude = 1;
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 1;
+      longitude = 1;
+    }
+
+    final userNftCommsRes = await _nftRepository.getNftBenefits(
+      tokenAddress: tokenAddress,
+      latitude: latitude,
+      longitude: longitude,
+      pageSize: 10,
+      page: state.currentBenefitsPage + 1,
+    );
+    userNftCommsRes.fold(
+      (_) =>
+          emit(state.copyWith(benefitsLoadMoreStatus: RequestStatus.failure)),
+      (data) => emit(state.copyWith(
+        benefitsLoadMoreStatus: RequestStatus.success,
+        nftBenefits: state.nftBenefits
+          ..addAll(data.benefits?.map((e) => e.toEntity()).toList() ?? []),
+        currentBenefitsPage: state.currentBenefitsPage + 1,
+        isAllBenefitsLoaded: data.benefits?.isEmpty ?? true,
       )),
     );
   }
@@ -82,6 +128,26 @@ class CommunityDetailsCubit extends BaseCubit<CommunityDetailsState> {
         communityMembers: data.members?.map((e) => e.toEntity()).toList() ?? [],
         membersCount: data.nftMemberCount,
         membersStatus: RequestStatus.success,
+      )),
+    );
+  }
+
+  Future<void> onGetMoreNftMembers({required String tokenAddress}) async {
+    if (state.isAllMembersLoaded) return;
+    emit(state.copyWith(membersLoadMoreStatus: RequestStatus.loading));
+
+    final userNftCommsRes = await _nftRepository.getNftMembers(
+      tokenAddress: tokenAddress,
+      page: state.currentMembersPage + 1,
+    );
+    userNftCommsRes.fold(
+      (_) => emit(state.copyWith(membersLoadMoreStatus: RequestStatus.failure)),
+      (data) => emit(state.copyWith(
+        membersLoadMoreStatus: RequestStatus.success,
+        communityMembers: state.communityMembers
+          ..addAll(data.members?.map((e) => e.toEntity()).toList() ?? []),
+        currentMembersPage: state.currentMembersPage + 1,
+        isAllMembersLoaded: data.members?.isEmpty ?? true,
       )),
     );
   }

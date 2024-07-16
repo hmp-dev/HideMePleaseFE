@@ -3,6 +3,7 @@ name: hmp_mobile
 packages:
   - apps/hmp
   - packages/web3modal_flutter
+  - packages/sendbird_uikit
 
 repository: https://github.com/hyperhire-dev/HideMePleaseFE
 

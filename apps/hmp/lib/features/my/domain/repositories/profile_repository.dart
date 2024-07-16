@@ -9,6 +9,9 @@ abstract class ProfileRepository {
 
   Future<Either<HMPError, UserProfileDto>> getUserProfileData();
 
+  Future<Either<HMPError, UserProfileDto>> getUserProfile(
+      {required String userId});
+
   Future<Either<HMPError, UserProfileDto>> updateProfileData({
     required UpdateProfileRequestDto updateProfileRequestDto,
   });
