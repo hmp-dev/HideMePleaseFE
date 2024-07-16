@@ -2,6 +2,7 @@
 
 enum SpaceCategory {
   ENTIRE,
+  WALKERHILL,
   PUB,
   CAFE,
   COWORKING,

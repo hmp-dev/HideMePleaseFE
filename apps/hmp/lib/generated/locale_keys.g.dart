@@ -176,5 +176,6 @@ abstract class  LocaleKeys {
   static const benefitRedeemAgreeTermsMessage = 'benefitRedeemAgreeTermsMessage';
   static const nonPermitLocation = 'nonPermitLocation';
   static const permittedLocation = 'permittedLocation';
+  static const walkerhill = 'walkerhill';
 
 }

@@ -1,6 +1,4 @@
 import 'package:injectable/injectable.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
-import 'package:mobile/app/core/network/network.dart';
 import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
 import 'package:sendbird_uikit/sendbird_uikit.dart';
 

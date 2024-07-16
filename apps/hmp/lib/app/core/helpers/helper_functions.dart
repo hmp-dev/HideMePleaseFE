@@ -108,7 +108,7 @@ Future<bool> showHmpAlertDialog({
   required String content,
   required Function onConfirm,
 }) async {
-  return await showDialog(
+  bool? result = await showDialog(
     context: context,
     builder: (BuildContext context) {
       return BackdropFilter(
@@ -144,6 +144,7 @@ Future<bool> showHmpAlertDialog({
       );
     },
   );
+  return result ?? false;
 }
 
 Future<bool> showBenefitRedeemSuccessAlertDialog({
@@ -220,12 +221,12 @@ Future<bool> showBenefitRedeemAgreeTermsAlertDialog({
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
-          title: Text(
+          content: Text(
             title,
             textAlign: TextAlign.center,
-            style: fontBodySm(),
+            style: fontBodyMd(),
           ),
-
+          //content: const SizedBox.shrink(),
           actions: <Widget>[
             Row(
               children: [
@@ -234,9 +235,7 @@ Future<bool> showBenefitRedeemAgreeTermsAlertDialog({
                     height: 44,
                     bgColor: bg4,
                     text: LocaleKeys.confirm.tr(),
-                    onPressed: () {
-                      onConfirm();
-                    },
+                    onPressed: () => onConfirm(),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -245,9 +244,7 @@ Future<bool> showBenefitRedeemAgreeTermsAlertDialog({
                     height: 44,
                     bgColor: fore4,
                     text: LocaleKeys.cancel.tr(),
-                    onPressed: () {
-                      onCancel();
-                    },
+                    onPressed: () => onCancel(),
                   ),
                 ),
               ],
@@ -456,6 +453,8 @@ String getLocalCategoryName(String categoryName) {
   switch (categoryName) {
     case 'ENTIRE':
       return LocaleKeys.entire.tr();
+    case 'WALKERHILL':
+      return LocaleKeys.walkerhill.tr();
     case "PUB":
       return LocaleKeys.pub.tr();
     case "CAFE":

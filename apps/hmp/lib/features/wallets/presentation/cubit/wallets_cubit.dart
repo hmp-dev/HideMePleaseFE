@@ -280,7 +280,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     response.fold(
       (err) {},
       (result) {
-        EasyLoading.showSuccess('Wallet deleted successfully');
+        //EasyLoading.showSuccess('Wallet deleted successfully');
         onGetAllWallets();
       },
     );

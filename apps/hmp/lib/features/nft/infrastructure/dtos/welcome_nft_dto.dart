@@ -18,6 +18,8 @@ class WelcomeNftDto extends Equatable {
   final int? usedCount;
   final String? name;
   final String? tokenAddress;
+  final String? redeemTermsUrl;
+  final bool? freeNftAvailable;
 
   const WelcomeNftDto({
     this.id,
@@ -26,6 +28,8 @@ class WelcomeNftDto extends Equatable {
     this.usedCount,
     this.name,
     this.tokenAddress,
+    this.redeemTermsUrl,
+    this.freeNftAvailable,
   });
 
   factory WelcomeNftDto.fromJson(Map<String, dynamic> json) =>
@@ -41,6 +45,8 @@ class WelcomeNftDto extends Equatable {
         usedCount,
         name,
         tokenAddress,
+        redeemTermsUrl,
+        freeNftAvailable,
       ];
 
   WelcomeNftEntity toEntity() => WelcomeNftEntity(
@@ -49,5 +55,7 @@ class WelcomeNftDto extends Equatable {
         totalCount: totalCount ?? 0,
         usedCount: usedCount ?? 0,
         tokenAddress: tokenAddress ?? '',
+        redeemTermsUrl: redeemTermsUrl ?? '',
+        freeNftAvailable: freeNftAvailable ?? false,
       );
 }

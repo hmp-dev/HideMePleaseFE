@@ -167,13 +167,7 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                             getIt<PageCubit>().changePage(
                                 MenuType.space.menuIndex, MenuType.space);
                             // fetch Space Related Data
-                            // init Cubit function to get all space view data
-                            final locationState =
-                                getIt<EnableLocationCubit>().state;
-                            getIt<SpaceCubit>().onFetchAllSpaceViewData(
-                              latitude: locationState.latitude,
-                              longitude: locationState.longitude,
-                            );
+                            getIt<SpaceCubit>().onFetchAllSpaceViewData();
                           },
                         ),
                         const VerticalSpace(20),

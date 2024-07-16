@@ -34,6 +34,7 @@ class AppCubit extends BaseCubit<AppState> {
   }
 
   Future<void> onLogOut() async {
+    if (!state.isLoggedIn) return;
     ("inside onLogOut").log();
     EasyLoading.show();
 
@@ -41,7 +42,9 @@ class AppCubit extends BaseCubit<AppState> {
 
     result.fold(
       (l) => ("inside onLogOut Error").log(),
-      (r) => ("inside onLogOut Success").log(),
+      (r) {
+        emit(state.copyWith(isLoggedIn: false));
+      },
     );
 
     EasyLoading.dismiss();
@@ -52,5 +55,13 @@ class AppCubit extends BaseCubit<AppState> {
     await configureDependencies();
 
     onStart();
+  }
+
+  void markInitialized() {
+    emit(state.copyWith(initialized: true));
+  }
+
+  void markUnInitialized() {
+    emit(state.copyWith(initialized: false));
   }
 }

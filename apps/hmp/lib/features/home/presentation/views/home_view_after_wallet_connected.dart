@@ -29,6 +29,7 @@ import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
 class HomeViewAfterWalletConnected extends StatefulWidget {
@@ -37,11 +38,13 @@ class HomeViewAfterWalletConnected extends StatefulWidget {
     required this.isOverIconNavVisible,
     required this.homeViewScrollController,
     required this.userProfile,
+    required this.welcomeNftEntity,
   });
 
   final bool isOverIconNavVisible;
   final ScrollController homeViewScrollController;
   final UserProfileEntity userProfile;
+  final WelcomeNftEntity welcomeNftEntity;
 
   @override
   State<HomeViewAfterWalletConnected> createState() =>
@@ -157,7 +160,7 @@ class _HomeViewAfterWalletConnectedState
                               }
 
                               if (itemIndex == 0 &&
-                                  !widget.userProfile.freeNftClaimed) {
+                                  widget.welcomeNftEntity.freeNftAvailable) {
                                 return const FreeWelcomeNftCard();
                               }
 
@@ -191,10 +194,14 @@ class _HomeViewAfterWalletConnectedState
                       ],
                     ),
                     const SizedBox(height: 20),
-                    //Text(_currentTokenAddress),
+                    // Text(
+                    //     "selectedNftsListForHome.length:${selectedNftsListForHome.length}"),
+
                     // not show this for first (if free NFT not claimed )
                     // and and not show for the last index
-                    if (shouldShowWidget(widget.userProfile, _currentIndex,
+                    if (shouldShowWidget(
+                        widget.welcomeNftEntity.freeNftAvailable,
+                        _currentIndex,
                         selectedNftsListForHome))
                       GestureDetector(
                         onTap: () {
@@ -208,8 +215,8 @@ class _HomeViewAfterWalletConnectedState
                           svgPath: "assets/icons/ic_angle_arrow_down.svg",
                         ),
                       ),
-                    (shouldShowWidget(widget.userProfile, _currentIndex,
-                                selectedNftsListForHome) &&
+                    (shouldShowWidget(widget.welcomeNftEntity.freeNftAvailable,
+                                _currentIndex, selectedNftsListForHome) &&
                             !widget.isOverIconNavVisible)
                         ? AnimatedSlideFadeIn(
                             slideIndex: 0,
@@ -259,12 +266,27 @@ class _HomeViewAfterWalletConnectedState
     );
   }
 
-  bool shouldShowWidget(UserProfileEntity userProfile, int currentIndex,
+  bool hasKlipProvider(List<ConnectedWalletEntity> connectedWallets) {
+    bool result = false;
+    if (connectedWallets.isEmpty) {
+      result = false;
+    }
+    for (var wallet in connectedWallets) {
+      if (wallet.provider == 'KLIP') {
+        result = true;
+      }
+    }
+    return result;
+  }
+
+  bool shouldShowWidget(bool isFreeNftAvailable, int currentIndex,
       List<SelectedNFTEntity> selectedNftsListForHome) {
-    // Do not show for the first index if free NFT not claimed
-    if (!userProfile.freeNftClaimed && currentIndex == 0) {
+    // Do not show for the first index if isFreeNftAvailable is false
+
+    if (!isFreeNftAvailable == false && currentIndex == 0) {
       return false;
     }
+
     // Do not show for the last index
     if (currentIndex == selectedNftsListForHome.length - 1) {
       return false;

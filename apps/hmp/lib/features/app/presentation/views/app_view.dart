@@ -15,6 +15,7 @@ import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dt
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
 
 class AppView extends StatefulWidget {
@@ -104,6 +105,11 @@ class _AppViewState extends State<AppView> {
                               getIt<SettingsCubit>().onGetSettingBannerInfo();
                               // Navigate to Settings Screen
                               SettingsScreen.push(context);
+                            } else if (type == MenuType.space) {
+                              // fetch SettingBannerInfo and AppVersionInfo
+                              getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                              // Navigate to Settings Screen
+                              _onChangeMenu(type);
                             } else {
                               _onChangeMenu(type);
                             }

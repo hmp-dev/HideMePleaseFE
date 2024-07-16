@@ -38,6 +38,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   var currentSlideIndex = 0;
   bool dontShowCheckBox = false;
+  bool _isConfirming = false;
+  // to prevent double tap while in process to check location and navigate
 
   @override
   void initState() {
@@ -122,7 +124,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       body: BlocConsumer<EnableLocationCubit, EnableLocationState>(
         bloc: getIt<EnableLocationCubit>(),
         listener: (context, state) {
-          if (state.isSubmitSuccess) {
+          if (state.submitStatus == RequestStatus.success) {
             Navigator.pushNamedAndRemoveUntil(
               context,
               Routes.startUpScreen,
@@ -130,7 +132,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             );
           }
 
-          if (state.isSubmitFailure && state.isLocationDenied) {
+          if ((state.submitStatus == RequestStatus.failure) &&
+              state.isLocationDenied) {
             Navigator.pushNamedAndRemoveUntil(
               context,
               Routes.startUpScreen,
@@ -235,35 +238,48 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                         pageViewModelData.length
                                     ? HMPCustomButton(
                                         text: LocaleKeys.confirm.tr(),
-                                        onPressed: () {
-                                          // check if Location is already enabled
+                                        onPressed: _isConfirming
+                                            ? () {}
+                                            : () async {
+                                                setState(
+                                                    () => _isConfirming = true);
 
-                                          if (state.isLocationEnabled) {
-                                            Navigator.pushNamedAndRemoveUntil(
-                                              context,
-                                              Routes.startUpScreen,
-                                              (route) => false,
-                                            );
-                                          } else {
-                                            "onBoardingScreen tapped on Confirm Button"
-                                                .log();
-                                            showHmpAlertDialog(
-                                              context: context,
-                                              title: LocaleKeys
-                                                  .allowLocationPermission
-                                                  .tr(),
-                                              content: LocaleKeys
-                                                  .locationAlertMessage
-                                                  .tr(),
-                                              onConfirm: () {
-                                                Navigator.pop(context);
-                                                // Ask for device location
-                                                getIt<EnableLocationCubit>()
-                                                    .onAskDeviceLocation();
+                                                // check if Location is already enabled
+
+                                                if (state.isLocationEnabled) {
+                                                  Navigator
+                                                      .pushNamedAndRemoveUntil(
+                                                    context,
+                                                    Routes.startUpScreen,
+                                                    (route) => false,
+                                                  );
+
+                                                  setState(() =>
+                                                      _isConfirming = false);
+                                                } else {
+                                                  setState(() =>
+                                                      _isConfirming = false);
+
+                                                  "onBoardingScreen tapped on Confirm Button"
+                                                      .log();
+
+                                                  await showHmpAlertDialog(
+                                                    context: context,
+                                                    title: LocaleKeys
+                                                        .allowLocationPermission
+                                                        .tr(),
+                                                    content: LocaleKeys
+                                                        .locationAlertMessage
+                                                        .tr(),
+                                                    onConfirm: () {
+                                                      Navigator.pop(context);
+                                                      // Ask for device location
+                                                      getIt<EnableLocationCubit>()
+                                                          .onAskDeviceLocation();
+                                                    },
+                                                  );
+                                                }
                                               },
-                                            );
-                                          }
-                                        },
                                       )
                                     : HMPCustomButton(
                                         text: LocaleKeys.next.tr(),

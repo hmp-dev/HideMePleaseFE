@@ -1,5 +1,4 @@
 import 'package:mobile/app/core/cubit/cubit.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/chat/domain/repositories/chat_repository.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';

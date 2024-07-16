@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -20,6 +21,18 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
   Future<void> onGetNftBenefits({
     required String tokenAddress,
   }) async {
+    double latitude = 1;
+    double longitude = 1;
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 1;
+      longitude = 1;
+    }
+
     emit(state.copyWith(
       submitStatus: RequestStatus.loading,
       selectedTokenAddress: tokenAddress,
@@ -33,7 +46,12 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
     await Future.delayed(const Duration(milliseconds: 100));
 
     final response = await _nftRepository.getNftBenefits(
-        tokenAddress: tokenAddress, pageSize: 10, page: 1);
+      tokenAddress: tokenAddress,
+      latitude: latitude,
+      longitude: longitude,
+      pageSize: 10,
+      page: 1,
+    );
 
     response.fold(
       (err) {
@@ -65,13 +83,24 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
         state.loadingMoreStatus == RequestStatus.loading) {
       return;
     }
+    double latitude = 1;
+    double longitude = 1;
+    try {
+      final position = await Geolocator.getCurrentPosition();
 
-    "onGetSpacesLoadMore is called".log();
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 1;
+      longitude = 1;
+    }
 
     emit(state.copyWith(loadingMoreStatus: RequestStatus.loading));
 
     final benefitsRes = await _nftRepository.getNftBenefits(
       tokenAddress: state.selectedTokenAddress,
+      latitude: latitude,
+      longitude: longitude,
       pageSize: 10,
       page: state.nftBenefitsPage + 1,
     );

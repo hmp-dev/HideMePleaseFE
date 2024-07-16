@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -12,12 +13,14 @@ import 'package:mobile/features/home/presentation/views/home_view_before_login.d
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_with_space.dart';
+import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -91,8 +94,24 @@ class _HomeScreenState extends State<HomeScreen> {
               // show the AfterLoginWithNFT screen
               getIt<HomeCubit>()
                   .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
-              // navigate to MyMembershipSettingsScreen
-              MyMembershipSettingsScreen.push(context);
+              // apply to not move to MyMembershipSettingsScreen
+              // if the newly connected Wallet is Klip
+              // and user freeNftClaimed  status is false
+              if (state.connectedWallets.isNotEmpty &&
+                  hasKlipProvider(state.connectedWallets)) {
+                final userProfileEntity =
+                    getIt<ProfileCubit>().state.userProfileEntity;
+
+                if (userProfileEntity.freeNftClaimed == false) {
+                  getIt<HomeCubit>()
+                      .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
+                }
+              } else {
+                getIt<HomeCubit>()
+                    .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
+                // navigate to MyMembershipSettingsScreen
+                MyMembershipSettingsScreen.push(context);
+              }
             }
           },
         ),
@@ -166,15 +185,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 } else {
                   // Show Space Selection View if there are multiple spaces, otherwise show Redeem Benefit View
-                  if (state.spacesResponseEntity.spaces.length > 1) {
-                    SpaceSelectionScreen.show(
-                        context, state.spacesResponseEntity.spaces);
-                  } else {
-                    RedeemBenefitScreen.push(
-                      context,
-                      nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
-                    );
-                  }
+                  // if (state.spacesResponseEntity.spaces.length > 1) {
+                  //   SpaceSelectionScreen.show(
+                  //       context, state.spacesResponseEntity.spaces);
+                  // } else {
+
+                  // Do not Show SpaceSelectionScreen Directly Go to RedeemBenefitScreen
+                  RedeemBenefitScreen.push(
+                    context,
+                    nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
+                  );
+                  //}
                 }
               } else if (state.selectedSpaceDetailEntity.id.isNotEmpty) {
                 "inside nearby spaces are empty and state.selectedSpaceDetailEntity.id != ''"
@@ -187,6 +208,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               } else {
                 SpaceSelectionScreen.show(context, []);
+
+                // here I need the Token Address to pass and  fetch and show the NFT benefits list
               }
             }
           },
@@ -200,14 +223,29 @@ class _HomeScreenState extends State<HomeScreen> {
             buildWhen: (previous, current) =>
                 previous.userProfileEntity != current.userProfileEntity,
             builder: (context, profileState) {
-              return
-                  //  UpgradeAlert(
-                  //   child:
-                  SingleChildScrollView(
-                controller: _scrollController,
-                child: getHomeView(
-                    state.homeViewType, profileState.userProfileEntity),
-                // ),
+              return BlocBuilder<NftCubit, NftState>(
+                bloc: getIt<NftCubit>(),
+                builder: (context, sftState) {
+                  return kDebugMode
+                      ? SingleChildScrollView(
+                          controller: _scrollController,
+                          child: getHomeView(
+                            state.homeViewType,
+                            profileState.userProfileEntity,
+                            sftState.welcomeNftEntity,
+                          ),
+                        )
+                      : UpgradeAlert(
+                          child: SingleChildScrollView(
+                            controller: _scrollController,
+                            child: getHomeView(
+                              state.homeViewType,
+                              profileState.userProfileEntity,
+                              sftState.welcomeNftEntity,
+                            ),
+                          ),
+                        );
+                },
               );
             },
           );
@@ -219,12 +257,14 @@ class _HomeScreenState extends State<HomeScreen> {
   getHomeView(
     HomeViewType homeViewType,
     UserProfileEntity userProfile,
+    WelcomeNftEntity welcomeNftEntity,
   ) {
     if (homeViewType == HomeViewType.afterWalletConnected) {
       return HomeViewAfterWalletConnected(
         isOverIconNavVisible: _isVisible,
         homeViewScrollController: _scrollController,
         userProfile: userProfile,
+        welcomeNftEntity: welcomeNftEntity,
       );
     } else {
       return HomeViewBeforeLogin(
@@ -235,5 +275,18 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       );
     }
+  }
+
+  bool hasKlipProvider(List<ConnectedWalletEntity> connectedWallets) {
+    bool result = false;
+    if (connectedWallets.isEmpty) {
+      result = false;
+    }
+    for (var wallet in connectedWallets) {
+      if (wallet.provider == 'KLIP') {
+        result = true;
+      }
+    }
+    return result;
   }
 }

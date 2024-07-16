@@ -200,12 +200,61 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
+  Future<void> onGetSelectedNftTokensViaAfterWelcomeNftFetch({
+    required bool isFreeNftAvailable,
+  }) async {
+    final response = await _nftRepository.getSelectNftCollections();
+
+    response.fold(
+      (err) {
+        Log.error(err);
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (selectedNftTokensList) {
+        final resultList =
+            selectedNftTokensList.map((e) => e.toEntity()).toList();
+
+        _selectedNftTokensListCached = List.from(resultList);
+
+        emit(
+          state.copyWith(
+            selectedNftTokensList: resultList,
+            nftsListHome: getNftListForHomeWithEmptyAt1stAndLast(
+                resultList, isFreeNftAvailable),
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+            selectedCollectionCount: resultList.length,
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> onGetSelectedNftTokens() async {
-    final profileResponse = await _profileRepository.getUserProfileData();
-    profileResponse.fold(
+    double latitude = 1;
+    double longitude = 1;
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 1;
+      longitude = 1;
+    }
+
+    final welcomeNFtResponse = await _nftRepository.getWelcomeNft(
+      latitude: latitude,
+      longitude: longitude,
+    );
+
+    welcomeNFtResponse.fold(
       (err) {},
-      (user) async {
-        final isFreeNftClaimed = user.freeNftClaimed ?? false;
+      (welcomeNftData) async {
+        final isFreeNftAvailable = welcomeNftData.freeNftAvailable ?? false;
 
         final response = await _nftRepository.getSelectNftCollections();
 
@@ -227,7 +276,7 @@ class NftCubit extends BaseCubit<NftState> {
               state.copyWith(
                 selectedNftTokensList: resultList,
                 nftsListHome: getNftListForHomeWithEmptyAt1stAndLast(
-                    resultList, isFreeNftClaimed),
+                    resultList, isFreeNftAvailable),
                 submitStatus: RequestStatus.success,
                 errorMessage: '',
                 selectedCollectionCount: resultList.length,
@@ -240,12 +289,12 @@ class NftCubit extends BaseCubit<NftState> {
   }
 
   List<SelectedNFTEntity> getNftListForHomeWithEmptyAt1stAndLast(
-      List<SelectedNFTEntity> resultList, bool isFreeNftClaimed) {
+      List<SelectedNFTEntity> resultList, bool isFreeNftAvailable) {
     List<SelectedNFTEntity> result = List.from(resultList);
     //
 
     result.add(const SelectedNFTEntity.empty());
-    if (!isFreeNftClaimed) {
+    if (isFreeNftAvailable) {
       result.insert(0, const SelectedNFTEntity.emptyForHome1st());
     }
 
@@ -282,20 +331,23 @@ class NftCubit extends BaseCubit<NftState> {
     }
   }
 
-  Future<void> onGetWelcomeNft({bool isShowLoader = true}) async {
-    if (isShowLoader) {
-      EasyLoading.show();
+  Future<void> onGetWelcomeNft() async {
+    double latitude = 1;
+    double longitude = 1;
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 1;
+      longitude = 1;
     }
-    final position = await Geolocator.getCurrentPosition();
 
     final response = await _nftRepository.getWelcomeNft(
-      latitude: position.latitude,
-      longitude: position.longitude,
+      latitude: latitude,
+      longitude: longitude,
     );
-
-    if (EasyLoading.isShow) {
-      EasyLoading.dismiss();
-    }
 
     response.fold(
       (err) {
@@ -306,6 +358,13 @@ class NftCubit extends BaseCubit<NftState> {
         ));
       },
       (welcomeNft) {
+        // fetch Selected NFTs
+        final isFreeNftAvailable = welcomeNft.freeNftAvailable ?? false;
+        onGetSelectedNftTokensViaAfterWelcomeNftFetch(
+          isFreeNftAvailable: isFreeNftAvailable,
+        );
+
+        // emit Welcome NFT State
         emit(
           state.copyWith(
             welcomeNftEntity: welcomeNft.toEntity(),
@@ -340,7 +399,9 @@ class NftCubit extends BaseCubit<NftState> {
           duration: const Duration(seconds: 5),
         );
       },
-      (_) {
+      (_) async {
+        onGetWelcomeNft();
+
         emit(state.copyWith(
           submitStatus: RequestStatus.success,
           errorMessage: '',

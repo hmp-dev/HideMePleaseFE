@@ -7,10 +7,12 @@ final koreanNumFormat = NumberFormat("###,###,###", "en_US");
 
 class WelcomeNftEntity extends Equatable {
   final String name;
-  final String image;
+  final String tokenAddress;
+  final String redeemTermsUrl;
   final int totalCount;
   final int usedCount;
-  final String tokenAddress;
+  final String image;
+  final bool freeNftAvailable;
 
   const WelcomeNftEntity({
     required this.name,
@@ -18,6 +20,8 @@ class WelcomeNftEntity extends Equatable {
     required this.totalCount,
     required this.usedCount,
     required this.tokenAddress,
+    required this.redeemTermsUrl,
+    required this.freeNftAvailable,
   });
 
   String get totalNfts => koreanNumFormat.format(totalCount);
@@ -30,20 +34,17 @@ class WelcomeNftEntity extends Equatable {
       NumberFormat("###,###,### 남음", "en_US").format(remainingCount);
 
   @override
-  List<Object?> get props => [
-        name,
-        image,
-        totalCount,
-        usedCount,
-        tokenAddress,
-      ];
+  List<Object?> get props =>
+      [name, image, totalCount, usedCount, tokenAddress, redeemTermsUrl];
 
   const WelcomeNftEntity.empty()
       : name = '',
         image = '',
         totalCount = 0,
         usedCount = 0,
-        tokenAddress = '';
+        tokenAddress = '',
+        redeemTermsUrl = '',
+        freeNftAvailable = false;
 
   WelcomeNftEntity copyWith({
     String? name,
@@ -51,6 +52,8 @@ class WelcomeNftEntity extends Equatable {
     int? totalCount,
     int? usedCount,
     String? tokenAddress,
+    String? redeemTermsUrl,
+    bool? freeNftAvailable,
   }) {
     return WelcomeNftEntity(
       name: name ?? this.name,
@@ -58,6 +61,8 @@ class WelcomeNftEntity extends Equatable {
       totalCount: totalCount ?? this.totalCount,
       usedCount: usedCount ?? this.usedCount,
       tokenAddress: tokenAddress ?? this.tokenAddress,
+      redeemTermsUrl: redeemTermsUrl ?? this.redeemTermsUrl,
+      freeNftAvailable: freeNftAvailable ?? this.freeNftAvailable,
     );
   }
 }

@@ -85,6 +85,8 @@ class NftRemoteDataSource {
 
   Future<NftBenefitsResponseDto> requestGetNftBenefits({
     required String tokenAddress,
+    required double latitude,
+    required double longitude,
     String? spaceId,
     int? pageSize,
     int? page,
@@ -94,6 +96,8 @@ class NftRemoteDataSource {
       if (spaceId != null) 'spaceId': spaceId,
       if (pageSize != null) 'pageSize': '$pageSize',
       if (page != null) 'page': '$page',
+      "latitude": '$latitude',
+      "longitude": '$longitude',
     };
 
     final response = await _network.get(

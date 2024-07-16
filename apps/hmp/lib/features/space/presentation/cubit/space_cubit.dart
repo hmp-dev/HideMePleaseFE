@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
@@ -202,7 +203,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     spacesRes.fold(
       (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
       (data) => emit(state.copyWith(
-        allSpacesLoaded: data.isEmpty || data.length < 10,
+        allSpacesLoaded: data.isEmpty,
         spaceList: List.from(state.spaceList)
           ..addAll(data.map((e) => e.toEntity()).toList()),
         loadingMoreStatus: RequestStatus.success,
@@ -211,11 +212,19 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     );
   }
 
-  onFetchAllSpaceViewData({
-    required double latitude,
-    required double longitude,
-  }) async {
-    EasyLoading.show(dismissOnTap: true);
+  onFetchAllSpaceViewData() async {
+    double latitude = 1;
+    double longitude = 1;
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+    } catch (e) {
+      latitude = 1;
+      longitude = 1;
+    }
+
     await Future.wait([
       onGetTopUsedNfts(),
       onGetNewSpaceList(),
@@ -225,8 +234,6 @@ class SpaceCubit extends BaseCubit<SpaceState> {
         longitude: longitude,
       ),
     ]);
-
-    EasyLoading.dismiss();
 
     // Assuming success if no errors were emitted
     emit(state.copyWith(
