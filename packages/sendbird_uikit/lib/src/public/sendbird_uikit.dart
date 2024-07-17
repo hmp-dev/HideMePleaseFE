@@ -72,7 +72,6 @@ class SendbirdUIKit {
           create: (_) => SBUMessageCollectionProvider(),
         ),
       ],
-      builder: FToastBuilder(),
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: child,
