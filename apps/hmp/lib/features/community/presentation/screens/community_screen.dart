@@ -7,10 +7,8 @@ import 'package:mobile/features/community/presentation/cubit/community_cubit.dar
 import 'package:mobile/features/community/presentation/screens/community_details_screen.dart';
 import 'package:mobile/features/community/presentation/views/community_view.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
-import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
-import 'package:sendbird_uikit/sendbird_uikit.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -33,59 +31,50 @@ class _CommunityScreenState extends State<CommunityScreen> {
       builder: (context, state) {
         return BlocBuilder<NftCubit, NftState>(
           bloc: getIt<NftCubit>(),
+          buildWhen: (previous, current) =>
+              previous.welcomeNftEntity != current.welcomeNftEntity,
           builder: (context, nftState) {
             return BlocBuilder<HomeCubit, HomeState>(
                 bloc: getIt<HomeCubit>(),
                 buildWhen: (previous, current) =>
                     previous.homeViewType != current.homeViewType,
                 builder: (context, homeState) {
-                  return BlocBuilder<ProfileCubit, ProfileState>(
-                    bloc: getIt<ProfileCubit>(),
-                    buildWhen: (previous, current) =>
-                        previous.userProfileEntity != current.userProfileEntity,
-                    builder: (context, profileState) {
-                      return CommunityView(
-                        onRefresh: () => getIt<CommunityCubit>().onStart(),
-                        onLoadMore: () => getIt<CommunityCubit>()
-                            .onGetAllNftCommunitiesLoadMore(),
-                        onCommunityTap: (community) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CommunityDetailsScreen(
-                                      nftCommunity: community)));
-                        },
-                        onEnterChat: (community) {
-                          CommunityChatScreen.push(context,
-                              channel: community.tokenAddress);
-                        },
-                        onConnectWallet: () {
-                          if (getIt<WalletsCubit>().state.w3mService != null) {
-                            getIt<WalletsCubit>().onConnectWallet(context);
-                          }
-                        },
-                        onGetFreeNft: () {},
-                        onOrderByChanged: (orderBy) =>
-                            getIt<CommunityCubit>().onOrderByChanged(orderBy),
-                        orderBy: state.allNftCommOrderBy,
-                        totalFreeNfts: nftState.welcomeNftEntity.totalNfts,
-                        remainingFreeNfts:
-                            nftState.welcomeNftEntity.remainingNfts,
-                        redeemedFreeNfts:
-                            nftState.welcomeNftEntity.redeemedNfts,
-                        allNftCommunities: state.allNftCommunities,
-                        communityCount: state.communityCount,
-                        itemCount: state.itemCount,
-                        hotNftCommunities: state.hotNftCommunities,
-                        userNftCommunities: state.userNftCommunities,
-                        allNftCommOrderBy: state.allNftCommOrderBy,
-                        isWalletConnected: homeState.homeViewType ==
-                            HomeViewType.afterWalletConnected,
-                        redeemedFreeNft:
-                            profileState.userProfileEntity.freeNftClaimed,
-                        isLoadingMore: state.isLoadingMore,
-                      );
+                  return CommunityView(
+                    onRefresh: () => getIt<CommunityCubit>().onStart(),
+                    onLoadMore: () => getIt<CommunityCubit>()
+                        .onGetAllNftCommunitiesLoadMore(),
+                    onCommunityTap: (community) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CommunityDetailsScreen(
+                                  nftCommunity: community)));
                     },
+                    onEnterChat: (community) {
+                      CommunityChatScreen.push(context,
+                          channel: community.tokenAddress);
+                    },
+                    onConnectWallet: () {
+                      if (getIt<WalletsCubit>().state.w3mService != null) {
+                        getIt<WalletsCubit>().onConnectWallet(context);
+                      }
+                    },
+                    onGetFreeNft: () {},
+                    onOrderByChanged: (orderBy) =>
+                        getIt<CommunityCubit>().onOrderByChanged(orderBy),
+                    welcomeNft: nftState.welcomeNftEntity,
+                    orderBy: state.allNftCommOrderBy,
+                    allNftCommunities: state.allNftCommunities,
+                    communityCount: state.communityCount,
+                    itemCount: state.itemCount,
+                    hotNftCommunities: state.hotNftCommunities,
+                    userNftCommunities: state.userNftCommunities,
+                    allNftCommOrderBy: state.allNftCommOrderBy,
+                    isWalletConnected: homeState.homeViewType ==
+                        HomeViewType.afterWalletConnected,
+                    redeemedFreeNft:
+                        !nftState.welcomeNftEntity.freeNftAvailable,
+                    isLoadingMore: state.isLoadingMore,
                   );
                 });
           },
