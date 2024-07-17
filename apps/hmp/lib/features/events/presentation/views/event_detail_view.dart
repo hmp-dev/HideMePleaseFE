@@ -1,4 +1,3 @@
-import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -7,9 +6,9 @@ import 'package:mobile/features/common/presentation/widgets/custom_image_view.da
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/events/presentation/widgets/dot_indicator.dart';
 import 'package:mobile/features/events/presentation/widgets/event_member_item_widget.dart';
 import 'package:mobile/features/events/presentation/widgets/only_badge_item.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class EventDetailView extends StatefulWidget {
   const EventDetailView({
@@ -28,7 +27,7 @@ class EventDetailView extends StatefulWidget {
 class _EventDetailViewState extends State<EventDetailView> {
   final ScrollController _scrollController = ScrollController();
   final CarouselController _carouselController = CarouselController();
-  final _pageController = PageController(initialPage: 0);
+  int _activeIndex = 0;
 
   bool isAgreeWithTerms = false;
 
@@ -188,6 +187,7 @@ class _EventDetailViewState extends State<EventDetailView> {
               autoPlayInterval: const Duration(seconds: 3),
               onPageChanged: (int index, _) {
                 "$index".log();
+                setState(() => _activeIndex = index);
               },
             ),
             items: [
@@ -198,17 +198,9 @@ class _EventDetailViewState extends State<EventDetailView> {
               buildEventMembers()
             ],
           ),
-          SmoothPageIndicator(
-            controller: _pageController, // PageController
-            count: 5,
-            effect: const WormEffect(
-              activeDotColor: hmpBlue,
-              dotColor: fore4,
-              dotHeight: 8.0,
-              dotWidth: 8.0,
-              spacing: 10.0,
-            ), // your preferred effect
-            onDotClicked: (index) {},
+          DotIndicator(
+            activeIndex: _activeIndex,
+            listSize: 5,
           ),
           const VerticalSpace(10),
           const ThickDivider(),
