@@ -34,7 +34,7 @@ class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: DefaultField(
               onFocus: (isFocused) {},
-              hintText: '지갑 공개키 입력',
+              hintText: '지갑 주소 입력', //'지갑 공개키 입력',
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))
               ],
