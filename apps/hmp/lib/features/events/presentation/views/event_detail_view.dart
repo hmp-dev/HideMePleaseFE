@@ -1,6 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/helpers/map_utils.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -28,6 +31,17 @@ class _EventDetailViewState extends State<EventDetailView> {
   final ScrollController _scrollController = ScrollController();
   final CarouselController _carouselController = CarouselController();
   int _activeIndex = 0;
+  List<Marker> allMarkers = [];
+
+  late GoogleMapController _controller;
+
+  String transactionNote = "";
+  String receiptImgUrl = "";
+
+  static const CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(37.5518911, 126.9917937),
+    zoom: 12,
+  );
 
   bool isAgreeWithTerms = false;
 
@@ -35,6 +49,25 @@ class _EventDetailViewState extends State<EventDetailView> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> moveAnimateToAddress(LatLng position) async {
+    await _controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          bearing: 92.8334901395799,
+          target: position,
+          tilt: 9.440717697143555,
+          zoom: 18.151926040649414,
+        ),
+      ),
+    );
+  }
+
+  Future<void> addMarker(LatLng position) async {
+    allMarkers
+        .add(Marker(markerId: const MarkerId('myMarker'), position: position));
+    setState(() {});
   }
 
   @override
@@ -82,6 +115,37 @@ class _EventDetailViewState extends State<EventDetailView> {
           buildHeaderSection(),
           buildContentSectionTitle(),
           buildMembersSection(),
+          buildFeaturesList(),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 250,
+              child: GoogleMap(
+                initialCameraPosition: _kGooglePlex,
+                markers: Set.from(allMarkers),
+                onMapCreated: (GoogleMapController controller) async {
+                  setState(() {
+                    _controller = controller;
+                  });
+
+                  const latLong = LatLng(37.567947, 126.9907);
+                  await moveAnimateToAddress(latLong);
+                  await addMarker(latLong);
+                },
+                mapType: MapType.normal,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                zoomGesturesEnabled: false,
+                scrollGesturesEnabled: false,
+                tiltGesturesEnabled: false,
+                rotateGesturesEnabled: false,
+                indoorViewEnabled: true,
+                onTap: (argument) {
+                  MapUtils.openMap(37.567947, 126.9907);
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -222,6 +286,87 @@ class _EventDetailViewState extends State<EventDetailView> {
               isLastItem: index == eventMembers.length - 1,
             );
           }),
+    );
+  }
+
+  Widget buildFeaturesList() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '상세 안내',
+              style: fontTitle06Medium(),
+            ),
+            const VerticalSpace(20),
+            const EventFeatureValueWidget(
+              keyText: "진행 일자",
+              valueText: "03/09(토) 11:50~17:00",
+            ),
+            const EventFeatureValueWidget(
+              keyText: "신청 기간",
+              valueText: "03/07(목) 11:50까지",
+            ),
+            const EventFeatureValueWidget(
+              keyText: "장소",
+              valueText: "하이드미 플리즈 을지로점 3층",
+            ),
+            const EventFeatureValueWidget(
+              keyText: "NFT",
+              valueText: "DADAZ only",
+            ),
+            const EventFeatureValueWidget(
+              keyText: "혜택",
+              valueText: "커피 한잔, 디저트 1개",
+            ),
+            const EventFeatureValueWidget(
+              keyText: "참가 비용",
+              valueText: "20,000원",
+            ),
+            const EventFeatureValueWidget(
+              keyText: "결제 정보",
+              valueText: "현장 결제 (계좌이체 가능)",
+            ),
+            const VerticalSpace(30),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EventFeatureValueWidget extends StatelessWidget {
+  const EventFeatureValueWidget({
+    super.key,
+    required this.keyText,
+    required this.valueText,
+  });
+
+  final String keyText;
+  final String valueText;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              keyText,
+              style: fontCompactSm(color: fore3),
+            ),
+          ),
+          Text(
+            valueText,
+            style: fontCompactSm(),
+          ),
+        ],
+      ),
     );
   }
 }
