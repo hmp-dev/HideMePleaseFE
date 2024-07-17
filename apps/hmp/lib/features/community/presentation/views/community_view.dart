@@ -129,9 +129,12 @@ class _CommunityViewState extends State<CommunityView> {
               ),
             if (widget.hotNftCommunities.isNotEmpty)
               SliverToBoxAdapter(
-                child: HotCommunitiesView(
-                  onCommunityTap: widget.onCommunityTap,
-                  hotNftCommunities: widget.hotNftCommunities,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: HotCommunitiesView(
+                    onCommunityTap: widget.onCommunityTap,
+                    hotNftCommunities: widget.hotNftCommunities,
+                  ),
                 ),
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
