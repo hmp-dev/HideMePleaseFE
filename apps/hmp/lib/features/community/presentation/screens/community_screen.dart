@@ -10,7 +10,6 @@ import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
-import 'package:sendbird_uikit/sendbird_uikit.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});

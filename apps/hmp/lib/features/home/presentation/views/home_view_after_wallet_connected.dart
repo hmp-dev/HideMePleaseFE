@@ -114,6 +114,7 @@ class _HomeViewAfterWalletConnectedState
                     Stack(
                       alignment: Alignment.bottomCenter,
                       children: [
+                        
                         Padding(
                           padding: const EdgeInsets.only(top: 20.0),
                           child: CarouselSlider(

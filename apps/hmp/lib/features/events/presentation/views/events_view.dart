@@ -141,7 +141,10 @@ class _EventsViewState extends State<EventsView> {
           5,
           (index) => EventWidget(
                 onTap: () {
-                  EventDetailScreen.push(context);
+                  EventDetailScreen.push(
+                    context,
+                    bannerImage: "assets/images/event-bg-${index + 1}.png",
+                  );
                 },
                 bgImage: "assets/images/event-bg-${index + 1}.png",
               )),

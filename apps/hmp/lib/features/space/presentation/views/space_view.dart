@@ -80,8 +80,10 @@ class _SpaceViewState extends State<SpaceView> {
       RecommendationSpaceEntity space, BuildContext context) {
     return GestureDetector(
       onTap: () {
-        getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(spaceId: space.spaceId);
-        SpaceDetailScreen.push(context);
+        if (space.spaceId != '') {
+          getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(spaceId: space.spaceId);
+          SpaceDetailScreen.push(context);
+        }
       },
       child: Column(
         children: [

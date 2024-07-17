@@ -1,14 +1,22 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
+import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/events/presentation/views/event_detail_view.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class EventDetailScreen extends StatefulWidget {
-  const EventDetailScreen({super.key});
+  const EventDetailScreen({super.key, required this.bannerImage});
 
-  static push(BuildContext context) async {
+  final String bannerImage;
+
+  static push(BuildContext context, {required String bannerImage}) async {
     return await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const EventDetailScreen(),
+        builder: (_) => EventDetailScreen(
+          bannerImage: bannerImage,
+        ),
       ),
     );
   }
@@ -20,8 +28,19 @@ class EventDetailScreen extends StatefulWidget {
 class _EventDetailScreenState extends State<EventDetailScreen> {
   @override
   Widget build(BuildContext context) {
-    return EventDetailView(
-      onRefresh: () async {},
+    return BaseScaffold(
+      bottomNavigationBar: Container(
+        color: Colors.black.withOpacity(0.2),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: HMPCustomButton(
+          text: LocaleKeys.confirm.tr(),
+          onPressed: () {},
+        ),
+      ),
+      body: EventDetailView(
+        onRefresh: () async {},
+        bannerImage: widget.bannerImage,
+      ),
     );
   }
 }

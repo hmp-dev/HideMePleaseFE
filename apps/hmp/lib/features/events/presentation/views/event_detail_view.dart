@@ -1,19 +1,25 @@
+import 'package:carousel_slider/carousel_controller.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/events/presentation/widgets/event_widget.dart';
-import 'package:mobile/features/my/presentation/widgets/rounded_select_button.dart';
+import 'package:mobile/features/events/presentation/widgets/event_member_item_widget.dart';
+import 'package:mobile/features/events/presentation/widgets/only_badge_item.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class EventDetailView extends StatefulWidget {
   const EventDetailView({
     super.key,
     required this.onRefresh,
+    required this.bannerImage,
   });
 
   final Future<void> Function() onRefresh;
+  final String bannerImage;
 
   @override
   State<EventDetailView> createState() => _EventDetailViewState();
@@ -21,6 +27,8 @@ class EventDetailView extends StatefulWidget {
 
 class _EventDetailViewState extends State<EventDetailView> {
   final ScrollController _scrollController = ScrollController();
+  final CarouselController _carouselController = CarouselController();
+  final _pageController = PageController(initialPage: 0);
 
   bool isAgreeWithTerms = false;
 
@@ -62,7 +70,7 @@ class _EventDetailViewState extends State<EventDetailView> {
                         fit: BoxFit.cover,
                       )
                     : CustomImageView(
-                        imagePath: "assets/images/event-bg-1.png",
+                        imagePath: widget.bannerImage,
                         width: MediaQuery.of(context).size.width,
                         height: 250,
                         radius: BorderRadius.circular(2),
@@ -72,7 +80,40 @@ class _EventDetailViewState extends State<EventDetailView> {
               ],
             ),
           ),
+          buildHeaderSection(),
+          buildContentSectionTitle(),
+          buildMembersSection(),
         ],
+      ),
+    );
+  }
+
+  SliverToBoxAdapter buildHeaderSection() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Web3 Wednesday with WEMIX",
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: fontTitle03Bold(),
+            ),
+            const VerticalSpace(16),
+            Text(
+              "웹 3의 혁신적인 세계를 만나보세요! 저희는 최신 기술과 창의적인 아이디어를 결합한 오프라인 행사를 소개합니다. 이곳에서는 블록체인, 디지털 자산, 메타버스와 같은 핵심 주제에 대해 논의하고, 실제로 체험해 볼 수 있는 기회를 제공합니다.",
+              maxLines: 10,
+              overflow: TextOverflow.ellipsis,
+              style: fontCompactMd(),
+            ),
+            const VerticalSpace(20),
+            const OnlyBadgeItem(
+              imgPath: "assets/images/outcasts.png",
+            )
+          ],
+        ),
       ),
     );
   }
@@ -109,94 +150,119 @@ class _EventDetailViewState extends State<EventDetailView> {
     );
   }
 
-  Widget buildTopHmpBlueBannerBox() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GestureDetector(
-        onTap: () {},
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            color: hmpBlue,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 18.0, top: 20, bottom: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "커뮤니티에 이벤트가 필요한 순간이라면",
-                  style: fontCompactSmMedium(color: fore2),
-                ),
-                const VerticalSpace(7),
-                Text(
-                  "이벤트 제안을 통해 함께 숨어보세요",
-                  style: fontCompactMdBold(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Container buildTopTitleBar() {
-    return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20),
-      height: 75,
-      child: Center(
+  Widget buildContentSectionTitle() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 30, left: 16, bottom: 20),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("Join me", style: fontBody2Bold()),
-            const AlarmsIconButton(),
+            Text(
+              "이벤트 신청 현황",
+              style: fontTitle07Medium(),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              "23",
+              style: fontTitle07(color: fore2),
+            ),
           ],
         ),
       ),
     );
   }
 
-  buildEventList() {
-    // make a Column with list of 5 EventWidget
-    return Column(
-      children: List.generate(
-          5,
-          (index) => EventWidget(
-                onTap: () {},
-                bgImage: "assets/images/event-bg-${index + 1}.png",
-              )),
-    );
-  }
-
-  Widget buildEventTypeSelectButtonRow() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20.0),
-      child: Row(
+  Widget buildMembersSection() {
+    return SliverToBoxAdapter(
+      child: Column(
         children: [
-          RoundedSelectButton(
-            title: "전체",
-            isSelected: true,
-            onTap: () {},
+          CarouselSlider(
+            carouselController: _carouselController,
+            options: CarouselOptions(
+              height: 380,
+              viewportFraction: 1,
+              aspectRatio: 16 / 9,
+              enableInfiniteScroll: false,
+              enlargeCenterPage: true,
+              enlargeFactor: 0.15,
+              autoPlayInterval: const Duration(seconds: 3),
+              onPageChanged: (int index, _) {
+                "$index".log();
+              },
+            ),
+            items: [
+              buildEventMembers(),
+              buildEventMembers(),
+              buildEventMembers(),
+              buildEventMembers(),
+              buildEventMembers()
+            ],
           ),
-          RoundedSelectButton(
-            title: "참여 가능한",
-            isSelected: false,
-            onTap: () {},
+          SmoothPageIndicator(
+            controller: _pageController, // PageController
+            count: 5,
+            effect: const WormEffect(
+              activeDotColor: hmpBlue,
+              dotColor: fore4,
+              dotHeight: 8.0,
+              dotWidth: 8.0,
+              spacing: 10.0,
+            ), // your preferred effect
+            onDotClicked: (index) {},
           ),
-          RoundedSelectButton(
-            title: "신청한",
-            isSelected: false,
-            onTap: () {},
-          ),
-          RoundedSelectButton(
-            title: "참여한",
-            isSelected: false,
-            onTap: () {},
-          ),
+          const VerticalSpace(10),
+          const ThickDivider(),
         ],
       ),
     );
   }
+
+  Widget buildEventMembers() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16),
+      child: ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: eventMembers.length,
+          itemBuilder: (context, index) {
+            return EventMemberItemWidget(
+              memberTempDto: eventMembers[index],
+              isLastItem: index == eventMembers.length - 1,
+            );
+          }),
+    );
+  }
 }
+
+class EventMemberTempDto {
+  final String name;
+  final String pfpImage;
+
+  const EventMemberTempDto({
+    required this.name,
+    required this.pfpImage,
+  });
+}
+
+List<EventMemberTempDto> eventMembers = [
+  const EventMemberTempDto(
+    name: "박하사탕맛있어",
+    pfpImage: "assets/images/member-pfp-1.png",
+  ),
+  const EventMemberTempDto(
+    name: "대담한고릴라",
+    pfpImage: "assets/images/member-pfp-2.png",
+  ),
+  const EventMemberTempDto(
+    name: "거부할수없는루시퍼",
+    pfpImage: "assets/images/member-pfp-3.png",
+  ),
+  const EventMemberTempDto(
+    name: "lovelovely99",
+    pfpImage: "assets/images/member-pfp-4.png",
+  ),
+  const EventMemberTempDto(
+    name: "몽키몽키매직몽키매직",
+    pfpImage: "assets/images/member-pfp-5.png",
+  )
+];
