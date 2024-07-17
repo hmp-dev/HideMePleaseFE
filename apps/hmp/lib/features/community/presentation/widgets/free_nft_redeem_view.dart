@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
@@ -8,6 +10,8 @@ class FreeNftRedeemView extends StatelessWidget {
   final String totalNfts;
   final String redeemedNfts;
   final String remainingNfts;
+  final String bgImage;
+  final String name;
   final VoidCallback onTap;
 
   const FreeNftRedeemView({
@@ -15,6 +19,8 @@ class FreeNftRedeemView extends StatelessWidget {
     required this.totalNfts,
     required this.redeemedNfts,
     required this.remainingNfts,
+    required this.bgImage,
+    required this.name,
     required this.onTap,
   });
 
@@ -43,8 +49,8 @@ class FreeNftRedeemView extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6),
             border: Border.all(color: black100),
-            image: const DecorationImage(
-              image: AssetImage("assets/images/home_card_img.png"),
+            image: DecorationImage(
+              image: CachedNetworkImageProvider(bgImage),
               fit: BoxFit.cover,
             ),
           ),
@@ -73,13 +79,13 @@ class FreeNftRedeemView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomImageView(
-                    svgPath: 'assets/chain-logos/klaytn_chain.svg',
+                    imagePath: ChainType.KLAYTN.chainLogo,
                     width: 28,
                     height: 28,
                   ),
                   const SizedBox(height: 16.0),
                   Text(
-                    "Ready to hide",
+                    name,
                     style: fontTitle01Bold(),
                   ),
                   const SizedBox(height: 46.0),
