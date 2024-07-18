@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -174,6 +176,10 @@ class WalletsCubit extends BaseCubit<WalletsState> {
 
   void _onModalError(ModalError? args) {
     ('[$runtimeType] onModalError $args');
+
+    logErrorWithDeviceInfo(
+        '[$runtimeType] onModalError $args', StackTrace.current,
+        reason: "Wallet Connect Error");
   }
 
   void _onModalConnect(ModalConnect? args) {

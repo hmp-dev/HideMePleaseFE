@@ -1,6 +1,7 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +15,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/localisation/ko_timeago_messages.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/firebase_options.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 /// init Screen bool
@@ -76,6 +78,10 @@ Future initApp() async {
     // App
     // getIt<AppCubit>().onStart(),
   ]);
+
+  // Initialize Firebase Crashlytics
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 
   Log.configureLogger();
 

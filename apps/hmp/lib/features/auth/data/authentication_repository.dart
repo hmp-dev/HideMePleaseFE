@@ -7,6 +7,7 @@ import 'package:mobile/app/core/exceptions/log_out_failure.dart';
 import 'package:mobile/app/core/exceptions/login_with_google_failure.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/cache_client.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/features/auth/data/social_login_response_model.dart';
 
 /// {@template authentication_repository}
@@ -48,6 +49,9 @@ class AuthenticationRepository {
       throw LogInWithGoogleFailure.fromCode(e.code);
     } catch (e) {
       ("result of google login $e").log();
+
+      logErrorWithDeviceInfo(e, StackTrace.current,
+          reason: "Google login error");
 
       throw LogInWithGoogleFailure("$e");
     }

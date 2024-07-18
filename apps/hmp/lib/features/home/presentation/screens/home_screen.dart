@@ -89,8 +89,6 @@ class _HomeScreenState extends State<HomeScreen> {
           bloc: getIt<WalletsCubit>(),
           listener: (context, state) {
             if (state.isSubmitSuccess) {
-              // call to get nft collections
-              getIt<NftCubit>().onGetNftCollections();
               // show the AfterLoginWithNFT screen
               getIt<HomeCubit>()
                   .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
@@ -99,14 +97,12 @@ class _HomeScreenState extends State<HomeScreen> {
               // and user freeNftClaimed  status is false
               if (state.connectedWallets.isNotEmpty &&
                   hasKlipProvider(state.connectedWallets)) {
-                final userProfileEntity =
-                    getIt<ProfileCubit>().state.userProfileEntity;
-
-                if (userProfileEntity.freeNftClaimed == false) {
-                  getIt<HomeCubit>()
-                      .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
-                }
+                getIt<HomeCubit>()
+                    .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
               } else {
+                // call to get nft collections
+                getIt<NftCubit>().onGetNftCollections();
+
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
                 // navigate to MyMembershipSettingsScreen

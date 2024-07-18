@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/env/app_env.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/core/util/observer_utils.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -13,6 +14,7 @@ import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:sendbird_uikit/sendbird_uikit.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key, this.isShowOnBoarding});
@@ -53,6 +55,7 @@ class _MyAppState extends State<MyApp> {
             navigatorObservers: [
               ObserverUtils.routeObserver,
               //FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+              TalkerRouteObserver(getIt<Talker>()),
             ],
             builder: EasyLoading.init(
               builder: FToastBuilder(),

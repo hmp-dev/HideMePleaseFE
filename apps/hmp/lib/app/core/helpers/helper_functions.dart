@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -555,4 +558,32 @@ double calculateDistanceInMeters(
 
 double _degreesToRadians(double degrees) {
   return degrees * math.pi / 180;
+}
+
+//===================>
+
+Future<void> logErrorWithDeviceInfo(dynamic error, StackTrace stackTrace,
+    {String? reason}) async {
+  final deviceInfoPlugin = DeviceInfoPlugin();
+  String deviceModel = '';
+  String osVersion = '';
+
+  if (Platform.isAndroid) {
+    final androidInfo = await deviceInfoPlugin.androidInfo;
+    deviceModel = androidInfo.model;
+    osVersion = 'Android ${androidInfo.version.release}';
+  } else if (Platform.isIOS) {
+    final iosInfo = await deviceInfoPlugin.iosInfo;
+    deviceModel = iosInfo.utsname.machine;
+    osVersion = 'iOS ${iosInfo.systemVersion}';
+  }
+
+  await FirebaseCrashlytics.instance.setCustomKey('device_model', deviceModel);
+  await FirebaseCrashlytics.instance.setCustomKey('os_version', osVersion);
+
+  await FirebaseCrashlytics.instance.recordError(
+    error,
+    stackTrace,
+    reason: reason,
+  );
 }
