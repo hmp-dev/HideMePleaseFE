@@ -81,15 +81,15 @@ class CommunityDetailsView extends StatelessWidget {
                 ),
               ),
               actions: [
-                if (nftEntity.ownedCollection)
-                  IconButton(
-                    onPressed: onEnterChat,
-                    icon: DefaultImage(
-                      path: "assets/icons/chat.svg",
-                      width: 32,
-                      height: 32,
-                    ),
-                  ),
+                // if (nftEntity.ownedCollection)
+                //   IconButton(
+                //     onPressed: onEnterChat,
+                //     icon: DefaultImage(
+                //       path: "assets/icons/chat.svg",
+                //       width: 32,
+                //       height: 32,
+                //     ),
+                //   ),
               ],
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
