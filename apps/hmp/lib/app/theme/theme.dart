@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 // Hexadecimal opacity values
 // 100% — FF
 // 95% — F2
@@ -789,3 +790,5 @@ ThemeData theme() {
     ),
   );
 }
+
+const talkerTheme = TalkerScreenTheme();

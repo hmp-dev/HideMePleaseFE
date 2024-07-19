@@ -9,7 +9,7 @@ import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/screens/space_selection_screen.dart';
 import 'package:mobile/features/home/presentation/views/home_view_after_wallet_connected.dart';
-import 'package:mobile/features/home/presentation/views/home_view_before_login.dart';
+import 'package:mobile/features/home/presentation/views/home_view_before_wallet_connect.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
@@ -263,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
         welcomeNftEntity: welcomeNftEntity,
       );
     } else {
-      return HomeViewBeforeLogin(
+      return HomeViewBeforeWalletConnect(
         onConnectWallet: () {
           if (getIt<WalletsCubit>().state.w3mService != null) {
             getIt<WalletsCubit>().onConnectWallet(context);

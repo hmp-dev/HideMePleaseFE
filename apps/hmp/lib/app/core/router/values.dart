@@ -5,4 +5,5 @@ abstract class Routes {
   static const String socialLogin = '/socialLogin';
   static const String appScreen = '/appHome';
   static const String serverErrorPage = '/serverErrorPage';
+  static const String talker = '/talker';
 }

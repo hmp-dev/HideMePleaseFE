@@ -11,8 +11,8 @@ import 'package:mobile/features/home/presentation/widgets/free_welcome_nft_card.
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
-class HomeViewBeforeLogin extends StatelessWidget {
-  const HomeViewBeforeLogin({
+class HomeViewBeforeWalletConnect extends StatelessWidget {
+  const HomeViewBeforeWalletConnect({
     super.key,
     required this.onConnectWallet,
   });

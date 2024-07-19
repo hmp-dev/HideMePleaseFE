@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/views/app_view.dart';
+import 'package:mobile/features/common/presentation/widgets/open_talker_logs_button.dart';
 
 class AppScreen extends StatefulWidget {
   const AppScreen({super.key});
@@ -26,7 +29,27 @@ class _AppScreenState extends State<AppScreen> {
       },
       child: const Scaffold(
         backgroundColor: scaffoldBg,
-        body: AppView(),
+        body: kDebugMode
+            ? Stack(
+                children: [
+                  AppView(),
+                  Positioned(
+                    right: 30,
+                    top: 100,
+                    child: OpenTalkerLogsButton(),
+                  ),
+                ],
+              )
+            : Stack(
+                children: [
+                  AppView(),
+                  Positioned(
+                    right: 30,
+                    top: 100,
+                    child: OpenTalkerLogsButton(),
+                  ),
+                ],
+              ),
       ),
     );
   }

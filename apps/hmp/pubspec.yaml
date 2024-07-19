@@ -2,7 +2,7 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 2.0.9+49
+version: 2.0.9+50
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
@@ -74,6 +74,8 @@ dependencies:
   solana_wallet_provider: ^0.1.9
   stacked_services: ^1.5.0
   talker: ^4.3.0
+  talker_bloc_logger: ^4.3.3
+  talker_dio_logger: ^4.3.3
   talker_flutter: ^4.3.0
   timeago: ^3.6.1
   upgrader: ^10.3.0

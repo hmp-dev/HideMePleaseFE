@@ -12,7 +12,8 @@ final getIt = GetIt.instance;
   asExtension: true,
 )
 Future<void> configureDependencies() async {
-  await getIt.init();
   getIt.registerLazySingleton(() => SnackbarService());
   getIt.registerLazySingleton(() => Talker());
+
+  await getIt.init();
 }

@@ -15,7 +15,6 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/localisation/ko_timeago_messages.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/firebase_options.dart';
-import 'package:talker_flutter/talker_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 /// init Screen bool

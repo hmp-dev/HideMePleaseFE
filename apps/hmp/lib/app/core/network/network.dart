@@ -3,9 +3,10 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/env/app_env.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/network/dio_request_logger.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
+import 'package:talker_dio_logger/talker_dio_logger.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 @singleton
 class Network {
@@ -13,33 +14,47 @@ class Network {
 
   Network(this._secureStorage);
 
-  Dio? _dio;
+  late final TalkerDioLogger talkerDioLogger;
+
+  Dio? dio;
 
   @PostConstruct(preResolve: true)
   Future<void> initialize() async {
-    _dio = Dio(BaseOptions(
+    final talker = getIt<Talker>();
+
+    talkerDioLogger = TalkerDioLogger(
+      talker: talker,
+      settings: const TalkerDioLoggerSettings(
+        printRequestHeaders: true,
+        printResponseHeaders: false,
+        printRequestData: true,
+        printResponseData: true,
+      ),
+    );
+
+    dio = Dio(BaseOptions(
       baseUrl: appEnv.apiUrl,
       connectTimeout: const Duration(seconds: 45),
       receiveTimeout: const Duration(seconds: 45),
       headers: {'user-agent': 'Dio/4.0.6'},
     ))
-      ..interceptors.add(DioRequestLogger(level: Level.BODY))
+      //..interceptors.add(DioRequestLogger(level: Level.BODY))
+      ..interceptors.add(talkerDioLogger)
       ..interceptors.add(InterceptorsWrapper(
-        onRequest: _onEveryRequest,
-        onError: _onEveryRequestError,
+        onRequest: onEveryRequest,
+        onError: onEveryRequestError,
       ));
   }
 
-  Future<Response> post(String url, Object? data) =>
-      _dio!.post(url, data: data);
+  Future<Response> post(String url, Object? data) => dio!.post(url, data: data);
 
   Future<Response> get(String url, Map<String, String> params) =>
-      _dio!.get(url, queryParameters: params);
+      dio!.get(url, queryParameters: params);
 
-  Future<Response> put(String url, Object? data) => _dio!.put(url, data: data);
+  Future<Response> put(String url, Object? data) => dio!.put(url, data: data);
 
   Future<Response<T>> request<T>(String url, String method, data) async {
-    final response = await _dio!.request<T>(
+    final response = await dio!.request<T>(
       url,
       data: data,
       options: Options(method: method),
@@ -48,7 +63,7 @@ class Network {
     return response;
   }
 
-  Future<void> _onEveryRequest(
+  Future<void> onEveryRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
@@ -60,7 +75,7 @@ class Network {
     handler.next(options);
   }
 
-  Future<void> _onEveryRequestError(
+  Future<void> onEveryRequestError(
     DioException error,
     ErrorInterceptorHandler handler,
   ) async {
@@ -75,16 +90,13 @@ class Network {
       try {
         //await _refreshAccessToken();
         getIt<AppCubit>().onLogOut();
-
-   
       } on DioException catch (_) {
         // TODO Implement logout
         return;
       }
 
-      
       try {
-        var response = await _dio!.request(
+        var response = await dio!.request(
           error.requestOptions.path,
           data: error.requestOptions.data,
           queryParameters: error.requestOptions.queryParameters,
@@ -120,7 +132,7 @@ class Network {
     return handler.next(error);
   }
 
-  Future _refreshAccessToken() async {
+  Future refreshAccessToken() async {
     final refreshToken = await _secureStorage.read(StorageValues.refreshToken);
     if (refreshToken != null) {
       final response = await request(
