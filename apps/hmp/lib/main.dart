@@ -5,6 +5,8 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:bloc/bloc.dart';
+import 'package:talker_bloc_logger/talker_bloc_logger.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:lottie/lottie.dart';
@@ -15,6 +17,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/localisation/ko_timeago_messages.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/firebase_options.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 /// init Screen bool
@@ -102,4 +105,83 @@ Future initApp() async {
     )
     ..boxShadow = <BoxShadow>[]
     ..indicatorType = EasyLoadingIndicatorType.cubeGrid;
+
+  // Set the Bloc observer after initializing dependencies
+  final talker = getIt<Talker>();
+  //Bloc.observer = MyTalkerBlocObserver(talker: talker);
+
+  Bloc.observer = TalkerBlocObserver(
+    talker: talker,
+    settings: const TalkerBlocLoggerSettings(
+      enabled: true,
+      printEventFullData: true,
+      printStateFullData: true,
+      printChanges: true,
+      printClosings: true,
+      printCreations: true,
+      printEvents: true,
+      printTransitions: true,
+    ),
+  );
+}
+
+class MyTalkerBlocObserver extends BlocObserver {
+  final Talker talker;
+
+  MyTalkerBlocObserver({required this.talker});
+
+  @override
+  void onEvent(Bloc bloc, Object? event) {
+    super.onEvent(bloc, event);
+    logFormattedMessage(
+      talker: talker,
+      logType: 'info',
+      message: 'onCubitEvent -- ${bloc.runtimeType}, $event',
+    );
+  }
+
+  @override
+  void onChange(BlocBase bloc, Change change) {
+    super.onChange(bloc, change);
+
+    logFormattedMessage(
+      talker: talker,
+      logType: 'info',
+      message: 'onCubitChange -- ${bloc.runtimeType}, $change',
+    );
+  }
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    super.onTransition(bloc, transition);
+    logFormattedMessage(
+      talker: talker,
+      logType: 'info',
+      message: 'onCubitTransition -- ${bloc.runtimeType}, $transition',
+    );
+  }
+
+  @override
+  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+    super.onError(bloc, error, stackTrace);
+
+    logFormattedMessage(
+      talker: talker,
+      logType: 'error',
+      message: 'onCubitError -- ${bloc.runtimeType}, $error',
+    );
+  }
+
+  void logFormattedMessage({
+    required Talker talker,
+    required String logType,
+    required String message,
+  }) {
+    final formattedMessage = '''
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+│ [$logType] | ${DateTime.now().toIso8601String()} | $message
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+''';
+    talker.log(formattedMessage);
+  }
 }

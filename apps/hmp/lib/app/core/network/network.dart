@@ -20,15 +20,20 @@ class Network {
 
   @PostConstruct(preResolve: true)
   Future<void> initialize() async {
+    
     final talker = getIt<Talker>();
 
     talkerDioLogger = TalkerDioLogger(
       talker: talker,
       settings: const TalkerDioLoggerSettings(
-        printRequestHeaders: true,
-        printResponseHeaders: false,
-        printRequestData: true,
         printResponseData: true,
+        printResponseHeaders: false,
+        printResponseMessage: true,
+        printErrorData: true,
+        printErrorHeaders: true,
+        printErrorMessage: true,
+        printRequestData: true,
+        printRequestHeaders: true,
       ),
     );
 
@@ -38,12 +43,11 @@ class Network {
       receiveTimeout: const Duration(seconds: 45),
       headers: {'user-agent': 'Dio/4.0.6'},
     ))
-      //..interceptors.add(DioRequestLogger(level: Level.BODY))
-      ..interceptors.add(talkerDioLogger)
       ..interceptors.add(InterceptorsWrapper(
         onRequest: onEveryRequest,
         onError: onEveryRequestError,
-      ));
+      ))
+      ..interceptors.add(talkerDioLogger);
   }
 
   Future<Response> post(String url, Object? data) => dio!.post(url, data: data);
