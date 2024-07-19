@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
 import 'package:mobile/app/core/animations/fade_indexed_widget.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -91,6 +92,9 @@ class _HomeViewAfterWalletConnectedState
               _currentTokenAddress == "") {
             getIt<NftBenefitsCubit>().onGetNftBenefits(
                 tokenAddress: nftState.selectedNftTokensList[0].tokenAddress);
+          } else {
+            Log.warning(
+                "_currentTokenAddress= $_currentTokenAddress: ==> is empty so the Benefits are not fetched  *******************");
           }
         }
       },
@@ -105,6 +109,8 @@ class _HomeViewAfterWalletConnectedState
                 final connectedWallet = walletsState.connectedWallets;
                 List<SelectedNFTEntity> selectedNftsListForHome =
                     nftState.nftsListHome;
+
+                Log.info("selectedNftsListForHome: $selectedNftsListForHome");
 
                 return Column(
                   children: [

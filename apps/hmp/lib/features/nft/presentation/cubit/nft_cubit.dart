@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
