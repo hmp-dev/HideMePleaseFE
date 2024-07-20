@@ -260,6 +260,10 @@ class NftCubit extends BaseCubit<NftState> {
     welcomeNFtResponse.fold(
       (err) {},
       (welcomeNftData) async {
+        emit(state.copyWith(
+          welcomeNftEntity: welcomeNftData.toEntity(),
+        ));
+
         final isFreeNftAvailable = welcomeNftData.freeNftAvailable ?? false;
 
         final response = await _nftRepository.getSelectNftCollections();
@@ -275,8 +279,6 @@ class NftCubit extends BaseCubit<NftState> {
           (selectedNftTokensList) {
             final resultList =
                 selectedNftTokensList.map((e) => e.toEntity()).toList();
-
-            _selectedNftTokensListCached = List.from(resultList);
 
             emit(
               state.copyWith(
@@ -371,6 +373,7 @@ class NftCubit extends BaseCubit<NftState> {
       (welcomeNft) {
         // fetch Selected NFTs
         final isFreeNftAvailable = welcomeNft.freeNftAvailable ?? false;
+
         onGetSelectedNftTokensViaAfterWelcomeNftFetch(
           isFreeNftAvailable: isFreeNftAvailable,
         );
