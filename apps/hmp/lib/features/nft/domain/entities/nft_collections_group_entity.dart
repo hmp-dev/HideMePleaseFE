@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collection_entity.dart';
 
@@ -32,4 +33,8 @@ class NftCollectionsGroupEntity extends Equatable {
       : collections = [],
         selectedNftCount = 0,
         next = '';
+
+  @override
+  String toString() =>
+      'NftCollectionsGroupEntity(collections: $collections, selectedNftCount: $selectedNftCount, next: $next)';
 }

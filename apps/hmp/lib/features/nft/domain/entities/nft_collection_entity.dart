@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'package:mobile/features/nft/domain/entities/nft_token_entity.dart';
 
 class NftCollectionEntity extends Equatable {
@@ -56,5 +57,10 @@ class NftCollectionEntity extends Equatable {
       chainSymbol: chainSymbol ?? this.chainSymbol,
       tokens: tokens ?? this.tokens,
     );
+  }
+
+  @override
+  String toString() {
+    return 'NftCollectionEntity(symbol: $symbol, chain: $chain, tokenAddress: $tokenAddress, contractType: $contractType, name: $name, collectionLogo: $collectionLogo, chainSymbol: $chainSymbol, tokens: $tokens)';
   }
 }

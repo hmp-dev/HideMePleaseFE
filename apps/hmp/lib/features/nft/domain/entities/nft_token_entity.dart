@@ -45,4 +45,9 @@ class NftTokenEntity extends Equatable {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
+  @override
+  String toString() {
+    return 'NftTokenEntity(id: $id, tokenId: $tokenId, name: $name, imageUrl: $imageUrl, selected: $selected, updatedAt: $updatedAt)';
+  }
 }

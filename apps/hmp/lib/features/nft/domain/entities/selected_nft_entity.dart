@@ -95,4 +95,9 @@ class SelectedNFTEntity extends Equatable {
         communityRank = 0,
         totalMembers = 0,
         pointFluctuation = 0;
+
+  @override
+  String toString() {
+    return 'SelectedNFTEntity(id: $id, name: $name, imageUrl: $imageUrl, order: $order, tokenAddress: $tokenAddress, symbol: $symbol, chain: $chain, totalPoints: $totalPoints, communityRank: $communityRank, totalMembers: $totalMembers, pointFluctuation: $pointFluctuation)';
+  }
 }

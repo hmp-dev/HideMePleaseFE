@@ -140,4 +140,9 @@ class NftState extends BaseState {
       isWelcomeNftConsumed: isWelcomeNftConsumed ?? this.isWelcomeNftConsumed,
     );
   }
+
+  @override
+  String toString() {
+    return 'NftState(nftCollectionsGroupEntity: $nftCollectionsGroupEntity, selectedNftTokensList: $selectedNftTokensList, nftsListHome: $nftsListHome, collectionFetchTime: $collectionFetchTime, errorMessage: $errorMessage, selectedChain: $selectedChain, welcomeNftEntity: $welcomeNftEntity, consumeWelcomeNftUrl: $consumeWelcomeNftUrl, nftBenefitList: $nftBenefitList, nftPointsList: $nftPointsList, nftNetworkEntity: $nftNetworkEntity, nftUsageHistoryEntity: $nftUsageHistoryEntity, benefitUsageType: $benefitUsageType, isLoadingMore: $isLoadingMore, nextCursor: $nextCursor, selectedCollectionCount: $selectedCollectionCount, submitStatus: $submitStatus)';
+  }
 }
