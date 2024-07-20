@@ -7,10 +7,10 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/enum/usage_type_enum.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
-import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collection_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collections_group_entity.dart';
@@ -205,6 +205,10 @@ class NftCubit extends BaseCubit<NftState> {
   Future<void> onGetSelectedNftTokensViaAfterWelcomeNftFetch({
     required bool isFreeNftAvailable,
   }) async {
+    emit(state.copyWith(
+      selectedNftTokensList: [],
+      submitStatus: RequestStatus.loading,
+    ));
     final response = await _nftRepository.getSelectNftCollections();
 
     response.fold(
@@ -291,15 +295,20 @@ class NftCubit extends BaseCubit<NftState> {
   }
 
   List<SelectedNFTEntity> getNftListForHomeWithEmptyAt1stAndLast(
-      List<SelectedNFTEntity> resultList, bool isFreeNftAvailable) {
+    List<SelectedNFTEntity> resultList,
+    bool isFreeNftAvailable,
+  ) {
     List<SelectedNFTEntity> result = List.from(resultList);
     //
 
+    // add an object for last Card
     result.add(const SelectedNFTEntity.empty());
+
+    // add an object for first Card that will show RedeemWelcomeNFT
     if (isFreeNftAvailable) {
       result.insert(0, const SelectedNFTEntity.emptyForHome1st());
     }
-
+    "======================result length is: ${result.length}".log();
     return result;
   }
 
@@ -367,6 +376,8 @@ class NftCubit extends BaseCubit<NftState> {
         );
 
         // emit Welcome NFT State
+
+        // emit Welcome NFT State
         emit(
           state.copyWith(
             welcomeNftEntity: welcomeNft.toEntity(),
@@ -409,13 +420,10 @@ class NftCubit extends BaseCubit<NftState> {
           errorMessage: '',
         ));
 
-        getIt<ProfileCubit>().onGetUserProfile();
         snackbarService.showSnackbar(
           message: 'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
           duration: const Duration(seconds: 5),
         );
-
-        onGetSelectedNftTokens();
       },
     );
   }

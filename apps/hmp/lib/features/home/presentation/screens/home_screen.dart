@@ -11,9 +11,6 @@ import 'package:mobile/features/home/presentation/screens/space_selection_screen
 import 'package:mobile/features/home/presentation/views/home_view_after_wallet_connected.dart';
 import 'package:mobile/features/home/presentation/views/home_view_before_wallet_connect.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
-import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
-import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
-import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
@@ -214,35 +211,20 @@ class _HomeScreenState extends State<HomeScreen> {
       child: BlocBuilder<HomeCubit, HomeState>(
         bloc: getIt<HomeCubit>(),
         builder: (context, state) {
-          return BlocBuilder<ProfileCubit, ProfileState>(
-            bloc: getIt<ProfileCubit>(),
-            buildWhen: (previous, current) =>
-                previous.userProfileEntity != current.userProfileEntity,
-            builder: (context, profileState) {
-              return BlocBuilder<NftCubit, NftState>(
-                bloc: getIt<NftCubit>(),
-                builder: (context, sftState) {
-                  return kDebugMode
-                      ? SingleChildScrollView(
-                          controller: _scrollController,
-                          child: getHomeView(
-                            state.homeViewType,
-                            profileState.userProfileEntity,
-                            sftState.welcomeNftEntity,
-                          ),
-                        )
-                      : UpgradeAlert(
-                          child: SingleChildScrollView(
-                            controller: _scrollController,
-                            child: getHomeView(
-                              state.homeViewType,
-                              profileState.userProfileEntity,
-                              sftState.welcomeNftEntity,
-                            ),
-                          ),
-                        );
-                },
-              );
+          return BlocBuilder<NftCubit, NftState>(
+            bloc: getIt<NftCubit>(),
+            builder: (context, nftState) {
+              return kDebugMode
+                  ? SingleChildScrollView(
+                      controller: _scrollController,
+                      child: getHomeView(state.homeViewType),
+                    )
+                  : UpgradeAlert(
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        child: getHomeView(state.homeViewType),
+                      ),
+                    );
             },
           );
         },
@@ -250,17 +232,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  getHomeView(
-    HomeViewType homeViewType,
-    UserProfileEntity userProfile,
-    WelcomeNftEntity welcomeNftEntity,
-  ) {
+  getHomeView(HomeViewType homeViewType) {
     if (homeViewType == HomeViewType.afterWalletConnected) {
       return HomeViewAfterWalletConnected(
         isOverIconNavVisible: _isVisible,
         homeViewScrollController: _scrollController,
-        userProfile: userProfile,
-        welcomeNftEntity: welcomeNftEntity,
       );
     } else {
       return HomeViewBeforeWalletConnect(

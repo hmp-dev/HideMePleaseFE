@@ -17,6 +17,8 @@ class NftState extends BaseState {
   final bool isLoadingMore;
   final String nextCursor;
   final int selectedCollectionCount;
+  final bool isWelcomeNftConsumed;
+
   @override
   final RequestStatus submitStatus;
 
@@ -38,6 +40,7 @@ class NftState extends BaseState {
     required this.benefitUsageType,
     required this.nextCursor,
     required this.selectedCollectionCount,
+    required this.isWelcomeNftConsumed,
   });
 
   factory NftState.initial() => NftState(
@@ -58,6 +61,7 @@ class NftState extends BaseState {
         benefitUsageType: BenefitUsageType.ENTIRE,
         nextCursor: "",
         selectedCollectionCount: 0,
+        isWelcomeNftConsumed: false,
       );
 
   // int get selectedCollectionCount => nftCollectionsGroupEntity.collections.fold(
@@ -86,6 +90,7 @@ class NftState extends BaseState {
         benefitUsageType,
         nextCursor,
         selectedCollectionCount,
+        isWelcomeNftConsumed,
       ];
 
   @override
@@ -108,6 +113,7 @@ class NftState extends BaseState {
     BenefitUsageType? benefitUsageType,
     String? nextCursor,
     int? selectedCollectionCount,
+    bool? isWelcomeNftConsumed,
   }) {
     return NftState(
       nftCollectionsGroupEntity:
@@ -131,6 +137,7 @@ class NftState extends BaseState {
       nextCursor: nextCursor ?? this.nextCursor,
       selectedCollectionCount:
           selectedCollectionCount ?? this.selectedCollectionCount,
+      isWelcomeNftConsumed: isWelcomeNftConsumed ?? this.isWelcomeNftConsumed,
     );
   }
 }

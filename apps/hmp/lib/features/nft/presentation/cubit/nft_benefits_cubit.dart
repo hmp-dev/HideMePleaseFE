@@ -80,7 +80,8 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
   Future<void> onGetNftBenefitsLoadMore() async {
     "onGetSpacesLoadMore is called".log();
     if (state.isAllBenefitsLoaded ||
-        state.loadingMoreStatus == RequestStatus.loading) {
+        state.loadingMoreStatus == RequestStatus.loading ||
+        state.selectedTokenAddress == '') {
       return;
     }
     double latitude = 1;
