@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
 import 'package:mobile/app/core/animations/fade_indexed_widget.dart';
+import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -24,7 +26,6 @@ import 'package:mobile/features/home/presentation/widgets/members_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_iconnav_row.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
-import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
@@ -37,14 +38,10 @@ class HomeViewAfterWalletConnected extends StatefulWidget {
     super.key,
     required this.isOverIconNavVisible,
     required this.homeViewScrollController,
-    required this.userProfile,
-    required this.welcomeNftEntity,
   });
 
   final bool isOverIconNavVisible;
   final ScrollController homeViewScrollController;
-  final UserProfileEntity userProfile;
-  final WelcomeNftEntity welcomeNftEntity;
 
   @override
   State<HomeViewAfterWalletConnected> createState() =>
@@ -73,6 +70,7 @@ class _HomeViewAfterWalletConnectedState
 
   @override
   void didChangeDependencies() {
+    
     super.didChangeDependencies();
   }
 
@@ -85,12 +83,18 @@ class _HomeViewAfterWalletConnectedState
     return BlocConsumer<NftCubit, NftState>(
       bloc: getIt<NftCubit>(),
       listener: (context, nftState) {
+
+        Log.info("listener for nftState: $nftState ");
+        
         if (nftState.submitStatus == RequestStatus.success) {
           // fetch NFT benefits for first NFT
           if (nftState.selectedNftTokensList.isNotEmpty &&
               _currentTokenAddress == "") {
             getIt<NftBenefitsCubit>().onGetNftBenefits(
                 tokenAddress: nftState.selectedNftTokensList[0].tokenAddress);
+          } else {
+            Log.warning(
+                "_currentTokenAddress= $_currentTokenAddress: ==> is empty so the Benefits are not fetched  *******************");
           }
         }
       },
@@ -106,10 +110,13 @@ class _HomeViewAfterWalletConnectedState
                 List<SelectedNFTEntity> selectedNftsListForHome =
                     nftState.nftsListHome;
 
+                Log.info("selectedNftsListForHome: $selectedNftsListForHome");
+
                 return Column(
                   children: [
                     const SizedBox(height: 20),
                     HomeHeaderWidget(connectedWallet: connectedWallet),
+
                     const SizedBox(height: 40),
                     Stack(
                       alignment: Alignment.bottomCenter,
@@ -160,20 +167,12 @@ class _HomeViewAfterWalletConnectedState
                               }
 
                               if (itemIndex == 0 &&
-                                  widget.welcomeNftEntity.freeNftAvailable) {
-                                return const FreeWelcomeNftCard();
+                                  nftState.welcomeNftEntity.freeNftAvailable) {
+                                return FreeWelcomeNftCard(
+                                  welcomeNftEntity: nftState.welcomeNftEntity,
+                                );
                               }
 
-                              /// Remove the getting Benefit on NFT card Tap
-                              //  return BenefitRedeemInitiateWidget(
-                              //   tokenAddress: _currentTokenAddress == ""
-                              //       ? nftState.nftsListHome[_currentIndex]
-                              //           .tokenAddress
-                              //       : _currentTokenAddress,
-                              //   onAlertCancel: () {
-                              //     Navigator.pop(context);
-                              //   },
-                              //   childWidget:
                               return NFTCardWidgetParent(
                                 imagePath: item.imageUrl,
                                 topWidget: widget.isOverIconNavVisible
@@ -200,7 +199,7 @@ class _HomeViewAfterWalletConnectedState
                     // not show this for first (if free NFT not claimed )
                     // and and not show for the last index
                     if (shouldShowWidget(
-                        widget.welcomeNftEntity.freeNftAvailable,
+                        nftState.welcomeNftEntity.freeNftAvailable,
                         _currentIndex,
                         selectedNftsListForHome))
                       GestureDetector(
@@ -215,8 +214,10 @@ class _HomeViewAfterWalletConnectedState
                           svgPath: "assets/icons/ic_angle_arrow_down.svg",
                         ),
                       ),
-                    (shouldShowWidget(widget.welcomeNftEntity.freeNftAvailable,
-                                _currentIndex, selectedNftsListForHome) &&
+                    (shouldShowWidget(
+                                nftState.welcomeNftEntity.freeNftAvailable,
+                                _currentIndex,
+                                selectedNftsListForHome) &&
                             !widget.isOverIconNavVisible)
                         ? AnimatedSlideFadeIn(
                             slideIndex: 0,

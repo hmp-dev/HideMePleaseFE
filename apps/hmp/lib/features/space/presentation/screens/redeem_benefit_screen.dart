@@ -86,7 +86,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
   }
 
   showTermsAlert() async {
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(milliseconds: 500));
     if (widget.selectedBenefitEntity != null &&
         widget.selectedBenefitEntity?.termsUrl != "") {
       setState(() {

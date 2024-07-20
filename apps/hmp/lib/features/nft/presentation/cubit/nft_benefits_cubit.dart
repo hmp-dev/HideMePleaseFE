@@ -80,7 +80,8 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
   Future<void> onGetNftBenefitsLoadMore() async {
     "onGetSpacesLoadMore is called".log();
     if (state.isAllBenefitsLoaded ||
-        state.loadingMoreStatus == RequestStatus.loading) {
+        state.loadingMoreStatus == RequestStatus.loading ||
+        state.selectedTokenAddress == '') {
       return;
     }
     double latitude = 1;
@@ -102,7 +103,7 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
       latitude: latitude,
       longitude: longitude,
       pageSize: 10,
-      page: state.nftBenefitsPage + 1,
+      page: state.nftBenefitList.isEmpty ? 1 : state.nftBenefitsPage + 1,
     );
 
     benefitsRes.fold(
@@ -113,7 +114,8 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
         nftBenefitList: List.from(state.nftBenefitList)
           ..addAll(data.benefits?.map((e) => e.toEntity()).toList() ?? []),
         loadingMoreStatus: RequestStatus.success,
-        nftBenefitsPage: state.nftBenefitsPage + 1,
+        nftBenefitsPage:
+            state.nftBenefitList.isEmpty ? 1 : state.nftBenefitsPage + 1,
       )),
     );
   }

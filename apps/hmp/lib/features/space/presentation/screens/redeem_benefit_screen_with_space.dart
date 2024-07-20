@@ -77,7 +77,7 @@ class _RedeemBenefitScreenWithSpaceState
   }
 
   showTermsAlert() async {
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(milliseconds: 500));
     if (widget.benefit.termsUrl != "") {
       onShowTermsConcentAlert(widget.benefit.termsUrl);
     }

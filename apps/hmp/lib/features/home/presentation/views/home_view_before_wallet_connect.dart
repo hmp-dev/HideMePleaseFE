@@ -8,6 +8,7 @@ import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/home/presentation/widgets/free_welcome_nft_card.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -32,33 +33,41 @@ class HomeViewBeforeWalletConnect extends StatelessWidget {
           "inside listener++++++ error message is $errorMessage".log();
         }
       },
-      child: Column(
-        children: [
-          const SizedBox(height: 50),
-          DefaultImage(
-            path: "assets/images/hide-me-please-logo.png",
-            width: 200,
-          ),
-          const SizedBox(height: 20),
-          Center(
-            child: Text(
-              "지갑을 연결하고\n웹컴 NFT를 받아보세요!",
-              textAlign: TextAlign.center,
-              style: fontR(18, lineHeight: 1.4),
-            ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            style: _elevatedButtonStyle(),
-            onPressed: onConnectWallet,
-            child: Text(
-              LocaleKeys.walletConnection.tr(),
-              style: fontCompactMdMedium(color: white),
-            ),
-          ),
-          const SizedBox(height: 5),
-          const FreeWelcomeNftCard()
-        ],
+      child: BlocConsumer<NftCubit, NftState>(
+        bloc: getIt<NftCubit>(),
+        listener: (context, nftState) {},
+        builder: (context, nftState) {
+          return Column(
+            children: [
+              const SizedBox(height: 50),
+              DefaultImage(
+                path: "assets/images/hide-me-please-logo.png",
+                width: 200,
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: Text(
+                  "지갑을 연결하고\n웹컴 NFT를 받아보세요!",
+                  textAlign: TextAlign.center,
+                  style: fontR(18, lineHeight: 1.4),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: _elevatedButtonStyle(),
+                onPressed: onConnectWallet,
+                child: Text(
+                  LocaleKeys.walletConnection.tr(),
+                  style: fontCompactMdMedium(color: white),
+                ),
+              ),
+              const SizedBox(height: 5),
+              FreeWelcomeNftCard(
+                welcomeNftEntity: nftState.welcomeNftEntity,
+              )
+            ],
+          );
+        },
       ),
     );
   }
