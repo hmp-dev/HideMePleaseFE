@@ -280,6 +280,7 @@ class NftCubit extends BaseCubit<NftState> {
                 submitStatus: RequestStatus.success,
                 errorMessage: '',
                 selectedCollectionCount: resultList.length,
+                welcomeNftEntity: welcomeNftData.toEntity(),
               ),
             );
           },

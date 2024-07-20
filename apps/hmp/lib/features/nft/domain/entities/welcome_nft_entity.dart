@@ -65,4 +65,9 @@ class WelcomeNftEntity extends Equatable {
       freeNftAvailable: freeNftAvailable ?? this.freeNftAvailable,
     );
   }
+
+  @override
+  String toString() {
+    return 'WelcomeNftEntity(name: $name, tokenAddress: $tokenAddress, redeemTermsUrl: $redeemTermsUrl, totalCount: $totalCount, usedCount: $usedCount, image: $image, freeNftAvailable: $freeNftAvailable)';
+  }
 }
