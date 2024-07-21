@@ -12,6 +12,7 @@ class EnableLocationState extends BaseState {
 
   @override
   final RequestStatus submitStatus;
+  final RequestStatus checkLocationPermsStatus;
 
   const EnableLocationState({
     required this.hasLocationPermission,
@@ -21,6 +22,7 @@ class EnableLocationState extends BaseState {
     required this.latitude,
     required this.longitude,
     required this.isLocationDenied,
+    required this.checkLocationPermsStatus,
     this.submitStatus = RequestStatus.initial,
     this.submitCount = 0,
   });
@@ -29,6 +31,7 @@ class EnableLocationState extends BaseState {
         hasLocationPermission: false,
         isLocationEnabled: false,
         submitStatus: RequestStatus.initial,
+        checkLocationPermsStatus: RequestStatus.initial,
         isAskToOpenLocationSettings: false,
         isLocationPermissionGranted: false,
         submitCount: 0,
@@ -42,6 +45,7 @@ class EnableLocationState extends BaseState {
         hasLocationPermission,
         isLocationEnabled,
         submitStatus,
+        checkLocationPermsStatus,
         isAskToOpenLocationSettings,
         isLocationPermissionGranted,
         submitCount,
@@ -57,6 +61,7 @@ class EnableLocationState extends BaseState {
     bool? isAskToOpenLocationSettings,
     bool? isLocationPermissionGranted,
     RequestStatus? submitStatus,
+    RequestStatus? checkLocationPermsStatus,
     int? submitCount,
     double? latitude,
     double? longitude,
@@ -67,6 +72,8 @@ class EnableLocationState extends BaseState {
           hasLocationPermission ?? this.hasLocationPermission,
       isLocationEnabled: isLocationEnabled ?? this.isLocationEnabled,
       submitStatus: submitStatus ?? this.submitStatus,
+      checkLocationPermsStatus:
+          checkLocationPermsStatus ?? this.checkLocationPermsStatus,
       isAskToOpenLocationSettings:
           isAskToOpenLocationSettings ?? this.isAskToOpenLocationSettings,
       isLocationPermissionGranted:

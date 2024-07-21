@@ -34,18 +34,18 @@ class _AppViewState extends State<AppView> {
   @override
   void initState() {
     super.initState();
-    _setUpNotification();
+    initializeServices();
   }
 
-  _setUpNotification() async {
-    NotificationServices.instance.initialize().then((_) async {
-      final fcmToken = await NotificationServices.instance.getDeviceToken();
-      if (fcmToken != null) {
-        ("fcmToken: $fcmToken").log();
-        getIt<ProfileCubit>()
-            .onUpdateUserProfile(UpdateProfileRequestDto(fcmToken: fcmToken));
-      }
-    });
+  initializeServices() async {
+    await getIt<EnableLocationCubit>().onAskDeviceLocation();
+    await NotificationServices.instance.initialize();
+    final fcmToken = await NotificationServices.instance.getDeviceToken();
+    if (fcmToken != null) {
+      ("fcmToken: $fcmToken").log();
+      getIt<ProfileCubit>()
+          .onUpdateUserProfile(UpdateProfileRequestDto(fcmToken: fcmToken));
+    }
   }
 
   @override
@@ -69,58 +69,67 @@ class _AppViewState extends State<AppView> {
               bloc: getIt<PageCubit>(),
               listener: (context, state) {},
               builder: (context, state) {
-                return Column(
-                  children: [
-                    Expanded(
-                      child: PreloadPageView.builder(
-                        onPageChanged: (value) {},
-                        itemBuilder: (context, index) {
-                          if (index == MenuType.space.menuIndex) {
-                            return const SpaceScreen();
-                          } else if (index == MenuType.events.menuIndex) {
-                            //return const EventsScreen();
-                            return const EventsScreenComingSoon();
-                          } else if (index == MenuType.home.menuIndex) {
-                            return const HomeScreen();
-                          } else if (index == MenuType.community.menuIndex) {
-                            return const CommunityScreen();
-                          } else if (index == MenuType.settings.menuIndex) {
-                            return Container();
-                          }
-                          return Container();
-                        },
-                        itemCount: MenuType.values.length,
-                        controller: state.pageController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        preloadPagesCount: 5,
-                      ),
-                    ),
-                    Stack(
-                      alignment: Alignment.topCenter,
+                return BlocBuilder<EnableLocationCubit, EnableLocationState>(
+                  bloc: getIt<EnableLocationCubit>(),
+                  builder: (context, locState) {
+                    if (locState.isSubmitLoading) return Container();
+
+                    return Column(
                       children: [
-                        BottomBar(
-                          onTap: (type) {
-                            ('type: $type').log();
-                            if (type == MenuType.settings) {
-                              // fetch SettingBannerInfo and AppVersionInfo
-                              getIt<SettingsCubit>().onGetSettingBannerInfo();
-                              // Navigate to Settings Screen
-                              SettingsScreen.push(context);
-                            } else if (type == MenuType.space) {
-                              // fetch SettingBannerInfo and AppVersionInfo
-                              getIt<SpaceCubit>().onFetchAllSpaceViewData();
-                              // Navigate to Settings Screen
-                              _onChangeMenu(type);
-                            } else {
-                              _onChangeMenu(type);
-                            }
-                          },
-                          selectedType: state.menuType,
-                          opacity: _opacity,
+                        Expanded(
+                          child: PreloadPageView.builder(
+                            onPageChanged: (value) {},
+                            itemBuilder: (context, index) {
+                              if (index == MenuType.space.menuIndex) {
+                                return const SpaceScreen();
+                              } else if (index == MenuType.events.menuIndex) {
+                                //return const EventsScreen();
+                                return const EventsScreenComingSoon();
+                              } else if (index == MenuType.home.menuIndex) {
+                                return const HomeScreen();
+                              } else if (index ==
+                                  MenuType.community.menuIndex) {
+                                return const CommunityScreen();
+                              } else if (index == MenuType.settings.menuIndex) {
+                                return Container();
+                              }
+                              return Container();
+                            },
+                            itemCount: MenuType.values.length,
+                            controller: state.pageController,
+                            physics: const NeverScrollableScrollPhysics(),
+                            preloadPagesCount: 5,
+                          ),
+                        ),
+                        Stack(
+                          alignment: Alignment.topCenter,
+                          children: [
+                            BottomBar(
+                              onTap: (type) {
+                                ('type: $type').log();
+                                if (type == MenuType.settings) {
+                                  // fetch SettingBannerInfo and AppVersionInfo
+                                  getIt<SettingsCubit>()
+                                      .onGetSettingBannerInfo();
+                                  // Navigate to Settings Screen
+                                  SettingsScreen.push(context);
+                                } else if (type == MenuType.space) {
+                                  // fetch SettingBannerInfo and AppVersionInfo
+                                  getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                                  // Navigate to Settings Screen
+                                  _onChangeMenu(type);
+                                } else {
+                                  _onChangeMenu(type);
+                                }
+                              },
+                              selectedType: state.menuType,
+                              opacity: _opacity,
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 );
               },
             ),

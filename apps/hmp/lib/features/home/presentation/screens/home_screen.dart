@@ -39,8 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
     _initWallets();
-    // Ask for device location
-    getIt<EnableLocationCubit>().onAskDeviceLocation();
   }
 
   void _initWallets() async {
