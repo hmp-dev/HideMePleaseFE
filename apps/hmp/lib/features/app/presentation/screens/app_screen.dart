@@ -33,21 +33,21 @@ class _AppScreenState extends State<AppScreen> {
             ? Stack(
                 children: [
                   AppView(),
-                  Positioned(
-                    right: 30,
-                    top: 100,
-                    child: OpenTalkerLogsButton(),
-                  ),
+                  // Positioned(
+                  //   right: 30,
+                  //   top: 100,
+                  //   child: OpenTalkerLogsButton(),
+                  // ),
                 ],
               )
             : Stack(
                 children: [
                   AppView(),
-                  Positioned(
-                    right: 30,
-                    top: 100,
-                    child: OpenTalkerLogsButton(),
-                  ),
+                  // Positioned(
+                  //   right: 30,
+                  //   top: 100,
+                  //   child: OpenTalkerLogsButton(),
+                  // ),
                 ],
               ),
       ),
