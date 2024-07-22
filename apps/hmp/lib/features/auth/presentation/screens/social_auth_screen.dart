@@ -17,7 +17,6 @@ import 'package:mobile/features/auth/presentation/widgets/my_social_login_button
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
-import 'package:mobile/features/common/presentation/widgets/open_talker_logs_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 

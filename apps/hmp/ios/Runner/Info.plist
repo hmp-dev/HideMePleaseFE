@@ -44,7 +44,11 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
+<<<<<<< HEAD
+	<string>57</string>
+=======
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+>>>>>>> 17aa93b79d76957829b5a17b24b7597d6477346d
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
