@@ -135,7 +135,7 @@ class FreeNftRedeemView extends StatelessWidget {
                   const SizedBox(height: 16.0),
                   HMPCustomButton(
                     bgColor: backgroundGr1,
-                    text: 'Klip 연결하고 무료 NFT 받기',
+                    text: '지갑 연결하기',
                     onPressed: onTap,
                   ),
                 ],

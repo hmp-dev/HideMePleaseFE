@@ -95,7 +95,6 @@ class _CommunityViewState extends State<CommunityView> {
             SliverToBoxAdapter(child: buildTopTitleBar()),
             const SliverToBoxAdapter(child: SizedBox(height: 8)),
             if (widget.isWalletConnected &&
-                widget.redeemedFreeNft &&
                 widget.userNftCommunities.isNotEmpty)
               SliverToBoxAdapter(
                 child: UserCommunitiesView(
@@ -104,7 +103,8 @@ class _CommunityViewState extends State<CommunityView> {
                   userNftCommunities: widget.userNftCommunities,
                 ),
               )
-            else if (widget.isWalletConnected && !widget.redeemedFreeNft)
+            else if (widget.isWalletConnected &&
+                widget.userNftCommunities.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
