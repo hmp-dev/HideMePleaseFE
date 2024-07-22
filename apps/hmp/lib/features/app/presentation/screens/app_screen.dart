@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/views/app_view.dart';
-import 'package:mobile/features/common/presentation/widgets/open_talker_logs_button.dart';
 
 class AppScreen extends StatefulWidget {
   const AppScreen({super.key});
