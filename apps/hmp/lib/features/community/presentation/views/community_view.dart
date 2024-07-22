@@ -93,40 +93,40 @@ class _CommunityViewState extends State<CommunityView> {
           controller: _scrollController,
           slivers: [
             SliverToBoxAdapter(child: buildTopTitleBar()),
-            // const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            // if (widget.isWalletConnected &&
-            //     widget.redeemedFreeNft &&
-            //     widget.userNftCommunities.isNotEmpty)
-            //   SliverToBoxAdapter(
-            //     child: UserCommunitiesView(
-            //       onTap: widget.onCommunityTap,
-            //       onEnterChat: widget.onEnterChat,
-            //       userNftCommunities: widget.userNftCommunities,
-            //     ),
-            //   )
-            // else if (widget.isWalletConnected && !widget.redeemedFreeNft)
-            //   SliverToBoxAdapter(
-            //     child: Padding(
-            //       padding: const EdgeInsets.symmetric(horizontal: 20),
-            //       child: FreeNftRedeemView(
-            //         totalNfts: widget.welcomeNft.totalNfts,
-            //         redeemedNfts: widget.welcomeNft.redeemedNfts,
-            //         remainingNfts: widget.welcomeNft.remainingNfts,
-            //         bgImage: widget.welcomeNft.image,
-            //         name: widget.welcomeNft.name,
-            //         onTap: widget.onGetFreeNft,
-            //       ),
-            //     ),
-            //   )
-            // else if (!widget.isWalletConnected)
-            //   SliverToBoxAdapter(
-            //     child: Padding(
-            //       padding: const EdgeInsets.symmetric(horizontal: 20),
-            //       child: GetFreeNftView(
-            //         onTap: widget.onConnectWallet,
-            //       ),
-            //     ),
-            //   ),
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
+            if (widget.isWalletConnected &&
+                widget.redeemedFreeNft &&
+                widget.userNftCommunities.isNotEmpty)
+              SliverToBoxAdapter(
+                child: UserCommunitiesView(
+                  onTap: widget.onCommunityTap,
+                  onEnterChat: widget.onEnterChat,
+                  userNftCommunities: widget.userNftCommunities,
+                ),
+              )
+            else if (widget.isWalletConnected && !widget.redeemedFreeNft)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: FreeNftRedeemView(
+                    totalNfts: widget.welcomeNft.totalNfts,
+                    redeemedNfts: widget.welcomeNft.redeemedNfts,
+                    remainingNfts: widget.welcomeNft.remainingNfts,
+                    bgImage: widget.welcomeNft.image,
+                    name: widget.welcomeNft.name,
+                    onTap: widget.onGetFreeNft,
+                  ),
+                ),
+              )
+            else if (!widget.isWalletConnected)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: GetFreeNftView(
+                    onTap: widget.onConnectWallet,
+                  ),
+                ),
+              ),
             if (widget.hotNftCommunities.isNotEmpty)
               SliverToBoxAdapter(
                 child: Padding(
