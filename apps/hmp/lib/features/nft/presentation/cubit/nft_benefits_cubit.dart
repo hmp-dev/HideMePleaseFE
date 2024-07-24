@@ -71,6 +71,7 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
             nftBenefitList: resultList,
             submitStatus: RequestStatus.success,
             errorMessage: '',
+            isAllBenefitsLoaded: resultList.length == data.benefitCount,
           ),
         );
       },
