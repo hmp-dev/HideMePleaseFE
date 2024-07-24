@@ -1,4 +1,7 @@
-const String googleMapsApiKey = "AIzaSyAhzhtbuw8UD22Fs_SXuelDmKgNNzJd7YY";
+const String googleMapsApiKeyOld =
+    "AIzaSyDFQgJyhdi8qvP0YS5JbUljIqPGMUcLck0"; //"AIzaSyAhzhtbuw8UD22Fs_SXuelDmKgNNzJd7YY";
+const String gMapsApiKeyAndroid = "AIzaSyDFQgJyhdi8qvP0YS5JbUljIqPGMUcLck0";
+const String gMapsApiKeyIOS = "AIzaSyDJNUW4Havfk4EV9oD7wzpmOikhUw4HpKs";
 
 const String invitationModelTile = '''
 ‘최후의 보물’ 경품 이벤트 참여 안내
