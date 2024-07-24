@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -15,7 +16,6 @@ import 'package:mobile/features/common/presentation/widgets/rounded_button_with_
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:math' as math;
 
 String formatWalletAddress(String walletAddress) {
   if (walletAddress.length < 10) {
@@ -586,4 +586,18 @@ Future<void> logErrorWithDeviceInfo(dynamic error, StackTrace stackTrace,
     stackTrace,
     reason: reason,
   );
+}
+
+List<BenefitEntity> removeDuplicates(List<BenefitEntity> benefitList) {
+  final seenIds = <String>{}; // Create a Set to track seen IDs
+  final uniqueBenefits = <BenefitEntity>[]; // List to store unique items
+
+  for (var benefit in benefitList) {
+    if (!seenIds.contains(benefit.id)) {
+      seenIds.add(benefit.id); // Add the ID to the Set
+      uniqueBenefits.add(benefit); // Add the BenefitEntity to the unique list
+    }
+  }
+
+  return uniqueBenefits;
 }

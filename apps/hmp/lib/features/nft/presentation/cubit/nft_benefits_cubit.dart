@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/repositories/nft_repository.dart';
@@ -65,10 +66,13 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
         final resultList =
             data.benefits?.map((e) => e.toEntity()).toList() ?? [];
 
+        // Removing duplicates based on `id`
+        final uniqueResultList = removeDuplicates(resultList);
+
         emit(
           state.copyWith(
             totalBenefitCount: data.benefitCount,
-            nftBenefitList: resultList,
+            nftBenefitList: uniqueResultList,
             submitStatus: RequestStatus.success,
             errorMessage: '',
             isAllBenefitsLoaded: resultList.length == data.benefitCount,
@@ -108,16 +112,24 @@ class NftBenefitsCubit extends BaseCubit<NftBenefitsState> {
     );
 
     benefitsRes.fold(
-      (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
-      (data) => emit(state.copyWith(
+        (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
+        (data) {
+      final List<BenefitEntity> allList = List.from(state.nftBenefitList)
+        ..addAll(data.benefits?.map((e) => e.toEntity()).toList() ?? []);
+
+      // Removing duplicates based on `id`
+      final uniqueResultList = removeDuplicates(allList);
+
+      emit(state.copyWith(
         totalBenefitCount: data.benefitCount,
         isAllBenefitsLoaded: data.benefits?.isEmpty,
-        nftBenefitList: List.from(state.nftBenefitList)
-          ..addAll(data.benefits?.map((e) => e.toEntity()).toList() ?? []),
+        nftBenefitList: uniqueResultList,
+        // List.from(state.nftBenefitList)
+        //   ..addAll(data.benefits?.map((e) => e.toEntity()).toList() ?? []),
         loadingMoreStatus: RequestStatus.success,
         nftBenefitsPage:
             state.nftBenefitList.isEmpty ? 1 : state.nftBenefitsPage + 1,
-      )),
-    );
+      ));
+    });
   }
 }
