@@ -522,7 +522,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 64;
 				DEVELOPMENT_TEAM = 6LDWM4RB9V;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -533,7 +533,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kr.hideme;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -718,7 +718,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 64;
 				DEVELOPMENT_TEAM = 6LDWM4RB9V;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -729,7 +729,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kr.hideme;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -754,7 +754,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 64;
 				DEVELOPMENT_TEAM = 6LDWM4RB9V;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -765,7 +765,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kr.hideme;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

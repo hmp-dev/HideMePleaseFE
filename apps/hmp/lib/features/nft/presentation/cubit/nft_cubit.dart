@@ -10,6 +10,7 @@ import 'package:mobile/app/core/enum/usage_type_enum.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/features/community/presentation/cubit/community_cubit.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/nft/domain/entities/nft_collection_entity.dart';
@@ -417,7 +418,9 @@ class NftCubit extends BaseCubit<NftState> {
         );
       },
       (_) async {
-        onGetWelcomeNft();
+        await onGetWelcomeNft();
+
+        getIt<CommunityCubit>().onGetUserNftCommunities();
 
         emit(state.copyWith(
           submitStatus: RequestStatus.success,

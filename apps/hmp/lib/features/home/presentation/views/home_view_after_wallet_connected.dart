@@ -70,7 +70,6 @@ class _HomeViewAfterWalletConnectedState
 
   @override
   void didChangeDependencies() {
-    
     super.didChangeDependencies();
   }
 
@@ -82,22 +81,7 @@ class _HomeViewAfterWalletConnectedState
     super.build(context);
     return BlocConsumer<NftCubit, NftState>(
       bloc: getIt<NftCubit>(),
-      listener: (context, nftState) {
-
-        Log.info("listener for nftState: $nftState ");
-        
-        if (nftState.submitStatus == RequestStatus.success) {
-          // fetch NFT benefits for first NFT
-          if (nftState.selectedNftTokensList.isNotEmpty &&
-              _currentTokenAddress == "") {
-            getIt<NftBenefitsCubit>().onGetNftBenefits(
-                tokenAddress: nftState.selectedNftTokensList[0].tokenAddress);
-          } else {
-            Log.warning(
-                "_currentTokenAddress= $_currentTokenAddress: ==> is empty so the Benefits are not fetched  *******************");
-          }
-        }
-      },
+      listener: (context, nftState) {},
       builder: (context, nftState) {
         return ListView(
           shrinkWrap: true,

@@ -23,9 +23,8 @@ class BenefitListWidget extends StatefulWidget {
 class _BenefitListWidgetState extends State<BenefitListWidget> {
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<NftBenefitsCubit, NftBenefitsState>(
+    return BlocBuilder<NftBenefitsCubit, NftBenefitsState>(
       bloc: getIt<NftBenefitsCubit>(),
-      listener: (context, state) {},
       builder: (context, state) {
         if (state.submitStatus == RequestStatus.loading) {
           return Center(

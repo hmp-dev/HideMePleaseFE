@@ -54,6 +54,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (_scrollController.offset >= 80 && _isVisible) {
+      // fetch nft benefits
+      if (getIt<NftBenefitsCubit>().state.nftBenefitList.isEmpty) {
+        "fetch nft benefits with scroll listener".log();
+        final selectedNftTokensList =
+            getIt<NftCubit>().state.selectedNftTokensList;
+        if (selectedNftTokensList.isNotEmpty) {
+          getIt<NftBenefitsCubit>().onGetNftBenefits(
+              tokenAddress: selectedNftTokensList[0].tokenAddress);
+        }
+      }
       setState(() {
         _isVisible = false;
       });
