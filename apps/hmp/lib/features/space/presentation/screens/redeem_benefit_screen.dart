@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:async';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
-import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
@@ -142,7 +142,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                 }
               },
               builder: (context, benefitRedeemState) {
-                return BaseScaffold(
+                return Scaffold(
                   body: SafeArea(
                     child: SingleChildScrollView(
                       child: Column(
@@ -485,7 +485,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
 
   Padding buildTitleRow(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30, top: 20),
       child: Row(
         children: [
           GestureDetector(
@@ -507,6 +507,31 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                   LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
                   style: fontTitle05Medium(),
                 ),
+                // InkWell(
+                //   onTap: () async {
+                //     await showBenefitRedeemAgreeTermsAlertDialog(
+                //       context: context,
+                //       // title: LocaleKeys.agreeTermDialogMessage.tr(),
+                //       title: invitationModelTile,
+                //       onConfirm: () {
+                //         Navigator.of(context).pop();
+
+                //         WebViewScreen.push(
+                //           context: context,
+                //           title: "이벤트 참여 양식", // Event Participation Form
+                //           url: "https://www.naver.com/",
+                //         );
+                //       },
+                //       onCancel: () async {
+                //         Navigator.of(context).pop();
+                //       },
+                //     );
+                //   },
+                //   child: Text(
+                //     LocaleKeys.redeemYourBenefitsBtnTitle.tr(),
+                //     style: fontTitle05Medium(),
+                //   ),
+                // ),
               ),
             ),
           ),

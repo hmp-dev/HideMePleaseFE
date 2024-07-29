@@ -163,6 +163,6 @@ class _BaseScaffoldState extends State<BaseScaffold> {
         ),
       );
     }
-    return Container();
+    return const SizedBox.shrink();
   }
 }

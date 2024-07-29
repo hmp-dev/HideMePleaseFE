@@ -9,7 +9,6 @@ import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
-import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
@@ -122,7 +121,7 @@ class _RedeemBenefitScreenWithSpaceState
                 }
               },
               builder: (context, benefitRedeemState) {
-                return BaseScaffold(
+                return Scaffold(
                   body: SafeArea(
                     child: SingleChildScrollView(
                         child: Column(
@@ -328,7 +327,7 @@ class _RedeemBenefitScreenWithSpaceState
 
   Padding buildTitleRow(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30, top: 20),
       child: Row(
         children: [
           GestureDetector(

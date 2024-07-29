@@ -491,6 +491,16 @@ TextStyle fontBodyMd({Color? color = fore1}) => TextStyle(
       height: 1.7,
     );
 
+TextStyle fontBodyMdSize15({Color? color = fore1}) => TextStyle(
+      fontSize: 15,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w400,
+      color: color ?? fore1,
+      letterSpacing: -0.1,
+      height: 1.7,
+    );
+
+
 TextStyle fontBodyMdMedium({Color? color = fore1}) => TextStyle(
       fontSize: 16,
       fontFamily: 'Pretendard',

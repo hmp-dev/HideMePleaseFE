@@ -80,7 +80,7 @@ class BenefitRedeemCardWidgetParent extends StatelessWidget {
                         ),
                         Text(
                           nftBenefitEntity.description,
-                          style: fontTitle04(),
+                          style: fontTitle05(),
                         ),
                         const Spacer(),
                         if (!nftBenefitEntity.singleUse)

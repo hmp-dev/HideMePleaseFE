@@ -227,7 +227,7 @@ Future<bool> showBenefitRedeemAgreeTermsAlertDialog({
           content: Text(
             title,
             textAlign: TextAlign.center,
-            style: fontBodyMd(),
+            style: fontBodyMdSize15(),
           ),
           //content: const SizedBox.shrink(),
           actions: <Widget>[

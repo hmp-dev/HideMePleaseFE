@@ -115,7 +115,7 @@ class MembersItemWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 4.0, top: 4),
           child: DefaultImage(
-            path: "assets/chain-logos/ethereum_chain.svg",
+            path: "assets/chain-logos/${nft.chain.toLowerCase()}_chain.svg",
             width: 14,
             height: 14,
           ),
@@ -131,7 +131,7 @@ class MembersItemWidget extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(3.0),
               child: Text(
-                "${nft.totalPoints}${LocaleKeys.people.tr()}",
+                "${nft.totalMembers}${LocaleKeys.people.tr()}",
                 style: fontCompactXs(),
               ),
             ),
