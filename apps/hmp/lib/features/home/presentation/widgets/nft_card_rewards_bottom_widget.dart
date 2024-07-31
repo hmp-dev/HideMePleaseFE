@@ -47,7 +47,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  LocaleKeys.firstComeFirstServed.tr(),
+                  LocaleKeys.numberOfMembers.tr(),
                   style: fontCompactMd(),
                 ),
                 Row(
@@ -62,21 +62,23 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                 )
               ],
             ),
-            const VerticalSpace(10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  LocaleKeys.floorPrice.tr(),
-                  style: fontCompactMd(),
-                ),
-                Text(
-                  LocaleKeys.free.tr(),
-                  style: fontCompactLgBold(),
-                )
-              ],
-            ),
-            const VerticalSpace(10),
+
+            /// Floor Price value row made hidden as per Jayden advice
+            // const VerticalSpace(10),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     Text(
+            //       LocaleKeys.floorPrice.tr(),
+            //       style: fontCompactMd(),
+            //     ),
+            //     Text(
+            //       LocaleKeys.free.tr(),
+            //       style: fontCompactLgBold(),
+            //     )
+            //   ],
+            // ),
+            const VerticalSpace(15),
             if (!getIt<WalletsCubit>().state.isKlipWalletConnected) ...[
               GlassmorphicButton(
                 width: MediaQuery.of(context).size.width * 0.80,

@@ -468,6 +468,8 @@ String getLocalCategoryName(String categoryName) {
       return LocaleKeys.music.tr();
     case "MEAL":
       return LocaleKeys.meal.tr();
+    case "ETC":
+      return "etc";
     default:
       throw Exception('Unhandled category');
   }

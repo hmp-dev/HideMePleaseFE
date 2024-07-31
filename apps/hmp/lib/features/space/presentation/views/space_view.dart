@@ -136,6 +136,7 @@ class _SpaceViewState extends State<SpaceView> {
                 SizedBox(
                   height: 90,
                   child: ListView(
+                    padding: const EdgeInsets.only(right: 10),
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
                     children: [
@@ -193,6 +194,14 @@ class _SpaceViewState extends State<SpaceView> {
                         isSelected: spaceCategory == SpaceCategory.MEAL,
                         onTap: () {
                           widget.onSpaceByCategoryTap(SpaceCategory.MEAL);
+                        },
+                      ),
+                      CategoryIconWidget(
+                        icon: "assets/icons/ic_space_category_etc.svg",
+                        title: "etc",
+                        isSelected: spaceCategory == SpaceCategory.ETC,
+                        onTap: () {
+                          widget.onSpaceByCategoryTap(SpaceCategory.ETC);
                         },
                       ),
                     ],

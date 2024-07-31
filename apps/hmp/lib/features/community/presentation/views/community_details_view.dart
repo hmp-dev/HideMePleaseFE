@@ -160,6 +160,7 @@ class CommunityDetailsView extends StatelessWidget {
                   nftNetwork: nftNetwork,
                   onLoadMore: onBenefitsLoadMore,
                   isLoadingMore: isBenefitsLoadingMore,
+                  membersCount: membersCount,
                 ),
               Container(
                 color: bg1,
@@ -323,6 +324,7 @@ class _CommunityInfoView extends StatefulWidget {
     required this.nftNetwork,
     required this.onLoadMore,
     required this.isLoadingMore,
+    required this.membersCount,
   });
 
   final NumberFormat koreanNumFormat;
@@ -333,6 +335,7 @@ class _CommunityInfoView extends StatefulWidget {
   final VoidCallback onTapRank;
   final VoidCallback onLoadMore;
   final bool isLoadingMore;
+  final int membersCount;
 
   @override
   State<_CommunityInfoView> createState() => _CommunityInfoViewState();
@@ -794,26 +797,28 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                       style: fontTitle07(color: fore2)),
                   Expanded(
                     child: Text(
-                        widget.koreanNumFormat.format(
-                            int.tryParse(widget.nftNetwork.holderCount) ?? 0),
+                        //membersCount [int.tryParse(widget.membersCount)]
+                        widget.koreanNumFormat.format(widget.membersCount),
+                        // widget.koreanNumFormat.format(
+                        //     int.tryParse(widget.nftNetwork.holderCount) ?? 0),
                         textAlign: TextAlign.end,
                         style: fontTitle07()),
                   ),
                 ],
               ),
-              const SizedBox(height: 12.0),
-              Row(
-                children: [
-                  Text(LocaleKeys.floorPrice.tr(),
-                      style: fontTitle07(color: fore2)),
-                  Expanded(
-                    child: Text(
-                        '${NumberFormat("###,###,###.##", "en_US").format(num.parse(widget.nftNetwork.floorPrice))} ${widget.nftNetwork.symbol.toUpperCase()}',
-                        textAlign: TextAlign.end,
-                        style: fontTitle07()),
-                  ),
-                ],
-              ),
+              // const SizedBox(height: 12.0),
+              // Row(
+              //   children: [
+              //     Text(LocaleKeys.floorPrice.tr(),
+              //         style: fontTitle07(color: fore2)),
+              //     Expanded(
+              //       child: Text(
+              //           '${NumberFormat("###,###,###.##", "en_US").format(num.parse(widget.nftNetwork.floorPrice))} ${widget.nftNetwork.symbol.toUpperCase()}',
+              //           textAlign: TextAlign.end,
+              //           style: fontTitle07()),
+              //     ),
+              //   ],
+              // ),
               const SizedBox(height: 12.0),
             ],
           ),
