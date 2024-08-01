@@ -793,7 +793,7 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
               const SizedBox(height: 12.0),
               Row(
                 children: [
-                  Text(LocaleKeys.numberOfHolders.tr(),
+                  Text(LocaleKeys.numberOfMembers.tr(),
                       style: fontTitle07(color: fore2)),
                   Expanded(
                     child: Text(
