@@ -6,10 +6,23 @@ import 'package:mobile/app/core/util/observer_utils.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/views/space_detail_view.dart';
 
+/// [SpaceDetailScreen] is the screen for displaying the details of a space.
+///
+/// This screen is used to display the details of a space such as its name,
+/// description, address, and other relevant information.
 class SpaceDetailScreen extends StatefulWidget {
+  /// Default constructor for [SpaceDetailScreen].
+  ///
+  /// This constructor is used to create a new instance of [SpaceDetailScreen].
   const SpaceDetailScreen({super.key});
 
-  static push(BuildContext context) async {
+  /// Pushes [SpaceDetailScreen] on to the navigation stack.
+  ///
+  /// This method is used to push [SpaceDetailScreen] on to the navigation stack.
+  /// It returns a [Future] that completes with the value returned by [Navigator.push].
+  static Future<T?> push<T extends Object?>(BuildContext context) async {
+    // Pushes [SpaceDetailScreen] on to the navigation stack and returns a [Future]
+    // that completes with the value returned by [Navigator.push].
     return await Navigator.push(
       context,
       MaterialPageRoute(

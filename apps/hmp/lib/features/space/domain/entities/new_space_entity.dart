@@ -1,13 +1,32 @@
 import 'package:equatable/equatable.dart';
 
+/// Represents a new space entity.
+///
+/// This class holds the data associated with a new space. It contains the
+/// id, name, image, main benefit description, remaining benefit count, and
+/// hiding count of the space.
 class NewSpaceEntity extends Equatable {
+  /// Unique identifier of the space.
   final String id;
+
+  /// Name of the space.
   final String name;
+
+  /// Image URL of the space.
   final String image;
+
+  /// Description of the main benefit of the space.
   final String mainBenefitDescription;
+
+  /// Remaining benefit count of the space.
   final int remainingBenefitCount;
+
+  /// Hiding count of the space.
   final int hidingCount;
 
+  /// Constructs a new [NewSpaceEntity] instance.
+  ///
+  /// All parameters are required.
   const NewSpaceEntity({
     required this.id,
     required this.name,
@@ -29,6 +48,10 @@ class NewSpaceEntity extends Equatable {
     ];
   }
 
+  /// Creates a copy of the [NewSpaceEntity] instance with the given parameters.
+  ///
+  /// If a parameter is not provided, the corresponding value from the current
+  /// instance is used.
   NewSpaceEntity copyWith({
     String? id,
     String? name,
@@ -49,6 +72,9 @@ class NewSpaceEntity extends Equatable {
     );
   }
 
+  /// Constructs an empty [NewSpaceEntity] instance.
+  ///
+  /// All properties are initialized with empty values.
   const NewSpaceEntity.empty()
       : id = '',
         name = '',

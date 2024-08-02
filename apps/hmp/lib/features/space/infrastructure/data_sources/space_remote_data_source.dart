@@ -16,12 +16,12 @@ class SpaceRemoteDataSource {
 
   SpaceRemoteDataSource(this._network);
 
+  // Fetches the list of nearby spaces for a given token address and location.
   Future<SpacesResponseDto> getNearBySpacesList({
     required String tokenAddress,
     required double latitude,
     required double longitude,
   }) async {
-    // Construct the query parameters
     final Map<String, String> queryParams = {
       'latitude': '$latitude',
       'longitude': '$longitude',
@@ -33,6 +33,7 @@ class SpaceRemoteDataSource {
     return SpacesResponseDto.fromJson(response.data as Map<String, dynamic>);
   }
 
+  // Fetches the backdoor token for a given space ID.
   Future<String> getBackdoorToken({required String spaceId}) async {
     final response =
         await _network.get("space/benefits/token-backdoor/$spaceId", {});
@@ -40,46 +41,7 @@ class SpaceRemoteDataSource {
     return response.data;
   }
 
-  // Future<bool> postRedeemBenefit({
-  //   required String benefitId,
-  //   required String tokenAddress,
-  //   required String spaceId,
-  //   required double latitude,
-  //   required double longitude,
-  // }) async {
-  //   // Construct the query parameters
-  //   final Map<String, dynamic> queryParams = {
-  //     "latitude": latitude,
-  //     "longitude": longitude,
-  //     'spaceId': spaceId,
-  //     'tokenAddress': tokenAddress,
-  //   };
-
-  //   final response =
-  //       await _network.post("space/benefits/redeem/$benefitId", queryParams);
-
-  //   if (response.statusCode == 204) {
-  //     return true;
-  //   }
-
-  //   if (response.statusCode == 400) {
-  //     "inside Status Code is 400  **********************************************"
-  //         .log();
-  //     // Parse the response body
-  //     final Map<String, dynamic> responseBody = json.decode(response.data);
-  //     final errorCode = responseBody['error']['code'];
-  //     final errorMessage = responseBody['error']['message'];
-
-  //     throw BenefitRedeemErrorDto(
-  //       message: errorMessage,
-  //       error: errorCode,
-  //       trace: StackTrace.current.toString(),
-  //     );
-  //   }
-
-  //   return false;
-  // }
-
+  // Attempts to redeem a benefit for a given benefit ID, token address, space ID, and location.
   Future<bool> postRedeemBenefit({
     required String benefitId,
     required String tokenAddress,
@@ -88,7 +50,6 @@ class SpaceRemoteDataSource {
     required double longitude,
   }) async {
     try {
-      // Construct the query parameters
       final Map<String, dynamic> queryParams = {
         "latitude": latitude,
         "longitude": longitude,
@@ -131,6 +92,7 @@ class SpaceRemoteDataSource {
     }
   }
 
+  // Fetches the list of top used NFTs.
   Future<List<TopUsedNftDto>> requestGetTopUsedNfts() async {
     final response = await _network.get("nft/collections", {});
     return response.data
@@ -139,8 +101,7 @@ class SpaceRemoteDataSource {
         .toList();
   }
 
-  //
-
+  // Fetches the list of new spaces.
   Future<List<NewSpaceDto>> requestGetNewSpaceList() async {
     final response = await _network.get("space/new-spaces", {});
     return response.data
@@ -149,13 +110,13 @@ class SpaceRemoteDataSource {
         .toList();
   }
 
+  // Fetches the list of spaces for a given category, page, and location.
   Future<List<SpaceDto>> requestGetSpaceList({
     String? category,
     int? page,
     required double latitude,
     required double longitude,
   }) async {
-    // Construct the query parameters
     final Map<String, String> queryParams = {
       if (category != null) 'category': category,
       if (page != null) 'page': page.toString(),
@@ -169,6 +130,7 @@ class SpaceRemoteDataSource {
         .toList();
   }
 
+  // Fetches the list of recommended spaces.
   Future<List<RecommendationSpaceDto>> requestGetRecommendedSpaces() async {
     final response = await _network.get("space/recommendations", {});
     return response.data
@@ -177,14 +139,14 @@ class SpaceRemoteDataSource {
         .toList();
   }
 
+  // Fetches the details of a space for a given space ID.
   Future<SpaceDetailDto> requestGetSpaceDetailBySpaceId(
       {required String spaceId}) async {
     final response = await _network.get("space/space/$spaceId", {});
     return SpaceDetailDto.fromJson(response.data as Map<String, dynamic>);
   }
 
-  //
-
+  // Fetches the benefits group for a given space ID.
   Future<BenefitsGroupDto> requestGetSpaceBenefits(
       {required String spaceId}) async {
     final response = await _network.get("space/space/$spaceId/benefits", {});

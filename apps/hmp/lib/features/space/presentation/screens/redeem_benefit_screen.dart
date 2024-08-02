@@ -28,7 +28,22 @@ import 'package:mobile/features/space/presentation/cubit/space_benefits_cubit.da
 import 'package:mobile/features/space/presentation/widgets/sunrise_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// A screen that allows the user to redeem a benefit from a nearby space.
+///
+/// The screen displays information about the nearby space and allows the user
+/// to select a benefit to redeem. The user can also view web content and
+/// view images related to the benefit.
+///
+/// The [RedeemBenefitScreen] takes in a [NearBySpaceEntity] and an optional
+/// [BenefitEntity] and a boolean indicating whether a matched space has been
+/// found.
 class RedeemBenefitScreen extends StatefulWidget {
+  /// Creates a [RedeemBenefitScreen].
+  ///
+  /// The [nearBySpaceEntity] parameter is the nearby space to redeem a benefit
+  /// from. The [selectedBenefitEntity] parameter is the benefit to redeem, and
+  /// is optional. The [isMatchedSpaceFound] parameter is a boolean indicating
+  /// whether a matched space has been found.
   const RedeemBenefitScreen({
     super.key,
     required this.nearBySpaceEntity,
@@ -36,16 +51,29 @@ class RedeemBenefitScreen extends StatefulWidget {
     this.isMatchedSpaceFound,
   });
 
+  /// The nearby space to redeem a benefit from.
   final NearBySpaceEntity nearBySpaceEntity;
+
+  /// The benefit to redeem, and is optional.
   final BenefitEntity? selectedBenefitEntity;
+
+  /// A boolean indicating whether a matched space has been found.
   final bool? isMatchedSpaceFound;
 
-  static push(
+  /// Pushes a [RedeemBenefitScreen] to the navigation stack.
+  ///
+  /// The [context] parameter is the build context used to push the screen. The
+  /// [nearBySpaceEntity] parameter is the nearby space to redeem a benefit
+  /// from. The [selectedBenefitEntity] parameter is the benefit to redeem, and
+  /// is optional. The [isMatchedSpaceFound] parameter is a boolean indicating
+  /// whether a matched space has been found.
+  static Future<dynamic> push(
     BuildContext context, {
     required NearBySpaceEntity nearBySpaceEntity,
     BenefitEntity? selectedBenefitEntity,
     bool? isMatchedSpaceFound,
   }) async {
+    // Push the RedeemBenefitScreen to the navigation stack
     return await Navigator.push(
       context,
       MaterialPageRoute(

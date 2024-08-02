@@ -121,6 +121,12 @@ class _SpaceViewState extends State<SpaceView> {
     );
   }
 
+  /// Builds the type-wise space list based on the given [spaceList] and [spaceCategory].
+  ///
+  /// The [spaceList] parameter is a list of [SpaceEntity] objects representing the spaces.
+  /// The [spaceCategory] parameter is an enum representing the category of spaces.
+  ///
+  /// Returns a [Widget] that displays the type-wise space list.
   Widget buildTypeWiseSpaceList(
     List<SpaceEntity> spaceList,
     SpaceCategory spaceCategory,
@@ -275,6 +281,24 @@ class _SpaceViewState extends State<SpaceView> {
     );
   }
 
+  /// Builds a [Padding] widget that displays a list of [TopUsedNftEntity] objects.
+  ///
+  /// The widget displays the list of [TopUsedNftEntity] objects in a [Column] widget.
+  /// If the list is empty, a [SizedBox.shrink] widget is displayed.
+  /// Otherwise, the widget displays a [Text] widget with the title "Highly Visited Community"
+  /// and a [SizedBox] widget with a [Row] widget containing up to three [SpaceTopNFTListItem]
+  /// widgets, representing the top used NFTs.
+  /// The [SpaceTopNFTListItem] widgets are displayed in a row, with the first item representing
+  /// the first item in the list, the second item representing the second item in the list, and
+  /// the third item representing the third item in the list.
+  /// The [SpaceTopNFTListItem] widgets are displayed with a score ranging from 1 to 3,
+  /// indicating their position in the list.
+  ///
+  /// Parameters:
+  /// - `topUsedNfts`: A list of [TopUsedNftEntity] objects to be displayed.
+  ///
+  /// Returns:
+  /// A [Padding] widget containing the displayed list of [TopUsedNftEntity] objects.
   Padding buildTopUsedNftsRowWidget(List<TopUsedNftEntity> topUsedNfts) {
     return Padding(
       padding: const EdgeInsets.only(
@@ -335,6 +359,14 @@ class _SpaceViewState extends State<SpaceView> {
     );
   }
 
+  /// Builds a container widget that represents the top title bar of the screen.
+  ///
+  /// This container widget has a margin of 20 pixels on the left and right sides,
+  /// a height of 75 pixels, and a child widget that is centered horizontally.
+  /// The child widget is a row with two children: a text widget displaying "Hide me"
+  /// with a bold font style, and an `AlarmsIconButton` widget.
+  ///
+  /// Returns a `Container` widget.
   Container buildTopTitleBar() {
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20),

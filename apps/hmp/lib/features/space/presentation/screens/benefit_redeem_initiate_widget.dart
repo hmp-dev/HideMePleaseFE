@@ -9,6 +9,26 @@ import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// A widget that handles the redeeming of benefits.
+/// It wraps the child widget and handles the logic of checking if the
+/// user is in a space and if the selected benefit is available.
+/// If the user is in a space and the selected benefit is available, it
+/// initiates the process of finding the nearest spaces and redirects the user
+/// to the redeem benefit screen.
+/// If the user is not in a space or the selected benefit is not available,
+/// it does nothing when tapped.
+///
+/// The [childWidget] parameter is the widget that will be wrapped by this
+/// widget.
+///
+/// The [tokenAddress] parameter is the token address of the selected benefit.
+///
+/// The [onAlertCancel] parameter is the callback function that will be called
+/// when the alert dialogue is cancelled.
+///
+/// The [selectedBenefitEntity] parameter is the selected benefit entity.
+///
+/// The [space] parameter is the space detail entity.
 class BenefitRedeemInitiateWidget extends StatelessWidget {
   const BenefitRedeemInitiateWidget({
     super.key,
@@ -19,10 +39,19 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
     this.space,
   });
 
+  /// The widget that will be wrapped by this widget.
   final Widget childWidget;
+
+  /// The token address of the selected benefit.
   final String tokenAddress;
+
+  /// The callback function that will be called when the alert dialogue is cancelled.
   final VoidCallback onAlertCancel;
+
+  /// The selected benefit entity.
   final BenefitEntity selectedBenefitEntity;
+
+  /// The space detail entity.
   final SpaceDetailEntity? space;
 
   @override
@@ -43,21 +72,25 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
                       : () {
                           if (!state.isLocationDenied) {
                             if (space != null) {
+                              // Set the selected space if it is not null.
                               getIt<NearBySpacesCubit>().onSetSelectedSpace(
                                   space ?? const SpaceDetailEntity.empty());
                             } else {
+                              // Reset the selected space if it is null.
                               getIt<NearBySpacesCubit>().onReSetSelectedSpace();
                             }
 
+                            // Set the selected benefit entity.
                             getIt<NearBySpacesCubit>()
                                 .onSetSelectedBenefitEntity(
                                     selectedBenefitEntity);
 
+                            // Get the nearest spaces based on the selected benefit.
                             getIt<NearBySpacesCubit>()
                                 .onGetNearBySpacesListData(
                                     tokenAddress: tokenAddress);
                           } else {
-                            // open Alert Dialogue to Show Info and Ask to enable Location
+                            // Open alert dialogue to show info and ask to enable location.
                             showEnableLocationAlertDialog(
                               context: context,
                               title: LocaleKeys.enableLocationAlertMessage.tr(),
@@ -69,6 +102,7 @@ class BenefitRedeemInitiateWidget extends StatelessWidget {
                             );
                           }
 
+                          // Log the latitude and longitude.
                           "latitude: ${state.latitude}".log();
                           "longitude: ${state.longitude}".log();
                         },

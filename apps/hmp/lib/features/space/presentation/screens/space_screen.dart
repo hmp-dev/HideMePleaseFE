@@ -7,10 +7,28 @@ import 'package:mobile/features/space/domain/entities/recommendation_space_entit
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/views/space_view.dart';
 
+/// Represents the Space screen widget.
+///
+/// This widget is responsible for displaying the Space screen in the app.
+/// It uses the [StatefulWidget] lifecycle and creates a [_SpaceScreenState]
+/// to manage the state of the screen.
 class SpaceScreen extends StatefulWidget {
+  /// Creates a [SpaceScreen] widget.
+  ///
+  /// This constructor takes no parameters and returns an instance of
+  /// [SpaceScreen].
   const SpaceScreen({super.key});
 
   @override
+  // Create and return the mutable state for this widget at a given location in
+  // the tree.
+  //
+  // Subclasses should override this method to return a newly created
+  // instance of their associated [State] subclass.
+  //
+  // The framework will call this method multiple times over the lifetime of
+  // a [StatefulWidget], so it must be able to create a fresh new instance
+  // each time it is called.
   State<SpaceScreen> createState() => _SpaceScreenState();
 }
 

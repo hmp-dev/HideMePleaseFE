@@ -26,19 +26,45 @@ import 'package:mobile/features/space/presentation/cubit/space_benefits_cubit.da
 import 'package:mobile/features/space/presentation/widgets/sunrise_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// A screen that allows the user to redeem a benefit in a specific space.
+///
+/// This screen is used when the user has already found a space that offers
+/// the selected benefit.
+///
+/// The [space] parameter represents the specific space in which the benefit
+/// is being redeemed.
+/// The [benefit] parameter represents the specific benefit that is being
+/// redeemed.
+/// The [isMatchedSpaceFound] parameter indicates whether the user has already
+/// found a space that offers the selected benefit.
 class RedeemBenefitScreenWithSpace extends StatefulWidget {
+  // Constructor for RedeemBenefitScreenWithSpace
   const RedeemBenefitScreenWithSpace({
     super.key,
-    required this.space,
-    required this.benefit,
-    required this.isMatchedSpaceFound,
+    required this.space, // The specific space in which the benefit is being redeemed
+    required this.benefit, // The specific benefit that is being redeemed
+    required this.isMatchedSpaceFound, // Indicates whether the user has already found a space that offers the selected benefit
   });
 
+  /// The specific space in which the benefit is being redeemed
   final SpaceDetailEntity space;
+
+  /// The specific benefit that is being redeemed
   final BenefitEntity benefit;
+
+  /// Indicates whether the user has already found a space that offers the selected benefit
   final bool isMatchedSpaceFound;
 
-  static push(
+  /// Pushes the RedeemBenefitScreenWithSpace to the navigation stack.
+  ///
+  /// The [context] parameter represents the build context.
+  /// The [space] parameter represents the specific space in which the benefit
+  /// is being redeemed.
+  /// The [benefit] parameter represents the specific benefit that is being
+  /// redeemed.
+  /// The [isMatchedSpaceFound] parameter indicates whether the user has already
+  /// found a space that offers the selected benefit.
+  static Future<dynamic> push(
     BuildContext context, {
     required SpaceDetailEntity space,
     required BenefitEntity selectedBenefitEntity,
