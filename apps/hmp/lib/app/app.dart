@@ -16,11 +16,19 @@ import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
+/// [MyApp] is the root widget of the application.
+///
+/// It initializes the app state and sets the initial route.
+/// The [isShowOnBoarding] parameter is used to determine whether to show the
+/// onboarding screens at startup.
 class MyApp extends StatefulWidget {
+  // Initialize the key of the widget
   const MyApp({super.key, this.isShowOnBoarding});
 
+  // Define the initial route to be shown when the app starts
   final int? isShowOnBoarding;
 
+  // Override the createState method to create the state of the widget
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -35,28 +43,65 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+
+  /// [build] method is the main building block of a widget.
+  /// It describes the part of the user interface represented by this widget.
+  ///
+  /// This method returns a [Widget] that displays the main page of the application.
+  /// It uses various widgets such as [RepositoryProvider], [SolanaWalletProvider],
+  /// [SendbirdUIKit], [MaterialApp], and others to build the UI.
+  ///
+  /// The [MaterialApp] widget is the root of the app's widget tree.
+  /// It provides many features to the app, such as:
+  /// - A [debugShowCheckedModeBanner] to show a banner when in debug mode.
+  /// - A [navigatorKey] to manage the navigation of the app.
+  /// - A [localizationsDelegates] to handle localization.
+  /// - A [supportedLocales] to handle supported locales.
+  /// - A [locale] to set the locale of the app.
+  /// - A [title] to set the title of the app.
+  /// - A [theme] to set the theme of the app.
+  /// - An [onGenerateRoute] to generate routes for the app.
+  /// - An [initialRoute] to set the initial route of the app.
+  /// - An [navigatorObservers] to observe the navigation of the app.
+  /// - A [builder] to build the app with additional features.
   Widget build(BuildContext context) {
+    // Return the main page of the application
     return RepositoryProvider.value(
+      // Provide the navigator key to the widget tree
       value: navigatorKey,
       child: SolanaWalletProvider.create(
+        // Create SolanaWalletProvider with the mainnet cluster
         httpCluster: Cluster.mainnet,
+        // Set the identity of the app
         identity: kSolanaAppId,
         child: SendbirdUIKit.provider(
           child: MaterialApp(
+            // Disable the debug banner
             debugShowCheckedModeBanner: false,
+            // Set the navigator key for navigation
             navigatorKey: StackedService.navigatorKey,
+            // Set the delegates for localization
             localizationsDelegates: context.localizationDelegates,
+            // Set the supported locales
             supportedLocales: context.supportedLocales,
+            // Set the locale of the app
             locale: context.locale,
-            title: '하이드미플리즈', //Hyde Me Please
+            // Set the title of the app
+            title: '하이드미플리즈', // Hyde Me Please
+            // Set the theme of the app
             theme: theme(),
+            // Generate routes for the app
             onGenerateRoute: generateRoute,
+            // Set the initial route of the app
             initialRoute: Routes.splashScreen,
+            // Observe the navigation of the app
             navigatorObservers: [
+              // Observe the route changes
               ObserverUtils.routeObserver,
-              //FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+              // Observe the route changes using TalkerRouteObserver
               TalkerRouteObserver(getIt<Talker>()),
             ],
+            // Build the app with additional features
             builder: EasyLoading.init(
               builder: FToastBuilder(),
             ),

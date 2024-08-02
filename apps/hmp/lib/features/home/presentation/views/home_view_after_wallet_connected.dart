@@ -33,14 +33,38 @@ import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
+/// A [StatefulWidget] that represents the home view after a wallet is connected.
+///
+/// This widget is responsible for displaying the home view after a wallet is
+/// connected. It takes two parameters:
+///
+/// - [isOverIconNavVisible]: A boolean value that determines if the icon
+/// navigation is visible.
+/// - [homeViewScrollController]: A [ScrollController] that controls the
+/// scrolling behavior of the home view.
 class HomeViewAfterWalletConnected extends StatefulWidget {
+  /// Creates a [HomeViewAfterWalletConnected] widget.
+  ///
+  /// The [isOverIconNavVisible] parameter determines if the icon navigation is
+  /// visible, and the [homeViewScrollController] parameter is a
+  /// [ScrollController] that controls the scrolling behavior of the home view.
   const HomeViewAfterWalletConnected({
     super.key,
     required this.isOverIconNavVisible,
     required this.homeViewScrollController,
   });
 
+  /// Determines if the icon navigation is visible.
+  ///
+  /// This value is used to determine the visibility of the icon navigation
+  /// widget.
   final bool isOverIconNavVisible;
+
+  /// A [ScrollController] that controls the scrolling behavior of the home view.
+  ///
+  /// This controller is used to control the scrolling behavior of the home view.
+  /// It can be used to scroll to a specific position or get the current scroll
+  /// offset.
   final ScrollController homeViewScrollController;
 
   @override

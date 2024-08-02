@@ -14,13 +14,16 @@ import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class SpaceSelectionScreen extends StatelessWidget {
+  // Constructor to initialize the list of spaces
   const SpaceSelectionScreen({
     super.key,
     required this.spaces,
   });
 
+  // List of NearBySpaceEntity representing the spaces to display
   final List<NearBySpaceEntity> spaces;
 
+  // Method to display the SpaceSelectionScreen in a modal bottom sheet
   static Future<dynamic> show(
       BuildContext context, List<NearBySpaceEntity> spaces) async {
     await showModalBottomSheet(
@@ -30,9 +33,11 @@ class SpaceSelectionScreen extends StatelessWidget {
         builder: (_) => SpaceSelectionScreen(spaces: spaces));
   }
 
+  // Build method to create the widget tree
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
+      // Apply a blur filter to the background of the widget
       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
       child: Container(
         width: double.infinity,
@@ -52,6 +57,7 @@ class SpaceSelectionScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
+            // Display the title and close button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -73,6 +79,7 @@ class SpaceSelectionScreen extends StatelessWidget {
               ],
             ),
             const VerticalSpace(30),
+            // Display the text explaining the purpose of the screen
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -89,6 +96,7 @@ class SpaceSelectionScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 30),
+            // Display the list of spaces
             spaces.isEmpty
                 ? SizedBox(
                     height: MediaQuery.of(context).size.height * 0.9 - 200,
@@ -106,6 +114,7 @@ class SpaceSelectionScreen extends StatelessWidget {
                       shrinkWrap: true,
                       itemCount: spaces.length,
                       itemBuilder: (context, index) {
+                        // Build each SpaceSelectItem widget
                         return SpaceSelectItem(
                           spaceEntity: spaces[index],
                           onTap: () {

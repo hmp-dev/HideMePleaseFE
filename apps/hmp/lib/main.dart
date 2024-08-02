@@ -58,35 +58,34 @@ void main() async {
   FlutterNativeSplash.remove();
 }
 
+/// Initializes the app by setting preferred screen orientations,
+/// configuring dependencies, initializing Firebase and localization,
+/// configuring Firebase Crashlytics, configuring the logger,
+/// and setting the Bloc observer.
 Future initApp() async {
+  // Set preferred screen orientations for the app
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // DI
+  // Configure the necessary dependencies for the app
   await configureDependencies();
 
+  // Initialize Firebase and localization
   await Future.wait([
-    // Firebase
     Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
-
-    // Localization
     EasyLocalization.ensureInitialized(),
-
-    // Chat
-    //TalkPlusAPI.init(appEnv.talkplusApiKey),
-
-    // App
-    // getIt<AppCubit>().onStart(),
   ]);
 
-  // Initialize Firebase Crashlytics
+  // Initialize Firebase Crashlytics and configure error reporting
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 
+  // Configure the logger for the app
   Log.configureLogger();
 
+  // Configure the loading indicator for the app
   EasyLoading.instance
     ..displayDuration = const Duration(milliseconds: 2000)
     ..loadingStyle = EasyLoadingStyle.custom
@@ -106,10 +105,10 @@ Future initApp() async {
     ..boxShadow = <BoxShadow>[]
     ..indicatorType = EasyLoadingIndicatorType.cubeGrid;
 
-  // Set the Bloc observer after initializing dependencies
+  // Get the Talker instance from the dependency injection container
   final talker = getIt<Talker>();
-  //Bloc.observer = MyTalkerBlocObserver(talker: talker);
 
+  // Configure the Bloc observer for the app
   Bloc.observer = TalkerBlocObserver(
     talker: talker,
     settings: const TalkerBlocLoggerSettings(

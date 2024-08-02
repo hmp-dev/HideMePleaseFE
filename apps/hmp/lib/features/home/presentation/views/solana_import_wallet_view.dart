@@ -8,10 +8,20 @@ import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.da
 import 'package:solana/solana.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 
+/// A [StatefulWidget] that allows the user to import a Solana wallet.
+///
+/// This widget is responsible for displaying a form where the user can input
+/// their Solana wallet's public key. Once the user submits the form, the
+/// public key is stored in the [publicKey] variable of the state.
 class SolanaImportWalletView extends StatefulWidget {
+  /// Creates a [SolanaImportWalletView].
+  ///
+  /// The [key] is an optional [Key] that can be used to identify this widget.
   const SolanaImportWalletView({super.key});
 
   @override
+  // Returns an instance of [_SolanaImportWalletViewState] that handles the
+  // state of this widget.
   State<SolanaImportWalletView> createState() => _SolanaImportWalletViewState();
 }
 

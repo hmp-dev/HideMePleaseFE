@@ -82,35 +82,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+
+  /// Builds the widget tree for the [HomeScreen]
+  ///
+  /// This function sets up the widget tree for the [HomeScreen] and returns a
+  /// [MultiBlocListener] widget. It listens to changes in the [WalletsCubit]
+  /// and [NearBySpacesCubit] states and updates the UI accordingly. It also
+  /// builds the [HomeView] based on the [HomeViewType] state.
+  @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
+      // Listen to changes in the [WalletsCubit] and perform actions accordingly
       listeners: [
         BlocListener<WalletsCubit, WalletsState>(
-          // only listen to navigate to MyMembershipSettingsScreen
-          // when a new wallet is connected
           listenWhen: (previous, current) =>
               previous.connectedWallets.length <
               current.connectedWallets.length,
           bloc: getIt<WalletsCubit>(),
           listener: (context, state) {
             if (state.isSubmitSuccess) {
-              // show the AfterLoginWithNFT screen
+              // Show the AfterLoginWithNFT screen
               getIt<HomeCubit>()
                   .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
-              // apply to not move to MyMembershipSettingsScreen
-              // if the newly connected Wallet is Klip
-              // and user freeNftClaimed  status is false
+              // Apply conditions to decide whether to navigate to MyMembershipSettingsScreen
+              // based on the newly connected Wallet type and user freeNftClaimed status
               if (state.connectedWallets.isNotEmpty &&
                   hasKlipProvider(state.connectedWallets)) {
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
               } else {
-                // call to get nft collections
+                // Fetch nft collections
                 getIt<NftCubit>().onGetNftCollections();
-
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
-                // navigate to MyMembershipSettingsScreen
+                // Navigate to MyMembershipSettingsScreen
                 MyMembershipSettingsScreen.push(context);
               }
             }
@@ -125,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (state.isSubmitSuccess) {
               if (state.spacesResponseEntity.spaces.isEmpty &&
                   state.selectedBenefitEntity.spaceId.isNotEmpty) {
+                // Navigate to RedeemBenefitScreen with empty space
                 RedeemBenefitScreen.push(
                   context,
                   nearBySpaceEntity: const NearBySpaceEntity.empty(),
@@ -134,17 +140,13 @@ class _HomeScreenState extends State<HomeScreen> {
               } else if (state.spacesResponseEntity.spaces.isNotEmpty) {
                 // Determine which view to show based on selectedBenefitEntity
                 if (state.selectedBenefitEntity.spaceId.isNotEmpty) {
-                  "inside state.selectedBenefitEntity.spaceId != '' :${state.selectedBenefitEntity.spaceId}"
-                      .log();
-
+                  // Check if the selected space is present in the list of spaces
                   bool isSpaceMatched = false;
                   NearBySpaceEntity matchedSpace =
                       const NearBySpaceEntity.empty();
 
                   for (var space in state.spacesResponseEntity.spaces) {
                     if (state.selectedSpaceDetailEntity.id.isNotEmpty) {
-                      "inside Selected SpaceID is not null: ${state.selectedSpaceDetailEntity.id}"
-                          .log();
                       if (space.id == state.selectedSpaceDetailEntity.id) {
                         isSpaceMatched = true;
                         matchedSpace = space;
@@ -161,6 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   await Future.delayed(const Duration(milliseconds: 500));
 
                   if (state.selectedSpaceDetailEntity.id.isNotEmpty) {
+                    // Navigate to RedeemBenefitScreenWithSpace
                     RedeemBenefitScreenWithSpace.push(
                       context,
                       isMatchedSpaceFound: isSpaceMatched,
@@ -168,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       selectedBenefitEntity: state.selectedBenefitEntity,
                     );
                   } else if (isSpaceMatched) {
-                    "inside space selected".log();
+                    // Navigate to RedeemBenefitScreen with matched space
                     RedeemBenefitScreen.push(
                       context,
                       nearBySpaceEntity: matchedSpace,
@@ -176,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       isMatchedSpaceFound: true,
                     );
                   } else {
-                    "inside space ELSE selected".log();
+                    // Navigate to RedeemBenefitScreen with first space
                     RedeemBenefitScreen.push(
                       context,
                       nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
@@ -185,22 +188,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
                 } else {
-                  // Show Space Selection View if there are multiple spaces, otherwise show Redeem Benefit View
-                  // if (state.spacesResponseEntity.spaces.length > 1) {
-                  //   SpaceSelectionScreen.show(
-                  //       context, state.spacesResponseEntity.spaces);
-                  // } else {
-
-                  // Do not Show SpaceSelectionScreen Directly Go to RedeemBenefitScreen
+                  // Navigate to RedeemBenefitScreen with first space
                   RedeemBenefitScreen.push(
                     context,
                     nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
                   );
-                  //}
                 }
               } else if (state.selectedSpaceDetailEntity.id.isNotEmpty) {
-                "inside nearby spaces are empty and state.selectedSpaceDetailEntity.id != ''"
-                    .log();
+                // Navigate to RedeemBenefitScreenWithSpace with empty spaces
                 RedeemBenefitScreenWithSpace.push(
                   context,
                   isMatchedSpaceFound: false,
@@ -208,14 +203,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   selectedBenefitEntity: state.selectedBenefitEntity,
                 );
               } else {
+                // Show SpaceSelectionScreen
                 SpaceSelectionScreen.show(context, []);
-
-                // here I need the Token Address to pass and  fetch and show the NFT benefits list
               }
             }
           },
         ),
       ],
+      // Build the widget tree based on the HomeState and NftState
       child: BlocBuilder<HomeCubit, HomeState>(
         bloc: getIt<HomeCubit>(),
         builder: (context, state) {

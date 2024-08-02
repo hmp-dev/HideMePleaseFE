@@ -137,6 +137,11 @@ const gray200 = Color(0xffF5F5F5);
 const gray300 = Color(0xffe9e9e9);
 const gray500 = Color(0xffD9D9D9);
 
+/// Returns a TextStyle with the specified font size, color, letterSpacing, and lineHeight.
+/// The [size] parameter is required and specifies the font size.
+/// The [color] parameter is optional and specifies the color of the text.
+/// The [letterSpacing] parameter is optional and specifies the spacing between characters.
+/// The [lineHeight] parameter is optional and specifies the height of each line of text.
 TextStyle fontL(
   double size, {
   Color? color,
@@ -152,6 +157,12 @@ TextStyle fontL(
       height: lineHeight,
     );
 
+/// Returns a [TextStyle] with the specified font size, color, letterSpacing, and lineHeight.
+///
+/// The [size] parameter is required and specifies the font size.
+/// The [color] parameter is optional and specifies the color of the text.
+/// The [letterSpacing] parameter is optional and specifies the spacing between characters.
+/// The [lineHeight] parameter is optional and specifies the height of each line of text.
 TextStyle fontR(
   double size, {
   Color? color,
@@ -482,6 +493,13 @@ TextStyle fontBodyLgBold({Color? color = fore1}) => TextStyle(
       height: 1.7,
     );
 
+/// Creates a [TextStyle] for the body medium font.
+///
+/// The [color] parameter specifies the color of the text. If not provided,
+/// the default color [fore1] is used.
+///
+/// Returns a [TextStyle] with the specified font size, font family, font
+/// weight, color, letter spacing, and line height.
 TextStyle fontBodyMd({Color? color = fore1}) => TextStyle(
       fontSize: 16,
       fontFamily: 'Pretendard',
@@ -499,7 +517,6 @@ TextStyle fontBodyMdSize15({Color? color = fore1}) => TextStyle(
       letterSpacing: -0.1,
       height: 1.7,
     );
-
 
 TextStyle fontBodyMdMedium({Color? color = fore1}) => TextStyle(
       fontSize: 16,
@@ -784,21 +801,52 @@ TextStyle fontTitle01Bold({Color? color = fore1}) => TextStyle(
       letterSpacing: -0.1,
       height: 1.4,
     );
+
+/// Returns a [ThemeData] object with custom styling configurations.
+///
+/// The theme data includes configurations for the scaffold background color,
+/// primary color, color scheme, Material 3 usage, app bar theme, and text
+/// selection theme.
 ThemeData theme() {
   return ThemeData(
+    // Set the scaffold background color to a dark grey.
     scaffoldBackgroundColor: const Color(0xFF0C0C0E),
+
+    // Set the primary color to a light blue.
     primaryColor: lightBlue,
-    colorScheme:
-        ColorScheme.fromSeed(seedColor: lightBlue, brightness: Brightness.dark),
+
+    // Create a color scheme from the light blue seed color and set the brightness
+    // to dark.
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: lightBlue,
+      brightness: Brightness.dark,
+    ),
+
+    // Enable Material 3 usage.
     useMaterial3: true,
+
+    // Set the app bar theme with a transparent background color, a black icon
+    // theme, and no elevation.
     appBarTheme: AppBarTheme(
-        elevation: 0,
-        backgroundColor: Colors.grey[50],
-        iconTheme: const IconThemeData(color: Colors.black)),
+      elevation: 0,
+      backgroundColor: Colors.grey[50],
+      iconTheme: const IconThemeData(color: Colors.black),
+    ),
+
+    // Set the text selection theme with a black cursor color.
     textSelectionTheme: const TextSelectionThemeData(
       cursorColor: Colors.black,
     ),
   );
 }
 
+// Defines the theme for the Talker widget.
+//
+// This `const` object is used to define the theme for the Talker widget in the
+// Material Design Lite (MDL) library. MDL is a lightweight library that provides
+// a set of UI components and styles that adhere to the Material Design guidelines.
+//
+// The `TalkerScreenTheme` class is used to define the theme for the Talker widget.
+// It provides properties for defining the color, size, and other styling
+// configurations for the Talker widget.
 const talkerTheme = TalkerScreenTheme();

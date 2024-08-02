@@ -22,6 +22,7 @@ enum ErrorCodes {
 }
 
 extension ErrorMessages on ErrorCodes {
+  /// Provides a human-readable message corresponding to the error code.
   String get message {
     switch (this) {
       case ErrorCodes.COULD_NOT_VERIFY:
@@ -60,6 +61,16 @@ extension ErrorMessages on ErrorCodes {
   }
 }
 
+/// Retrieves the error message corresponding to the provided error code.
+///
+/// This function searches through the `ErrorCodes` enumeration to find a match
+/// for the given `errorCode`. If a match is found, the associated error message
+/// is returned. If no match is found or an exception occurs, a default error
+/// message is returned.
+///
+/// @param errorCode The error code for which the error message is to be retrieved.
+/// @return The error message corresponding to the provided error code, or a default
+///         message if the error code is not found or an exception occurs.
 String getErrorMessage(String errorCode) {
   try {
     return ErrorCodes.values

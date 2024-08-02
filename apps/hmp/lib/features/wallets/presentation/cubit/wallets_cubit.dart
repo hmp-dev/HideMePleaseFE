@@ -108,14 +108,26 @@ class WalletsCubit extends BaseCubit<WalletsState> {
   ///
   ///
 
+  /// Initialize the WalletsCubit with a [SolanaWalletProvider].
+  ///
+  /// This function initializes the SolanaWalletProvider and the WalletConnect
+  /// service. It also subscribes to various events emitted by the WalletConnect
+  /// service.
+  ///
+  /// Parameters:
+  /// - [solWallet]: The SolanaWalletProvider to use.
+  ///
+  /// Returns:
+  /// - A [Future] that completes when the initialization is done.
   Future<void> init({required SolanaWalletProvider solWallet}) async {
+    // Set the initial state to loading
     emit(state.copyWith(submitStatus: RequestStatus.loading));
 
     try {
-      // Solana Wallet
+      // Set the SolanaWalletProvider
       _solanaWallet = solWallet;
 
-      // Wallet Connect
+      // Initialize the WalletConnect service
       _w3mService = W3MService(
         logLevel: LogLevel.nothing,
         featuredWalletIds: Web3Constants.allowedWalletIds,
@@ -135,23 +147,30 @@ class WalletsCubit extends BaseCubit<WalletsState> {
 
       await _w3mService!.init();
 
-      // Subscribe to events
+      // Subscribe to session events
       _w3mService!.onSessionEventEvent.subscribe(_onSessionEvent);
+      // Subscribe to session updates
       _w3mService!.onSessionUpdateEvent.subscribe(_onSessionUpdate);
+      // Subscribe to session expiration
       _w3mService!.onSessionExpireEvent.subscribe(_onSessionExpired);
+      // Subscribe to modal errors
       _w3mService!.onModalError.subscribe(_onModalError);
+      // Subscribe to modal connection
       _w3mService!.onModalConnect.subscribe(_onModalConnect);
+      // Subscribe to modal disconnection
       _w3mService!.onModalDisconnect.subscribe(_onModalDisconnect);
 
+      // Emit the success state
       emit(state.copyWith(
         w3mService: _w3mService,
         submitStatus: RequestStatus.success,
-      )); // Emit success state
+      ));
     } catch (e) {
+      // Emit the failure state with an error message
       emit(state.copyWith(
         submitStatus: RequestStatus.failure,
         errorMessage: LocaleKeys.somethingError.tr(),
-      )); // Emit failure state with error message
+      ));
     }
   }
 
@@ -182,17 +201,33 @@ class WalletsCubit extends BaseCubit<WalletsState> {
         reason: "Wallet Connect Error");
   }
 
+  /// Callback function for when a wallet is connected through the modal.
+  ///
+  /// This function is called when a wallet is connected through the modal.
+  /// It logs the address of the connected wallet and the name of the
+  /// connected wallet provider. It then calls the `onPostWallet` function
+  /// to save the wallet details to the server.
+  ///
+  /// Parameters:
+  /// - [args]: The `ModalConnect` object that contains the session details
+  ///           of the connected wallet.
   void _onModalConnect(ModalConnect? args) {
+    // Log the address and name of the connected wallet
     ('[$runtimeType] onModalConnect ${args?.session.address}').log();
     final publicAddress = args?.session.address ?? '';
     final connectedWalletName =
         args?.session.connectedWalletName?.toUpperCase() ?? '';
 
+    // Get the name of the connected wallet provider
     final providerName = getWalletProvider(connectedWalletName);
 
+    // Call the onPostWallet function to save the wallet details
     onPostWallet(
-        saveWalletRequestDto: SaveWalletRequestDto(
-            publicAddress: publicAddress, provider: providerName));
+      saveWalletRequestDto: SaveWalletRequestDto(
+        publicAddress: publicAddress,
+        provider: providerName,
+      ),
+    );
   }
 
   void _onModalDisconnect(ModalDisconnect? args) {

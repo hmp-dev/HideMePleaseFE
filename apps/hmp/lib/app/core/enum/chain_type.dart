@@ -7,22 +7,31 @@ enum ChainType {
   POLYGON,
   KLAYTN;
 
+  /// Converts the given [chain] string to a [ChainType] enum case.
+  ///
+  /// The [chain] string is converted to uppercase before comparison.
+  /// If the [chain] string is null or does not match any of the enum cases,
+  /// [ChainType.ALL] is returned.
   static ChainType fromString(String? chain) {
+    // Convert the chain string to uppercase for case insensitive comparison.
     chain = chain?.toUpperCase();
+
+    // Match the chain string to the corresponding enum case.
     switch (chain) {
       case 'ETHEREUM':
-        return ChainType.ETHEREUM;
+        return ChainType.ETHEREUM; // Returns ChainType.ETHEREUM enum case.
       case 'SOLANA':
-        return ChainType.SOLANA;
+        return ChainType.SOLANA; // Returns ChainType.SOLANA enum case.
       case 'POLYGON':
-        return ChainType.POLYGON;
+        return ChainType.POLYGON; // Returns ChainType.POLYGON enum case.
       case 'KLAYTN':
-        return ChainType.KLAYTN;
+        return ChainType.KLAYTN; // Returns ChainType.KLAYTN enum case.
       default:
-        return ChainType.ALL;
+        return ChainType.ALL; // Returns ChainType.ALL enum case.
     }
   }
 
+  /// Returns the logo path for the chain based on the given [ChainType].
   String get chainLogo {
     switch (this) {
       case ChainType.ETHEREUM:
@@ -38,6 +47,16 @@ enum ChainType {
     }
   }
 
+  /// Returns the label associated with the [ChainType].
+  ///
+  /// This getter provides a human-readable string representation
+  /// of the [ChainType] enum value.
+  ///
+  /// - `ChainType.ETHEREUM`: Returns 'Ethereum'.
+  /// - `ChainType.SOLANA`: Returns 'Solana'.
+  /// - `ChainType.POLYGON`: Returns 'Polygon'.
+  /// - `ChainType.KLAYTN`: Returns 'Klaytn'.
+  /// - Default: Returns 'All'.
   String get label {
     switch (this) {
       case ChainType.ETHEREUM:

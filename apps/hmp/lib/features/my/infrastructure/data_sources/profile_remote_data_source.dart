@@ -34,6 +34,28 @@ class ProfileRemoteDataSource {
     return UserProfileDto.fromJson(response.data as Map<String, dynamic>);
   }
 
+  /// Checks if a given nickname exists for a user.
+  ///
+  /// This function sends a GET request to the server to check if the given nickname
+  /// already exists for a user. It returns a `Future<bool>` that resolves to `true`
+  /// if the nickname exists, and `false` otherwise.
+  ///
+  /// Parameters:
+  /// - `nickName`: The nickname to check for existence.
+  ///
+  /// Returns:
+  /// - A `Future<bool>` that resolves to `true` if the nickname exists, and `false` otherwise.
+  /// Checks if a given nickname exists for a user.
+  ///
+  /// This function sends a GET request to the server to check if the given nickname
+  /// already exists for a user. It returns a `Future<bool>` that resolves to `true`
+  /// if the nickname exists, and `false` otherwise.
+  ///
+  /// Parameters:
+  /// - `nickName`: The nickname to check for existence.
+  ///
+  /// Returns:
+  /// - A `Future<bool>` that resolves to `true` if the nickname exists, and `false` otherwise.
   Future<bool> checkNickNameExist(String nickName) async {
     final response =
         await _network.get("user/nickName/exists?nickName=$nickName", {});

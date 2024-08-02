@@ -25,6 +25,13 @@ import 'package:mobile/features/my/presentation/screens/select_profile_image_scr
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// `MyEditView` is a stateful widget that displays the user's editable data.
+///
+/// It requires a [UserProfileEntity] `userData` to display the user's
+/// profile image, nickname, and introduction. It also requires a [NickNameState]
+/// `nickNameState` to display the nickname availability and error message.
+/// The widget is stateful because it needs to keep track of the user's input
+/// and the scroll position of the form.
 class MyEditView extends StatefulWidget {
   const MyEditView({
     super.key,
@@ -32,7 +39,10 @@ class MyEditView extends StatefulWidget {
     required this.nickNameState,
   });
 
+  /// The user's profile data.
   final UserProfileEntity userData;
+
+  /// The nickname state of the user.
   final NickNameState nickNameState;
 
   @override
@@ -40,10 +50,32 @@ class MyEditView extends StatefulWidget {
 }
 
 class _MyEditViewState extends State<MyEditView> {
+
+  // ScrollController for the ScrollView.
+  //
+  // Used to control the scroll position of the form.
   late ScrollController _scrollController;
+
+  // The user's nickname.
+  //
+  // Used to keep track of the user's input in the nickname field.
   String nickName = "";
+
+  // The user's introduction.
+  //
+  // Used to keep track of the user's input in the introduction field.
   String introduction = "";
+
+  // Indicates whether or not to show the tooltip.
+  //
+  // Used to control the visibility of the tooltip widget based on whether
+  // or not the user has scrolled past the nickname field.
   bool _isShowToolTip = false;
+
+  // Indicates whether or not the user's location is public.
+  //
+  // Used to keep track of the user's location setting and to display the
+  // toggle button accordingly.
   bool isLocationPublic = false;
 
   @override

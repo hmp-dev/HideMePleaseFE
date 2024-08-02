@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
@@ -81,8 +80,18 @@ class _MyMembershipSettingsScreenState
   }
 
   @override
+
+  /// Dispose method to release resources when the widget is no longer used.
+  /// In this method, we are calling the `onGetNftCollections` and `onGetSelectedNftTokens` methods of the `NftCubit` class obtained from the `getIt` function.
+  /// This is done to ensure that the cubit is properly disposed and any resources it holds are released.
+  ///
+  /// After calling these methods, we call the `super.dispose()` method to ensure that the parent class's `dispose` method is also called.
+  @override
   void dispose() {
+    // Call onGetNftCollections method of NftCubit to release resources related to loading NFT collections
     getIt<NftCubit>().onGetNftCollections();
+
+    // Call onGetSelectedNftTokens method of NftCubit to release resources related to loading selected NFT tokens
     getIt<NftCubit>().onGetSelectedNftTokens();
 
     super.dispose();
