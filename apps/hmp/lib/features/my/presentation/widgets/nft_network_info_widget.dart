@@ -1,13 +1,18 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class NftNetworkInfoWidget extends StatelessWidget {
   const NftNetworkInfoWidget({
     super.key,
+    required this.totalMembers,
   });
+
+  final int totalMembers;
 
   @override
   Widget build(BuildContext context) {
@@ -22,20 +27,20 @@ class NftNetworkInfoWidget extends StatelessWidget {
           child: Column(
             children: [
               NftDetailValueTile(
-                title: "네트워크", //chian
+                title: LocaleKeys.network.tr(), //"네트워크", //chian
                 value: state.nftNetworkEntity.network,
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 child: NftDetailValueTile(
-                  title: "홀더 수", //"Holders",
-                  value: state.nftNetworkEntity.holderCount,
+                  title: LocaleKeys.numberOfMembers.tr(), //"Holders",
+                  value: "$totalMembers",
                 ),
               ),
-              NftDetailValueTile(
-                title: "바닥가", //"Floor Price",
-                value: "${state.nftNetworkEntity.floorPrice}",
-              ),
+              // NftDetailValueTile(
+              //   title: "바닥가", //"Floor Price",
+              //   value: state.nftNetworkEntity.floorPrice,
+              // ),
             ],
           ),
         );

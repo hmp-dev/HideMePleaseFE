@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/chat/presentation/screens/chat_screen.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -57,7 +58,10 @@ class _MyMembershipNftDetailScreenState
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: HMPCustomButton(
           text: LocaleKeys.enterTheChatRoom.tr(),
-          onPressed: () {},
+          onPressed: () {
+            CommunityChatScreen.push(context,
+                channel: widget.nftEntity.tokenAddress);
+          },
         ),
       ),
       body: SafeArea(
@@ -137,7 +141,9 @@ class _MyMembershipNftDetailScreenState
                     ),
                   ),
                 ),
-                const NftNetworkInfoWidget(),
+                NftNetworkInfoWidget(
+                  totalMembers: widget.nftEntity.totalMembers,
+                ),
               ],
             );
           },
@@ -174,7 +180,8 @@ class _MyMembershipNftDetailScreenState
             Padding(
               padding: const EdgeInsets.only(left: 20.0, top: 20),
               child: DefaultImage(
-                path: "assets/chain-logos/ethereum_chain.svg",
+                path:
+                    "assets/chain-logos/${nftPointsEntity.chain.toLowerCase()}_chain.svg",
                 width: 30,
                 height: 30,
               ),
