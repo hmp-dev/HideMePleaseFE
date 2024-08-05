@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-// import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -35,6 +35,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  
+  static FirebaseAnalyticsObserver firebaseAnalyticsObserver =
+      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance);
 
   @override
   void initState() {
@@ -96,6 +99,7 @@ class _MyAppState extends State<MyApp> {
             initialRoute: Routes.splashScreen,
             // Observe the navigation of the app
             navigatorObservers: [
+              firebaseAnalyticsObserver,
               // Observe the route changes
               ObserverUtils.routeObserver,
               // Observe the route changes using TalkerRouteObserver
