@@ -16,11 +16,26 @@ import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+/// OnBoardingScreen is a stateful widget that represents the onboarding screen.
+///
+/// It is responsible for displaying the onboarding slides to the user.
+/// The widget is implemented using the stateful widget pattern where the
+/// state is managed by the [_OnBoardingScreenState] class.
 class OnBoardingScreen extends StatefulWidget {
+  /// Creates a new instance of [OnBoardingScreen].
+  ///
+  /// The [key] parameter is used to uniquely identify the widget throughout the
+  /// widget tree.
   const OnBoardingScreen({super.key});
 
-  static push(BuildContext context) async {
-    return await Navigator.push(
+  /// Pushes the [OnBoardingScreen] widget to the navigation stack.
+  ///
+  /// This method takes a [BuildContext] as a parameter and returns a [Future]
+  /// that resolves to the result of the navigation. The widget is wrapped in a
+  /// [MaterialPageRoute] and pushed onto the navigation stack using the
+  /// [Navigator.push] method.
+  static Future<T?> push<T extends Object?>(BuildContext context) async {
+    return await Navigator.push<T>(
       context,
       MaterialPageRoute(
         builder: (_) => const OnBoardingScreen(),
@@ -28,6 +43,19 @@ class OnBoardingScreen extends StatefulWidget {
     );
   }
 
+  /// Creates the mutable state for this widget at a given location in the tree.
+  ///
+  /// This method is called when inflating the widget's element, and should
+  /// return a new instance of the associated [State] class.
+  ///
+  /// Subclasses should override this method to return a newly created
+  /// instance of their associated [State] subclass.
+  ///
+  /// The framework will call this method multiple times over the lifetime of
+  /// a [StatefulWidget], for example when the widget is inserted into the
+  /// tree, when the widget is updated, or when the widget is removed from the
+  /// tree. It is therefore critical that the [createState] method return
+  /// consistently distinct objects.
   @override
   State<OnBoardingScreen> createState() => _OnBoardingScreenState();
 }
