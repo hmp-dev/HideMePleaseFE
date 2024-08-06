@@ -177,5 +177,6 @@
     "nonPermitLocation": "미허용",
     "permittedLocation": "허용",
     "walkerhill": "워커힐",
-    "eventApplicationStatus":"이벤트 신청 현황"
+    "eventApplicationStatus":"이벤트 신청 현황",
+    "dontShowMeForAWeek": "일주일동안 보지 않기"
 }

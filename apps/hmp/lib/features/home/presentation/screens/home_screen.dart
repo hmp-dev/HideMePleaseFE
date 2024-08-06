@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/features/home/presentation/widgets/notice_dialog.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/screens/space_selection_screen.dart';
@@ -19,6 +21,7 @@ import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_with_space.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:upgrader/upgrader.dart';
 
@@ -39,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
     _initWallets();
+    _checkAndShowDailyServiceNoticeDialog();
   }
 
   void _initWallets() async {
@@ -71,6 +75,42 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isVisible = true;
       });
+    }
+  }
+
+  Future<void> _checkAndShowDailyServiceNoticeDialog() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Get current date
+    DateTime now = DateTime.now();
+
+    // Get last skip date from SharedPreferences
+    int skipDateMillis = prefs.getInt('sevenDaySkipDate') ?? 0;
+    DateTime skipDate = DateTime.fromMillisecondsSinceEpoch(skipDateMillis);
+
+    // Calculate the difference in days between the current date and the skip date
+    int differenceInDays = now.difference(skipDate).inDays;
+
+
+    // Show the dialog here
+    Log.debug('day passed to skip are : $differenceInDays');
+    // If it has been seven or more days since the skip date, show the dialog
+    if (differenceInDays >= 7) {
+      // Show the dialog here
+      Log.debug('Showing daily service notice dialog.');
+      showDailyServiceNoticeDialog();
+    }
+  }
+
+
+  showDailyServiceNoticeDialog() async {
+    // sow NoticeDialog on firstLoad after Sign Up
+    await Future.delayed(const Duration(seconds: 2));
+    if (context.mounted) {
+      NoticeDialog.show(
+        context: context,
+        imageUrl: "pass image Url Here",
+      );
     }
   }
 

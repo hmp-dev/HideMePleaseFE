@@ -179,5 +179,6 @@ abstract class  LocaleKeys {
   static const permittedLocation = 'permittedLocation';
   static const walkerhill = 'walkerhill';
   static const eventApplicationStatus = 'eventApplicationStatus';
+  static const dontShowMeForAWeek = 'dontShowMeForAWeek';
 
 }

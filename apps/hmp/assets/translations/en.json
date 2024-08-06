@@ -176,5 +176,6 @@
      "nonPermitLocation": "Not Allowed",
      "permittedLocation": "Allowed",
      "walkerhill": "Walkerhill",
-     "eventApplicationStatus":"Event Application Status"
+     "eventApplicationStatus":"Event Application Status",
+     "dontShowMeForAWeek": "Don't Show me for a week"
 }
