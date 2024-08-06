@@ -8,17 +8,43 @@ import 'package:mobile/features/common/presentation/widgets/default_dialog.dart'
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_loading.dart';
 
+/// The base scaffold widget for all screens.
+///
+/// This widget provides a standardized structure for all screens in the app.
+/// It includes a title, a back button, a loading indicator, and a bottom navigation bar.
+/// The [body] parameter is the main content of the screen.
 class BaseScaffold extends StatefulWidget {
+  // Title of the screen
   final String? title;
+
+  // Function to be called when the back button is pressed
   final Function? onBack;
+
+  // Suffix widget to be placed at the end of the title
   final Widget? suffix;
+
+  // Whether the title should be centered or not
   final bool isCenterTitle;
+
+  // The main content of the screen
   final Widget body;
+
+  // Background color of the screen
   final Color? backgroundColor;
+
+  // Whether the loading indicator should be displayed or not
   final bool onLoading;
+
+  // Whether the screen is the first page or not
   final bool isFirstPage;
+
+  // Whether the safe area should be applied or not
   final bool safeArea;
+
+  // Path to the back icon
   final String backIconPath;
+
+  // Bottom navigation bar of the screen
   final Widget? bottomNavigationBar;
 
   const BaseScaffold({
