@@ -4,12 +4,22 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// This class represents the screen for displaying the privacy policy.
+///
+/// It extends the [StatefulWidget] class and has a single method [PrivacyPolicyScreen.createState]
+/// which returns [_PrivacyPolicyScreenState].
 class PrivacyPolicyScreen extends StatefulWidget {
+  /// This constructor initializes [PrivacyPolicyScreen].
+  ///
+  /// It takes no parameters.
   const PrivacyPolicyScreen({
     super.key,
   });
 
-  static push(BuildContext context) async {
+  /// This method is used to navigate to the [PrivacyPolicyScreen].
+  ///
+  /// It takes a [BuildContext] as a parameter and returns a [Future<dynamic>].
+  static Future<dynamic> push(BuildContext context) async {
     return await Navigator.push(
       context,
       MaterialPageRoute(
@@ -18,6 +28,9 @@ class PrivacyPolicyScreen extends StatefulWidget {
     );
   }
 
+  /// This method overrides the [StatefulWidget.createState] method of the superclass.
+  ///
+  /// It returns an instance of [_PrivacyPolicyScreenState].
   @override
   State<PrivacyPolicyScreen> createState() => _PrivacyPolicyScreenState();
 }

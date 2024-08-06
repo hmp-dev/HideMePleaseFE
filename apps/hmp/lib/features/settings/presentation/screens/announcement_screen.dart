@@ -8,10 +8,19 @@ import 'package:mobile/features/settings/presentation/screens/announcement_detai
 import 'package:mobile/features/settings/presentation/widgets/announcement_feature_tile.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// Widget that displays the announcement screen.
+///
+/// This widget is responsible for displaying the announcement screen.
+/// It provides a way for users to view and navigate to the details of announcements.
 class AnnouncementScreen extends StatefulWidget {
+  /// Creates a [AnnouncementScreen] widget.
   const AnnouncementScreen({super.key});
 
-  static push(BuildContext context) async {
+  /// Pushes the [AnnouncementScreen] to the navigation stack.
+  ///
+  /// Takes a [BuildContext] as a parameter.
+  /// Returns a [Future] that resolves to the result of the navigation.
+  static Future<dynamic> push(BuildContext context) async {
     return await Navigator.push(
       context,
       MaterialPageRoute(
@@ -20,6 +29,10 @@ class AnnouncementScreen extends StatefulWidget {
     );
   }
 
+  /// Creates the mutable state for this widget at a given location in the tree.
+  ///
+  /// The framework will call this method when it inflates this widget to create
+  /// a new [State] object.
   @override
   State<AnnouncementScreen> createState() => _AnnouncementScreenState();
 }

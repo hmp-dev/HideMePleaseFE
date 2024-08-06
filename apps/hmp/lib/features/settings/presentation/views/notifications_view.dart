@@ -6,12 +6,27 @@ import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/settings/domain/entities/notification_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// `NotificationsView` is a stateful widget that represents the screen for managing user notifications.
+/// It displays a list of notifications to the user and provides a refresh button to fetch new notifications.
 class NotificationsView extends StatefulWidget {
-  const NotificationsView(
-      {super.key, required this.onRefresh, required this.notifications});
-
+  /// The `onRefresh` function is called when the user pulls down to refresh the list of notifications.
+  ///
+  /// It returns a [Future] that resolves to `void`.
   final Future<void> Function() onRefresh;
+
+  /// The `notifications` list contains the notifications to be displayed on the screen.
+  ///
+  /// It is a list of [NotificationEntity] objects.
   final List<NotificationEntity> notifications;
+
+  /// Creates a new instance of the `NotificationsView` class.
+  ///
+  /// The `onRefresh` and `notifications` parameters are required.
+  const NotificationsView({
+    super.key,
+    required this.onRefresh,
+    required this.notifications,
+  });
 
   @override
   State<NotificationsView> createState() => _NotificationsViewState();

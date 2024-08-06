@@ -7,13 +7,20 @@ import 'package:mobile/features/settings/presentation/screens/terms_of_services_
 import 'package:mobile/features/settings/presentation/widgets/feature_tile.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// `TermsOfUseMainScreen` is a stateful widget that represents the main screen for displaying terms of use.
+///
+/// It allows the user to navigate to the privacy policy and terms of services screens.
 class TermsOfUseMainScreen extends StatefulWidget {
+  // The constructor for the `TermsOfUseMainScreen` widget.
   const TermsOfUseMainScreen({
     super.key,
   });
 
-  static push(BuildContext context) async {
-    return await Navigator.push(
+  /// Pushes the `TermsOfUseMainScreen` to the navigation stack.
+  ///
+  /// Returns a `Future` that completes with the result of the navigation.
+  static Future<T?> push<T extends Object?>(BuildContext context) async {
+    return await Navigator.push<T>(
       context,
       MaterialPageRoute(
         builder: (_) => const TermsOfUseMainScreen(),

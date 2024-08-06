@@ -7,6 +7,13 @@ import 'package:mobile/features/common/presentation/widgets/vertical_space.dart'
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// A widget that displays the version information of the app.
+///
+/// This widget uses the `BlocConsumer` widget to listen to the state changes
+/// of the `SettingsCubit` and rebuilds the UI accordingly.
+///
+/// When the widget is tapped, it triggers the `onSendUserToAppStore` method
+/// of the `SettingsCubit` to send the user to the app store.
 class VersionInfoTile extends StatelessWidget {
   const VersionInfoTile({
     super.key,
@@ -18,6 +25,7 @@ class VersionInfoTile extends StatelessWidget {
       bloc: getIt<SettingsCubit>(),
       listener: (context, state) {},
       builder: (context, state) {
+        // Build the UI based on the current state of the SettingsCubit.
         return GestureDetector(
           onTap: () => getIt<SettingsCubit>().onSendUserToAppStore(),
           child: Container(
@@ -30,11 +38,13 @@ class VersionInfoTile extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Display the version info text.
                       Text(
                         LocaleKeys.versionInfo.tr(),
                         style: fontCompactMd(),
                       ),
                       const VerticalSpace(7),
+                      // Display the latest version text.
                       Text(
                         "${LocaleKeys.latestVersion.tr()}: ${state.installedVersion}",
                         style: fontCompactXs(color: fore3),
@@ -42,6 +52,8 @@ class VersionInfoTile extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
+                  // Display the store version text.
+                  // If the build number is not empty, display it along with the store version.
                   Text(
                     state.buildNumber.isNotEmpty
                         ? "${state.storeVersion} (${state.buildNumber})"

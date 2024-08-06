@@ -21,14 +21,21 @@ import 'package:mobile/features/settings/presentation/widgets/fore3_text_button.
 import 'package:mobile/features/settings/presentation/widgets/version_info_tile.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// `SettingsView` is a stateful widget that displays the settings screen.
+/// It takes a required parameter `settingsBannerEntity` of type `SettingsBannerEntity`.
+/// It returns a stateful widget `_SettingsViewState` which extends `State<SettingsView>`.
 class SettingsView extends StatefulWidget {
+  // Constructor for `SettingsView`.
   const SettingsView({
     super.key,
+    // Required parameter `settingsBannerEntity` of type `SettingsBannerEntity`.
     required this.settingsBannerEntity,
   });
 
+  // The settings banner entity displayed in the settings screen.
   final SettingsBannerEntity settingsBannerEntity;
 
+  // Creates the mutable state for this widget at a given location in the tree.
   @override
   State<SettingsView> createState() => _SettingsViewState();
 }

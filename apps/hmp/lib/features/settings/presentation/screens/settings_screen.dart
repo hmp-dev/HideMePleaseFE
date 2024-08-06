@@ -16,10 +16,21 @@ import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart'
 import 'package:mobile/features/settings/presentation/views/settings_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// `SettingsScreen` is a stateful widget that represents the settings screen.
+///
+/// This widget is used to navigate to the settings screen. The `push` method is called
+/// to navigate to the settings screen.
 class SettingsScreen extends StatefulWidget {
+  /// Creates a [SettingsScreen] widget.
+  ///
+  /// The [key] is used to identify the widget.
   const SettingsScreen({super.key});
 
-  static push(BuildContext context) async {
+  /// Pushes the [SettingsScreen] to the navigation stack.
+  ///
+  /// Takes a [BuildContext] as a parameter.
+  /// Returns a [Future] that resolves to the result of the navigation.
+  static Future<dynamic> push(BuildContext context) async {
     return await Navigator.push(
       context,
       MaterialPageRoute(

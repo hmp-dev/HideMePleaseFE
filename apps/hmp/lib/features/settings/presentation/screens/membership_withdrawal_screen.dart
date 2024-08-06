@@ -18,10 +18,24 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// `MembershipWithdrawalScreen` is a stateful widget that represents the screen
+/// where users can withdraw from the membership.
+///
+/// This widget is used to navigate to the withdrawal screen when the user
+/// decides to withdraw from the membership. The `push` method is called
+/// to navigate to the withdrawal screen.
+///
+/// The `createState` method is overridden to return an instance of the
+/// `_MembershipWithdrawalScreenState` class, which is responsible for
+/// managing the state of the withdrawal screen.
 class MembershipWithdrawalScreen extends StatefulWidget {
+  /// Constructs a `MembershipWithdrawalScreen` instance.
   const MembershipWithdrawalScreen({super.key});
 
-  static push(BuildContext context) async {
+  /// Navigates to the withdrawal screen.
+  ///
+  /// Returns a `Future<dynamic>` that resolves to the result of the navigation.
+  static Future<dynamic> push(BuildContext context) async {
     return await Navigator.push(
       context,
       MaterialPageRoute(
@@ -30,6 +44,9 @@ class MembershipWithdrawalScreen extends StatefulWidget {
     );
   }
 
+  /// Creates the mutable state for this widget at a given location in the tree.
+  ///
+  /// Returns an instance of the `_MembershipWithdrawalScreenState` class.
   @override
   State<MembershipWithdrawalScreen> createState() =>
       _MembershipWithdrawalScreenState();

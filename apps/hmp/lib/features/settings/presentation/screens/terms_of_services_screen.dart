@@ -4,13 +4,19 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// `TermsOfServicesScreen` is a stateful widget that represents the terms of services screen.
+///
+/// It allows the user to view the terms of services.
 class TermsOfServicesScreen extends StatefulWidget {
   const TermsOfServicesScreen({
     super.key,
   });
 
-  static push(BuildContext context) async {
-    return await Navigator.push(
+  /// Pushes the `TermsOfServicesScreen` to the navigation stack.
+  ///
+  /// Returns a `Future` that completes with the result of the navigation.
+  static Future<T?> push<T extends Object?>(BuildContext context) async {
+    return await Navigator.push<T>(
       context,
       MaterialPageRoute(
         builder: (_) => const TermsOfServicesScreen(),

@@ -20,6 +20,14 @@ class SettingsCubit extends BaseCubit<SettingsState> {
     this._settingsRepository,
   ) : super(SettingsState.initial());
 
+  /// Retrieves the settings banner information from the server using the
+  /// SettingsRepository and emits the states accordingly.
+  ///
+  /// The cubit starts by emitting the loading state. If the repository
+  /// returns a failure, the cubit emits the failure state with the
+  /// 'somethingError' translated message. If the repository returns a success,
+  /// the cubit emits the success state with the settings banner information
+  /// mapped to a SettingsBannerEntity object.
   Future<void> onGetSettingBannerInfo() async {
     emit(state.copyWith(
       submitStatus: RequestStatus.loading,
@@ -54,7 +62,15 @@ class SettingsCubit extends BaseCubit<SettingsState> {
     );
   }
 
-  onGetAnnouncements() async {
+  /// Retrieves the announcements from the server using the
+  /// SettingsRepository and emits the states accordingly.
+  ///
+  /// The cubit starts by showing the loading indicator. If the repository
+  /// returns a failure, the cubit emits the failure state with the
+  /// 'somethingError' translated message. If the repository returns a success,
+  /// the cubit emits the success state with the announcements mapped to
+  /// AnnouncementEntity objects.
+  Future<void> onGetAnnouncements() async {
     EasyLoading.show();
 
     final response = await _settingsRepository.getAnnouncements();
@@ -80,7 +96,15 @@ class SettingsCubit extends BaseCubit<SettingsState> {
     );
   }
 
-  onGetAppVersion() async {
+  /// Retrieves the app version information using the PackageInfo class and
+  /// emits the states accordingly.
+  ///
+  /// The cubit starts by initializing the Upgrader class and retrieving the
+  /// upgrade data. It then logs the app store version, installed version, and
+  /// build number. It also retrieves the app name, package name, version, and
+  /// build number using the PackageInfo class. Finally, it emits the states
+  /// with the retrieved information.
+  Future<void> onGetAppVersion() async {
     Upgrader upgrader = Upgrader();
 
     await upgrader.initialize();
@@ -109,7 +133,12 @@ class SettingsCubit extends BaseCubit<SettingsState> {
     ));
   }
 
-  onSendUserToAppStore() async {
+  /// Sends the user to the app store using the Upgrader class.
+  ///
+  /// The cubit starts by showing the loading indicator. It then initializes
+  /// the Upgrader class and sends the user to the app store. If an error occurs,
+  /// the loading indicator is shown again.
+  Future<void> onSendUserToAppStore() async {
     EasyLoading.show();
 
     try {
@@ -122,7 +151,15 @@ class SettingsCubit extends BaseCubit<SettingsState> {
     }
   }
 
-  onRequestDeleteUser() async {
+  /// Sends a request to delete the user's account.
+  ///
+  /// The cubit starts by emitting the loading state. It then shows the loading
+  /// indicator and sends a request to delete the user's account using the
+  /// SettingsRepository. If the request fails, the cubit emits the failure state
+  /// with the 'somethingError' translated message. If the request succeeds, the
+  /// cubit emits the success state with the withdrawal successful flag set to
+  /// true.
+  Future<void> onRequestDeleteUser() async {
     emit(state.copyWith(
       submitStatus: RequestStatus.loading,
       errorMessage: '',

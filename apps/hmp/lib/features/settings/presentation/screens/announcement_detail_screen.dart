@@ -13,12 +13,28 @@ import 'package:mobile/features/common/presentation/widgets/vertical_space.dart'
 import 'package:mobile/features/settings/domain/entities/announcement_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
+/// Widget that displays the details of an announcement.
+///
+/// This widget is responsible for displaying the details of an announcement.
+/// It takes an [AnnouncementEntity] as a parameter in its constructor.
+/// The [AnnouncementEntity] contains the details of the announcement to be displayed.
 class AnnouncementDetailScreen extends StatefulWidget {
+  /// Constructor for [AnnouncementDetailScreen].
+  ///
+  /// Takes an [AnnouncementEntity] as a required parameter.
   const AnnouncementDetailScreen({super.key, required this.announcement});
 
+  /// The announcement to be displayed.
   final AnnouncementEntity announcement;
 
-  static push(BuildContext context, AnnouncementEntity announcement) async {
+  /// Pushes the [AnnouncementDetailScreen] to the navigation stack.
+  ///
+  /// Takes a [BuildContext] and an [AnnouncementEntity] as parameters.
+  /// Returns a [Future] that resolves to the result of the navigation.
+  static Future<dynamic> push(
+    BuildContext context,
+    AnnouncementEntity announcement,
+  ) async {
     return await Navigator.push(
       context,
       MaterialPageRoute(
