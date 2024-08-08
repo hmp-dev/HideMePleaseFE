@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
@@ -84,14 +85,7 @@ class _NoticeDialogState extends State<NoticeDialog>
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          dontShowCheckBox = !dontShowCheckBox;
-                        });
-
-                        // setDoNotShowForSevenDaya value in local storage
-                        setDoNotShowForSevenDays();
-                      },
+                      onTap: () {},
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -105,7 +99,7 @@ class _NoticeDialogState extends State<NoticeDialog>
                                 dontShowCheckBox = value ?? false;
                               });
 
-                              setDoNotShowForSevenDays();
+                              setDoNotShowForSevenDays(dontShowCheckBox);
                             },
                           ),
                           Text(LocaleKeys.dontShowMeForAWeek.tr(),
@@ -131,11 +125,18 @@ class _NoticeDialogState extends State<NoticeDialog>
     );
   }
 
-  setDoNotShowForSevenDays() async {
+  Future<void> setDoNotShowForSevenDays(bool isSave) async {
+    "is called the setDoNotShowForSevenDays".log();
+
     final prefs = await SharedPreferences.getInstance();
 
-    // Get the current date and save it in milliseconds since epoch
-    DateTime now = DateTime.now();
-    prefs.setInt('sevenDaySkipDate', now.millisecondsSinceEpoch);
+    if (isSave) {
+      // Get the current date and save it in milliseconds since epoch
+      DateTime now = DateTime.now();
+      prefs.setInt('sevenDaySkipDate', now.millisecondsSinceEpoch);
+    } else {
+      // Clear the stored value
+      prefs.remove('sevenDaySkipDate');
+    }
   }
 }

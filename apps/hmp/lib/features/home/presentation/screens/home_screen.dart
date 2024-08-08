@@ -82,6 +82,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _checkAndShowModelBannerDialog() async {
     final modelBannerInfo = getIt<ModelBannerCubit>().state.modelBannerEntity;
 
+    "modelBannerInfo modelBannerInfo.startDate : ${modelBannerInfo.startDate}"
+        .log();
+    "modelBannerInfo modelBannerInfo.endDate : ${modelBannerInfo.endDate}"
+        .log();
+    "modelBannerInfo image : ${modelBannerInfo.image}".log();
+    "Current : ${DateTime.now}".log();
+    "is Today is in between ${isTodayWithinDateRange(modelBannerInfo.startDate, modelBannerInfo.endDate)}"
+        .log();
+
     if (isTodayWithinDateRange(
         modelBannerInfo.startDate, modelBannerInfo.endDate)) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -108,9 +117,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool isTodayWithinDateRange(String startDate, String endDate) {
-    // Parse the startDate and endDate strings into DateTime objects
-    DateTime start = DateTime.parse(startDate);
-    DateTime end = DateTime.parse(endDate);
+    // Try to parse the startDate and endDate strings into DateTime objects
+    DateTime? start = DateTime.tryParse(startDate);
+    DateTime? end = DateTime.tryParse(endDate);
+
+    // If either date fails to parse, return true
+    if (start == null || end == null) {
+      return true;
+    }
 
     // Get the current date and time
     DateTime now = DateTime.now();
