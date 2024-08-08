@@ -5,6 +5,7 @@ import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/settings/domain/repositories/settings_repository.dart';
 import 'package:mobile/features/settings/infrastructure/data_sources/settings_remote_data_source.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/announcement_dto.dart';
+import 'package:mobile/features/settings/infrastructure/dtos/model_banner_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/notification_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/settings_banner_dto.dart';
 
@@ -89,6 +90,28 @@ class SettingsRepositoryImp implements SettingsRepository {
     // Fetches the list of notifications from the remote data source.
     try {
       final response = await _remoteDataSource.getUserNotifications();
+      return right(response);
+    } on DioException catch (e, t) {
+      // Handles DioException by returning an error object.
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      // Handles any other exception by returning an error object.
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, ModelBannerDto>> getModelBannerInfo() async {
+    // Fetches the banner information from the remote data source.
+    try {
+      final response = await _remoteDataSource.getModelBannerInfo();
       return right(response);
     } on DioException catch (e, t) {
       // Handles DioException by returning an error object.

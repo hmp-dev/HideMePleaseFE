@@ -11,6 +11,7 @@ import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/settings/presentation/cubit/model_banner_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
 class StartUpScreen extends StatefulWidget {
@@ -48,6 +49,8 @@ class _StartUpScreenState extends State<StartUpScreen>
                   Routes.socialLogin, (Route<dynamic> route) => false);
             } else {
               ("-------inside state.isLoggedIn: ${state.isLoggedIn}").log();
+
+              await getIt<ModelBannerCubit>().onGetModelBannerInfo();
 
               await getIt<NftCubit>().onGetWelcomeNft();
               // User is logged in

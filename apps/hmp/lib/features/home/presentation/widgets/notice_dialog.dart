@@ -2,9 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
-import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../generated/locale_keys.g.dart';
@@ -13,16 +11,13 @@ class NoticeDialog extends StatefulWidget {
   const NoticeDialog({
     super.key,
     required this.imageUrl,
-
   });
 
   final String imageUrl;
 
-
   static show({
     required BuildContext context,
     required String imageUrl,
-
   }) {
     showDialog(
       useSafeArea: false,
@@ -30,7 +25,6 @@ class NoticeDialog extends StatefulWidget {
       context: context,
       builder: (_) => NoticeDialog(
         imageUrl: imageUrl,
-
       ),
     );
   }
@@ -61,14 +55,8 @@ class _NoticeDialogState extends State<NoticeDialog>
   Widget build(BuildContext context) {
     return Container(
       color: Colors.grey.withOpacity(0.1),
-      height: MediaQuery
-          .of(context)
-          .size
-          .height,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -79,23 +67,20 @@ class _NoticeDialogState extends State<NoticeDialog>
               padding: const EdgeInsets.only(
                   top: 16, bottom: 24, left: 16, right: 16),
               margin: const EdgeInsets.only(bottom: 60),
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.90,
+              width: MediaQuery.of(context).size.width * 0.90,
               decoration: BoxDecoration(
-                color: Colors.white, borderRadius: BorderRadius.circular(16),),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Column(
                 children: [
                   CustomImageView(
-                    width: MediaQuery
-                        .of(context)
-                        .size
-                        .width * 0.90,
-                    imagePath: "assets/images/temp-banner-alert-image.png",
+                    fit: BoxFit.fill,
+                    width: MediaQuery.of(context).size.width * 0.90,
+                    height: MediaQuery.of(context).size.height * 0.60,
+                    url: widget
+                        .imageUrl, //"assets/images/temp-banner-alert-image.png",
                   ),
-
-
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: GestureDetector(
@@ -153,5 +138,4 @@ class _NoticeDialogState extends State<NoticeDialog>
     DateTime now = DateTime.now();
     prefs.setInt('sevenDaySkipDate', now.millisecondsSinceEpoch);
   }
-
 }

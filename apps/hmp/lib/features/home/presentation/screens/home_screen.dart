@@ -15,6 +15,7 @@ import 'package:mobile/features/home/presentation/views/home_view_before_wallet_
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/settings/presentation/cubit/model_banner_cubit.dart';
 import 'package:mobile/features/space/domain/entities/near_by_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen.dart';
@@ -42,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
     _initWallets();
-    _checkAndShowDailyServiceNoticeDialog();
+    _checkAndShowModelBannerDialog();
   }
 
   void _initWallets() async {
@@ -78,38 +79,53 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _checkAndShowDailyServiceNoticeDialog() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> _checkAndShowModelBannerDialog() async {
+    final modelBannerInfo = getIt<ModelBannerCubit>().state.modelBannerEntity;
 
-    // Get current date
-    DateTime now = DateTime.now();
+    if (isTodayWithinDateRange(
+        modelBannerInfo.startDate, modelBannerInfo.endDate)) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // Get last skip date from SharedPreferences
-    int skipDateMillis = prefs.getInt('sevenDaySkipDate') ?? 0;
-    DateTime skipDate = DateTime.fromMillisecondsSinceEpoch(skipDateMillis);
+      // Get current date
+      DateTime now = DateTime.now();
 
-    // Calculate the difference in days between the current date and the skip date
-    int differenceInDays = now.difference(skipDate).inDays;
+      // Get last skip date from SharedPreferences
+      int skipDateMillis = prefs.getInt('sevenDaySkipDate') ?? 0;
+      DateTime skipDate = DateTime.fromMillisecondsSinceEpoch(skipDateMillis);
 
+      // Calculate the difference in days between the current date and the skip date
+      int differenceInDays = now.difference(skipDate).inDays;
 
-    // Show the dialog here
-    Log.debug('day passed to skip are : $differenceInDays');
-    // If it has been seven or more days since the skip date, show the dialog
-    if (differenceInDays >= 7) {
       // Show the dialog here
-      Log.debug('Showing daily service notice dialog.');
-      showDailyServiceNoticeDialog();
+      Log.debug('day passed to skip are : $differenceInDays');
+      // If it has been seven or more days since the skip date, show the dialog
+      if (differenceInDays >= 7) {
+        // Show the dialog here
+        Log.debug('Showing daily service notice dialog.');
+        showDailyServiceNoticeDialog(modelBannerInfo.image);
+      }
     }
   }
 
+  bool isTodayWithinDateRange(String startDate, String endDate) {
+    // Parse the startDate and endDate strings into DateTime objects
+    DateTime start = DateTime.parse(startDate);
+    DateTime end = DateTime.parse(endDate);
 
-  showDailyServiceNoticeDialog() async {
+    // Get the current date and time
+    DateTime now = DateTime.now();
+
+    // Check if the current date and time is within the range
+    return now.isAfter(start) && now.isBefore(end);
+  }
+
+  showDailyServiceNoticeDialog(String imageUrl) async {
     // sow NoticeDialog on firstLoad after Sign Up
     await Future.delayed(const Duration(seconds: 2));
     if (context.mounted) {
       NoticeDialog.show(
         context: context,
-        imageUrl: "pass image Url Here",
+        imageUrl: imageUrl,
       );
     }
   }

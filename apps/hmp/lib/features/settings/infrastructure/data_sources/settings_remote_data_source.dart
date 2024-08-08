@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/announcement_dto.dart';
+import 'package:mobile/features/settings/infrastructure/dtos/model_banner_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/notification_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/settings_banner_dto.dart';
 
@@ -24,6 +25,14 @@ class SettingsRemoteDataSource {
 
     // Parse the response data into a [SettingsBannerDto] object.
     return SettingsBannerDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<ModelBannerDto> getModelBannerInfo() async {
+    // Send a GET request to the "cms/modal/banner" endpoint.
+    final response = await _network.get("cms/modal/banner", {});
+
+    // Parse the response data into a [ModelBannerDto] object.
+    return ModelBannerDto.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// Retrieves the announcements from the server.

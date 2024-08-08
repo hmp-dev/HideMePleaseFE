@@ -368,7 +368,7 @@ class NotificationServices {
 
   void _initLocalNotifications() async {
     const initializationSetting = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings('@drawable/launcher_icon'),
       iOS: DarwinInitializationSettings(),
     );
     await _flutterLocalNotificationsPlugin.initialize(initializationSetting);
@@ -384,18 +384,28 @@ class NotificationServices {
     );
 
     final androidNotificationDetails = AndroidNotificationDetails(
-        channel.id, channel.name,
-        importance: Importance.max,
-        priority: Priority.max,
-        playSound: true,
-        ticker: 'ticker',
-        sound: channel.sound);
+      channel.id,
+      channel.name,
+      importance: Importance.max,
+      priority: Priority.max,
+      playSound: true,
+      ticker: 'ticker',
+      sound: channel.sound,
+      icon: '@drawable/launcher_icon',
+      largeIcon:
+          const DrawableResourceAndroidBitmap('@drawable/ic_launcher_color'),
+    );
 
     const darwinNotificationDetails = DarwinNotificationDetails(
-        presentAlert: true, presentBadge: true, presentSound: true);
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
 
     final notificationDetails = NotificationDetails(
-        android: androidNotificationDetails, iOS: darwinNotificationDetails);
+      android: androidNotificationDetails,
+      iOS: darwinNotificationDetails,
+    );
 
     if (message.notification?.title != null &&
         message.notification?.body != null) {
