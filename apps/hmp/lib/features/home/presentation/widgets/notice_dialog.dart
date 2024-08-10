@@ -71,11 +71,12 @@ class _NoticeDialogState extends State<NoticeDialog>
               width: MediaQuery.of(context).size.width * 0.90,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: [
                   CustomImageView(
+                    radius: BorderRadius.circular(8),
                     fit: BoxFit.fill,
                     width: MediaQuery.of(context).size.width * 0.90,
                     height: MediaQuery.of(context).size.height * 0.60,

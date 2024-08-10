@@ -88,6 +88,7 @@ class BenefitCardWidgetWithSpaceDetailEntity extends StatelessWidget {
                           nftBenefitEntity.description,
                           maxLines: 4,
                           overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                           style: fontTitle05(),
                         ),
                         const Spacer(),
