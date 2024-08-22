@@ -8,7 +8,6 @@ import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
-import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/settings/domain/entities/announcement_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -131,11 +130,13 @@ class _AnnouncementDetailScreenState extends State<AnnouncementDetailScreen> {
                       },
                       textStyle: fontBodySm(color: fore2),
                     ),
-                    if (widget.announcement.id ==
-                        "bba8f741-4184-4851-9d7c-b4bf50cd9c9a")
-                      CustomImageView(
-                        imagePath: "assets/images/announcement-img.png",
-                      )
+                    // if (widget.announcement.id ==
+                    //     "bba8f741-4184-4851-9d7c-b4bf50cd9c9a")
+                    //   CustomImageView(
+                    //     imagePath: "assets/images/announcement-img.png",
+                    //   )
+
+                    const SizedBox(height: 30),
                   ],
                 ),
               ),
