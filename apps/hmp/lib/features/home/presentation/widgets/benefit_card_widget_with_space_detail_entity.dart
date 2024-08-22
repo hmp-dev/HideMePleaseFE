@@ -13,23 +13,24 @@ import 'package:mobile/features/space/presentation/widgets/benefit_title_widget.
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class BenefitCardWidgetWithSpaceDetailEntity extends StatelessWidget {
-  const BenefitCardWidgetWithSpaceDetailEntity({
-    super.key,
-    required this.space,
-    required this.nftBenefitEntity,
-    this.isBenefitRedeemSuccess,
-    required this.isMatchedSpaceFound,
-  });
+  const BenefitCardWidgetWithSpaceDetailEntity(
+      {super.key,
+      required this.space,
+      required this.nftBenefitEntity,
+      this.isBenefitRedeemSuccess,
+      required this.isMatchedSpaceFound,
+      this.spacingRight = 20.0});
 
   final SpaceDetailEntity space;
   final BenefitEntity nftBenefitEntity;
   final bool? isBenefitRedeemSuccess;
   final bool isMatchedSpaceFound;
+  final double spacingRight;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 20.0),
+      padding: EdgeInsets.only(right: spacingRight),
       child: SizedBox(
         width: 303,
         height: 436,
@@ -88,7 +89,7 @@ class BenefitCardWidgetWithSpaceDetailEntity extends StatelessWidget {
                           nftBenefitEntity.description,
                           maxLines: 4,
                           overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
+                          textAlign: TextAlign.left,
                           style: fontTitle05(),
                         ),
                         const Spacer(),

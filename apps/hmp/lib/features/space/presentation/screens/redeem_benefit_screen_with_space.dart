@@ -210,6 +210,7 @@ class _RedeemBenefitScreenWithSpaceState
                                   ),
                                   items: [
                                     BenefitCardWidgetWithSpaceDetailEntity(
+                                      spacingRight: 0,
                                       space: widget.space,
                                       nftBenefitEntity: widget.benefit,
                                       isBenefitRedeemSuccess:

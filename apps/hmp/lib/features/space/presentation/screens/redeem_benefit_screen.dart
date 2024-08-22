@@ -180,6 +180,7 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                           buildTitleRow(context),
                           widget.selectedBenefitEntity != null
                               ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     buildSpaceNameRowWithSpaceNameInBenefit(
                                         context, widget.selectedBenefitEntity!),
@@ -198,44 +199,48 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20.0),
-                                              child: CarouselSlider(
-                                                  carouselController:
-                                                      _carouselController,
-                                                  options: CarouselOptions(
-                                                    height: 436,
-                                                    viewportFraction: 0.9,
-                                                    aspectRatio: 16 / 9,
-                                                    enableInfiniteScroll: false,
-                                                    enlargeCenterPage: false,
-                                                    initialPage:
-                                                        selectedPageIndex,
-                                                    autoPlayInterval:
-                                                        const Duration(
-                                                            seconds: 3),
-                                                    onPageChanged:
-                                                        (int index, _) {
-                                                      setState(() {
-                                                        selectedPageIndex =
-                                                            index;
-                                                      });
-                                                    },
-                                                  ),
-                                                  items: [
-                                                    BenefitCardWidgetWithNearBySpaceEntity(
-                                                      nearBySpaceEntity: widget
-                                                          .nearBySpaceEntity,
-                                                      nftBenefitEntity: widget
-                                                          .selectedBenefitEntity!,
-                                                      isBenefitRedeemSuccess:
-                                                          isBenefitRedeemSuccess,
-                                                      isMatchedSpaceFound: widget
-                                                                  .isMatchedSpaceFound ==
-                                                              null
-                                                          ? true
-                                                          : widget.isMatchedSpaceFound ??
-                                                              false,
-                                                    )
-                                                  ]),
+                                              child: Center(
+                                                child: CarouselSlider(
+                                                    carouselController:
+                                                        _carouselController,
+                                                    options: CarouselOptions(
+                                                      height: 436,
+                                                      viewportFraction: 0.9,
+                                                      aspectRatio: 16 / 9,
+                                                      enableInfiniteScroll:
+                                                          false,
+                                                      enlargeCenterPage: false,
+                                                      initialPage:
+                                                          selectedPageIndex,
+                                                      autoPlayInterval:
+                                                          const Duration(
+                                                              seconds: 3),
+                                                      onPageChanged:
+                                                          (int index, _) {
+                                                        setState(() {
+                                                          selectedPageIndex =
+                                                              index;
+                                                        });
+                                                      },
+                                                    ),
+                                                    items: [
+                                                      BenefitCardWidgetWithNearBySpaceEntity(
+                                                        spacingRight: 0,
+                                                        nearBySpaceEntity: widget
+                                                            .nearBySpaceEntity,
+                                                        nftBenefitEntity: widget
+                                                            .selectedBenefitEntity!,
+                                                        isBenefitRedeemSuccess:
+                                                            isBenefitRedeemSuccess,
+                                                        isMatchedSpaceFound:
+                                                            widget.isMatchedSpaceFound ==
+                                                                    null
+                                                                ? true
+                                                                : widget.isMatchedSpaceFound ??
+                                                                    false,
+                                                      )
+                                                    ]),
+                                              ),
                                             ),
                                           ],
                                         ),
