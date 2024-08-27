@@ -91,8 +91,9 @@ class CommunityCubit extends BaseCubit<CommunityState> {
 
         onGetUserCommunitiesUnread(
             state.userNftCommunities.map((e) => e.tokenAddress).toList());
-        state.userNftCommunities
-            .forEach((e) => onGetUserCommunitiesRecentMsgs(e.tokenAddress));
+        for (var e in state.userNftCommunities) {
+          onGetUserCommunitiesRecentMsgs(e.tokenAddress);
+        }
       },
     );
   }

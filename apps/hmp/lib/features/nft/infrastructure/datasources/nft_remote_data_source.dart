@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
 import 'package:mobile/features/community/infrastructure/dtos/nft_community_member_dto.dart';
@@ -166,6 +167,9 @@ class NftRemoteDataSource {
       '/nft/collections/communities/hot',
       {},
     );
+
+    //"the hot communities response: ${response.data.toString()}".log();
+
     return (response.data as List)
         .map((e) => NftCommunityDto.fromJson(e))
         .toList();

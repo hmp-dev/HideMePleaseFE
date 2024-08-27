@@ -3,6 +3,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
+import 'package:mobile/features/community/presentation/widgets/nft_hot_community_card_widget.dart';
 
 class HotCommunitiesView extends StatelessWidget {
   const HotCommunitiesView({
@@ -48,7 +49,7 @@ class HotCommunitiesView extends StatelessWidget {
             itemCount: hotNftCommunities.length,
             separatorBuilder: (_, __) => const SizedBox(width: 20),
             itemBuilder: (context, index) {
-              return NftCommunityCardWidget(
+              return NftHotCommunityCardWidget(
                 onTap: () => onCommunityTap(hotNftCommunities[index]),
                 title: hotNftCommunities[index].name,
                 networkLogo: hotNftCommunities[index].chainLogo,
