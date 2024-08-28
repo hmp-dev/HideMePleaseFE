@@ -70,17 +70,20 @@ class NftHotCommunityCardWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    CustomImageView(
-                      svgPath: networkLogo,
-                      height: 24.0,
-                      width: 24.0,
-                    ),
+                    getChainIcon(networkLogo),
                     const SizedBox(height: 8.0),
                     Text(
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: fontB(18, lineHeight: 1.4),
+                    ),
+                    const Spacer(),
+                    Center(
+                      child: MembersCountValueRoundedWidget(
+                        title: people, // "120명"
+                        onTap: () {},
+                      ),
                     ),
                   ],
                 ),
@@ -91,54 +94,25 @@ class NftHotCommunityCardWidget extends StatelessWidget {
       ),
     );
   }
-}
 
-class RoundedButtonSmallWithOpacity extends StatelessWidget {
-  const RoundedButtonSmallWithOpacity({
-    super.key,
-    required this.title,
-    required this.onTap,
-  });
-
-  final String title;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        height: 20,
-        width: 46,
-        child: Stack(
-          children: [
-            Opacity(
-              opacity: 0.5,
-              child: Container(
-                height: 20,
-                width: 46,
-                decoration: const BoxDecoration(
-                  color: black900,
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                ),
-              ),
-            ),
-            Center(
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: fontR(12, lineHeight: 1.3),
-              ),
-            )
-          ],
-        ),
-      ),
+  CustomImageView getChainIcon(String chainPath) {
+    if (chainPath.contains("klaytn")) {
+      return CustomImageView(
+        imagePath: chainPath,
+        height: 24.0,
+        width: 24.0,
+      );
+    }
+    return CustomImageView(
+      svgPath: chainPath,
+      height: 24.0,
+      width: 24.0,
     );
   }
 }
 
-class RectangleButtonSmall extends StatelessWidget {
-  const RectangleButtonSmall({
+class MembersCountValueRoundedWidget extends StatelessWidget {
+  const MembersCountValueRoundedWidget({
     super.key,
     required this.title,
     required this.onTap,
@@ -151,40 +125,36 @@ class RectangleButtonSmall extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        height: 20,
-        child: Stack(
-          children: [
-            Container(
-              height: 20,
-              width: 49,
-              decoration: const BoxDecoration(
-                color: black900,
-                borderRadius: BorderRadius.all(Radius.circular(2)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: Container(
+          decoration: BoxDecoration(
+            color: black900.withOpacity(0.5),
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
+          ),
+          padding: const EdgeInsets.only(left: 5, top: 5, right: 10, bottom: 5),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: DefaultImage(
+                  path: "assets/icons/ic_triangle_arrow_up.svg",
+                  width: 14,
+                  height: 14,
+                  color: pink,
+                  boxFit: BoxFit.fitHeight,
+                ),
               ),
-            ),
-            Center(
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
-                    child: DefaultImage(
-                      path: "assets/icons/ic_triangle_arrow_up.svg",
-                      width: 12,
-                      height: 12,
-                      color: pink,
-                      boxFit: BoxFit.fitHeight,
-                    ),
-                  ),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: fontR(12, lineHeight: 1.3),
-                  ),
-                ],
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: fontR(14, lineHeight: 1.3),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
