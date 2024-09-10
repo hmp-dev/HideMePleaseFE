@@ -12,6 +12,8 @@ class NftPointsDto extends Equatable {
   final String? name;
   @JsonKey(name: "imageUrl")
   final String? imageUrl;
+  @JsonKey(name: "videoUrl")
+  final String? videoUrl;
   @JsonKey(name: "tokenAddress")
   final String? tokenAddress;
   @JsonKey(name: "totalPoints")
@@ -21,6 +23,7 @@ class NftPointsDto extends Equatable {
     this.id,
     this.name,
     this.imageUrl,
+    this.videoUrl,
     this.tokenAddress,
     this.totalPoints,
   });
@@ -36,6 +39,7 @@ class NftPointsDto extends Equatable {
       id,
       name,
       imageUrl,
+      videoUrl,
       tokenAddress,
       totalPoints,
     ];
@@ -45,6 +49,7 @@ class NftPointsDto extends Equatable {
         id: id!,
         name: name ?? '',
         imageUrl: imageUrl ?? '',
+        videoUrl: videoUrl ?? '',
         tokenAddress: tokenAddress ?? '',
         totalPoints: totalPoints ?? 0,
       );

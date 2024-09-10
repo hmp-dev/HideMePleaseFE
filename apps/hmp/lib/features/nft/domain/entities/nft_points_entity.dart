@@ -4,6 +4,7 @@ class NftPointsEntity extends Equatable {
   final String id;
   final String name;
   final String imageUrl;
+  final String videoUrl;
   final String tokenAddress;
   final int totalPoints;
 
@@ -11,6 +12,7 @@ class NftPointsEntity extends Equatable {
     required this.id,
     required this.name,
     required this.imageUrl,
+    required this.videoUrl,
     required this.tokenAddress,
     required this.totalPoints,
   });
@@ -21,6 +23,7 @@ class NftPointsEntity extends Equatable {
       id,
       name,
       imageUrl,
+      videoUrl,
       tokenAddress,
       totalPoints,
     ];
@@ -30,6 +33,7 @@ class NftPointsEntity extends Equatable {
     String? id,
     String? name,
     String? imageUrl,
+    String? videoUrl,
     String? tokenAddress,
     int? totalPoints,
   }) {
@@ -37,6 +41,7 @@ class NftPointsEntity extends Equatable {
       id: id ?? this.id,
       name: name ?? this.name,
       imageUrl: imageUrl ?? this.imageUrl,
+      videoUrl: videoUrl ?? this.videoUrl,
       tokenAddress: tokenAddress ?? this.tokenAddress,
       totalPoints: totalPoints ?? this.totalPoints,
     );
@@ -46,6 +51,7 @@ class NftPointsEntity extends Equatable {
       : id = '',
         name = '',
         imageUrl = '',
+        videoUrl = '',
         tokenAddress = '',
         totalPoints = 0;
 }

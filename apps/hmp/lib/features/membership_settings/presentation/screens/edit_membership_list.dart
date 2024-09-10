@@ -155,6 +155,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                         final nft =
                                             state.selectedNftTokensList[index];
                                         final imageUrl = nft.imageUrl;
+                                        final videoUrl = nft.videoUrl;
                                         final name = nft.name;
                                         final chain = nft.chain.toLowerCase();
 
@@ -163,6 +164,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                               '${nft.id}-${nft.tokenAddress}-$index'),
                                           index: index,
                                           imageUrl: imageUrl,
+                                          videoUrl: videoUrl,
                                           name: name,
                                           chain: chain,
                                         );

@@ -185,6 +185,7 @@ class _HomeViewAfterWalletConnectedState
 
                               return NFTCardWidgetParent(
                                 imagePath: item.imageUrl,
+                                videoUrl: item.videoUrl,
                                 topWidget: widget.isOverIconNavVisible
                                     ? NftCardTopTitleWidget(
                                         title: item.name,

@@ -42,6 +42,7 @@ class BenefitDto extends Equatable {
   final String? nftCollectionName;
   final String? termsUrl;
   final String? nftCollectionImage;
+  final String? nftCollectionVideo;
   final String? nftCollectionChain;
 
   const BenefitDto({
@@ -57,6 +58,7 @@ class BenefitDto extends Equatable {
     this.nftCollectionName,
     this.termsUrl,
     this.nftCollectionImage,
+    this.nftCollectionVideo,
     this.nftCollectionChain,
   });
 
@@ -80,6 +82,7 @@ class BenefitDto extends Equatable {
       nftCollectionName,
       termsUrl,
       nftCollectionImage,
+      nftCollectionVideo,
       nftCollectionChain,
     ];
   }
@@ -98,6 +101,7 @@ class BenefitDto extends Equatable {
       nftCollectionName: nftCollectionName ?? '',
       termsUrl: termsUrl ?? '',
       nftCollectionImage: nftCollectionImage ?? '',
+      nftCollectionVideo: nftCollectionVideo ?? '',
       nftCollectionChain: nftCollectionChain ?? '',
     );
   }

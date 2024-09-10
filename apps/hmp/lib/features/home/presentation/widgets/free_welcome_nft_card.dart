@@ -35,6 +35,7 @@ class FreeWelcomeNftCard extends StatelessWidget {
           margin: const EdgeInsets.only(top: 20),
           child: NFTCardWidgetParent(
             imagePath: welcomeNftEntity.image,
+            videoUrl: '',
             topWidget: NftCardTopTitleWidget(
               title: welcomeNftEntity.name,
               chain: "KLAYTN",

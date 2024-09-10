@@ -290,13 +290,13 @@ packages:
     source: hosted
     version: "2.0.3"
   chewie:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: chewie
-      sha256: e53da939709efb9aad0f3d72a69a8d05f889168b7a138af60ce78bab5c94b135
+      sha256: "8210c6e8702ddae9b3337aad0d539a9ff128cc4a5baaadc0174edbd0f99b0125"
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.1"
+    version: "1.8.4"
   cli_util:
     dependency: transitive
     description:
@@ -2562,13 +2562,13 @@ packages:
     source: hosted
     version: "3.0.2"
   video_player:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: video_player
-      sha256: db6a72d8f4fd155d0189845678f55ad2fd54b02c10dcafd11c068dbb631286c0
+      sha256: e30df0d226c4ef82e2c150ebf6834b3522cf3f654d8e2f9419d376cdc071425d
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.6"
+    version: "2.9.1"
   video_player_android:
     dependency: transitive
     description:
@@ -2601,6 +2601,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.1"
+  video_thumbnail:
+    dependency: "direct main"
+    description:
+      name: video_thumbnail
+      sha256: "3455c189d3f0bb4e3fc2236475aa84fe598b9b2d0e08f43b9761f5bc44210016"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.3"
+  visibility_detector:
+    dependency: "direct main"
+    description:
+      name: visibility_detector
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0+2"
   vm_service:
     dependency: transitive
     description:

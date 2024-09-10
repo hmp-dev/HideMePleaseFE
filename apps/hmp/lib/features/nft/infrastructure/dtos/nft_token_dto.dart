@@ -14,6 +14,8 @@ class NftTokenDto extends Equatable {
   final String? name;
   @JsonKey(name: "imageUrl")
   final String? imageUrl;
+  @JsonKey(name: "videoUrl")
+  final String? videoUrl;
   @JsonKey(name: "selected")
   final bool? selected;
   @JsonKey(name: "updatedAt")
@@ -24,6 +26,7 @@ class NftTokenDto extends Equatable {
     this.tokenId,
     this.name,
     this.imageUrl,
+    this.videoUrl,
     this.selected,
     this.updatedAt,
   });
@@ -41,6 +44,7 @@ class NftTokenDto extends Equatable {
         tokenId: tokenId ?? '',
         name: name ?? '',
         imageUrl: imageUrl ?? '',
+        videoUrl: videoUrl ?? '',
         selected: selected ?? false,
         updatedAt: updatedAt ?? '',
       );

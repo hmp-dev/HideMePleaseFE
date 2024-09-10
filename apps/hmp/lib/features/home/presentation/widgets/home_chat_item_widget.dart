@@ -3,6 +3,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/info_text_tool_tip_widget.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_thumbnail.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/nft/domain/entities/nft_points_entity.dart';
 
@@ -29,21 +30,27 @@ class HomeChatItemWidget extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  nftPointsEntity.imageUrl == ""
-                      ? CustomImageView(
-                          imagePath: "assets/images/place_holder_card.png",
-                          width: 36,
-                          height: 36,
-                          radius: BorderRadius.circular(50),
-                          fit: BoxFit.cover,
+                  nftPointsEntity.videoUrl != ""
+                      ? NftVideoThumbnailFromUrl(
+                          imageWidth: 36,
+                          imgHeight: 36,
+                          videoUrl: nftPointsEntity.videoUrl,
                         )
-                      : CustomImageView(
-                          url: nftPointsEntity.imageUrl,
-                          width: 36,
-                          height: 36,
-                          radius: BorderRadius.circular(2),
-                          fit: BoxFit.cover,
-                        ),
+                      : nftPointsEntity.imageUrl == ""
+                          ? CustomImageView(
+                              imagePath: "assets/images/place_holder_card.png",
+                              width: 36,
+                              height: 36,
+                              radius: BorderRadius.circular(50),
+                              fit: BoxFit.cover,
+                            )
+                          : CustomImageView(
+                              url: nftPointsEntity.imageUrl,
+                              width: 36,
+                              height: 36,
+                              radius: BorderRadius.circular(2),
+                              fit: BoxFit.cover,
+                            ),
                 ],
               ),
               const HorizontalSpace(20),

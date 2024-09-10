@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_player.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_thumbnail.dart';
 import 'package:mobile/features/common/presentation/widgets/svg_aware_image_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/not_selected_radio.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/selected_radio.dart';
@@ -37,41 +39,47 @@ class NftTokenWidget extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  nftTokenEntity.imageUrl != ""
-                      ? Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            border: !nftTokenEntity.selected
-                                ? null
-                                : Border.all(
-                                    color: white,
-                                    width: 2,
-                                  ),
-                          ),
-                          child: SvgAwareImageWidget(
-                            imageUrl: nftTokenEntity.imageUrl,
-                            imageWidth: 120,
-                            imageHeight: 160,
-                            imageBorderRadius: 2,
-                          ),
+                  nftTokenEntity.videoUrl != ""
+                      ? NftVideoThumbnailFromUrl(
+                          imageWidth: 120,
+                          imgHeight: 160,
+                          videoUrl: nftTokenEntity.videoUrl,
                         )
-                      : Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            border: !nftTokenEntity.selected
-                                ? null
-                                : Border.all(
-                                    color: white,
-                                    width: 2,
-                                  ),
-                          ),
-                          child: DefaultImage(
-                            path: "assets/images/place_holder_card.png",
-                            width: 120,
-                            height: 160,
-                            boxFit: BoxFit.cover,
-                          ),
-                        ),
+                      : nftTokenEntity.imageUrl != ""
+                          ? Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                border: !nftTokenEntity.selected
+                                    ? null
+                                    : Border.all(
+                                        color: white,
+                                        width: 2,
+                                      ),
+                              ),
+                              child: SvgAwareImageWidget(
+                                imageUrl: nftTokenEntity.imageUrl,
+                                imageWidth: 120,
+                                imageHeight: 160,
+                                imageBorderRadius: 2,
+                              ),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                border: !nftTokenEntity.selected
+                                    ? null
+                                    : Border.all(
+                                        color: white,
+                                        width: 2,
+                                      ),
+                              ),
+                              child: DefaultImage(
+                                path: "assets/images/place_holder_card.png",
+                                width: 120,
+                                height: 160,
+                                boxFit: BoxFit.cover,
+                              ),
+                            ),
                 ],
               ),
               Positioned(

@@ -9,6 +9,8 @@ class SelectedNFTDto extends Equatable {
   final String? name;
   @JsonKey(name: 'imageUrl')
   final String? imageUrl;
+  @JsonKey(name: 'videoUrl')
+  final String? videoUrl;
   final int? order;
   @JsonKey(name: 'tokenAddress')
   final String? tokenAddress;
@@ -31,6 +33,7 @@ class SelectedNFTDto extends Equatable {
     this.symbol,
     this.chain,
     this.imageUrl,
+    this.videoUrl,
     this.totalPoints,
     this.communityRank,
     this.totalMembers,
@@ -50,6 +53,7 @@ class SelectedNFTDto extends Equatable {
         symbol,
         chain,
         imageUrl,
+        videoUrl,
         tokenAddress,
         totalPoints,
         communityRank,
@@ -64,6 +68,7 @@ class SelectedNFTDto extends Equatable {
         symbol: symbol ?? '',
         chain: chain ?? "",
         imageUrl: imageUrl ?? "",
+        videoUrl: videoUrl ?? "",
         tokenAddress: tokenAddress ?? "",
         totalPoints: totalPoints ?? 0,
         communityRank: communityRank ?? 0,

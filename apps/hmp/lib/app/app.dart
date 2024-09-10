@@ -35,7 +35,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  
+
   static FirebaseAnalyticsObserver firebaseAnalyticsObserver =
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance);
 

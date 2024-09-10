@@ -8,6 +8,8 @@ import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_player.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_thumbnail.dart';
 import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
 import 'package:mobile/features/my/presentation/screens/nft_benefits_usage_history_detail.dart';
 import 'package:mobile/features/my/presentation/widgets/benefits_item_widget.dart';
@@ -162,23 +164,35 @@ class _MyMembershipNftDetailScreenState
       children: [
         Stack(
           children: [
-            nftPointsEntity.imageUrl == ""
-                ? CustomImageView(
-                    imagePath: "assets/images/place_holder_card.png",
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    height: MediaQuery.of(context).size.width * 0.9,
-                    radius: BorderRadius.circular(4),
-                    fit: BoxFit.cover,
+            nftPointsEntity.videoUrl != ""
+                ? Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      height: MediaQuery.of(context).size.width * 0.9,
+                      child: Center(
+                        child: NftVideoPlayer(
+                          videoUrl: nftPointsEntity.videoUrl,
+                        ),
+                      ),
+                    ),
                   )
-                : CustomImageView(
-                    url: nftPointsEntity.imageUrl,
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    height: MediaQuery.of(context).size.width * 0.9,
-                    radius: BorderRadius.circular(4),
-                    fit: BoxFit.cover,
-                  ),
+                : nftPointsEntity.imageUrl == ""
+                    ? CustomImageView(
+                        imagePath: "assets/images/place_holder_card.png",
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: MediaQuery.of(context).size.width * 0.9,
+                        radius: BorderRadius.circular(4),
+                        fit: BoxFit.cover,
+                      )
+                    : CustomImageView(
+                        url: nftPointsEntity.imageUrl,
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: MediaQuery.of(context).size.width * 0.9,
+                        radius: BorderRadius.circular(4),
+                        fit: BoxFit.cover,
+                      ),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0, top: 20),
+              padding: const EdgeInsets.only(left: 40.0, top: 20),
               child: DefaultImage(
                 path:
                     "assets/chain-logos/${nftPointsEntity.chain.toLowerCase()}_chain.svg",
@@ -189,7 +203,7 @@ class _MyMembershipNftDetailScreenState
           ],
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 16),
+          padding: const EdgeInsets.only(top: 16, left: 20.0),
           child: Text(
             nftPointsEntity.name,
             style: fontTitle03Bold(),

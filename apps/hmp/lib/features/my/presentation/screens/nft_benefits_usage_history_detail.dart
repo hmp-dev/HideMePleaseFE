@@ -5,6 +5,7 @@ import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_thumbnail.dart';
 import 'package:mobile/features/nft/domain/entities/nft_usage_history_entity.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
@@ -66,6 +67,7 @@ class _MyNftBenefitsUsageHistoryDetailScreenState
                 _buildTitleRow(
                   context: context,
                   nftImageUrl: widget.nftEntity.imageUrl,
+                  nftVideoUrl: widget.nftEntity.videoUrl,
                   nftName: widget.nftEntity.name,
                   nftChain: widget.nftEntity.chain,
                   nftUsedCount: "${state.nftUsageHistoryEntity.count}",
@@ -131,6 +133,7 @@ class _MyNftBenefitsUsageHistoryDetailScreenState
   Widget _buildTitleRow({
     required BuildContext context,
     required String nftImageUrl,
+    required String nftVideoUrl,
     required String nftName,
     required String nftChain,
     required String nftUsedCount,
@@ -153,21 +156,27 @@ class _MyNftBenefitsUsageHistoryDetailScreenState
         children: [
           Stack(
             children: [
-              nftImageUrl == ""
-                  ? CustomImageView(
-                      imagePath: "assets/images/place_holder_card.png",
-                      width: 48,
-                      height: 64,
-                      radius: BorderRadius.circular(2),
-                      fit: BoxFit.cover,
+              nftVideoUrl != ""
+                  ? NftVideoThumbnailFromUrl(
+                      imageWidth: 48,
+                      imgHeight: 64,
+                      videoUrl: nftVideoUrl,
                     )
-                  : CustomImageView(
-                      url: nftImageUrl,
-                      width: 48,
-                      height: 64,
-                      radius: BorderRadius.circular(2),
-                      fit: BoxFit.cover,
-                    ),
+                  : nftImageUrl == ""
+                      ? CustomImageView(
+                          imagePath: "assets/images/place_holder_card.png",
+                          width: 48,
+                          height: 64,
+                          radius: BorderRadius.circular(2),
+                          fit: BoxFit.cover,
+                        )
+                      : CustomImageView(
+                          url: nftImageUrl,
+                          width: 48,
+                          height: 64,
+                          radius: BorderRadius.circular(2),
+                          fit: BoxFit.cover,
+                        ),
               Padding(
                 padding: const EdgeInsets.only(left: 4.0, top: 4),
                 child: DefaultImage(

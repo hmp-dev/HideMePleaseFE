@@ -3,19 +3,23 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_thumbnail.dart';
 
 class SelectedNftItem extends StatelessWidget {
-  const SelectedNftItem(
-      {super.key,
-      required this.index,
-      required this.imageUrl,
-      required this.name,
-      required this.chain});
+  const SelectedNftItem({
+    super.key,
+    required this.index,
+    required this.imageUrl,
+    required this.videoUrl,
+    required this.name,
+    required this.chain,
+  });
 
   final int index;
   final String imageUrl;
   final String name;
   final String chain;
+  final String videoUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -26,18 +30,24 @@ class SelectedNftItem extends StatelessWidget {
           children: [
             Row(
               children: [
-                imageUrl != ""
-                    ? CustomImageView(
-                        url: imageUrl,
-                        width: 63,
-                        height: 64,
+                videoUrl != ""
+                    ? NftVideoThumbnailFromUrl(
+                        imageWidth: 63,
+                        imgHeight: 64,
+                        videoUrl: videoUrl,
                       )
-                    : DefaultImage(
-                        path: "assets/images/place_holder_card.png",
-                        width: 63,
-                        height: 64,
-                        boxFit: BoxFit.cover,
-                      ),
+                    : imageUrl != ""
+                        ? CustomImageView(
+                            url: imageUrl,
+                            width: 63,
+                            height: 64,
+                          )
+                        : DefaultImage(
+                            path: "assets/images/place_holder_card.png",
+                            width: 63,
+                            height: 64,
+                            boxFit: BoxFit.cover,
+                          ),
                 const HorizontalSpace(20),
                 SizedBox(
                   width: 100,

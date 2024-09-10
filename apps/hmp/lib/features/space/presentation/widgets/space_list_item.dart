@@ -80,6 +80,8 @@ class SpaceListItem extends StatelessWidget {
                                 width: MediaQuery.of(context).size.width * 0.5,
                                 child: Text(
                                   spaceEntity.name,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
                                   style: fontTitle05Bold(),
                                 ),
                               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_player.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -24,21 +25,28 @@ class BenefitTitleWidget extends StatelessWidget {
           children: [
             Stack(
               children: [
-                nftBenefitEntity.nftCollectionImage == ""
-                    ? CustomImageView(
-                        imagePath: "assets/images/place_holder_card.png",
+                nftBenefitEntity.nftCollectionVideo != ""
+                    ? SizedBox(
                         width: 48,
                         height: 64,
-                        radius: BorderRadius.circular(2),
-                        fit: BoxFit.cover,
+                        child: NftVideoPlayer(
+                            videoUrl: nftBenefitEntity.nftCollectionVideo),
                       )
-                    : CustomImageView(
-                        url: nftBenefitEntity.nftCollectionImage,
-                        width: 48,
-                        height: 64,
-                        radius: BorderRadius.circular(2),
-                        fit: BoxFit.cover,
-                      ),
+                    : nftBenefitEntity.nftCollectionImage == ""
+                        ? CustomImageView(
+                            imagePath: "assets/images/place_holder_card.png",
+                            width: 48,
+                            height: 64,
+                            radius: BorderRadius.circular(2),
+                            fit: BoxFit.cover,
+                          )
+                        : CustomImageView(
+                            url: nftBenefitEntity.nftCollectionImage,
+                            width: 48,
+                            height: 64,
+                            radius: BorderRadius.circular(2),
+                            fit: BoxFit.cover,
+                          ),
                 Padding(
                   padding: const EdgeInsets.only(left: 4.0, top: 4),
                   child: DefaultImage(

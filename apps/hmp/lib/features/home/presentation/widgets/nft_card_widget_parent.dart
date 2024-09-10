@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_thumbnail.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 
-class NFTCardWidgetParent extends StatelessWidget {
+class NFTCardWidgetParent extends StatefulWidget {
   const NFTCardWidgetParent({
     super.key,
     required this.imagePath,
     required this.topWidget,
     required this.bottomWidget,
     required this.index,
+    required this.videoUrl,
   });
 
   final String imagePath;
+  final String videoUrl;
   final Widget topWidget;
   final Widget bottomWidget;
   final int index;
 
+  @override
+  State<NFTCardWidgetParent> createState() => _NFTCardWidgetParentState();
+}
+
+class _NFTCardWidgetParentState extends State<NFTCardWidgetParent> {
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -32,23 +40,33 @@ class NFTCardWidgetParent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(color: fore4),
               ),
-              child: imagePath == ""
-                  ? CustomImageView(
-                      imagePath: "assets/images/place_holder_card.png",
+              child: widget.videoUrl.isNotEmpty
+                  ? SizedBox(
                       width: 326,
                       height: 486,
-                      border: Border.all(
-                        color: fore4,
-                        width: 1,
+                      child: NftVideoThumbnailFromUrl(
+                        imgHeight: 486,
+                        imageWidth: 326,
+                        videoUrl: widget.videoUrl,
                       ),
                     )
-                  : CustomImageView(
-                      url: imagePath,
-                      width: 326,
-                      height: 486,
-                      border: Border.all(color: fore4, width: 1),
-                      fit: BoxFit.fitHeight,
-                    ),
+                  : widget.imagePath == ""
+                      ? CustomImageView(
+                          imagePath: "assets/images/place_holder_card.png",
+                          width: 326,
+                          height: 486,
+                          border: Border.all(
+                            color: fore4,
+                            width: 1,
+                          ),
+                        )
+                      : CustomImageView(
+                          url: widget.imagePath,
+                          width: 326,
+                          height: 486,
+                          border: Border.all(color: fore4, width: 1),
+                          fit: BoxFit.fitHeight,
+                        ),
             ),
             _buildBlackGradientOverlayTop(),
             _buildBlackGradientOverlayBottom(),
@@ -87,9 +105,9 @@ class NFTCardWidgetParent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  topWidget,
+                  widget.topWidget,
                   const Spacer(),
-                  bottomWidget,
+                  widget.bottomWidget,
                 ],
               ),
             ),
@@ -100,7 +118,6 @@ class NFTCardWidgetParent extends StatelessWidget {
   }
 
   //  ===
-  // a gradient overlay to show up darker at bottom so the white text an angle icon visibility appear better
   Widget _buildBlackGradientOverlayTop() {
     return Positioned.fill(
       top: 0,

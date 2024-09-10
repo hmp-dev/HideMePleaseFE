@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/nft_video_thumbnail.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -97,21 +98,27 @@ class MembersItemWidget extends StatelessWidget {
   Stack buildImageWidget() {
     return Stack(
       children: [
-        nft.imageUrl == ""
-            ? CustomImageView(
-                imagePath: "assets/images/place_holder_card.png",
-                width: 90,
-                height: 120,
-                radius: BorderRadius.circular(2),
-                fit: BoxFit.cover,
+        nft.videoUrl != ""
+            ? NftVideoThumbnailFromUrl(
+                imageWidth: 90,
+                imgHeight: 120,
+                videoUrl: nft.videoUrl,
               )
-            : CustomImageView(
-                url: nft.imageUrl,
-                width: 90,
-                height: 120,
-                radius: BorderRadius.circular(2),
-                fit: BoxFit.cover,
-              ),
+            : nft.imageUrl == ""
+                ? CustomImageView(
+                    imagePath: "assets/images/place_holder_card.png",
+                    width: 90,
+                    height: 120,
+                    radius: BorderRadius.circular(2),
+                    fit: BoxFit.cover,
+                  )
+                : CustomImageView(
+                    url: nft.imageUrl,
+                    width: 90,
+                    height: 120,
+                    radius: BorderRadius.circular(2),
+                    fit: BoxFit.cover,
+                  ),
         Padding(
           padding: const EdgeInsets.only(left: 4.0, top: 4),
           child: DefaultImage(

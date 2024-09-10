@@ -102,8 +102,9 @@ class _MyScreenState extends State<MyScreen> with TickerProviderStateMixin {
                                 controller: tabViewController,
                                 children: [
                                   MyMembershipWidget(
-                                      selectedNftTokensList: membershipsState
-                                          .selectedNftTokensList),
+                                    selectedNftTokensList:
+                                        membershipsState.selectedNftTokensList,
+                                  ),
                                   MyPointsWidget(
                                     nftPointsList: pointsState.nftPointsList,
                                     isOwner: true,

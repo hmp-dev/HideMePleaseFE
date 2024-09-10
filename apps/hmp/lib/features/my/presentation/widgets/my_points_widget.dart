@@ -115,7 +115,7 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                     itemCount: widget.nftPointsList.length,
                     itemBuilder: (context, index) {
                       // get a value true if the index is the last one in widget.nftPointsList
-
+                      
                       return Container(
                         height: 120,
                         color: Colors.transparent,
