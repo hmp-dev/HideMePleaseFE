@@ -1,0 +1,654 @@
+{
+    "collections": [
+        {
+            "tokens": [
+                {
+                    "id": "f5d298599f43b66db9d48ebdfd1ea0fc_881",
+                    "tokenId": "881",
+                    "name": "Dadaz Family #-881 : Bounce of the joyful soul",
+                    "imageUrl": "https://cdn.simplehash.com/assets/bbd03de84228db0af022f8dfb143e030b700d8d57a6fc598f23f500f71b86bc0.jpg",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "Dadaz Family Official",
+            "tokenAddress": "f5d298599f43b66db9d48ebdfd1ea0fc",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/6vGVJYhZM9p6Y22i8cG8Mh5IBjSKJIJ2ZTcg0hgOSzX8lyvANDl3jyzWU7q7vOoMzVaYzGl64FyMtY_9rAJizInRCiTBWBWd0w"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "84b39bb0b649bd2aa16becac3e223d80_83658261639772698441417494489076540460367973258839228215858052861687714807809",
+                    "tokenId": "83658261639772698441417494489076540460367973258839228215858052861687714807809",
+                    "name": "#-881 Bounce of the joyful soul",
+                    "imageUrl": "https://cdn.simplehash.com/assets/bbd03de84228db0af022f8dfb143e030b700d8d57a6fc598f23f500f71b86bc0.jpg",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "DADAZ  Official",
+            "tokenAddress": "84b39bb0b649bd2aa16becac3e223d80",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/WgH-AAzv8-lP9KUzuD8_rBLYd3BGXVE4a3A2WLGg2TTzUh1myU3-nKVDFIeXA2bnCpPtm5XOs3Q47fGvJyZ3pwTCcuAgPBPkKFLT"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "35b8dcad814ebf8fcd2a50e430decedf_8684",
+                    "tokenId": "8684",
+                    "name": "QUADHASH : SAZA #8684",
+                    "imageUrl": "https://cdn.simplehash.com/assets/61b4c5cc9b77eae83435f7ed4bace5513cf154b227c9e7bcba4e946c51adf31c.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "35b8dcad814ebf8fcd2a50e430decedf_7928",
+                    "tokenId": "7928",
+                    "name": "QUADHASH : SAZA #7928",
+                    "imageUrl": "https://cdn.simplehash.com/assets/902c9d30daddf7cf6dbb23a0cfc3afe162ec76e8518952f921905fb1a27885a3.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "QUADHASH : SAZA",
+            "tokenAddress": "35b8dcad814ebf8fcd2a50e430decedf",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/hcq4iEVt-EcB9SpJOhigVhrXTFcffyyUPJjTFGqMh7F5En3wyMEZ1cDulaA02V3Yq5IWJ0UKi9NGapnp1zQv6Qdxg96wuRhwYms"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "5b4d4a2af24a213fc88c0ed12e6360c2_8684",
+                    "tokenId": "8684",
+                    "name": "#8684",
+                    "imageUrl": "https://cdn.simplehash.com/assets/5cee4243df85dd574815ef9f987196483ba9eb6b06da43715f97b329ababc6ac.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "5b4d4a2af24a213fc88c0ed12e6360c2_7928",
+                    "tokenId": "7928",
+                    "name": "#7928",
+                    "imageUrl": "https://cdn.simplehash.com/assets/327c77a07c74252b44ba30bcd71be585ad4fa744fda13fc60d93f1438be329ea.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "QUADHASH : GENESIS",
+            "tokenAddress": "5b4d4a2af24a213fc88c0ed12e6360c2",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/z-cO32s7tnUqTOsaFDhICN3LkhEiNKvC-RFCR4GIZPRrQAR1-C0gEhr8KAxLGzl8eYusflPw-5nHv80h4mI5kP3RZbYX5S21BOg"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "646bdde5c6552ee604a54c8b03bf0683_3",
+                    "tokenId": "3",
+                    "name": "Heart of Noma",
+                    "imageUrl": "https://cdn.simplehash.com/assets/7eac8850dc58b4d6612ca8a9f881a4a84b798ee691eff446722ec148c4ca6660.gif",
+                    "videoUrl": "https://cdn.simplehash.com/assets/89eb4aeea0a298fc36725697812209b407f51b44a59c8b8abc2f3127d023f48e.mp4",
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "SMATh World - Special Editions",
+            "tokenAddress": "646bdde5c6552ee604a54c8b03bf0683",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/HPovnrvQJiRjeVJV2WBXt2puxtZEBPoBu0ujdqaMbrGx5fPaRHgT8SKypBjM4HEhYuJUtUqlFYDU0upLfLvXMQ2VVUYOE4R4qg"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "a3a24ae18f39b1aeaa4201d36305968c_333",
+                    "tokenId": "333",
+                    "name": "Nom@dape #7-33",
+                    "imageUrl": "https://cdn.simplehash.com/assets/8834fcb856904766757b79817590e6596a483a371f363ebfeb58afcf578a498c.gif",
+                    "videoUrl": "https://cdn.simplehash.com/assets/d7b803c2a7a847506eea677fecb8ecc710996ec75c7733307fb51dc3de46b4cd.mp4",
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "SMATh World - Nomad@pe",
+            "tokenAddress": "a3a24ae18f39b1aeaa4201d36305968c",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/wwUfSKG8iLmGHMYNy-2lfn6owsWWY89aquSqhGwx98Rc9y_honjbgJwBbUgyXkEo00t_O3qpEN1vS2Ib-WCw-R9qaaAPn8wbef0q"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "fb984cf868a63756b9b6e7bbb328d5eb_103",
+                    "tokenId": "103",
+                    "name": "SMATh World x Hyundai Dept. Store Gold 10g #3",
+                    "imageUrl": "https://cdn.simplehash.com/assets/beb5a2233f8bd2a4d9d28419ae6baf50b569ddf4cabd1eb0b170e09240e58ba7.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "fb984cf868a63756b9b6e7bbb328d5eb_22",
+                    "tokenId": "22",
+                    "name": "SMATh World x Hyundai Dept. Store Gold 1g #22",
+                    "imageUrl": "https://cdn.simplehash.com/assets/62d334861fcf0f591b87dbc47df729bcfaa2da8c0bf9d8569a0193607595d02a.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "SMATh World x Hyundai Dept. Store Gold",
+            "tokenAddress": "fb984cf868a63756b9b6e7bbb328d5eb",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/lRrE-enKGAUfPeY7D_smF6IRL233xzGzzepdnfGnbkr7UjD4AB7wUjXbKocFh5opMw2tuu29AQ_9q_t-qaMSIWIo6hKOCEdVE0WK"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "0f322ad8d1ee51ad4fd304ba8fa37cf6_8632",
+                    "tokenId": "8632",
+                    "name": "Shark #8632",
+                    "imageUrl": "https://cdn.simplehash.com/assets/1adb8df5d00377044613a623c0383e8d31c51cceb4e0baefeeda7b8e9a8e18cc.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "0f322ad8d1ee51ad4fd304ba8fa37cf6_8264",
+                    "tokenId": "8264",
+                    "name": "Shark #8264",
+                    "imageUrl": "https://cdn.simplehash.com/assets/d10d831a353526f4a1b747717426de8192736f9f8471d574cf9eec52e81e55aa.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "Baby Shark: Collection No. 2",
+            "tokenAddress": "0f322ad8d1ee51ad4fd304ba8fa37cf6",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/Gt1U0uD_KImVZT-eYJz_RDa4oQ8pm4GLQu5HDp83LUm3QFMSjePosOol23fwBZscwUSl84cL8zayDw09yjsn9RSo8NS7WaWZWQ"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "4725208b300696c729052e6f4072032d_1426",
+                    "tokenId": "1426",
+                    "name": "1426",
+                    "imageUrl": "https://cdn.simplehash.com/assets/5d22789c84cf2b1a42f6a213fd670d982e828f14a629b590a3a6ced0c71aed12.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "4725208b300696c729052e6f4072032d_2041",
+                    "tokenId": "2041",
+                    "name": "2041",
+                    "imageUrl": "https://cdn.simplehash.com/assets/d9a03465bb288d979a8c99bb764abd82b72175914aec18e80a3fcd98dfb03603.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "4725208b300696c729052e6f4072032d_4628",
+                    "tokenId": "4628",
+                    "name": "4628",
+                    "imageUrl": "https://cdn.simplehash.com/assets/45dd4581c0381c27e5e726e7c5f00fa09e002052da77a04295e6ab8713809528.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "PANKSNOTDED",
+            "tokenAddress": "4725208b300696c729052e6f4072032d",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/r77z7n2aKws0BaW8BgMISOoFRnrbUvE-G82OSqMOYu89mJOVI_FjGfORFfdWIR1SvMUF-of0y_9iJGI_ZzemuRAbvc4ptabBpuTP"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "69af491641c394c44d4d1f85d30303b3_7928",
+                    "tokenId": "7928",
+                    "name": "Kongz#7928",
+                    "imageUrl": "https://cdn.simplehash.com/assets/04662a47c1d2a3cfe4e0b6507c21e5f8df2bd9e2a93e9d2f0b864d944d4507ff.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "69af491641c394c44d4d1f85d30303b3_8684",
+                    "tokenId": "8684",
+                    "name": "Kongz#8684",
+                    "imageUrl": "https://cdn.simplehash.com/assets/ce0690b0382460559dd110885471fc9c8475630cac64ce50e91c84c5a026c26d.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "META KONGZ OFFICIAL",
+            "tokenAddress": "69af491641c394c44d4d1f85d30303b3",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/POxyG2Enh6Ts_oBzMnnu6-zSHWUpETOXQYfJlbmNR6ZyWpYvOg798_ewsF2ZFaC-d22Th5r2jCxLTEp4iBo1PCgBYvQXQ1AIsw"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "722b69cada6bdabedfb3489680d7e0d9_3382",
+                    "tokenId": "3382",
+                    "name": "PRD_X #3382",
+                    "imageUrl": "https://cdn.simplehash.com/assets/53eea73c21b8b61bfe8379b6999d595dace9500fd18870171f62498b44f72eaf.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "722b69cada6bdabedfb3489680d7e0d9_2432",
+                    "tokenId": "2432",
+                    "name": "PRD_X #2432",
+                    "imageUrl": "https://cdn.simplehash.com/assets/e9c9810ccec24328d50940901cf26e912ebdfc92bfe673df9d3f2128e513fb57.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "722b69cada6bdabedfb3489680d7e0d9_4365",
+                    "tokenId": "4365",
+                    "name": "PRD_X #4365",
+                    "imageUrl": "https://cdn.simplehash.com/assets/326f480b78297d4e688d178c5b5938659da0d1d0156a15240502a33ddf22ed29.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "722b69cada6bdabedfb3489680d7e0d9_2920",
+                    "tokenId": "2920",
+                    "name": "PRD_X #2920",
+                    "imageUrl": null,
+                    "videoUrl": "https://cdn.simplehash.com/assets/f930217f1a0ca63fb2275509a143509823d5813104416846458c76c29927eb79.mp4",
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "722b69cada6bdabedfb3489680d7e0d9_2081",
+                    "tokenId": "2081",
+                    "name": "PRD_X #2081",
+                    "imageUrl": "https://cdn.simplehash.com/assets/15dfb1a89d02ea05a9a1a908527ab8eb643a02f1d33578aea938b613abc3d1a7.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "SMATh World - PRD_X",
+            "tokenAddress": "722b69cada6bdabedfb3489680d7e0d9",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/J7ZZOzo51XEsCxD5eDNF9y5u0OjCkBnhCbuvcvWq_9-KBTYCQ4plOUFPj4roexC7tvqw69v7nnXauZF4VeAUX_2-nP7fR9M8dms"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "c149a433bf01b20aef23f969b1922246_13160607876627315997298998607605372076388631947155285122643479581240930074649",
+                    "tokenId": "13160607876627315997298998607605372076388631947155285122643479581240930074649",
+                    "name": "Calm mind",
+                    "imageUrl": "https://cdn.simplehash.com/assets/7a52f68432e8156afe4f98b479ba72a924351473eac54a1a8fff7478977eb778.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "c149a433bf01b20aef23f969b1922246_13160607876627315997298998607605372076388631947155285122643479596634092863513",
+                    "tokenId": "13160607876627315997298998607605372076388631947155285122643479596634092863513",
+                    "name": "Relaxed mind",
+                    "imageUrl": "https://cdn.simplehash.com/assets/2987b8ad279fb5041d31d674832b1c2ad201595c3882462bfc67fa8a5b4b4797.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "hide_me_please",
+            "tokenAddress": "c149a433bf01b20aef23f969b1922246",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/PIiwlpcb5hGR5YqJbaNUHBRvFXcz8HA-xBwX01R-adtsy5N2C37js_uBE-P0p72JatplLcxgKD-IZHoRfBqpRRQuBBTQTdf7ZduV"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "4bf4d80de12ebd6432cd49578cde1171_289",
+                    "tokenId": "289",
+                    "name": "The Doge Academy #289",
+                    "imageUrl": "https://cdn.simplehash.com/assets/56bb9f9f1df4495624b9d16ce38fb7676f68ff3c34b1244ee37e59ebb753e1bf.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "Doge Academy",
+            "tokenAddress": "4bf4d80de12ebd6432cd49578cde1171",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/jEi6G_DpxhjSDashzKr2v8mTmcNAW0aEMR5wEcQRrTtQnh8iRPPvPPVTLgEHnudByZpxi3Kg_8gfirsPrfFESNE8nMzuCqX0wsUd"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_4128",
+                    "tokenId": "4128",
+                    "name": "HeroDuck #4128",
+                    "imageUrl": "https://cdn.simplehash.com/assets/25ee106a4de26deedc25d244fbeef7ee08e321a9d0b3ea27be8f0ce5ed0848eb.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_4137",
+                    "tokenId": "4137",
+                    "name": "HeroDuck #4137",
+                    "imageUrl": "https://cdn.simplehash.com/assets/d651cce903f4ed726926e5307dcdf4dddeaf5235f671ff647ae07c38c49148a2.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_4134",
+                    "tokenId": "4134",
+                    "name": "HeroDuck #4134",
+                    "imageUrl": "https://cdn.simplehash.com/assets/3b01904fd76e7722fc87129ef3aa7d729defd66e53074cfa3fb7f4d08d2ba5c9.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_4133",
+                    "tokenId": "4133",
+                    "name": "HeroDuck #4133",
+                    "imageUrl": "https://cdn.simplehash.com/assets/6c5489ec951841c7255430f6dde4fd9d1c0712f19b2918e53e687d0a1fec9ba4.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_3716",
+                    "tokenId": "3716",
+                    "name": "HeroDuck #3716",
+                    "imageUrl": "https://cdn.simplehash.com/assets/887fad0f650a0b0eecf13e68079044990a8e9ad99a7af68c05f19baee2034973.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_3715",
+                    "tokenId": "3715",
+                    "name": "HeroDuck #3715",
+                    "imageUrl": "https://cdn.simplehash.com/assets/cf0dc49e4792bed9ded8b3a9abc380dc593152d382e7ab4d1faaf3ef4f8d1a46.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_1341",
+                    "tokenId": "1341",
+                    "name": "HeroDuck #1341",
+                    "imageUrl": "https://cdn.simplehash.com/assets/bbd24da8c324ee20d2f4d5cc35096d715c8acc672806a4c777f8d9a692dabcf4.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_3704",
+                    "tokenId": "3704",
+                    "name": "HeroDuck #3704",
+                    "imageUrl": "https://cdn.simplehash.com/assets/07847198cf9fec524e4196c1dc24aa434b5a6d1abb0fcd55cbc0e582bc6bd049.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_3703",
+                    "tokenId": "3703",
+                    "name": "HeroDuck #3703",
+                    "imageUrl": "https://cdn.simplehash.com/assets/98a2808c51ba4dbc20275f2590f0383760bab11af165422ee9d312916f173001.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "928c9ca5bdcbbdc27524a1cc43a6bcd7_1339",
+                    "tokenId": "1339",
+                    "name": "HeroDuck #1339",
+                    "imageUrl": "https://cdn.simplehash.com/assets/bcac74f43efbd5b74ff0a31d1079637950e980b38dd756aa2daf64c629370542.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "HeroDuck",
+            "tokenAddress": "928c9ca5bdcbbdc27524a1cc43a6bcd7",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/WQbxi7TGrP1xVhnN3k8hbfLV6hE6DIjStsbW8aIMCXAQLD4ZWzaYkEPmtGnWH_SrUO7H6f5LBZpRAZLL-drmfJiGtcmfAXdysFSL"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "47437fcf62c362520fc4fe10ba67a932_60547833748661065929532158005115265637130222102055895305110796050346784325633",
+                    "tokenId": "60547833748661065929532158005115265637130222102055895305110796050346784325633",
+                    "name": "FXD STW Super-premium #5",
+                    "imageUrl": "https://cdn.simplehash.com/assets/de865b81296769f08a2d82c0e0ff3d34786354480b25ff82448dabbdc704fe4c.jpg",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "fashionXDAO Pilot Season - Save The Whales",
+            "tokenAddress": "47437fcf62c362520fc4fe10ba67a932",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/9A5Gl5DzKoj4yxu94AEqNNPx6u69dpXbMxy5w7Uj2KDc2b2-eiq9jMFrdQVFsbdd6rnZd9MiTcalIy3ShCe-vgmMJXIb97UNENs"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "d84375f560ce97bda704aa740b245cc1_15",
+                    "tokenId": "15",
+                    "name": "Spacebar #15",
+                    "imageUrl": "https://cdn.simplehash.com/assets/b8c4df7d4e0446dab375102ef49de7da1409b591480876908ea882d16cd9de3d.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "Spacebar NFT",
+            "tokenAddress": "d84375f560ce97bda704aa740b245cc1",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/En28hP0K-JZfRawiYJdh_8OV8I4Ztxy1Piw54JmLbo_IDRP_dzJheYC2marUl5aAblVf-lNvWfh34ukw31s7xLr_ecHhvYOHYTI"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "564b34f2dce9bfd040345dc27d14cb53_42",
+                    "tokenId": "42",
+                    "name": "Chameleon girl #42",
+                    "imageUrl": null,
+                    "videoUrl": "https://cdn.simplehash.com/assets/6cdfa5aa09c3acbb8bd44e64a157fcd99cc84ac9b8452c93a6a2874e17e33721.mp4",
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "HIDE ME PLEASE 3RD",
+            "tokenAddress": "564b34f2dce9bfd040345dc27d14cb53",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/KPDtEEucgnjwIs5bwkOCLkBrQzqFPzAmkExKy-ZMkJCvJzpKIChGLBlGbf3htWdhmPiBucXO2jdA4ooA5JQzgHNtjCqijQkpIxM"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "fd6a3a86e8a138a2dea424ae7a38b7e5_1339",
+                    "tokenId": "1339",
+                    "name": "HERO DUCK",
+                    "imageUrl": "https://cdn.simplehash.com/assets/167b88cb985e955c184197296e66a4a1a47d2038c781ec4ee0f41103d62af6d9.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "fd6a3a86e8a138a2dea424ae7a38b7e5_1015",
+                    "tokenId": "1015",
+                    "name": "HERO DUCK",
+                    "imageUrl": "https://cdn.simplehash.com/assets/167b88cb985e955c184197296e66a4a1a47d2038c781ec4ee0f41103d62af6d9.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "Hero Duck - INVALID",
+            "tokenAddress": "fd6a3a86e8a138a2dea424ae7a38b7e5",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/i7HuLX70GsVMy1riJSDoL9MreHuqq7o9kTR9FrXDGx2tN5NA2LqTaWpuJmGz-HzYeoXXSvSUbSQ5cgx8GpS0YHwukufxAGJRChY"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "c3e4aba995f6ba406f9ecaa8a26ca06a_34892",
+                    "tokenId": "34892",
+                    "name": "MyMetaverse",
+                    "imageUrl": "https://cdn.simplehash.com/assets/869682d22252ee80a9a172ae2be68e9dc881e6ef83ab6f0fd3ac24d058e68279.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "Nametag",
+            "tokenAddress": "c3e4aba995f6ba406f9ecaa8a26ca06a",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/6eT2mp6pzs5xgk8jLvigU-ZSEHvwaIRnTDWDSfkWOWdAZ5tzosdanp-iSG5SqSVRW_vcrU5EQAjF_EQxzoWZq48btS1BXFBcAN4"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "e2451063a8f63c5d0e64e9652e459514_214",
+                    "tokenId": "214",
+                    "name": "#214",
+                    "imageUrl": "https://cdn.simplehash.com/assets/52babd6f4d6a94b3b4cba07de76ef46ad21d9aeea3970ca67b20e2adb3a6817a.gif",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "NINZUKI OFFICIAL",
+            "tokenAddress": "e2451063a8f63c5d0e64e9652e459514",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/vDATw09UZ-fEk5zAjy_Ztw9-3IoIDlmVzjBksq-WBpWu16iqD_LwRZ8NNs2jK2obfl3M1D3VSkgRA-3E7X2pPzqMcA5mZ8MGiw"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "fd107ced4e8eedb592522f8872d95151_2439",
+                    "tokenId": "2439",
+                    "name": "IZUKI #2439",
+                    "imageUrl": "https://cdn.simplehash.com/assets/a77f62a629a15acb346b17ce47f8c0bb562b45c23760a0999517d29d6bb7561f.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "fd107ced4e8eedb592522f8872d95151_2438",
+                    "tokenId": "2438",
+                    "name": "IZUKI #2438",
+                    "imageUrl": "https://cdn.simplehash.com/assets/dcf3a11c1434332bc11856645cfc678df3146a65844b831c7096ef828d7b1219.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "fd107ced4e8eedb592522f8872d95151_2390",
+                    "tokenId": "2390",
+                    "name": "IZUKI #2390",
+                    "imageUrl": "https://cdn.simplehash.com/assets/bfa6c5f75dd7e12751c2dac2df32c6b4e495bfb8e186baaa74c3aa37fbe9d08d.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "fd107ced4e8eedb592522f8872d95151_2389",
+                    "tokenId": "2389",
+                    "name": "IZUKI #2389",
+                    "imageUrl": "https://cdn.simplehash.com/assets/12ce82c18164efa56c598f64ab82e18a72f40d1a860f860a40acef134b9ddc36.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "fd107ced4e8eedb592522f8872d95151_2388",
+                    "tokenId": "2388",
+                    "name": "IZUKI #2388",
+                    "imageUrl": "https://cdn.simplehash.com/assets/82e4d91dfc88e527fc2fea43cafafe7ae4653f133e5ffcc02a74b0234d83452f.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "IZUKI ZEN",
+            "tokenAddress": "fd107ced4e8eedb592522f8872d95151",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/pvKDlIRqfsUyOGd6W692xjARoNDjKyVpIOL1YmwEkeMaIscSlr4rYvSa-UeAIQd_0T5RcRI92MNltwHJlJxzpRBXaPbPJXyarg"
+        },
+        {
+            "tokens": [
+                {
+                    "id": "2fefc2d4c6402d6c077f97e3bec2d90a_651",
+                    "tokenId": "651",
+                    "name": "SuperKakira #651",
+                    "imageUrl": "https://cdn.simplehash.com/assets/b811717e3d403963c31a8dcacfb6a315fc18cd8ba50cc9fe347386e0022747fb.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "2fefc2d4c6402d6c077f97e3bec2d90a_650",
+                    "tokenId": "650",
+                    "name": "SuperKakira #650",
+                    "imageUrl": "https://cdn.simplehash.com/assets/2c7f1d350c542bb80fa41f947abe91a79e18aeae43b668118e16114769d2edcf.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                },
+                {
+                    "id": "2fefc2d4c6402d6c077f97e3bec2d90a_649",
+                    "tokenId": "649",
+                    "name": "SuperKakira #649",
+                    "imageUrl": "https://cdn.simplehash.com/assets/ee0ae8e9f927ae5c4a166c4521f738f79012a403179860aa831e0b1c7c65f0ff.png",
+                    "videoUrl": null,
+                    "selected": false,
+                    "ownerWalletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5"
+                }
+            ],
+            "chainSymbol": "ETHEREUM",
+            "name": "Super Kakira",
+            "tokenAddress": "2fefc2d4c6402d6c077f97e3bec2d90a",
+            "walletAddress": "0x05e3b836304f9169407c4930e33677d16a203af5",
+            "collectionLogo": "https://lh3.googleusercontent.com/7j6JctK4fExCF5vCyb7USH4-R_DS7FIF5-mxMjWIqU6PJvxZgcsZCDVAu7xp4T9V0Yxrf1SjnegOl7Itaw4-7H1VowFWE_eZPKc"
+        }
+    ],
+    "selectedNftCount": 0,
+    "next": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuZXh0Q2hhaW4iOiJFVEhFUkVVTSIsIm5leHRQYWdlIjoiWlhadExURXVNSGhrWkRZM01tSTVOR1l4T1dZeFltRmxNREEzTURoalkyWmxPR000WXpVeFltUmhPREk0WXpJMUxqQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNRFkwT1Y4eU1ESXlMVEF6TFRJeUlERXpPakE0T2pJeUt6QXdPakF3WDE5dVpYaDAiLCJuZXh0V2FsbGV0QWRkcmVzcyI6IjB4MDVlM2I4MzYzMDRmOTE2OTQwN2M0OTMwZTMzNjc3ZDE2YTIwM2FmNSIsImxpdmVEYXRhIjp0cnVlLCJpYXQiOjE3MjYxMzA5NDQsImV4cCI6MTcyODc2MDk0NH0.4esKQmy_zgJj0HiFzwISaiPjbr4RO3LYeLuDBirVtco"
+}

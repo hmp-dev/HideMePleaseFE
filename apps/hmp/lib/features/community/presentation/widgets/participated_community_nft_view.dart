@@ -77,15 +77,15 @@ class ParticipatedCommunityNftView extends StatelessWidget {
                   maxLines: 2,
                   style: fontTitle01Bold(),
                 ),
-                const SizedBox(height: 10.0),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0, vertical: 5.0),
-                  child: Text(
-                    communityPeoples,
-                    style: fontCompactSm(),
-                  ),
-                ),
+                // const SizedBox(height: 10.0),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(
+                //       horizontal: 12.0, vertical: 5.0),
+                //   child: Text(
+                //     communityPeoples,
+                //     style: fontCompactSm(),
+                //   ),
+                // ),
                 const Spacer(),
                 Column(
                   children: recentMsgs

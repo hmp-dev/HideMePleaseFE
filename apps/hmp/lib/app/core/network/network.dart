@@ -20,7 +20,6 @@ class Network {
 
   @PostConstruct(preResolve: true)
   Future<void> initialize() async {
-    
     final talker = getIt<Talker>();
 
     talkerDioLogger = TalkerDioLogger(
