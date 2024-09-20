@@ -471,7 +471,7 @@ String getLocalCategoryName(String categoryName) {
     case "ETC":
       return "etc";
     default:
-      throw Exception('Unhandled category');
+      return LocaleKeys.entire.tr();
   }
 }
 
