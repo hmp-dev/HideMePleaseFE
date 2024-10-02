@@ -16,6 +16,14 @@ class AuthLocalDataSource {
     return await _secureStorage.read(StorageValues.accessToken);
   }
 
+  Future<void> setGoogleAccessToken(String accessToken) async {
+    await _secureStorage.write(StorageValues.googleAccessToken, accessToken);
+  }
+
+  Future<String?> getGoogleAccessToken() async {
+    return await _secureStorage.read(StorageValues.googleAccessToken);
+  }
+
   Future<void> setUserId(String userId) async {
     await _secureStorage.write(StorageValues.userId, userId);
   }

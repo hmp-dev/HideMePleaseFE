@@ -4,4 +4,6 @@ abstract class StorageValues {
   static const String refreshToken = 'refreshToken';
   static const String talkPlusToken = 'talkPlusToken';
   static const String talkPlusUserId = 'talkPlusUserId';
+
+  static const String googleAccessToken = 'googleAccessToken';
 }

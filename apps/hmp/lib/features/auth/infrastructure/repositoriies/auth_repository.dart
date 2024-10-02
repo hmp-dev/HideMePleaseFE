@@ -68,6 +68,13 @@ class AuthRepositoryImpl implements AuthRepository {
         rawNonce: rawNonce,
       );
 
+      //== to save access Token to be used for wepin login
+      ("the Apple ID Toke is: ${appleCredential.identityToken}").log();
+      // save id token in secure Storage
+      _localDataSource
+          .setGoogleAccessToken(appleCredential.identityToken ?? "");
+      //===
+
       // Sign in the user with Firebase. If the nonce we generated earlier does
       // not match the nonce in `appleCredential.identityToken`, sign in will fail.
       await FirebaseAuth.instance.signInWithCredential(oauthCredential);
@@ -97,11 +104,15 @@ class AuthRepositoryImpl implements AuthRepository {
         idToken: googleAuth.idToken,
       );
 
+      //== to save access Token to be used for wepin login
+      ("the Google Access Toke is: ${googleAuth.accessToken}").log();
+      // save id token in secure Storage
+      _localDataSource.setGoogleAccessToken(googleAuth.accessToken ?? "");
+      //===
+
       await FirebaseAuth.instance.signInWithCredential(credential);
 
       final getIdToken = await FirebaseAuth.instance.currentUser?.getIdToken();
-
-      ("$getIdToken").log();
 
       return right(getIdToken ?? "");
 

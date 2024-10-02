@@ -36,7 +36,6 @@ dependencies:
   firebase_performance: ^0.9.3+19
   flutter:
     sdk: flutter
-  flutter_appauth: ^6.0.6
   flutter_bloc: ^8.1.5
   flutter_easyloading: ^3.0.5
   flutter_inappwebview: ^6.0.0
@@ -81,11 +80,12 @@ dependencies:
   talker_flutter: ^4.3.0
   timeago: ^3.6.1
   upgrader: ^10.3.0
-  url_launcher: ^6.2.5
+  url_launcher: ^6.3.0
   video_player: ^2.9.1
   video_thumbnail: ^0.5.3
   visibility_detector: ^0.4.0+2
   web3modal_flutter: ^3.2.0
+  wepin_flutter_widget_sdk: ^0.0.5
 
 dev_dependencies:
   analyzer: ^5.13.0

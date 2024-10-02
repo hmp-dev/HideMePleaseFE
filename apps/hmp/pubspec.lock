@@ -529,6 +529,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.2"
+  ecdsa:
+    dependency: transitive
+    description:
+      name: ecdsa
+      sha256: "13b4e01ac140575cf88ef5e5268f92b8dd0a67a26c60a1b74e67d146068dc246"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   ed25519_edwards:
     dependency: transitive
     description:
@@ -561,6 +569,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  elliptic:
+    dependency: transitive
+    description:
+      name: elliptic
+      sha256: "0c303d810603953a65dc39c4c542fb7538defd9e212403c54c266140819523b6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.11"
   encrypt:
     dependency: transitive
     description:
@@ -774,22 +790,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_appauth:
-    dependency: "direct main"
-    description:
-      name: flutter_appauth
-      sha256: f2696d4cf437f627fa09bc4864afdd8c80273f2e293fde544b18202a627754b1
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.6"
-  flutter_appauth_platform_interface:
+  flutter_bcrypt:
     dependency: transitive
     description:
-      name: flutter_appauth_platform_interface
-      sha256: "44feaa7058191b5d3cd7c9ff195262725773643121bcada172d49c2ddcff71cb"
+      name: flutter_bcrypt
+      sha256: "47dd6d864732ec0e19f950ba7e67b5b245bcdbe8bada288689de4b6c405c2d37"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "1.0.8"
   flutter_bloc:
     dependency: "direct main"
     description:
@@ -1621,6 +1629,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  ninja_asn1:
+    dependency: transitive
+    description:
+      name: ninja_asn1
+      sha256: b0f04877243fda51c475ec2bcaadb55a92759baee9f02888124c60775760ccf7
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   nm:
     dependency: transitive
     description:
@@ -2453,10 +2469,10 @@ packages:
     dependency: "direct main"
     description:
       name: url_launcher
-      sha256: "0ecc004c62fd3ed36a2ffcbe0dd9700aee63bd7532d0b642a488b1ec310f492e"
+      sha256: "21b704ce5fa560ea9f3b525b43601c678728ba46725bab9b01187b4831377ed3"
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.5"
+    version: "6.3.0"
   url_launcher_android:
     dependency: transitive
     description:
@@ -2744,6 +2760,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.13.1"
+  wepin_flutter_common:
+    dependency: transitive
+    description:
+      name: wepin_flutter_common
+      sha256: "3d4e87fb3b2f218300d3a1e3e9cc51420102792cd310ee7f33c622998d9a3ac9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.6"
+  wepin_flutter_login_lib:
+    dependency: transitive
+    description:
+      name: wepin_flutter_login_lib
+      sha256: "350d61d977f95ca8cb53e05d2ad158c904be8cb98363705b97d2749c2684e2ab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.6"
+  wepin_flutter_modal:
+    dependency: transitive
+    description:
+      name: wepin_flutter_modal
+      sha256: "7d4ce93bedf3a699b378ec40ed3adc879f2734f826af93a7f263403fa35be7f2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
+  wepin_flutter_network:
+    dependency: transitive
+    description:
+      name: wepin_flutter_network
+      sha256: "234e37dca05c2c31e7462ab425c4ff56f4e604445a089dec168c2a91abf56397"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.5"
+  wepin_flutter_storage:
+    dependency: transitive
+    description:
+      name: wepin_flutter_storage
+      sha256: "28bc402c5601e54da05e22a70a2b3fa7d1f16cb0e53fa2933bc1eaf447cdc622"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
+  wepin_flutter_widget_sdk:
+    dependency: "direct main"
+    description:
+      name: wepin_flutter_widget_sdk
+      sha256: "99e47cf8ca9a20fdc2c60bd724322f2946d1f8be0253c67333729b08f9f59b67"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.5"
   win32:
     dependency: transitive
     description:

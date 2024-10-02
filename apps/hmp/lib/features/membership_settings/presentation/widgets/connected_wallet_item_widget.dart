@@ -79,7 +79,7 @@ class ConnectedWalletItemWidget extends StatelessWidget {
                                 )
                               : CustomImageView(
                                   imagePath:
-                                      "assets/web3-wallet-logos/${connectedWallet.provider.toLowerCase()}_wallet.png",
+                                      "assets/web3-wallet-logos/${getProviderIcon(connectedWallet.provider)}_wallet.png",
                                   width: 42,
                                   height: 42,
                                   radius: BorderRadius.circular(12),
@@ -134,5 +134,17 @@ class ConnectedWalletItemWidget extends StatelessWidget {
         );
       },
     );
+  }
+
+  String getProviderIcon(String provider) {
+    if (provider == "WEPIN_EVM") {
+      return "wepin";
+    }
+
+    if (provider == "WEPIN_SOLANA") {
+      return "wepin";
+    }
+
+    return provider.toLowerCase();
   }
 }

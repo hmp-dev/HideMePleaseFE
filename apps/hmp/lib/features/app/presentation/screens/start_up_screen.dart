@@ -8,11 +8,13 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
+import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/model_banner_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wepin/wepin_setup_pin_screen.dart';
 
 class StartUpScreen extends StatefulWidget {
   const StartUpScreen({super.key});
@@ -82,14 +84,24 @@ class _StartUpScreenState extends State<StartUpScreen>
                 // If a wallet is NOT Connected
                 // Update Home View to Show with Before Wallet Connected
                 // and then Navigate to Home View
-                getIt<HomeCubit>()
-                    .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
+
+                // getIt<HomeCubit>()
+                //     .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
+
                 // pass value to appHome with Navigator.pushNamedAndRemoveUntil to disconnect wallet
 
-                if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      Routes.appScreen, (Route<dynamic> route) => false);
-                }
+                // if (context.mounted) {
+                //   Navigator.of(context).pushNamedAndRemoveUntil(
+                //       Routes.appScreen, (Route<dynamic> route) => false);
+                // }
+
+                final idToken =
+                    await getIt<AuthLocalDataSource>().getGoogleAccessToken();
+                "the idToken passing to Wepin is $idToken".log();
+
+                //getIt<WepinCubit>().loginWithGoogle(idToken ?? "");
+
+                navigateToWepinSetupScreen(context, idToken ?? "");
               } else {
                 // If a wallet is Connected
                 // Update Home View to Show with Wallet Connected
@@ -129,6 +141,14 @@ class _StartUpScreenState extends State<StartUpScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void navigateToWepinSetupScreen(BuildContext context, String token) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => WepinSetUpPinScreen(googleAuthAccessToken: token),
       ),
     );
   }

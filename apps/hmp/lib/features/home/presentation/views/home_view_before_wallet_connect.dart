@@ -10,6 +10,7 @@ import 'package:mobile/features/common/presentation/widgets/default_snackbar.dar
 import 'package:mobile/features/home/presentation/widgets/free_welcome_nft_card.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 /// [HomeViewBeforeWalletConnect] is a stateless widget that displays
@@ -18,7 +19,7 @@ import 'package:mobile/generated/locale_keys.g.dart';
 /// It listens to the [WalletsCubit] state and shows an error snackbar
 /// if there is an error in connecting the wallet. It also listens to the
 /// [NftCubit] state and shows the welcome NFT card if it is available.
-class HomeViewBeforeWalletConnect extends StatelessWidget {
+class HomeViewBeforeWalletConnect extends StatefulWidget {
   /// Creates a [HomeViewBeforeWalletConnect].
   ///
   /// The [onConnectWallet] callback is called when the user taps the
@@ -31,6 +32,24 @@ class HomeViewBeforeWalletConnect extends StatelessWidget {
   /// The callback function that is called when the user taps the connect
   /// wallet button.
   final VoidCallback onConnectWallet;
+
+  @override
+  State<HomeViewBeforeWalletConnect> createState() =>
+      _HomeViewBeforeWalletConnectState();
+}
+
+class _HomeViewBeforeWalletConnectState
+    extends State<HomeViewBeforeWalletConnect> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        getIt<WepinCubit>().initWepinSDK();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +91,7 @@ class HomeViewBeforeWalletConnect extends StatelessWidget {
               // Display the connect wallet button
               ElevatedButton(
                 style: _elevatedButtonStyle(),
-                onPressed: onConnectWallet,
+                onPressed: widget.onConnectWallet,
                 child: Text(
                   LocaleKeys.walletConnection.tr(),
                   style: fontCompactMdMedium(color: white),

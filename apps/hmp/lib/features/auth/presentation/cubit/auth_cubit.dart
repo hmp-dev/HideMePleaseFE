@@ -1,11 +1,17 @@
 // ignore_for_file: unused_field
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
+import 'package:mobile/features/wepin/values/sdk_app_info.dart';
+import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
+import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 part 'auth_state.dart';
 
@@ -14,6 +20,11 @@ class AuthCubit extends BaseCubit<AuthState> {
   AuthCubit(this._authRepository) : super(AuthState.initial());
 
   final AuthRepository _authRepository;
+
+  // Declare wepinSDK here
+  WepinWidgetSDK? wepinSDK;
+  WepinLifeCycle wepinStatus = WepinLifeCycle.notInitialized;
+  String userEmail = '';
 
   Future<void> onGoogleLogin() async {
     final result = await _authRepository.requestGoogleLogin();
@@ -71,5 +82,164 @@ class AuthCubit extends BaseCubit<AuthState> {
         ),
       ),
     );
+  }
+
+  // wepin related functions
+
+  Future<void> initWepinSDK() async {
+    if (wepinSDK != null) {
+      wepinSDK?.finalize();
+    }
+
+    wepinSDK = WepinWidgetSDK(
+      wepinAppKey: sdkConfigs[0]['appKey'],
+      wepinAppId: sdkConfigs[0]['appId'],
+    );
+
+    await wepinSDK!.init(
+      attributes:
+          WidgetAttributes(defaultLanguage: 'en', defaultCurrency: 'USD'),
+    );
+
+    wepinStatus = await wepinSDK!.getStatus();
+    userEmail = wepinStatus == WepinLifeCycle.login
+        ? (await wepinSDK!.login.getCurrentWepinUser())?.userInfo?.email ?? ''
+        : '';
+
+    emit(state.copyWith(wepinSDK: wepinSDK)); // Update state with SDK
+
+    if (wepinStatus == WepinLifeCycle.notInitialized) {
+      ('WepinSDK is not initialized.').log();
+    }
+  }
+
+  // Future<void> loginToWepin() async {
+  //   final socialLoginToken =
+  //       await getIt<AuthLocalDataSource>().getGoogleAccessToken();
+  //   "the idToken passing to Wepin is $socialLoginToken".log();
+
+  //   if (state.wepinSDK != null) {
+  //     try {
+  //       LoginResult? fbToken;
+
+  //       // if Platform is Google
+  //       if (Platform.isAndroid) {
+  //         fbToken = await state.wepinSDK!.login.loginWithAccessToken(
+  //             provider: 'google', accessToken: socialLoginToken ?? "");
+  //       }
+
+  //       if (Platform.isIOS) {
+  //         fbToken = await state.wepinSDK!.login
+  //             .loginWithIdToken(idToken: socialLoginToken ?? "");
+  //       }
+
+  //       if (fbToken != null) {
+  //         final wepinUser = await state.wepinSDK?.login.loginWepin(fbToken);
+
+  //         if (wepinUser != null && wepinUser.userInfo != null) {
+  //           userEmail = wepinUser.userInfo!.email; // Update user's email
+  //           wepinStatus = await state.wepinSDK!.getStatus(); // Get wepin status
+  //         } else {
+  //           ('Login Failed. No user info found.').log();
+  //         }
+  //       } else {
+  //         ('Login Failed. Invalid token.').log();
+  //       }
+  //     } catch (e) {
+  //       if (!e.toString().contains('UserCancelled')) {
+  //         ('Login Failed. (error code - $e)').log();
+  //       }
+  //     }
+  //   } else {
+  //     ('WepinSDK is not initialized.').log();
+  //   }
+  // }
+
+  Future<void> loginToWepin() async {
+    // Get the Google access token from local storage
+    final socialLoginToken =
+        await getIt<AuthLocalDataSource>().getGoogleAccessToken();
+    "the idToken passing to Wepin is $socialLoginToken".log();
+
+    if (socialLoginToken == null || socialLoginToken.isEmpty) {
+      'Google access token is null or empty.'.log();
+      emit(state.copyWith(
+        message: 'Failed to get Google token',
+        submitStatus: RequestStatus.failure,
+      ));
+      return;
+    }
+
+    // Ensure SDK is initialized before proceeding
+    if (state.wepinSDK == null) {
+      'WepinSDK is not initialized.'.log();
+      emit(state.copyWith(
+        message: 'WepinSDK is not initialized',
+        submitStatus: RequestStatus.failure,
+      ));
+      return;
+    }
+
+    try {
+      // LoginResult? fbToken;
+      'inside Try Login. ${state.wepinSDK?.domain}'.log();
+      // if Platform is Google (Android and iOS specific implementations)
+      // if (Platform.isAndroid) {
+      //   fbToken = await state.wepinSDK!.login.loginWithAccessToken(
+      //     provider: 'google',
+      //     accessToken: socialLoginToken,
+      //   );
+      // } else if (Platform.isIOS) {
+      //   fbToken = await state.wepinSDK!.login
+      //       .loginWithIdToken(idToken: socialLoginToken);
+      // }
+
+      LoginResult fbToken = await state.wepinSDK!.login.loginWithAccessToken(
+        provider: 'google',
+        accessToken: socialLoginToken,
+      );
+
+      // if (fbToken == null) {
+      //   'Login Failed. Invalid token.'.log();
+      //   emit(state.copyWith(
+      //     message: 'Login Failed. Invalid token.',
+      //     submitStatus: RequestStatus.failure,
+      //   ));
+      //   return;
+      // }
+
+      // Proceed with Wepin login
+      final wepinUser = await state.wepinSDK?.login.loginWepin(fbToken);
+
+      if (wepinUser != null && wepinUser.userInfo != null) {
+        userEmail = wepinUser.userInfo!.email;
+        wepinStatus = await state.wepinSDK!.getStatus();
+
+        'Login successful!'.log();
+        'After login into Wepin $userEmail'.log();
+        'inside Try Login. $wepinStatus'.log();
+
+        emit(
+          state.copyWith(
+            message: 'Login successful!',
+            submitStatus: RequestStatus.success,
+          ),
+        );
+      } else {
+        'Login Failed. No user info found.'.log();
+        emit(state.copyWith(
+          message: 'Login Failed. No user info found.',
+          submitStatus: RequestStatus.failure,
+        ));
+      }
+    } catch (e) {
+      if (!e.toString().contains('UserCancelled')) {
+        ('Login Failed. (error code - $e)').log();
+      }
+      emit(state.copyWith(
+        message: 'Login Failed: $e',
+        submitStatus: RequestStatus.failure,
+      ));
+    }
   }
 }

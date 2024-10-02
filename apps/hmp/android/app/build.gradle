@@ -57,7 +57,7 @@ android {
         versionName flutterVersionName
         multiDexEnabled true
         manifestPlaceholders += [
-                'appAuthRedirectScheme': 'worldcoin'
+                'appAuthRedirectScheme': 'wepin.d410836424c7fd52e2bfd5eaa1560b4e'
         ]
     }
 

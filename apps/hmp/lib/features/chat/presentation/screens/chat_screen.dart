@@ -67,17 +67,19 @@ class TestChatListScreen extends StatelessWidget {
   }
 
   void moveToGroupChannelCreateScreen(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => Scaffold(
-        body: SafeArea(
-          child: SBUGroupChannelCreateScreen(
-            onChannelCreated: (channel) {
-              moveToGroupChannelScreen(context, channel.channelUrl);
-            },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          body: SafeArea(
+            child: SBUGroupChannelCreateScreen(
+              onChannelCreated: (channel) {
+                moveToGroupChannelScreen(context, channel.channelUrl);
+              },
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 
   void moveToGroupChannelScreen(BuildContext context, String channelUrl) {

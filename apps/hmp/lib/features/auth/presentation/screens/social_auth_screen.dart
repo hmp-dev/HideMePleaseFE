@@ -2,10 +2,9 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_appauth/flutter_appauth.dart';
+// import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/helpers/target.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -28,7 +27,7 @@ class SocialAuthScreen extends StatefulWidget {
 }
 
 class _SocialAuthScreenState extends State<SocialAuthScreen> {
-  final FlutterAppAuth appAuth = const FlutterAppAuth();
+  //final FlutterAppAuth appAuth = const FlutterAppAuth();
 
   bool isAgreeWithTerms = false;
   int? isShowOnBoarding;
@@ -43,33 +42,33 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
     isShowOnBoarding = await getInitialScreen();
   }
 
-  Future<void> _login(BuildContext context) async {
-    try {
-      final AuthorizationTokenResponse? result =
-          await appAuth.authorizeAndExchangeCode(
-        AuthorizationTokenRequest(
-          'app_staging_374700e081c2e519c5f50d1f16c5507c',
-          'https://hidemeplease.xyz/',
-          discoveryUrl:
-              'https://id.worldcoin.org/.well-known/openid-configuration',
-          scopes: ['token'],
-          clientSecret: 'sk_149c5f5428f1289d5cb671df741191a3716738b0764b8321',
-        ),
-      );
+  // Future<void> _login(BuildContext context) async {
+  //   try {
+  //     final AuthorizationTokenResponse? result =
+  //         await appAuth.authorizeAndExchangeCode(
+  //       AuthorizationTokenRequest(
+  //         'app_staging_374700e081c2e519c5f50d1f16c5507c',
+  //         'https://hidemeplease.xyz/',
+  //         discoveryUrl:
+  //             'https://id.worldcoin.org/.well-known/openid-configuration',
+  //         scopes: ['token'],
+  //         clientSecret: 'sk_149c5f5428f1289d5cb671df741191a3716738b0764b8321',
+  //       ),
+  //     );
 
-      if (result != null) {
-        // Use result.accessToken for API requests
-        ('Access token: $result').log();
-        // Navigate to next screen or perform other actions upon successful login
-      } else {
-        // Handle null response (possible cancellation or error)
-        ('Login failed: Result is null').log();
-      }
-    } catch (e) {
-      ('Login failed: $e').log();
-      // Handle login failure, display error message, etc.
-    }
-  }
+  //     if (result != null) {
+  //       // Use result.accessToken for API requests
+  //       ('Access token: $result').log();
+  //       // Navigate to next screen or perform other actions upon successful login
+  //     } else {
+  //       // Handle null response (possible cancellation or error)
+  //       ('Login failed: Result is null').log();
+  //     }
+  //   } catch (e) {
+  //     ('Login failed: $e').log();
+  //     // Handle login failure, display error message, etc.
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +141,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                       onTap: () {
                         if (isAgreeWithTerms) {
                           getIt<AuthCubit>().onGoogleLogin();
+
+                          //getIt<AuthCubit>().loginWithProvider();
                         } else {
                           showAgreeTermsDialogue(context);
                         }

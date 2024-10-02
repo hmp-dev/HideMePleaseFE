@@ -72,9 +72,7 @@ class Network {
   ) async {
     final accessToken = await _secureStorage.read(StorageValues.accessToken);
 
-    if (accessToken != null) {
-      options.headers['Authorization'] = 'Bearer $accessToken';
-    }
+    options.headers['Authorization'] = 'Bearer $accessToken';
     handler.next(options);
   }
 
