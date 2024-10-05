@@ -57,6 +57,17 @@ class AppCubit extends BaseCubit<AppState> {
     onStart();
   }
 
+  Future<void> onRefresh() async {
+    if (!state.isLoggedIn) return;
+
+    await getIt.reset();
+
+    // DI
+    await configureDependencies();
+
+    onStart();
+  }
+
   void markInitialized() {
     emit(state.copyWith(initialized: true));
   }

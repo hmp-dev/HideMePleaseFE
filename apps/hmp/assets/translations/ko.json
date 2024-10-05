@@ -53,7 +53,7 @@
     "learnMore": "자세히 보기",
     "free": "무료",
     "firstComeFirstServed": "선착순 홀더",
-    "numberOfMembers":"멤버 수",
+    "numberOfMembers": "멤버 수",
     "memberShipBenefits": "멤버십 혜택",
     "available": "사용가능",
     "used": "사용완료",
@@ -177,6 +177,8 @@
     "nonPermitLocation": "미허용",
     "permittedLocation": "허용",
     "walkerhill": "워커힐",
-    "eventApplicationStatus":"이벤트 신청 현황",
-    "dontShowMeForAWeek": "일주일동안 보지 않기"
+    "eventApplicationStatus": "이벤트 신청 현황",
+    "dontShowMeForAWeek": "일주일동안 보지 않기",
+    "register_a_quick_wallet": "빠른 지갑 등록하기",
+    "register_wepin_password": "위핀 비밀번호 등록"
 }

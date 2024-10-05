@@ -180,5 +180,7 @@ abstract class  LocaleKeys {
   static const walkerhill = 'walkerhill';
   static const eventApplicationStatus = 'eventApplicationStatus';
   static const dontShowMeForAWeek = 'dontShowMeForAWeek';
+  static const register_a_quick_wallet = 'register_a_quick_wallet';
+  static const register_wepin_password = 'register_wepin_password';
 
 }

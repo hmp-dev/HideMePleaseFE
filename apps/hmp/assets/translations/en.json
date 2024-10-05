@@ -53,7 +53,7 @@
      "learnMore": "Learn More",
      "free": "Free",
      "firstComeFirstServed": "First come, first served",
-     "numberOfMembers":"Number of members",
+     "numberOfMembers": "Number of members",
      "memberShipBenefits": "Membership Benefits",
      "available": "Available",
      "used": "Used",
@@ -176,6 +176,8 @@
      "nonPermitLocation": "Not Allowed",
      "permittedLocation": "Allowed",
      "walkerhill": "Walkerhill",
-     "eventApplicationStatus":"Event Application Status",
-     "dontShowMeForAWeek": "Don't Show me for a week"
+     "eventApplicationStatus": "Event Application Status",
+     "dontShowMeForAWeek": "Don't Show me for a week",
+     "register_a_quick_wallet": "Register a quick wallet",
+     "register_wepin_password": "Register your WePin password"
 }
