@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
+import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/app/core/exceptions/login_with_google_failure.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -68,11 +69,13 @@ class AuthRepositoryImpl implements AuthRepository {
         rawNonce: rawNonce,
       );
 
-      //== to save access Token to be used for wepin login
-      ("the Apple ID Toke is: ${appleCredential.identityToken}").log();
-      // save id token in secure Storage
+      // save Social Login Type
       _localDataSource
-          .setGoogleAccessToken(appleCredential.identityToken ?? "");
+          .setSocialTokenIsAppleOrGoogle(SocialLoginType.APPLE.name);
+      //== to save access Token to be used for wepin login
+      ("the Apple ID Token is: ${appleCredential.identityToken}").log();
+      // save id token in secure Storage
+      _localDataSource.setAppleIdToken(appleCredential.identityToken ?? "");
       //===
 
       // Sign in the user with Firebase. If the nonce we generated earlier does
@@ -103,6 +106,10 @@ class AuthRepositoryImpl implements AuthRepository {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
+
+      // save Social Login Type
+      _localDataSource
+          .setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
 
       //== to save access Token to be used for wepin login
       ("the Google Access Toke is: ${googleAuth.accessToken}").log();

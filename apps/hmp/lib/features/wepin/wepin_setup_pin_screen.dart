@@ -4,12 +4,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
@@ -50,10 +52,16 @@ const String wepin_description_ko = '''
 class WepinSetUpPinScreen extends StatefulWidget {
   const WepinSetUpPinScreen({
     super.key,
-    required this.googleAuthAccessToken,
+    required this.googleAccessToken,
+    required this.selectedLanguage,
+    required this.socialTokenIsAppleOrGoogle,
+    required this.appleIdToken,
   });
 
-  final String googleAuthAccessToken;
+  final String googleAccessToken;
+  final String socialTokenIsAppleOrGoogle;
+  final String appleIdToken;
+  final String selectedLanguage;
 
   @override
   WepinSetUpPinScreenState createState() => WepinSetUpPinScreenState();
@@ -84,7 +92,14 @@ class WepinSetUpPinScreenState extends State<WepinSetUpPinScreen> {
   @override
   void initState() {
     super.initState();
+    setUpLanguage();
     setLoginInfo();
+  }
+
+  setUpLanguage() {
+    setState(() {
+      selectedLanguage = widget.selectedLanguage;
+    });
   }
 
   void setLoginInfo() {
@@ -130,7 +145,7 @@ class WepinSetUpPinScreenState extends State<WepinSetUpPinScreen> {
     // call Login with AccessToken
 
     if (wepinSDK != null) {
-      loginWithGoogleProvider();
+      loginSocialAuthProvider();
     }
   }
 
@@ -167,20 +182,21 @@ class WepinSetUpPinScreenState extends State<WepinSetUpPinScreen> {
     }
   }
 
-  Future<void> loginWithGoogleProvider() async {
+  Future<void> loginSocialAuthProvider() async {
     await performActionWithLoading(() async {
       try {
         LoginResult? fbToken;
 
-        // if Platform is Google
-        if (Platform.isAndroid) {
+        // if Login Type is Google
+        if (widget.socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
           fbToken = await wepinSDK!.login.loginWithAccessToken(
-              provider: 'google', accessToken: widget.googleAuthAccessToken);
+              provider: 'google', accessToken: widget.googleAccessToken);
         }
 
-        if (Platform.isIOS) {
+        // if Login Type is Apple
+        if (widget.socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
           fbToken = await wepinSDK!.login
-              .loginWithIdToken(idToken: widget.googleAuthAccessToken);
+              .loginWithIdToken(idToken: widget.googleAccessToken);
         }
 
         if (fbToken != null) {
@@ -227,205 +243,187 @@ class WepinSetUpPinScreenState extends State<WepinSetUpPinScreen> {
         onPressed: onPressed,
       ),
     );
-
-    // Container(
-    //   width: double.infinity,
-    //   margin: const EdgeInsets.symmetric(vertical: 8.0),
-    //   child: ElevatedButton(
-    //     onPressed: onPressed,
-    //     style: ElevatedButton.styleFrom(
-    //       padding: const EdgeInsets.all(16.0),
-    //       shape: RoundedRectangleBorder(
-    //         borderRadius: BorderRadius.circular(12.0),
-    //       ),
-    //     ),
-    //     child: Text(label, style: const TextStyle(fontSize: 16)),
-    //   ),
-    // );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: bg1,
-      appBar: AppBar(
-        leading: const SizedBox.shrink(),
-        backgroundColor: scaffoldBg,
-        elevation: 0,
-        title: Text(
-          LocaleKeys.register_a_quick_wallet.tr(),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: fontTitle05Medium(),
-        ),
-        actions: [
-          buildBackArrowIconButton(context),
-        ],
-      ),
-      body: MultiBlocListener(
-        listeners: [
-          BlocListener<WepinCubit, WepinState>(
-            bloc: getIt<WepinCubit>(),
-            listener: (context, state) async {
-              // 1- Listen Wepin Status if it is login
-              // fetch the wallets created by Wepin
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<WepinCubit, WepinState>(
+          bloc: getIt<WepinCubit>(),
+          listener: (context, state) async {
+            // 0 - Listen Wepin Status if it is not initialized
+            if (state.wepinLifeCycleStatus == WepinLifeCycle.notInitialized) {
+              final selectedConfig = sdkConfigs
+                  .firstWhere((config) => config['name'] == selectedValue);
+              initWepinSDK(selectedConfig['appId']!, selectedConfig['appKey']!,
+                  selectedConfig['privateKey']!);
+            }
 
-              if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
-                accountsList = await wepinSDK!.getAccounts();
-                getIt<WepinCubit>().saveAccounts(accountsList);
-              }
+            // 0- Listen Wepin Status if it is login before registered
+            // automatically register
+            if (state.wepinLifeCycleStatus ==
+                WepinLifeCycle.loginBeforeRegister) {
+              await wepinSDK!.register(context);
+              getStatus();
+            }
 
-              // 2- Listen Wepin Status if it is login and wallets are in the state
-              // save these wallets for the user
+            // 1- Listen Wepin Status if it is login
+            // fetch the wallets created by Wepin
 
-              if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
-                  state.accounts.isNotEmpty) {
-                // if status is login save wallets to backend
+            if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
+              accountsList = await wepinSDK!.getAccounts();
+              getIt<WepinCubit>().saveAccounts(accountsList);
+            }
 
-                for (var account in accountsList) {
-                  logAccountDetails(account);
+            // 2- Listen Wepin Status if it is login and wallets are in the state
+            // save these wallets for the user
 
-                  if (account.network.toLowerCase() == "ethereum") {
-                    getIt<WalletsCubit>().onPostWallet(
-                      saveWalletRequestDto: SaveWalletRequestDto(
-                        publicAddress: account.address,
-                        provider: "WEPIN_EVM",
-                      ),
-                    );
-                  }
+            if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
+                state.accounts.isNotEmpty) {
+              // if status is login save wallets to backend
 
-                  if (account.network.toLowerCase() == "solana") {
-                    getIt<WalletsCubit>().onPostWallet(
-                      saveWalletRequestDto: SaveWalletRequestDto(
-                        publicAddress: account.address,
-                        provider: "WEPIN_SOLANA",
-                      ),
-                    );
-                  }
+              for (var account in accountsList) {
+                logAccountDetails(account);
+
+                if (account.network.toLowerCase() == "ethereum") {
+                  getIt<WalletsCubit>().onPostWallet(
+                    saveWalletRequestDto: SaveWalletRequestDto(
+                      publicAddress: account.address,
+                      provider: "WEPIN_EVM",
+                    ),
+                  );
                 }
               }
-            },
-          ),
+            }
+          },
+        ),
 
-          // 3- Listen Wallets status if it is saved
-          // If wallets are saved into backend
-          // navigate to start up screen to refetch wallets and navigate to Home
-          BlocListener<WalletsCubit, WalletsState>(
-            listenWhen: (previous, current) =>
-                current.connectedWallets.length == 2,
-            bloc: getIt<WalletsCubit>(),
-            listener: (context, state) {
-              if (state.isSubmitSuccess) {
-                // reset all cubits
-                getIt<AppCubit>().onRefresh();
-                // Navigate to start up screen
-                Navigator.pushNamedAndRemoveUntil(
-                    context, Routes.startUpScreen, (route) => false);
-              }
-            },
-          ),
-        ],
-        child: Stack(
+        // 3- Listen Wallets status if it is saved
+        // If wallets are saved into backend
+        // navigate to start up screen to refetch wallets and navigate to Home
+        BlocListener<WalletsCubit, WalletsState>(
+          listenWhen: (previous, current) =>
+              current.connectedWallets.length == 2,
+          bloc: getIt<WalletsCubit>(),
+          listener: (context, state) {
+            if (state.isSubmitSuccess) {
+              // reset all cubits
+              getIt<AppCubit>().onRefresh();
+              // Navigate to start up screen
+              Navigator.pushNamedAndRemoveUntil(
+                  context, Routes.startUpScreen, (route) => false);
+            }
+          },
+        ),
+      ],
+      child: SizedBox(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height * 0.70,
+        child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(
-                  top: 10.0, left: 20, right: 20, bottom: 20),
-              child: Column(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (wepinSDK != null) ...[
-                    if (wepinStatus != WepinLifeCycle.loginBeforeRegister)
-                      Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 50.0),
-                            Lottie.asset(
-                              'assets/lottie/loader.json',
-                            ),
-                          ],
-                        ),
-                      )
-                    // Card(
-                    //   elevation: 4.0,
-                    //   shape: RoundedRectangleBorder(
-                    //     borderRadius: BorderRadius.circular(12.0),
-                    //   ),
-                    //   child: ListTile(
-                    //     title: const Text('Account Status',
-                    //         style: TextStyle(fontSize: 16)),
-                    //     subtitle: Text(
-                    //       getIt<WepinCubit>().state.wepinLifeCycleStatus.name,
-                    //     ),
-                    //     trailing: IconButton(
-                    //       icon: const Icon(Icons.refresh,
-                    //           color: Colors.blueAccent),
-                    //       onPressed: getStatus,
-                    //     ),
-                    //   ),
-                    // ),
-                  ],
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        if (wepinStatus ==
-                            WepinLifeCycle.loginBeforeRegister) ...[
-                          if (context.locale.languageCode == 'ko')
-                            Text(
-                              wepin_description_ko,
-                              textAlign: TextAlign.left,
-                              style: fontBodyMdSize15(),
-                            ),
-                          if (context.locale.languageCode == 'en')
-                            Text(
-                              wepin_description_en,
-                              textAlign: TextAlign.left,
-                              style: fontBodyMdSize15(),
-                            ),
-                          SizedBox(
-                            width: 110, // 70% of original width
-                            height: 97, // 70% of original height
-                            child: CustomImageView(
-                              imagePath: "assets/images/splash2.png",
-                              width: 110, // Reduced width
-                              height: 97,
-                              fit: BoxFit.contain, // Reduced height
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          _buildActionButton(
-                              LocaleKeys.register_wepin_password.tr(),
-                              () async {
-                            await performActionWithLoading(() async {
-                              await wepinSDK!.register(context);
-                              getStatus();
-                            });
-                          }),
-                          _buildActionButton(LocaleKeys.cancel.tr(), () async {
-                            await performActionWithLoading(() async {
-                              await wepinSDK!.login.logoutWepin();
-                              userEmail = '';
-                              getStatus();
-
-                              getIt<AppCubit>().onLogOut();
-                            });
-                          }),
-                        ],
-                      ],
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Text(
+                      LocaleKeys.register_a_quick_wallet.tr(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: fontTitle05Medium(),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: DefaultImage(
+                      path: 'assets/icons/ic_close.svg',
+                      width: 32,
+                      height: 32,
+                      color: white,
                     ),
                   ),
                 ],
               ),
             ),
-            if (isLoading)
-              ModalBarrier(
-                  color: Colors.black.withOpacity(0.5), dismissible: false),
-            if (isLoading)
-              Center(
-                child: Lottie.asset(
-                  'assets/lottie/loader.json',
+            Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: 30.0, left: 20, right: 20, bottom: 20),
+                  child: Column(
+                    children: [
+                      if (wepinSDK != null) ...[
+                        if (wepinStatus != WepinLifeCycle.loginBeforeRegister)
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 50.0),
+                                Lottie.asset(
+                                  'assets/lottie/loader.json',
+                                ),
+                              ],
+                            ),
+                          )
+                        // Card(
+                        //   elevation: 4.0,
+                        //   shape: RoundedRectangleBorder(
+                        //     borderRadius: BorderRadius.circular(12.0),
+                        //   ),
+                        //   child: ListTile(
+                        //     title: const Text('Account Status',
+                        //         style: TextStyle(fontSize: 16)),
+                        //     subtitle: Text(
+                        //       getIt<WepinCubit>().state.wepinLifeCycleStatus.name,
+                        //     ),
+                        //     trailing: IconButton(
+                        //       icon: const Icon(Icons.refresh,
+                        //           color: Colors.blueAccent),
+                        //       onPressed: getStatus,
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
+                      if (wepinStatus ==
+                          WepinLifeCycle.loginBeforeRegister) ...[
+                        const SizedBox(height: 12),
+                        _buildActionButton(
+                            LocaleKeys.register_wepin_password.tr(), () async {
+                          await performActionWithLoading(() async {
+                            await wepinSDK!.register(context);
+                            getStatus();
+                          });
+                        }),
+                        _buildActionButton(LocaleKeys.cancel.tr(), () async {
+                          await performActionWithLoading(() async {
+                            await wepinSDK!.login.logoutWepin();
+                            userEmail = '';
+                            getStatus();
+
+                            getIt<AppCubit>().onLogOut();
+                          });
+                        }),
+                      ],
+                    ],
+                  ),
                 ),
-              ),
+                if (isLoading)
+                  ModalBarrier(
+                      color: Colors.black.withOpacity(0.5), dismissible: false),
+                if (isLoading)
+                  Center(
+                    child: Lottie.asset(
+                      'assets/lottie/loader.json',
+                    ),
+                  ),
+              ],
+            ),
           ],
         ),
       ),

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/features/wepin/values/sdk_app_info.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
@@ -41,7 +42,7 @@ class WepinCubit extends BaseCubit<WepinState> {
   //   }
   // }
 
-  Future<void> initWepinSDK() async {
+  Future<void> initWepinSDK({required String selectedLanguageCode}) async {
     String appId = sdkConfigs[0]['appId']!;
     String appKey = sdkConfigs[0]['appKey']!;
     String privateKey = sdkConfigs[0]['privateKey']!;
@@ -60,9 +61,8 @@ class WepinCubit extends BaseCubit<WepinState> {
       // Initialize the SDK with specified attributes
       await wepinSDK!.init(
         attributes: WidgetAttributes(
-          defaultLanguage:
-              'ko', // This can be changed based on your requirements
-          defaultCurrency: 'KRW', // This too
+          defaultLanguage: selectedLanguageCode,
+          defaultCurrency: 'KRW',
         ),
       );
 
@@ -159,5 +159,13 @@ class WepinCubit extends BaseCubit<WepinState> {
 
   updateWepinStatus(WepinLifeCycle newStatus) {
     emit(state.copyWith(lifeCycle: newStatus));
+  }
+
+  showLoader() {
+    EasyLoading.show();
+  }
+
+  dismissLoader() {
+    EasyLoading.dismiss();
   }
 }

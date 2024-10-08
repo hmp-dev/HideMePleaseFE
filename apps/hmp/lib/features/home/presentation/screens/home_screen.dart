@@ -1,11 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/home/presentation/widgets/notice_dialog.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
@@ -37,6 +39,10 @@ class _HomeScreenState extends State<HomeScreen> {
   late ScrollController _scrollController;
   bool _isVisible = true;
 
+  String googleAccessToken = '';
+  String socialTokenIsAppleOrGoogle = '';
+  String appleIdToken = '';
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +50,18 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController.addListener(_scrollListener);
     _initWallets();
     _checkAndShowModelBannerDialog();
+    initValues();
+  }
+
+  initValues() async {
+    googleAccessToken =
+        await getIt<AuthLocalDataSource>().getGoogleAccessToken() ?? '';
+    socialTokenIsAppleOrGoogle =
+        await getIt<AuthLocalDataSource>().getSocialTokenIsAppleOrGoogle() ??
+            '';
+    appleIdToken = await getIt<AuthLocalDataSource>().getAppleIdToken() ?? '';
+
+    setState(() {});
   }
 
   void _initWallets() async {
@@ -180,6 +198,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   hasKlipProvider(state.connectedWallets)) {
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
+              } else if (state.connectedWallets.isNotEmpty &&
+                  hasWePinProvider(state.connectedWallets)) {
+                getIt<HomeCubit>()
+                    .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
               } else {
                 // Fetch nft collections
                 getIt<NftCubit>().onGetNftCollections();
@@ -313,6 +335,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       return HomeViewBeforeWalletConnect(
+        googleAccessToken: googleAccessToken,
+        socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
+        appleIdToken: appleIdToken,
+        selectedLanguage: context.locale.languageCode,
         onConnectWallet: () {
           if (getIt<WalletsCubit>().state.w3mService != null) {
             getIt<WalletsCubit>().onConnectWallet(context);
@@ -329,6 +355,19 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     for (var wallet in connectedWallets) {
       if (wallet.provider == 'KLIP') {
+        result = true;
+      }
+    }
+    return result;
+  }
+
+  bool hasWePinProvider(List<ConnectedWalletEntity> connectedWallets) {
+    bool result = false;
+    if (connectedWallets.isEmpty) {
+      result = false;
+    }
+    for (var wallet in connectedWallets) {
+      if (wallet.provider == 'WEPIN_EVM') {
         result = true;
       }
     }

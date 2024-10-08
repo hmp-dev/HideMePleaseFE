@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -85,23 +86,15 @@ class _StartUpScreenState extends State<StartUpScreen>
                 // Update Home View to Show with Before Wallet Connected
                 // and then Navigate to Home View
 
-                // getIt<HomeCubit>()
-                //     .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
+                getIt<HomeCubit>()
+                    .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
 
                 // pass value to appHome with Navigator.pushNamedAndRemoveUntil to disconnect wallet
 
-                // if (context.mounted) {
-                //   Navigator.of(context).pushNamedAndRemoveUntil(
-                //       Routes.appScreen, (Route<dynamic> route) => false);
-                // }
-
-                final idToken =
-                    await getIt<AuthLocalDataSource>().getGoogleAccessToken();
-                "the idToken passing to Wepin is $idToken".log();
-
-                //getIt<WepinCubit>().loginWithGoogle(idToken ?? "");
-
-                navigateToWepinSetupScreen(context, idToken ?? "");
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      Routes.appScreen, (Route<dynamic> route) => false);
+                }
               } else {
                 // If a wallet is Connected
                 // Update Home View to Show with Wallet Connected
@@ -141,14 +134,6 @@ class _StartUpScreenState extends State<StartUpScreen>
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void navigateToWepinSetupScreen(BuildContext context, String token) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => WepinSetUpPinScreen(googleAuthAccessToken: token),
       ),
     );
   }

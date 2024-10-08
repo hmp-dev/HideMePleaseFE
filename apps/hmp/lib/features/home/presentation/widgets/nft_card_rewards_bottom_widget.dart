@@ -1,31 +1,37 @@
-import 'dart:io';
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/home/presentation/widgets/glassmorphic_button.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wepin/wepin_setup_pin_screen.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:stacked_services/stacked_services.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class NftCardRewardsBottomWidget extends StatelessWidget {
   NftCardRewardsBottomWidget({
     super.key,
     required this.welcomeNftEntity,
+    required this.onTapClaimButton,
   });
 
   final WelcomeNftEntity welcomeNftEntity;
+  final VoidCallback onTapClaimButton;
 
   final SnackbarService snackBarService = getIt<SnackbarService>();
 
   @override
   Widget build(BuildContext context) {
+    final connectedWallets = getIt<WalletsCubit>().state.connectedWallets;
+
     return BlocListener<NftCubit, NftState>(
       bloc: getIt<NftCubit>(),
       listenWhen: (previous, current) =>
@@ -121,7 +127,9 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                 //   );
                 // }
 
-                if (welcomeNftEntity.remainingCount > 0) {
+                if (connectedWallets.isEmpty) {
+                  onTapClaimButton();
+                } else if (welcomeNftEntity.remainingCount > 0) {
                   getIt<NftCubit>().onGetConsumeWelcomeNft();
                 } else {
                   snackBarService.showSnackbar(
@@ -131,13 +139,43 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                 }
               },
               child: Text(
-                LocaleKeys.getNftForFree.tr(),
+                '${LocaleKeys.getNftForFree.tr()} ${welcomeNftEntity.remainingCount}',
                 style: fontCompactLgMedium(),
               ),
             )
           ],
         ),
       ),
+    );
+  }
+
+  showWepinModel({required BuildContext context}) async {
+    final googleAccessToken =
+        await getIt<AuthLocalDataSource>().getGoogleAccessToken();
+
+    final socialTokenIsAppleOrGoogle =
+        await getIt<AuthLocalDataSource>().getSocialTokenIsAppleOrGoogle();
+
+    final appleIdToken = await getIt<AuthLocalDataSource>().getAppleIdToken();
+
+    "the idToken passing to Wepin is $googleAccessToken".log();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allow the sheet to take full height
+      isDismissible: true,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16.0),
+          height: 300, // Set the height of the modal
+          child: WepinSetUpPinScreen(
+            googleAccessToken: googleAccessToken ?? "",
+            socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle ?? "",
+            appleIdToken: appleIdToken ?? "",
+            selectedLanguage: context.locale.languageCode,
+          ),
+        );
+      },
     );
   }
 }

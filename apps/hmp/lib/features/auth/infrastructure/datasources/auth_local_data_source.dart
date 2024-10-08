@@ -16,12 +16,30 @@ class AuthLocalDataSource {
     return await _secureStorage.read(StorageValues.accessToken);
   }
 
+  Future<void> setSocialTokenIsAppleOrGoogle(
+      String socialTokenIsAppleOrGoogle) async {
+    await _secureStorage.write(
+        StorageValues.socialTokenIsAppleOrGoogle, socialTokenIsAppleOrGoogle);
+  }
+
+  Future<String?> getSocialTokenIsAppleOrGoogle() async {
+    return await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle);
+  }
+
   Future<void> setGoogleAccessToken(String accessToken) async {
     await _secureStorage.write(StorageValues.googleAccessToken, accessToken);
   }
 
   Future<String?> getGoogleAccessToken() async {
     return await _secureStorage.read(StorageValues.googleAccessToken);
+  }
+
+  Future<void> setAppleIdToken(String idToken) async {
+    await _secureStorage.write(StorageValues.appleIdToken, idToken);
+  }
+
+  Future<String?> getAppleIdToken() async {
+    return await _secureStorage.read(StorageValues.appleIdToken);
   }
 
   Future<void> setUserId(String userId) async {

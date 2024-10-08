@@ -1,63 +1,74 @@
-// ignore_for_file: use_build_context_synchronously
+import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/enum/error_codes.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
-import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
-import 'package:mobile/features/home/presentation/widgets/free_welcome_nft_card.dart';
-import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
-import 'package:mobile/features/wepin/values/sdk_app_info.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
-/// [HomeViewBeforeWalletConnect] is a stateless widget that displays
-/// the home view before the wallet is connected.
-///
-/// It listens to the [WalletsCubit] state and shows an error snackbar
-/// if there is an error in connecting the wallet. It also listens to the
-/// [NftCubit] state and shows the welcome NFT card if it is available.
-class HomeViewBeforeWalletConnect extends StatefulWidget {
-  /// Creates a [HomeViewBeforeWalletConnect].
-  ///
-  /// The [onConnectWallet] callback is called when the user taps the
-  /// connect wallet button.
-  const HomeViewBeforeWalletConnect({
+import 'values/sdk_app_info.dart';
+import 'widgets/custom_dialog.dart';
+
+const String wepin_description_en = '''
+Welcome! Enjoy a delicious lifestyle with NFTs at HideMePlease! 🍽️
+
+Connecting your wallet is simple—just enter your password, and it will be set up automatically. With our quick wallet registration feature, new users can complete their wallet setup in just a few steps.
+
+	1.	Enter your password.
+	2.	Your wallet will be automatically connected, and you’re ready to start using NFTs!
+
+No more complicated settings. Start a new experience with HideMePlease today!
+''';
+
+const String wepin_description_ko = '''
+환영합니다! 하이드미플리즈에서 NFT와 함께하는 
+맛있는 라이프 스타일을 즐겨보세요! 🍽️
+
+지갑 연결은 간편하게, 비밀번호만 입력하면 자동으로 
+설정됩니다. 새로운 유저분들을 위해 준비한 빠른 지갑 
+등록 기능을 통해 몇 단계만으로 지갑을 완성할 수 있어요.
+
+	1.	비밀번호를 입력하세요.
+	2.	자동으로 지갑이 연결되며, NFT 활용 준비 완료!
+
+더 이상 복잡한 설정은 없습니다. 하이드미플리즈와 함께 새로운 경험을 시작해 보세요!
+''';
+
+class WepinSetUpPinScreenBackUpCopy extends StatefulWidget {
+  const WepinSetUpPinScreenBackUpCopy({
     super.key,
-    required this.onConnectWallet,
     required this.googleAccessToken,
+    required this.selectedLanguage,
     required this.socialTokenIsAppleOrGoogle,
     required this.appleIdToken,
-    required this.selectedLanguage,
   });
 
-  /// The callback function that is called when the user taps the connect
-  /// wallet button.
-  final VoidCallback onConnectWallet;
   final String googleAccessToken;
   final String socialTokenIsAppleOrGoogle;
   final String appleIdToken;
   final String selectedLanguage;
 
   @override
-  State<HomeViewBeforeWalletConnect> createState() =>
-      _HomeViewBeforeWalletConnectState();
+  WepinSetUpPinScreenBackUpCopyState createState() =>
+      WepinSetUpPinScreenBackUpCopyState();
 }
 
-class _HomeViewBeforeWalletConnectState
-    extends State<HomeViewBeforeWalletConnect> {
+class WepinSetUpPinScreenBackUpCopyState
+    extends State<WepinSetUpPinScreenBackUpCopy> {
   final Map<String, String> currency = {
     'ko': 'KRW',
     'en': 'USD',
@@ -83,6 +94,7 @@ class _HomeViewBeforeWalletConnectState
   void initState() {
     super.initState();
     setUpLanguage();
+    setLoginInfo();
   }
 
   setUpLanguage() {
@@ -109,9 +121,6 @@ class _HomeViewBeforeWalletConnectState
 
   Future<void> initWepinSDK(
       String appId, String appKey, String privateKey) async {
-    // Show Loader
-    getIt<WepinCubit>().showLoader();
-
     wepinSDK?.finalize();
     wepinSDK = WepinWidgetSDK(wepinAppKey: appKey, wepinAppId: appId);
     await wepinSDK!.init(
@@ -235,6 +244,21 @@ class _HomeViewBeforeWalletConnectState
         onPressed: onPressed,
       ),
     );
+
+    // Container(
+    //   width: double.infinity,
+    //   margin: const EdgeInsets.symmetric(vertical: 8.0),
+    //   child: ElevatedButton(
+    //     onPressed: onPressed,
+    //     style: ElevatedButton.styleFrom(
+    //       padding: const EdgeInsets.all(16.0),
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(12.0),
+    //       ),
+    //     ),
+    //     child: Text(label, style: const TextStyle(fontSize: 16)),
+    //   ),
+    // );
   }
 
   @override
@@ -244,32 +268,12 @@ class _HomeViewBeforeWalletConnectState
         BlocListener<WepinCubit, WepinState>(
           bloc: getIt<WepinCubit>(),
           listener: (context, state) async {
-            // 0 - Listen Wepin Status if it is not initialized
-            if (state.wepinLifeCycleStatus == WepinLifeCycle.notInitialized) {
-              final selectedConfig = sdkConfigs
-                  .firstWhere((config) => config['name'] == selectedValue);
-              initWepinSDK(selectedConfig['appId']!, selectedConfig['appKey']!,
-                  selectedConfig['privateKey']!);
-            }
-
-            // 0- Listen Wepin Status if it is login before registered
-            // automatically register
-            if (state.wepinLifeCycleStatus ==
-                WepinLifeCycle.loginBeforeRegister) {
-              await wepinSDK!.register(context);
-              getStatus();
-            }
-
             // 1- Listen Wepin Status if it is login
             // fetch the wallets created by Wepin
 
             if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
               accountsList = await wepinSDK!.getAccounts();
-
               getIt<WepinCubit>().saveAccounts(accountsList);
-              // Dismiss Loader with in WepinCubit
-              // Now loader will be shown by
-              getIt<WepinCubit>().dismissLoader();
             }
 
             // 2- Listen Wepin Status if it is login and wallets are in the state
@@ -290,6 +294,15 @@ class _HomeViewBeforeWalletConnectState
                     ),
                   );
                 }
+
+                if (account.network.toLowerCase() == "solana") {
+                  getIt<WalletsCubit>().onPostWallet(
+                    saveWalletRequestDto: SaveWalletRequestDto(
+                      publicAddress: account.address,
+                      provider: "WEPIN_SOLANA",
+                    ),
+                  );
+                }
               }
             }
           },
@@ -300,94 +313,162 @@ class _HomeViewBeforeWalletConnectState
         // navigate to start up screen to refetch wallets and navigate to Home
         BlocListener<WalletsCubit, WalletsState>(
           listenWhen: (previous, current) =>
-              current.connectedWallets.isNotEmpty,
+              current.connectedWallets.length == 2,
           bloc: getIt<WalletsCubit>(),
           listener: (context, state) {
             if (state.isSubmitSuccess) {
-              if (getIt<WalletsCubit>().state.isWepinWalletConnected &&
-                  getIt<NftCubit>().state.welcomeNftEntity.remainingCount > 0) {
-                getIt<NftCubit>().onGetConsumeWelcomeNft();
-              } else {
-                // reset all cubits
-                getIt<AppCubit>().onRefresh();
-                // Navigate to start up screen
-                Navigator.pushNamedAndRemoveUntil(
-                    context, Routes.startUpScreen, (route) => false);
-              }
+              // reset all cubits
+              getIt<AppCubit>().onRefresh();
+              // Navigate to start up screen
+              Navigator.pushNamedAndRemoveUntil(
+                  context, Routes.startUpScreen, (route) => false);
             }
           },
         ),
       ],
-      child: BlocListener<WalletsCubit, WalletsState>(
-        // Listen to the wallets cubit state
-        bloc: getIt<WalletsCubit>(),
-        listener: (context, state) {
-          if (state.submitStatus == RequestStatus.failure) {
-            // Map the error message to the appropriate enum message
-            String errorMessage = getErrorMessage(state.errorMessage);
-            // Show Error Snackbar If Wallet is Already Connected
-            context.showErrorSnackBarDismissible(errorMessage);
-            "inside listener++++++ error message is $errorMessage".log();
-          }
-        },
-        child: BlocConsumer<NftCubit, NftState>(
-          // Listen to the NFT cubit state
-          bloc: getIt<NftCubit>(),
-          listener: (context, nftState) {},
-          builder: (context, nftState) {
-            return Column(
-              children: [
-                const SizedBox(height: 50),
-                // Display the logo image
-                DefaultImage(
-                  path: "assets/images/hide-me-please-logo.png",
-                  width: 200,
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  // Display the welcome message
-                  child: Text(
-                    "지갑을 연결하고\n웹컴 NFT를 받아보세요!",
-                    textAlign: TextAlign.center,
-                    style: fontR(18, lineHeight: 1.4),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Display the connect wallet button
-                ElevatedButton(
-                  style: _elevatedButtonStyle(),
-                  onPressed: widget.onConnectWallet,
-                  child: Text(
-                    LocaleKeys.walletConnection.tr(),
-                    style: fontCompactMdMedium(color: white),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                // Display the welcome NFT card if it is available
-                FreeWelcomeNftCard(
-                  welcomeNftEntity: nftState.welcomeNftEntity,
-                  onTapClaimButton: () {
-                    setLoginInfo();
-                  },
-                )
+      child: SizedBox(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height * 0.70,
+        child: Column(
+          children: [
+            AppBar(
+              leading: const SizedBox.shrink(),
+              backgroundColor: scaffoldBg,
+              elevation: 0,
+              title: Text(
+                LocaleKeys.register_a_quick_wallet.tr(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: fontTitle05Medium(),
+              ),
+              actions: [
+                buildBackArrowIconButton(context),
               ],
-            );
-          },
+            ),
+            Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: 10.0, left: 20, right: 20, bottom: 20),
+                  child: Column(
+                    children: [
+                      if (wepinSDK != null) ...[
+                        if (wepinStatus != WepinLifeCycle.loginBeforeRegister)
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 50.0),
+                                Lottie.asset(
+                                  'assets/lottie/loader.json',
+                                ),
+                              ],
+                            ),
+                          )
+                        // Card(
+                        //   elevation: 4.0,
+                        //   shape: RoundedRectangleBorder(
+                        //     borderRadius: BorderRadius.circular(12.0),
+                        //   ),
+                        //   child: ListTile(
+                        //     title: const Text('Account Status',
+                        //         style: TextStyle(fontSize: 16)),
+                        //     subtitle: Text(
+                        //       getIt<WepinCubit>().state.wepinLifeCycleStatus.name,
+                        //     ),
+                        //     trailing: IconButton(
+                        //       icon: const Icon(Icons.refresh,
+                        //           color: Colors.blueAccent),
+                        //       onPressed: getStatus,
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            if (wepinStatus ==
+                                WepinLifeCycle.loginBeforeRegister) ...[
+                              if (context.locale.languageCode == 'ko')
+                                Text(
+                                  wepin_description_ko,
+                                  textAlign: TextAlign.left,
+                                  style: fontBodyMdSize15(),
+                                ),
+                              if (context.locale.languageCode == 'en')
+                                Text(
+                                  wepin_description_en,
+                                  textAlign: TextAlign.left,
+                                  style: fontBodyMdSize15(),
+                                ),
+                              SizedBox(
+                                width: 110, // 70% of original width
+                                height: 97, // 70% of original height
+                                child: CustomImageView(
+                                  imagePath: "assets/images/splash2.png",
+                                  width: 110, // Reduced width
+                                  height: 97,
+                                  fit: BoxFit.contain, // Reduced height
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildActionButton(
+                                  LocaleKeys.register_wepin_password.tr(),
+                                  () async {
+                                await performActionWithLoading(() async {
+                                  await wepinSDK!.register(context);
+                                  getStatus();
+                                });
+                              }),
+                              _buildActionButton(LocaleKeys.cancel.tr(),
+                                  () async {
+                                await performActionWithLoading(() async {
+                                  await wepinSDK!.login.logoutWepin();
+                                  userEmail = '';
+                                  getStatus();
+
+                                  getIt<AppCubit>().onLogOut();
+                                });
+                              }),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isLoading)
+                  ModalBarrier(
+                      color: Colors.black.withOpacity(0.5), dismissible: false),
+                if (isLoading)
+                  Center(
+                    child: Lottie.asset(
+                      'assets/lottie/loader.json',
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  /// Returns the style for the elevated button.
-  ButtonStyle _elevatedButtonStyle() {
-    return ButtonStyle(
-      backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50.0),
+  Widget buildBackArrowIconButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 18.0),
+      child: Center(
+        child: GestureDetector(
+          onTap: () {
+            getIt<AppCubit>().onLogOut();
+          },
+          child: const Icon(
+            Icons.logout,
+            color: white,
+          ),
         ),
       ),
-      overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
     );
   }
 

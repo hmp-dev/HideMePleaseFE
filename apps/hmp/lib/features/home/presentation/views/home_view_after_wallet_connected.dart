@@ -180,6 +180,7 @@ class _HomeViewAfterWalletConnectedState
                                   nftState.welcomeNftEntity.freeNftAvailable) {
                                 return FreeWelcomeNftCard(
                                   welcomeNftEntity: nftState.welcomeNftEntity,
+                                  onTapClaimButton: () {},
                                 );
                               }
 

@@ -18,6 +18,7 @@ class FreeWelcomeNftCard extends StatelessWidget {
     super.key,
     this.enableFreeGraphic = true,
     required this.welcomeNftEntity,
+    required this.onTapClaimButton,
   });
 
   /// Determines whether the free graphic overlay should be shown.
@@ -25,6 +26,7 @@ class FreeWelcomeNftCard extends StatelessWidget {
 
   /// The entity containing the details of the welcome NFT.
   final WelcomeNftEntity welcomeNftEntity;
+  final VoidCallback onTapClaimButton;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,7 @@ class FreeWelcomeNftCard extends StatelessWidget {
             ),
             bottomWidget: NftCardRewardsBottomWidget(
               welcomeNftEntity: welcomeNftEntity,
+              onTapClaimButton: onTapClaimButton,
             ),
             index: 0,
           ),

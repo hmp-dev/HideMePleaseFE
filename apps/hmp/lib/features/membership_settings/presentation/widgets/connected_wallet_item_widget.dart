@@ -88,10 +88,15 @@ class ConnectedWalletItemWidget extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                connectedWallet.provider,
-                                style: fontBodyMdMedium(),
-                              ),
+                              (connectedWallet.provider == "WEPIN_EVM")
+                                  ? Text(
+                                      "WEPIN",
+                                      style: fontBodyMdMedium(),
+                                    )
+                                  : Text(
+                                      connectedWallet.provider,
+                                      style: fontBodyMdMedium(),
+                                    ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 0.0),
                                 child: Text(

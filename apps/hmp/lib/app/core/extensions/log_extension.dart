@@ -12,19 +12,13 @@ extension ObjectLog on Object {
       String location = callerInfo.substring(
           callerInfo.indexOf('package:'), callerInfo.length - 1);
 
-      // Define ANSI escape codes for text formatting
-      const String reset = '\x1B[0m'; // Reset all attributes
-      const String colorGreen = '\x1B[32m';
-      const String colorMagenta = '\x1B[35m';
-      const String colorLightCyan = '\x1B[94m';
-
       debugPrint(
-          '$colorGreen----------------🪄️🪄️🪄️HideMePlease App Log Message----------------$reset');
-      print('🔑 $colorMagenta$location$reset');
-      debugPrint('$colorLightCyan${toString()}$reset');
+          '🔑🔑🔑---------🪄️🪄️🪄️HideMePlease App Log Message----------🔑🔑🔑');
+      debugPrint('📍📍📍 $location');
       debugPrint('');
-      debugPrint(
-          '$colorGreen--------------------------🔧🔧🔧🔧🔧---------------------------$reset');
+      debugPrint('✏️✏️✏️✏️✏️✏️ Log Message: ${toString()}');
+      debugPrint('');
+      debugPrint('🔧🔧🔧--------------End of Log----------------🔧🔧🔧');
     }
   }
 }
