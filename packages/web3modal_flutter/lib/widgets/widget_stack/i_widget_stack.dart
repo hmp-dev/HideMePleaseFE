@@ -32,5 +32,5 @@ abstract class IWidgetStack with ChangeNotifier {
   void clear();
 
   /// Adds a default widget to the stack based on platform.
-  void addDefault();
+  void addDefault([Widget? onTapWepinConnectWidget]);
 }

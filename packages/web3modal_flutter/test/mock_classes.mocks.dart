@@ -735,6 +735,7 @@ class MockW3MService extends _i1.Mock implements _i3.W3MService {
   _i14.Future<void> openModal(
     _i11.BuildContext? context, [
     _i11.Widget? startWidget,
+    _i11.VoidCallback? onTapWepinConnectWidget,
   ]) =>
       (super.noSuchMethod(
         Invocation.method(

@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/Users/satya/fvm/versions/3.19.6"
-export "FLUTTER_APPLICATION_PATH=/Volumes/T7/Projects/HideMePleaseFE/packages/web3modal_flutter"
+export "FLUTTER_ROOT=/Users/javeedishaq/flutter"
+export "FLUTTER_APPLICATION_PATH=/Users/javeedishaq/devwork/hyperhire/HideMePleaseFE/packages/web3modal_flutter"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=3.2.0"

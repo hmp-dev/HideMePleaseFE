@@ -58,7 +58,7 @@ class _W3MNetworkSelectButtonState extends State<W3MNetworkSelectButton> {
     analyticsService.instance.sendEvent(ClickNetworksEvent());
     widget.service.openModal(
       widget.context ?? context,
-      SelectNetworkPage(
+      startWidget: SelectNetworkPage(
         onTapNetwork: (info) {
           widget.service.selectChain(info);
           widgetStack.instance.addDefault();

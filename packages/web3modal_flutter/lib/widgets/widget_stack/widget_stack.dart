@@ -82,15 +82,15 @@ class WidgetStack extends IWidgetStack {
   }
 
   @override
-  void addDefault() {
+  void addDefault([Widget? onTapWepinConnectWidget]) {
     final pType = platformUtils.instance.getPlatformType();
 
     // Choose the state based on platform
     if (pType == PlatformType.mobile) {
-      push(const WalletsListShortPage(), renderScreen: true);
+      push(WalletsListShortPage(onTapWepinConnectWidget), renderScreen: true);
     } else if (pType == PlatformType.desktop || pType == PlatformType.web) {
       // add(const QRCodeAndWalletListPage());
-      push(const WalletsListShortPage(), renderScreen: true);
+      push(WalletsListShortPage(onTapWepinConnectWidget), renderScreen: true);
       // TODO [WidgetStack] fix non mobile page
     }
   }

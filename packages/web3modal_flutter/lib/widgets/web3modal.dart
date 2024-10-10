@@ -11,9 +11,10 @@ import 'package:web3modal_flutter/widgets/miscellaneous/responsive_container.dar
 import 'package:web3modal_flutter/utils/platform/platform_utils_singleton.dart';
 
 class Web3Modal extends StatefulWidget {
-  const Web3Modal({super.key, this.startWidget});
+  const Web3Modal({super.key, this.startWidget, this.onTapWepinConnectWidget});
 
   final Widget? startWidget;
+  final Widget? onTapWepinConnectWidget;
 
   @override
   State<Web3Modal> createState() => _Web3ModalState();
@@ -31,7 +32,7 @@ class _Web3ModalState extends State<Web3Modal> {
     if (widget.startWidget != null) {
       widgetStack.instance.push(widget.startWidget!, renderScreen: true);
     } else {
-      widgetStack.instance.addDefault();
+      widgetStack.instance.addDefault(widget.onTapWepinConnectWidget);
     }
 
     _initialize();

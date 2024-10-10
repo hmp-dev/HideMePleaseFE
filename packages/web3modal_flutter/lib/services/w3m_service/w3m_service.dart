@@ -34,6 +34,7 @@ import 'package:web3modal_flutter/utils/core/core_utils_singleton.dart';
 import 'package:web3modal_flutter/utils/platform/i_platform_utils.dart';
 import 'package:web3modal_flutter/utils/url/launch_url_exception.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
+import 'package:web3modal_flutter/widgets/lists/list_items/wepin_wallet_list_item.dart';
 import 'package:web3modal_flutter/widgets/widget_stack/widget_stack_singleton.dart';
 import 'package:web3modal_flutter/services/blockchain_api_service/blockchain_api_utils.dart';
 import 'package:web3modal_flutter/services/blockchain_api_service/blockchain_api_utils_singleton.dart';
@@ -444,13 +445,18 @@ class W3MService with ChangeNotifier, CoinbaseService implements IW3MService {
 
   // TODO [W3MService] startWidget parameter should be removed
   @override
-  Future<void> openModal(BuildContext context, [Widget? startWidget]) async {
-    return _showModalView(context, startWidget);
+  Future<void> openModal(
+    BuildContext context, {
+    Widget? startWidget,
+    Widget? onTapWepinConnectWidget,
+  }) async {
+    return _showModalView(context, startWidget, onTapWepinConnectWidget);
   }
 
   Future<void> _showModalView(
     BuildContext context, [
     Widget? startWidget,
+    Widget? onTapWepinConnectWidget,
   ]) async {
     _checkInitialized();
 
@@ -482,9 +488,13 @@ class W3MService with ChangeNotifier, CoinbaseService implements IW3MService {
     final childWidget = theme == null
         ? Web3ModalTheme(
             themeData: themeData,
-            child: Web3Modal(startWidget: showWidget),
+            child: Web3Modal(
+                startWidget: showWidget,
+                onTapWepinConnectWidget: onTapWepinConnectWidget),
           )
-        : Web3Modal(startWidget: showWidget);
+        : Web3Modal(
+            startWidget: showWidget,
+            onTapWepinConnectWidget: onTapWepinConnectWidget);
 
     final rootWidget = Web3ModalProvider(
       service: this,
