@@ -573,6 +573,8 @@ class NftCubit extends BaseCubit<NftState> {
     response.fold(
       // If the repository call fails, update state with error message
       (err) {
+        // Dismiss loading indicator
+        EasyLoading.dismiss();
         Log.error(err);
 
         // Update state with failure status and error message

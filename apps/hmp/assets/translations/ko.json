@@ -180,5 +180,6 @@
     "eventApplicationStatus": "이벤트 신청 현황",
     "dontShowMeForAWeek": "일주일동안 보지 않기",
     "register_a_quick_wallet": "빠른 지갑 등록하기",
-    "register_wepin_password": "위핀 비밀번호 등록"
+    "register_wepin_password": "위핀 비밀번호 등록",
+    "wepin_already_connected": "Wepin Wallet이 이미 연결되었습니다."
 }

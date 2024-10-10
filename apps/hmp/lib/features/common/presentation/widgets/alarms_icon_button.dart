@@ -15,6 +15,15 @@ class AlarmsIconButton extends StatelessWidget {
       onTap: () async {
         getIt<SettingsCubit>().onGetAnnouncements();
         AnnouncementScreen.push(context);
+
+        // final googleAccessToken =
+        //     await getIt<AuthLocalDataSource>().getGoogleAccessToken() ?? '';
+
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //         builder: (context) => WepinSDKDemoScreen(
+        //             googleAuthAccessToken: googleAccessToken)));
       },
       child: DefaultImage(
         path: "assets/icons/ic_notification.svg",

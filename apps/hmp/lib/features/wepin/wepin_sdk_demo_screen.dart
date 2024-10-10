@@ -72,8 +72,7 @@ class WepinSDKDemoScreenState extends State<WepinSDKDemoScreen> {
     wepinSDK = WepinWidgetSDK(wepinAppKey: appKey, wepinAppId: appId);
     await wepinSDK!.init(
         attributes: WidgetAttributes(
-            defaultLanguage: selectedLanguage!,
-            defaultCurrency: currency[selectedLanguage!]!));
+            defaultLanguage: 'en', defaultCurrency: currency['en']!));
     wepinStatus = await wepinSDK!.getStatus();
     userEmail = wepinStatus == WepinLifeCycle.login
         ? (await wepinSDK!.login.getCurrentWepinUser())?.userInfo?.email ?? ''

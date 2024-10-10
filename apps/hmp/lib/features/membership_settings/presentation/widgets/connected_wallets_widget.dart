@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/common/presentation/widgets/wepin_icon_widget.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/plus_icon_round_button.dart';
+import 'package:mobile/features/wepin/wepin_wallet_connect_list_tile.dart';
 
 class ConnectedWalletsWidget extends StatelessWidget {
   const ConnectedWalletsWidget({
@@ -43,6 +45,15 @@ class ConnectedWalletsWidget extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         itemCount: state.connectedWallets.length,
                         itemBuilder: (context, index) {
+                          if (state.connectedWallets[index].provider ==
+                                  'WEPIN_EVM' ||
+                              state.connectedWallets[index].provider ==
+                                  'WEPIN_SOLANA') {
+                            return const Padding(
+                              padding: EdgeInsets.only(right: 8.0),
+                              child: WepinIconWidget(),
+                            );
+                          }
                           return Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: CustomImageView(
@@ -60,7 +71,8 @@ class ConnectedWalletsWidget extends StatelessWidget {
 
                       PlusIconRoundButton(
                         onTap: () {
-                          getIt<WalletsCubit>().onConnectWallet(context);
+                          getIt<WalletsCubit>().onConnectWallet(
+                              context, const WepinWalletConnectLisTile());
                           //state.w3mService!.openModal(context);
                         },
                       )

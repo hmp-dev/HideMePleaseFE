@@ -52,7 +52,9 @@ class WepinCubit extends BaseCubit<WepinState> {
 
     // Initialize a new Wepin SDK instance with provided appId, appKey, and privateKey
     emit(state.copyWith(
-        lifeCycle: WepinLifeCycle.initializing, isLoading: true));
+      wepinLifeCycleStatus: WepinLifeCycle.initializing,
+      isLoading: true,
+    ));
 
     try {
       // Reinitialize the Wepin SDK
@@ -78,7 +80,7 @@ class WepinCubit extends BaseCubit<WepinState> {
 
       // Emit the updated state with lifecycle, email, and other details
       emit(state.copyWith(
-        lifeCycle: wepinStatus,
+        wepinLifeCycleStatus: wepinStatus,
         userEmail: userEmail,
         isLoading: false,
       ));
@@ -87,8 +89,8 @@ class WepinCubit extends BaseCubit<WepinState> {
       if (wepinStatus == WepinLifeCycle.notInitialized) {
         emit(state.copyWith(error: 'WepinSDK is not initialized.'));
       } else {
-        // Optionally call login with Google if SDK initialization is successful
-        // loginWithGoogleProvider();
+        //Optionally call login with Google if SDK initialization is successful
+        //loginWithGoogle();
       }
     } catch (error) {
       // Handle any errors during SDK initialization
@@ -114,7 +116,7 @@ class WepinCubit extends BaseCubit<WepinState> {
       if (loginResult != null) {
         final wepinUser = await wepinSDK!.login.loginWepin(loginResult);
         emit(state.copyWith(
-          lifeCycle: WepinLifeCycle.login,
+          wepinLifeCycleStatus: WepinLifeCycle.login,
           userEmail: wepinUser?.userInfo?.email ?? '',
           isLoading: false,
         ));
@@ -149,7 +151,7 @@ class WepinCubit extends BaseCubit<WepinState> {
     try {
       await wepinSDK!.login.logoutWepin();
       emit(state.copyWith(
-          lifeCycle: WepinLifeCycle.beforeLogin,
+          wepinLifeCycleStatus: WepinLifeCycle.beforeLogin,
           userEmail: '',
           isLoading: false));
     } catch (e) {
@@ -158,7 +160,7 @@ class WepinCubit extends BaseCubit<WepinState> {
   }
 
   updateWepinStatus(WepinLifeCycle newStatus) {
-    emit(state.copyWith(lifeCycle: newStatus));
+    emit(state.copyWith(wepinLifeCycleStatus: newStatus));
   }
 
   showLoader() {

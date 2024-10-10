@@ -213,8 +213,10 @@ extension GetItInjectableX on _i1.GetIt {
         () => _i52.WalletsCubit(gh<_i29.WalletsRepository>()));
     gh.lazySingleton<_i53.AppCubit>(
         () => _i53.AppCubit(gh<_i32.AuthRepository>()));
-    gh.lazySingleton<_i54.AuthCubit>(
-        () => _i54.AuthCubit(gh<_i32.AuthRepository>()));
+    gh.lazySingleton<_i54.AuthCubit>(() => _i54.AuthCubit(
+          gh<_i32.AuthRepository>(),
+          gh<_i12.AuthLocalDataSource>(),
+        ));
     return this;
   }
 }

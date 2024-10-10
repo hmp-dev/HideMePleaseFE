@@ -47,7 +47,7 @@ class WepinState extends BaseState {
   @override
   WepinState copyWith({
     RequestStatus? submitStatus,
-    WepinLifeCycle? lifeCycle,
+    WepinLifeCycle? wepinLifeCycleStatus,
     List<WepinAccount>? accounts,
     List<WepinNFT>? nfts,
     List<WepinAccountBalanceInfo>? balances,
@@ -57,7 +57,7 @@ class WepinState extends BaseState {
   }) {
     return WepinState(
       submitStatus: submitStatus ?? this.submitStatus,
-      wepinLifeCycleStatus: lifeCycle ?? wepinLifeCycleStatus,
+      wepinLifeCycleStatus: wepinLifeCycleStatus ?? this.wepinLifeCycleStatus,
       accounts: accounts ?? this.accounts,
       nfts: nfts ?? this.nfts,
       balances: balances ?? this.balances,

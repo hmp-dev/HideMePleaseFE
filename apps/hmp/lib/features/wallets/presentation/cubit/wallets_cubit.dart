@@ -234,8 +234,11 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     ('[$runtimeType] onModalDisconnect $args').log();
   }
 
-  onConnectWallet(BuildContext context) async {
-    await _w3mService!.openModal(context);
+  onConnectWallet(BuildContext context, Widget onTapWepinConnectWidget) async {
+    await _w3mService!.openModal(
+      context,
+      onTapWepinConnectWidget: onTapWepinConnectWidget,
+    );
 
     if (_w3mService!.selectedWallet?.listing.id == 'phantom-custom') {
       if (Platform.isAndroid) {
@@ -259,6 +262,10 @@ class WalletsCubit extends BaseCubit<WalletsState> {
         });
       }
     }
+  }
+
+  onCloseWalletConnectModel() async {
+    _w3mService!.closeModal();
   }
 
   onConnectSolWallet(BuildContext context) async {

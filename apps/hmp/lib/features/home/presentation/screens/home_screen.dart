@@ -8,6 +8,7 @@ import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
+import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/home/presentation/widgets/notice_dialog.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
@@ -24,6 +25,7 @@ import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_with_space.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wepin/wepin_wallet_connect_list_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -55,11 +57,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   initValues() async {
     googleAccessToken =
-        await getIt<AuthLocalDataSource>().getGoogleAccessToken() ?? '';
+        await getIt<AuthCubit>().refreshGoogleAccessToken() ?? '';
     socialTokenIsAppleOrGoogle =
         await getIt<AuthLocalDataSource>().getSocialTokenIsAppleOrGoogle() ??
             '';
-    appleIdToken = await getIt<AuthLocalDataSource>().getAppleIdToken() ?? '';
+    appleIdToken = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
 
     setState(() {});
   }
@@ -335,13 +337,16 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       return HomeViewBeforeWalletConnect(
-        googleAccessToken: googleAccessToken,
-        socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
-        appleIdToken: appleIdToken,
-        selectedLanguage: context.locale.languageCode,
+        // googleAccessToken: googleAccessToken,
+        // socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
+        // appleIdToken: appleIdToken,
+        // selectedLanguage: context.locale.languageCode,
         onConnectWallet: () {
           if (getIt<WalletsCubit>().state.w3mService != null) {
-            getIt<WalletsCubit>().onConnectWallet(context);
+            getIt<WalletsCubit>().onConnectWallet(
+                context,
+                const WepinWalletConnectLisTile(
+                    isPerformRedeemWelcomeNft: true));
           }
         },
       );

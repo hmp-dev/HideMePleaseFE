@@ -182,5 +182,6 @@ abstract class  LocaleKeys {
   static const dontShowMeForAWeek = 'dontShowMeForAWeek';
   static const register_a_quick_wallet = 'register_a_quick_wallet';
   static const register_wepin_password = 'register_wepin_password';
+  static const wepin_already_connected = 'wepin_already_connected';
 
 }
