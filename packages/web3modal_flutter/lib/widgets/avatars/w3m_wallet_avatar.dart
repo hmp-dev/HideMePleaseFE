@@ -51,13 +51,22 @@ class W3MListAvatar extends StatelessWidget {
                       disabled ? Colors.grey : Colors.transparent,
                       BlendMode.saturation,
                     ),
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl!,
-                      httpHeaders: coreUtils.instance.getAPIHeaders(projectId),
-                      fadeInDuration: const Duration(milliseconds: 500),
-                      fadeOutDuration: const Duration(milliseconds: 500),
-                      errorWidget: (context, url, error) => ColoredBox(
-                        color: themeColors.grayGlass005,
+                    child: Padding(
+                      padding: imageUrl!
+                              .toLowerCase()
+                              .contains('244989c6-90e3-428f-b2a7-0316174240c1')
+                          ? const EdgeInsets.all(5.0)
+                          : const EdgeInsets.all(0.0),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl!,
+                        fit: BoxFit.contain,
+                        httpHeaders:
+                            coreUtils.instance.getAPIHeaders(projectId),
+                        fadeInDuration: const Duration(milliseconds: 500),
+                        fadeOutDuration: const Duration(milliseconds: 500),
+                        errorWidget: (context, url, error) => ColoredBox(
+                          color: themeColors.grayGlass005,
+                        ),
                       ),
                     ),
                   )
