@@ -299,8 +299,8 @@ class _HomeViewBeforeWalletConnectState
           bloc: getIt<WalletsCubit>(),
           listener: (context, state) {
             if (state.isSubmitSuccess) {
-              if (getIt<WalletsCubit>().state.isWepinWalletConnected ||
-                  getIt<WalletsCubit>().state.isKlipWalletConnected &&
+              if (state.isWepinWalletConnected ||
+                  state.isKlipWalletConnected &&
                       getIt<NftCubit>().state.welcomeNftEntity.remainingCount >
                           0) {
                 getIt<NftCubit>().onGetConsumeWelcomeNft();

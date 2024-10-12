@@ -180,5 +180,11 @@
      "dontShowMeForAWeek": "Don't Show me for a week",
      "register_a_quick_wallet": "Register a quick wallet",
      "register_wepin_password": "Register your WePin password",
-     "wepin_already_connected":"Wepin Wallet이 이미 연결되었습니다."
+     "wepin_already_connected": "Wepin Wallet is already connected.",
+     "connect_your_wepin_wallet": "Connect your Wepin wallet",
+     "view_ongoing_events": "View ongoing events",
+     "community_needs_event_message": "If there is a moment when the community needs an event",
+     "hide_through_events_suggestions": "Hide together through event suggestions",
+     "open_wepin_wallet_details_widget": "Open Wepin Wallet Details Widget",
+     "access_wepin_wallet": "Access Wepin Wallet"
 }

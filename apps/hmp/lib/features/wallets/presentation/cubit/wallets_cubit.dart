@@ -12,14 +12,19 @@ import 'package:mobile/app/core/constants/wallet_connects_constants.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/home/presentation/views/solana_import_wallet_view.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
-import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/domain/repositories/wallets_repository.dart';
+import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:mobile/features/wepin/values/sdk_app_info.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:web3modal_flutter/web3modal_flutter.dart';
+import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
+import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 part 'wallets_state.dart';
 
@@ -332,5 +337,9 @@ class WalletsCubit extends BaseCubit<WalletsState> {
         onGetAllWallets();
       },
     );
+  }
+
+  void onIsEventViewActive(bool isActive) async {
+    emit(state.copyWith(isEventViewActive: isActive));
   }
 }

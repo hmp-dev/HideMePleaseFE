@@ -6,6 +6,7 @@ class WepinState extends BaseState {
   final List<WepinNFT> nfts;
   final List<WepinAccountBalanceInfo> balances;
   final String? userEmail;
+  
   @override
   final bool isLoading;
   final String? error;

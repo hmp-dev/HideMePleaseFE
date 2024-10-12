@@ -10,6 +10,7 @@ import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_screen.dart';
 import 'package:mobile/features/events/presentation/screens/events_screen_coming_soon.dart';
+import 'package:mobile/features/events/presentation/screens/events_wepin_screen.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
@@ -17,6 +18,7 @@ import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart'
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
@@ -83,8 +85,7 @@ class _AppViewState extends State<AppView> {
                               if (index == MenuType.space.menuIndex) {
                                 return const SpaceScreen();
                               } else if (index == MenuType.events.menuIndex) {
-                                //return const EventsScreen();
-                                return const EventsScreenComingSoon();
+                                return const EventsWepinScreen();
                               } else if (index == MenuType.home.menuIndex) {
                                 return const HomeScreen();
                               } else if (index ==
@@ -108,17 +109,32 @@ class _AppViewState extends State<AppView> {
                               onTap: (type) {
                                 ('type: $type').log();
                                 if (type == MenuType.settings) {
+                                  // update EventView Active Status
+                                  getIt<WalletsCubit>()
+                                      .onIsEventViewActive(false);
                                   // fetch SettingBannerInfo and AppVersionInfo
                                   getIt<SettingsCubit>()
                                       .onGetSettingBannerInfo();
                                   // Navigate to Settings Screen
                                   SettingsScreen.push(context);
                                 } else if (type == MenuType.space) {
+                                  // update EventView Active Status
+                                  getIt<WalletsCubit>()
+                                      .onIsEventViewActive(false);
                                   // fetch SettingBannerInfo and AppVersionInfo
                                   getIt<SpaceCubit>().onFetchAllSpaceViewData();
                                   // Navigate to Settings Screen
                                   _onChangeMenu(type);
+                                } else if (type == MenuType.events) {
+                                  // update EventView Active Status
+                                  getIt<WalletsCubit>()
+                                      .onIsEventViewActive(true);
+                                  // Navigate to Events Screen
+                                  _onChangeMenu(type);
                                 } else {
+                                  // update EventView Active Status
+                                  getIt<WalletsCubit>()
+                                      .onIsEventViewActive(false);
                                   _onChangeMenu(type);
                                 }
                               },

@@ -181,5 +181,11 @@
     "dontShowMeForAWeek": "일주일동안 보지 않기",
     "register_a_quick_wallet": "빠른 지갑 등록하기",
     "register_wepin_password": "위핀 비밀번호 등록",
-    "wepin_already_connected": "Wepin Wallet이 이미 연결되었습니다."
+    "wepin_already_connected": "Wepin Wallet이 이미 연결되었습니다.",
+    "connect_your_wepin_wallet": "위핀지갑 연결",
+    "view_ongoing_events": "진행 중인 이벤트만 보기",
+    "community_needs_event_message": "커뮤니티에 이벤트가 필요한 순간이라면",
+    "hide_through_events_suggestions": "이벤트 제안을 통해 함께 숨어보세요",
+    "open_wepin_wallet_details_widget": "Wepin 지갑 세부 정보 위젯 열기",
+    "access_wepin_wallet": "Wepin Wallet에 접속하세요"
 }

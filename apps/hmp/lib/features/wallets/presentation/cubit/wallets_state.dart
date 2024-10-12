@@ -13,6 +13,9 @@ class WalletsState extends BaseState {
   final List<ConnectedWalletEntity> connectedWallets;
 
   /// The error message.
+  final bool isEventViewActive;
+
+  /// The error message.
   final String errorMessage;
 
   /// The request status.
@@ -24,6 +27,7 @@ class WalletsState extends BaseState {
     this.w3mService,
     required this.connectedWallets,
     this.submitStatus = RequestStatus.initial,
+    this.isEventViewActive = false,
     required this.errorMessage,
   });
 
@@ -32,6 +36,7 @@ class WalletsState extends BaseState {
         w3mService: null,
         connectedWallets: [],
         submitStatus: RequestStatus.initial,
+        isEventViewActive: false,
         errorMessage: "",
       );
 
@@ -53,6 +58,7 @@ class WalletsState extends BaseState {
         w3mService,
         connectedWallets,
         submitStatus,
+        isEventViewActive,
         errorMessage,
       ];
 
@@ -66,12 +72,14 @@ class WalletsState extends BaseState {
     List<ConnectedWalletEntity>? connectedWallets,
     RequestStatus? submitStatus,
     bool? isProfileIncomplete,
+    bool? isEventViewActive,
     String? errorMessage,
   }) {
     return WalletsState(
       w3mService: w3mService ?? this.w3mService,
       connectedWallets: connectedWallets ?? this.connectedWallets,
       submitStatus: submitStatus ?? this.submitStatus,
+      isEventViewActive: isEventViewActive ?? this.isEventViewActive,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

@@ -69,7 +69,7 @@ class _EventsViewState extends State<EventsView> {
                     },
                   ),
                   Text(
-                    "진행 중인 이벤트만 보기",
+                    "진행 중인 이벤트만 보기", // "View ongoing events"
                     style: fontCompactMd(),
                   ),
                 ],
@@ -102,7 +102,7 @@ class _EventsViewState extends State<EventsView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "커뮤니티에 이벤트가 필요한 순간이라면",
+                  "커뮤니티에 이벤트가 필요한 순간이라면", //"If there is a moment when the community needs an event",
                   style: fontCompactSmMedium(color: fore2),
                 ),
                 const VerticalSpace(7),

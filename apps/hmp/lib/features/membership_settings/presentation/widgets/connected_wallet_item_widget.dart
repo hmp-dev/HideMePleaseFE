@@ -74,6 +74,7 @@ class ConnectedWalletItemWidget extends StatelessWidget {
                                           "assets/web3-wallet-logos/${connectedWallet.provider.toLowerCase()}_wallet.png",
                                       width: 28,
                                       height: 28,
+                                      fit: BoxFit.contain,
                                     ),
                                   ),
                                 )
@@ -83,6 +84,7 @@ class ConnectedWalletItemWidget extends StatelessWidget {
                                   width: 42,
                                   height: 42,
                                   radius: BorderRadius.circular(12),
+                                  fit: BoxFit.contain,
                                 ),
                           const SizedBox(width: 10),
                           Column(

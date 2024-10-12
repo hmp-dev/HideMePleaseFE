@@ -183,5 +183,11 @@ abstract class  LocaleKeys {
   static const register_a_quick_wallet = 'register_a_quick_wallet';
   static const register_wepin_password = 'register_wepin_password';
   static const wepin_already_connected = 'wepin_already_connected';
+  static const connect_your_wepin_wallet = 'connect_your_wepin_wallet';
+  static const view_ongoing_events = 'view_ongoing_events';
+  static const community_needs_event_message = 'community_needs_event_message';
+  static const hide_through_events_suggestions = 'hide_through_events_suggestions';
+  static const open_wepin_wallet_details_widget = 'open_wepin_wallet_details_widget';
+  static const access_wepin_wallet = 'access_wepin_wallet';
 
 }
