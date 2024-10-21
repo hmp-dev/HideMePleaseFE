@@ -1,12 +1,15 @@
 part of 'wepin_cubit.dart';
 
 class WepinState extends BaseState {
+  final String socialTokenIsAppleOrGoogle;
+  final String appleIdToken;
+  final String googleAccessToken;
+  final WepinWidgetSDK? wepinWidgetSDK;
   final WepinLifeCycle wepinLifeCycleStatus;
   final List<WepinAccount> accounts;
-  final List<WepinNFT> nfts;
-  final List<WepinAccountBalanceInfo> balances;
-  final String? userEmail;
-  
+  final bool isPerformWepinWalletSave;
+  final bool isPerformWepinWelcomeNftRedeem;
+
   @override
   final bool isLoading;
   final String? error;
@@ -15,54 +18,73 @@ class WepinState extends BaseState {
   final RequestStatus submitStatus;
 
   const WepinState({
+    this.socialTokenIsAppleOrGoogle = '',
+    this.appleIdToken = '',
+    this.googleAccessToken = '',
+    this.wepinWidgetSDK,
     this.submitStatus = RequestStatus.initial,
     required this.wepinLifeCycleStatus,
     this.accounts = const [],
-    this.nfts = const [],
-    this.balances = const [],
-    this.userEmail,
+    this.isPerformWepinWalletSave = false,
+    this.isPerformWepinWelcomeNftRedeem = false,
     this.isLoading = false,
     this.error,
   });
 
   factory WepinState.initial() => const WepinState(
+        socialTokenIsAppleOrGoogle: '',
+        appleIdToken: '',
+        googleAccessToken: '',
+        wepinWidgetSDK: null,
         wepinLifeCycleStatus: WepinLifeCycle.notInitialized,
         isLoading: true,
         accounts: [],
-        nfts: [],
-        balances: [],
+        isPerformWepinWalletSave: false,
+        isPerformWepinWelcomeNftRedeem: false,
       );
 
   @override
   List<Object?> get props => [
+        wepinWidgetSDK,
+        socialTokenIsAppleOrGoogle,
+        appleIdToken,
+        googleAccessToken,
         submitStatus,
         wepinLifeCycleStatus,
         accounts,
-        nfts,
-        balances,
-        userEmail,
+        isPerformWepinWalletSave,
+        isPerformWepinWelcomeNftRedeem,
         isLoading,
         error,
       ];
 
   @override
   WepinState copyWith({
+    WepinWidgetSDK? wepinWidgetSDK,
+    String? socialTokenIsAppleOrGoogle,
+    String? appleIdToken,
+    String? googleAccessToken,
     RequestStatus? submitStatus,
     WepinLifeCycle? wepinLifeCycleStatus,
     List<WepinAccount>? accounts,
-    List<WepinNFT>? nfts,
-    List<WepinAccountBalanceInfo>? balances,
-    String? userEmail,
+    bool? isPerformWepinWalletSave,
+    bool? isPerformWepinWelcomeNftRedeem,
     bool? isLoading,
     String? error,
   }) {
     return WepinState(
+      wepinWidgetSDK: wepinWidgetSDK ?? this.wepinWidgetSDK,
+      socialTokenIsAppleOrGoogle:
+          socialTokenIsAppleOrGoogle ?? this.socialTokenIsAppleOrGoogle,
+      appleIdToken: appleIdToken ?? this.appleIdToken,
+      googleAccessToken: googleAccessToken ?? this.googleAccessToken,
       submitStatus: submitStatus ?? this.submitStatus,
       wepinLifeCycleStatus: wepinLifeCycleStatus ?? this.wepinLifeCycleStatus,
       accounts: accounts ?? this.accounts,
-      nfts: nfts ?? this.nfts,
-      balances: balances ?? this.balances,
-      userEmail: userEmail ?? this.userEmail,
+      isPerformWepinWalletSave:
+          isPerformWepinWalletSave ?? this.isPerformWepinWalletSave,
+      isPerformWepinWelcomeNftRedeem:
+          isPerformWepinWelcomeNftRedeem ?? this.isPerformWepinWelcomeNftRedeem,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
     );

@@ -4,7 +4,6 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/enum/error_codes.dart';
 import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -22,7 +21,7 @@ import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/features/wepin/values/sdk_app_info.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:web3modal_flutter/widgets/lists/list_items/wallet_list_item.dart';
+// import 'package:web3modal_flutter/widgets/lists/list_items/wallet_list_item.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
@@ -85,12 +84,18 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   }
 
   initValues() async {
-    googleAccessToken =
-        await getIt<AuthCubit>().refreshGoogleAccessToken() ?? '';
     socialTokenIsAppleOrGoogle =
         await getIt<AuthLocalDataSource>().getSocialTokenIsAppleOrGoogle() ??
             '';
-    appleIdToken = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
+
+    if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
+      appleIdToken = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
+    }
+
+    if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
+      googleAccessToken =
+          await getIt<AuthCubit>().refreshGoogleAccessToken() ?? '';
+    }
 
     setState(() {});
   }
@@ -328,15 +333,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
       child: BlocListener<WalletsCubit, WalletsState>(
         // Listen to the wallets cubit state
         bloc: getIt<WalletsCubit>(),
-        listener: (context, state) {
-          if (state.submitStatus == RequestStatus.failure) {
-            // Map the error message to the appropriate enum message
-            String errorMessage = getErrorMessage(state.errorMessage);
-            // Show Error Snackbar If Wallet is Already Connected
-            context.showErrorSnackBarDismissible(errorMessage);
-            "inside listener++++++ error message is $errorMessage".log();
-          }
-        },
+        listener: (context, state) {},
         child: BlocConsumer<NftCubit, NftState>(
           bloc: getIt<NftCubit>(),
           listener: (context, nftState) {},
@@ -376,31 +373,33 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                         : Container(
                             margin: const EdgeInsets.only(
                                 left: 10, top: 10, right: 10),
-                            child: WalletListItem(
-                              title: 'Wepin',
-                              onTap: () {
-                                if (getIt<WalletsCubit>()
-                                    .state
-                                    .isWepinWalletConnected) {
-                                  getIt<WalletsCubit>()
-                                      .onCloseWalletConnectModel();
+                            child: const Text("data")
 
-                                  context.showSnackBar(
-                                    LocaleKeys.wepin_already_connected.tr(),
-                                  );
-                                } else {
-                                  initializeWepinSdk();
-                                }
-                              },
-                              imageUrl:
-                                  'https://dev-admin.hidemeplease.xyz/assets/244989c6-90e3-428f-b2a7-0316174240c1',
-                              trailing: const Icon(
-                                Icons.arrow_forward_ios,
-                                size: 17,
-                                color: Color(0x4DFFFFFF),
-                              ),
-                            ),
-                          )
+                            // WalletListItem(
+                            //   title: 'Wepin',
+                            //   onTap: () {
+                            //     if (getIt<WalletsCubit>()
+                            //         .state
+                            //         .isWepinWalletConnected) {
+                            //       getIt<WalletsCubit>()
+                            //           .onCloseWalletConnectModel();
+
+                            //       context.showSnackBar(
+                            //         LocaleKeys.wepin_already_connected.tr(),
+                            //       );
+                            //     } else {
+                            //       initializeWepinSdk();
+                            //     }
+                            //   },
+                            //   imageUrl:
+                            //       'https://dev-admin.hidemeplease.xyz/assets/244989c6-90e3-428f-b2a7-0316174240c1',
+                            //   trailing: const Icon(
+                            //     Icons.arrow_forward_ios,
+                            //     size: 17,
+                            //     color: Color(0x4DFFFFFF),
+                            //   ),
+                            // ),
+                            )
               ],
             );
           },

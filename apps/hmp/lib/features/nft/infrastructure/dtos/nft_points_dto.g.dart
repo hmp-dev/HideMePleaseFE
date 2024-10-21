@@ -12,7 +12,7 @@ NftPointsDto _$NftPointsDtoFromJson(Map<String, dynamic> json) => NftPointsDto(
       imageUrl: json['imageUrl'] as String?,
       videoUrl: json['videoUrl'] as String?,
       tokenAddress: json['tokenAddress'] as String?,
-      totalPoints: json['totalPoints'] as int?,
+      totalPoints: (json['totalPoints'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$NftPointsDtoToJson(NftPointsDto instance) =>

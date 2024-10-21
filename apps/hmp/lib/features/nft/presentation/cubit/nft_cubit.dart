@@ -7,7 +7,6 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/enum/usage_type_enum.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/community/presentation/cubit/community_cubit.dart';
@@ -432,9 +431,6 @@ class NftCubit extends BaseCubit<NftState> {
     if (isFreeNftAvailable) {
       result.insert(0, const SelectedNFTEntity.emptyForHome1st());
     }
-
-    // Log the length of the result list
-    "======================result length is: ${result.length}".log();
 
     // Return the result list
     return result;

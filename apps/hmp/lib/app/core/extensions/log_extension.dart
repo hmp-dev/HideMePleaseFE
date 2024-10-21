@@ -16,7 +16,7 @@ extension ObjectLog on Object {
           '🔑🔑🔑---------🪄️🪄️🪄️HideMePlease App Log Message----------🔑🔑🔑');
       debugPrint('📍📍📍 $location');
       debugPrint('');
-      debugPrint('✏️✏️✏️✏️✏️✏️ Log Message: ${toString()}');
+      debugPrint('✍✍✍✍✍✍✍ Log Message: ${toString()}');
       debugPrint('');
       debugPrint('🔧🔧🔧--------------End of Log----------------🔧🔧🔧');
     }

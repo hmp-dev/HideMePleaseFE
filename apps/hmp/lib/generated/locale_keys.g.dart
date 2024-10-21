@@ -189,5 +189,6 @@ abstract class  LocaleKeys {
   static const hide_through_events_suggestions = 'hide_through_events_suggestions';
   static const open_wepin_wallet_details_widget = 'open_wepin_wallet_details_widget';
   static const access_wepin_wallet = 'access_wepin_wallet';
+  static const welcomeNftRedeemRequesting = 'welcomeNftRedeemRequesting';
 
 }

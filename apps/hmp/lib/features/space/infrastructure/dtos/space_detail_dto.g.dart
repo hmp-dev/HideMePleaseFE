@@ -19,7 +19,7 @@ SpaceDetailDto _$SpaceDetailDtoFromJson(Map<String, dynamic> json) =>
       introduction: json['introduction'] as String?,
       locationDescription: json['locationDescription'] as String?,
       image: json['image'] as String?,
-      hidingCount: json['hidingCount'] as int?,
+      hidingCount: (json['hidingCount'] as num?)?.toInt(),
       spaceOpen: json['spaceOpen'] as bool?,
     );
 

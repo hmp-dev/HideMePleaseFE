@@ -9,8 +9,8 @@ part of 'nft_community_dto.dart';
 NftCommunityResponseDto _$NftCommunityResponseDtoFromJson(
         Map<String, dynamic> json) =>
     NftCommunityResponseDto(
-      communityCount: json['communityCount'] as int?,
-      itemCount: json['itemCount'] as int?,
+      communityCount: (json['communityCount'] as num?)?.toInt(),
+      itemCount: (json['itemCount'] as num?)?.toInt(),
       allCommunities: (json['allCommunities'] as List<dynamic>?)
           ?.map((e) => NftCommunityDto.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -26,8 +26,8 @@ Map<String, dynamic> _$NftCommunityResponseDtoToJson(
 
 NftCommunityDto _$NftCommunityDtoFromJson(Map<String, dynamic> json) =>
     NftCommunityDto(
-      communityRank: json['communityRank'] as int?,
-      totalMembers: json['totalMembers'] as int?,
+      communityRank: (json['communityRank'] as num?)?.toInt(),
+      totalMembers: (json['totalMembers'] as num?)?.toInt(),
       tokenAddress: json['tokenAddress'] as String?,
       name: json['name'] as String?,
       collectionLogo: json['collectionLogo'] as String?,

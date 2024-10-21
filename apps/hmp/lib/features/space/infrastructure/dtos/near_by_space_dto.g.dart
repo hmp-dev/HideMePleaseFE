@@ -14,7 +14,7 @@ NearBySpaceDto _$NearBySpaceDtoFromJson(Map<String, dynamic> json) =>
       longitude: (json['longitude'] as num?)?.toDouble(),
       address: json['address'] as String?,
       image: json['image'] as String?,
-      distance: json['distance'] as int?,
+      distance: (json['distance'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$NearBySpaceDtoToJson(NearBySpaceDto instance) =>

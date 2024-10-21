@@ -56,9 +56,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           channel: community.tokenAddress);
                     },
                     onConnectWallet: () {
-                      if (getIt<WalletsCubit>().state.w3mService != null) {
+                      if (getIt<WalletsCubit>().state.reownAppKitModal !=
+                          null) {
                         getIt<WalletsCubit>().onConnectWallet(
-                            context, const WepinWalletConnectLisTile());
+                            context: context, isFromWePinWalletConnect: true);
                       }
                     },
                     onGetFreeNft: () {},

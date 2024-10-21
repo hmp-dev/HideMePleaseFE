@@ -67,3 +67,81 @@ wallet list is being made by following
 ```
 
 ## packages/web3modal_flutter/lib/pages/wallets_list_short_page.dart
+
+## notes for reown_appkit package for wallet connect
+
+### file name : packages/reown_appkit/lib/modal/pages/public/appkit_modal_main_wallets_page.dart
+
+`title: '지갑연결', //'Connect wallet',` change for model tile text to korean
+
+## Steps to include custom wallet inside reown_appkit package
+
+1- add the wallet in listing inside `packages/reown_appkit/lib/modal/services/explorer_service/explorer_service.dart` in ` _listings` as below, where a custom object of ReownAppKitModalWalletInfo for phantom
+
+```
+ _listings = [
+      ReownAppKitModalWalletInfo(
+        listing: Listing.fromJson({
+          'id': 'wepin-custom',
+          'name': 'Wepin',
+          'image_id':
+              'https://dev-admin.hidemeplease.xyz/assets/244989c6-90e3-428f-b2a7-0316174240c1',
+          'homepage': 'https://www.wepin.io/',
+          'order': 4,
+          // 'mobile_link': schema,
+        }),
+        installed: true,
+        recent: true,
+      ),
+      ReownAppKitModalWalletInfo(
+        listing: Listing.fromJson({
+          'id': 'phantom-custom',
+          'name': 'Phantom',
+          'image_id':
+              'https://firebasestorage.googleapis.com/v0/b/hidemeplease2024-dev.appspot.com/o/public%2Fphantom-wallet.png?alt=media&token=9ad22838-f0b0-4d31-b603-9ca0725963aa',
+          'homepage': 'https://phantom.app/',
+          'order': 5,
+          // 'mobile_link': schema,
+        }),
+        installed: true,
+        recent: true,
+      ),
+      //...allListings[0],
+      ...allListings[2].sortByFeaturedIds(featuredWalletIds),
+      ...allListings[1].sortByFeaturedIds(featuredWalletIds),
+      ...allListings[3].sortByFeaturedIds(featuredWalletIds),
+    ];
+```
+
+2- in file `packages/reown_appkit/lib/modal/pages/public/appkit_modal_main_wallets_page.dart`
+
+```
+ onTapWallet: (data) {
+                service.selectWallet(data);
+                widgetStack.instance.push(const ConnectWalletPage());
+              },
+
+```
+
+replace above with checking if data.listing.id == 'THE WALLET ID IS SET INSIDE' `packages/reown_appkit/lib/modal/services/explorer_service/explorer_service.dart` in step 1
+
+```
+ onTapWallet: (data) {
+
+                if (data.listing.id == 'phantom-custom') {
+                  service.selectWallet(data);
+                  service.closeModal();
+                  return;
+                }
+
+                 if (data.listing.id == 'wepin-custom') {
+                  service.selectWallet(data);
+                  service.closeModal();
+                  return;
+                }
+
+                service.selectWallet(data);
+                widgetStack.instance.push(const ConnectWalletPage());
+              },
+
+```

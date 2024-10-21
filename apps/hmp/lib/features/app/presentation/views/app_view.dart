@@ -19,6 +19,8 @@ import 'package:mobile/features/settings/presentation/screens/settings_screen.da
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
@@ -126,15 +128,21 @@ class _AppViewState extends State<AppView> {
                                   // Navigate to Settings Screen
                                   _onChangeMenu(type);
                                 } else if (type == MenuType.events) {
-                                  // update EventView Active Status
-                                  getIt<WalletsCubit>()
-                                      .onIsEventViewActive(true);
-                                  // Navigate to Events Screen
-                                  _onChangeMenu(type);
+                                  // check if Wepin Wallet is connected
+                                  // Open the Wepin Widget
+                                  if (getIt<WalletsCubit>()
+                                      .state
+                                      .isWepinWalletConnected) {
+                                    getIt<WepinCubit>()
+                                        .openWepinWidget(context, true);
+                                  } else {
+                                    //update EventView Active Status
+                                    getIt<WalletsCubit>()
+                                        .onIsEventViewActive(true);
+                                    //Navigate to Events Screen
+                                    _onChangeMenu(type);
+                                  }
                                 } else {
-                                  // update EventView Active Status
-                                  getIt<WalletsCubit>()
-                                      .onIsEventViewActive(false);
                                   _onChangeMenu(type);
                                 }
                               },

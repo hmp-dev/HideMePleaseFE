@@ -8,10 +8,10 @@ part of 'welcome_nft_dto.dart';
 
 WelcomeNftDto _$WelcomeNftDtoFromJson(Map<String, dynamic> json) =>
     WelcomeNftDto(
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       image: json['image'] as String?,
-      totalCount: json['totalCount'] as int?,
-      usedCount: json['usedCount'] as int?,
+      totalCount: (json['totalCount'] as num?)?.toInt(),
+      usedCount: (json['usedCount'] as num?)?.toInt(),
       name: json['name'] as String?,
       tokenAddress: json['tokenAddress'] as String?,
       redeemTermsUrl: json['redeemTermsUrl'] as String?,

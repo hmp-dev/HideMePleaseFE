@@ -12,7 +12,7 @@ NftBenefitsResponseDto _$NftBenefitsResponseDtoFromJson(
       benefits: (json['benefits'] as List<dynamic>?)
           ?.map((e) => BenefitDto.fromJson(e as Map<String, dynamic>))
           .toList(),
-      benefitCount: json['benefitCount'] as int,
+      benefitCount: (json['benefitCount'] as num).toInt(),
     );
 
 Map<String, dynamic> _$NftBenefitsResponseDtoToJson(

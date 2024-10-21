@@ -7,7 +7,7 @@ part of 'wallets_cubit.dart';
 /// [errorMessage].
 class WalletsState extends BaseState {
   /// The Wallet Connect service.
-  final W3MService? w3mService;
+  final ReownAppKitModal? reownAppKitModal;
 
   /// The list of connected wallets.
   final List<ConnectedWalletEntity> connectedWallets;
@@ -24,7 +24,7 @@ class WalletsState extends BaseState {
 
   /// Creates a [WalletsState] with the given parameters.
   const WalletsState({
-    this.w3mService,
+    this.reownAppKitModal,
     required this.connectedWallets,
     this.submitStatus = RequestStatus.initial,
     this.isEventViewActive = false,
@@ -33,7 +33,7 @@ class WalletsState extends BaseState {
 
   /// Creates an initial [WalletsState].
   factory WalletsState.initial() => const WalletsState(
-        w3mService: null,
+        reownAppKitModal: null,
         connectedWallets: [],
         submitStatus: RequestStatus.initial,
         isEventViewActive: false,
@@ -55,7 +55,7 @@ class WalletsState extends BaseState {
   /// The list of objects to be used for equality checks.
   @override
   List<Object?> get props => [
-        w3mService,
+        reownAppKitModal,
         connectedWallets,
         submitStatus,
         isEventViewActive,
@@ -68,7 +68,7 @@ class WalletsState extends BaseState {
   /// instance will be used.
   @override
   WalletsState copyWith({
-    W3MService? w3mService,
+    ReownAppKitModal? reownAppKitModal,
     List<ConnectedWalletEntity>? connectedWallets,
     RequestStatus? submitStatus,
     bool? isProfileIncomplete,
@@ -76,7 +76,7 @@ class WalletsState extends BaseState {
     String? errorMessage,
   }) {
     return WalletsState(
-      w3mService: w3mService ?? this.w3mService,
+      reownAppKitModal: reownAppKitModal ?? this.reownAppKitModal,
       connectedWallets: connectedWallets ?? this.connectedWallets,
       submitStatus: submitStatus ?? this.submitStatus,
       isEventViewActive: isEventViewActive ?? this.isEventViewActive,

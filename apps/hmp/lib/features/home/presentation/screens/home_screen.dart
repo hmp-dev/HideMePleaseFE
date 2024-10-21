@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
+import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
@@ -25,6 +26,7 @@ import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen
 import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen_with_space.dart';
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/features/wepin/wepin_wallet_connect_list_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
@@ -56,12 +58,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   initValues() async {
-    googleAccessToken =
-        await getIt<AuthCubit>().refreshGoogleAccessToken() ?? '';
     socialTokenIsAppleOrGoogle =
         await getIt<AuthLocalDataSource>().getSocialTokenIsAppleOrGoogle() ??
             '';
-    appleIdToken = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
+
+    if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
+      appleIdToken = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
+    }
+
+    if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
+      googleAccessToken =
+          await getIt<AuthCubit>().refreshGoogleAccessToken() ?? '';
+    }
 
     setState(() {});
   }
@@ -69,7 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void _initWallets() async {
     await SolanaWalletProvider.initialize();
     // initialize the w3mService
-    getIt<WalletsCubit>().init(solWallet: SolanaWalletProvider.of(context));
+    getIt<WalletsCubit>()
+        .init(context: context, solWallet: SolanaWalletProvider.of(context));
+    // initialize the WepinSDK and Login
+    getIt<WepinCubit>()
+        .initWepinSDK(selectedLanguageCode: context.locale.languageCode);
   }
 
   void _scrollListener() {
@@ -191,6 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
           bloc: getIt<WalletsCubit>(),
           listener: (context, state) {
             if (state.isSubmitSuccess) {
+              "I am listing submit success inside HomeScreen".log();
               // Show the AfterLoginWithNFT screen
               getIt<HomeCubit>()
                   .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
@@ -341,12 +354,13 @@ class _HomeScreenState extends State<HomeScreen> {
         // socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
         // appleIdToken: appleIdToken,
         // selectedLanguage: context.locale.languageCode,
-        onConnectWallet: () {
-          if (getIt<WalletsCubit>().state.w3mService != null) {
-            getIt<WalletsCubit>().onConnectWallet(
-                context,
-                const WepinWalletConnectLisTile(
-                    isPerformRedeemWelcomeNft: true));
+        onConnectWallet: () async {
+          if (getIt<WalletsCubit>().state.reownAppKitModal != null) {
+            getIt<WepinCubit>().updateIsPerformWepinWelcomeNftRedeem(true);
+            await getIt<WepinCubit>().initWepinSDK(
+              selectedLanguageCode: context.locale.languageCode,
+              isFromWePinWelcomeNftRedeem: true,
+            );
           }
         },
       );

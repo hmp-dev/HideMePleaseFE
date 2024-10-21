@@ -72,8 +72,7 @@ class ConnectedWalletsWidget extends StatelessWidget {
                       PlusIconRoundButton(
                         onTap: () {
                           getIt<WalletsCubit>().onConnectWallet(
-                              context, const WepinWalletConnectLisTile());
-                          //state.w3mService!.openModal(context);
+                              context: context, isFromWePinWalletConnect: true);
                         },
                       )
                     ],

@@ -13,8 +13,8 @@ SpaceDto _$SpaceDtoFromJson(Map<String, dynamic> json) => SpaceDto(
       category: json['category'] as String?,
       benefitDescription: json['benefitDescription'] as String?,
       hot: json['hot'] as bool?,
-      hotPoints: json['hotPoints'] as int?,
-      hidingCount: json['hidingCount'] as int?,
+      hotPoints: (json['hotPoints'] as num?)?.toInt(),
+      hidingCount: (json['hidingCount'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{

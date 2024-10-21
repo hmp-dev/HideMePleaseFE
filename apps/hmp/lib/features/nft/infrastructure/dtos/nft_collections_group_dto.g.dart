@@ -12,7 +12,7 @@ NftCollectionsGroupDto _$NftCollectionsGroupDtoFromJson(
       collections: (json['collections'] as List<dynamic>?)
           ?.map((e) => NftCollectionDto.fromJson(e as Map<String, dynamic>))
           .toList(),
-      selectedNftCount: json['selectedNftCount'] as int?,
+      selectedNftCount: (json['selectedNftCount'] as num?)?.toInt(),
       next: json['next'] as String?,
     );
 

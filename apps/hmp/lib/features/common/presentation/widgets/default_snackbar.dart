@@ -43,6 +43,28 @@ class DefaultSnackBar {
     );
   }
 
+  void showToastMsgBottom(
+    BuildContext context, {
+    Duration toastDuration = const Duration(seconds: 2),
+    required String message,
+  }) {
+    BuildContext? navigatorContext =
+        context.read<GlobalKey<NavigatorState>>().currentContext;
+    if (navigatorContext != null) {
+      Log.info('Success: navigatorContext is NOT null');
+      init(navigatorContext);
+    } else {
+      Log.info('Info: navigatorContext is null');
+      init(context);
+    }
+
+    _fToast.showToast(
+      child: _snackBar(context, message),
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: toastDuration,
+    );
+  }
+
   //
   void showDismissibleSnackBarWithButton(
     BuildContext context,
@@ -211,6 +233,9 @@ class DefaultSnackBar {
 extension SnackBarExtension on BuildContext {
   void showSnackBar(String message) =>
       DefaultSnackBar.instance.showToastMsg(this, message: message);
+
+  void showSnackBarBottom(String message) =>
+      DefaultSnackBar.instance.showToastMsgBottom(this, message: message);
 
   //showCenterToastMsg
   void showCenterSnackBar(String message) =>

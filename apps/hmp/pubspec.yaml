@@ -2,14 +2,14 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 2.1.10+88
+version: 2.1.10+89
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
 
 dependencies:
   app_settings: ^5.1.1
-  appcheck: ^1.1.0
+  appcheck: ^1.5.1
   auto_size_text: ^3.0.0
   bloc: ^8.1.4
   cached_network_image: ^3.3.1
@@ -61,7 +61,7 @@ dependencies:
   location: ^5.0.3
   logger: ^2.3.0
   lottie: ^3.1.0
-  package_info_plus: ^7.0.0
+  package_info_plus: ^8.0.2
   page_transition: ^2.1.0
   path_provider: ^2.1.3
   permission_handler: ^11.3.1
@@ -84,7 +84,8 @@ dependencies:
   video_player: ^2.9.1
   video_thumbnail: ^0.5.3
   visibility_detector: ^0.4.0+2
-  web3modal_flutter: ^3.2.0
+  # web3modal_flutter: ^3.2.0
+  reown_appkit: ^1.0.0
   wepin_flutter_widget_sdk: ^0.0.5
 
 dev_dependencies:
@@ -105,6 +106,7 @@ dev_dependencies:
 dependency_overrides:
   web_socket_channel: ^2.4.4
   flutter_widget_from_html_core: ^0.8.5+3
+  webview_flutter_android: 3.16.1
 
 flutter:
   uses-material-design: true

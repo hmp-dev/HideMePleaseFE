@@ -8,11 +8,11 @@ part of 'top_used_nft_dto.dart';
 
 TopUsedNftDto _$TopUsedNftDtoFromJson(Map<String, dynamic> json) =>
     TopUsedNftDto(
-      pointFluctuation: json['pointFluctuation'] as int?,
-      totalPoints: json['totalPoints'] as int?,
+      pointFluctuation: (json['pointFluctuation'] as num?)?.toInt(),
+      totalPoints: (json['totalPoints'] as num?)?.toInt(),
       tokenAddress: json['tokenAddress'] as String?,
-      totalMembers: json['totalMembers'] as int?,
-      communityRank: json['communityRank'] as int?,
+      totalMembers: (json['totalMembers'] as num?)?.toInt(),
+      communityRank: (json['communityRank'] as num?)?.toInt(),
       collectionLogo: json['collectionLogo'] as String?,
       name: json['name'] as String?,
       chain: json['chain'] as String?,

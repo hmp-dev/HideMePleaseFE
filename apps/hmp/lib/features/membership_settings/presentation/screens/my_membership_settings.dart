@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
@@ -22,8 +23,11 @@ import 'package:mobile/features/membership_settings/presentation/widgets/connect
 import 'package:mobile/features/membership_settings/presentation/widgets/nft_token_widget.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 class MyMembershipSettingsScreen extends StatefulWidget {
   const MyMembershipSettingsScreen({super.key});
@@ -120,19 +124,85 @@ class _MyMembershipSettingsScreenState
       //   ),
       // ),
       body: SafeArea(
-        child: BlocListener<WalletsCubit, WalletsState>(
-          bloc: getIt<WalletsCubit>(),
-          listener: (context, state) {
-            if (state.submitStatus == RequestStatus.failure) {
-              // Map the error message to the appropriate enum message
-              String errorMessage = getErrorMessage(state.errorMessage);
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<WepinCubit, WepinState>(
+              //ensure that the listenWhen condition checks if current.isPerformWepinWalletSave is true
+              // and that it changes only when transitioning from false to true.
+              listenWhen: (previous, current) =>
+                  previous.isPerformWepinWalletSave !=
+                      current.isPerformWepinWalletSave &&
+                  current.isPerformWepinWalletSave,
+              bloc: getIt<WepinCubit>(),
+              listener: (context, state) async {
+                if (!state.isPerformWepinWelcomeNftRedeem) {
+                  if (state.isLoading) {
+                    EasyLoading.show();
+                  } else {
+                    EasyLoading.dismiss();
+                  }
 
-              // Show Error Snackbar If Wallet is Already Connected
-              context.showErrorSnackBarDismissible(errorMessage);
+                  // 0 - Listen Wepin Status if it is not initialized
+                  if (state.wepinLifeCycleStatus ==
+                      WepinLifeCycle.notInitialized) {
+                    getIt<WepinCubit>().initWepinSDK(
+                        selectedLanguageCode: context.locale.languageCode);
+                  }
 
-              "inside listener++++++ error message is $errorMessage".log();
-            }
-          },
+                  // 0- Listen Wepin Status if it is login before registered
+                  // automatically register
+                  if (state.wepinLifeCycleStatus ==
+                      WepinLifeCycle.loginBeforeRegister) {
+                    // Now loader will be shown by
+                    getIt<WepinCubit>().registerToWepin(context);
+                  }
+
+                  // 1- Listen Wepin Status if it is login
+                  // fetch the wallets created by Wepin
+
+                  if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
+                    getIt<WepinCubit>().fetchAccounts();
+                    getIt<WepinCubit>().dismissLoader();
+                  }
+
+                  // 2- Listen Wepin Status if it is login and wallets are in the state
+                  // save these wallets for the user
+
+                  if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
+                      state.accounts.isNotEmpty) {
+                    // if status is login save wallets to backend
+
+                    for (var account in state.accounts) {
+                      if (account.network.toLowerCase() == "ethereum") {
+                        getIt<WalletsCubit>().onPostWallet(
+                          saveWalletRequestDto: SaveWalletRequestDto(
+                            publicAddress: account.address,
+                            provider: "WEPIN_EVM",
+                          ),
+                        );
+                      }
+                    }
+
+                    getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
+                  }
+                }
+              },
+            ),
+            BlocListener<WalletsCubit, WalletsState>(
+              bloc: getIt<WalletsCubit>(),
+              listener: (context, state) {
+                if (state.submitStatus == RequestStatus.failure) {
+                  // Map the error message to the appropriate enum message
+                  String errorMessage = getErrorMessage(state.errorMessage);
+
+                  // Show Error Snackbar If Wallet is Already Connected
+                  context.showErrorSnackBarDismissible(state.errorMessage);
+
+                  "inside listener++++++ error message is $errorMessage".log();
+                }
+              },
+            ),
+          ],
           child: BlocConsumer<NftCubit, NftState>(
             bloc: getIt<NftCubit>(),
             listener: (context, state) {},
@@ -155,7 +225,8 @@ class _MyMembershipSettingsScreenState
                                   controller: _scrollController,
                                   slivers: [
                                     const SliverToBoxAdapter(
-                                        child: ConnectedWalletsWidget()),
+                                      child: ConnectedWalletsWidget(),
+                                    ),
                                     const SliverToBoxAdapter(
                                         child: SizedBox(height: 20)),
                                     SliverToBoxAdapter(

@@ -127,7 +127,8 @@ extension GetItInjectableX on _i1.GetIt {
         () => _i7.NetworkInfoCubit(gh<_i8.Connectivity>()));
     gh.lazySingleton<_i9.PageCubit>(() => _i9.PageCubit());
     gh.singleton<_i10.SecureStorage>(() => const _i10.SecureStorage());
-    gh.lazySingleton<_i11.WepinCubit>(() => _i11.WepinCubit());
+    gh.lazySingleton<_i11.WepinCubit>(
+        () => _i11.WepinCubit(gh<_i10.SecureStorage>()));
     gh.lazySingleton<_i12.AuthLocalDataSource>(
         () => _i12.AuthLocalDataSource(gh<_i10.SecureStorage>()));
     await gh.singletonAsync<_i13.Network>(

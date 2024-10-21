@@ -13,7 +13,7 @@ NftCommunityMemberResponseDto _$NftCommunityMemberResponseDtoFromJson(
           ?.map(
               (e) => NftCommunityMemberDto.fromJson(e as Map<String, dynamic>))
           .toList(),
-      nftMemberCount: json['nftMemberCount'] as int,
+      nftMemberCount: (json['nftMemberCount'] as num).toInt(),
     );
 
 Map<String, dynamic> _$NftCommunityMemberResponseDtoToJson(
@@ -26,9 +26,9 @@ Map<String, dynamic> _$NftCommunityMemberResponseDtoToJson(
 NftCommunityMemberDto _$NftCommunityMemberDtoFromJson(
         Map<String, dynamic> json) =>
     NftCommunityMemberDto(
-      totalPoints: json['totalPoints'] as int?,
-      pointFluctuation: json['pointFluctuation'] as int?,
-      memberRank: json['memberRank'] as int?,
+      totalPoints: (json['totalPoints'] as num?)?.toInt(),
+      pointFluctuation: (json['pointFluctuation'] as num?)?.toInt(),
+      memberRank: (json['memberRank'] as num?)?.toInt(),
       name: json['name'] as String?,
       userId: json['userId'] as String?,
       introduction: json['introduction'] as String?,

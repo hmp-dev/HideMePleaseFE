@@ -107,12 +107,13 @@ class AuthRepositoryImpl implements AuthRepository {
         idToken: googleAuth.idToken,
       );
 
+      ("hellohmp the Google Access Toke is: ${googleAuth.accessToken}").log();
+      ("hellohmp the Google idToken Token is: ${googleAuth.idToken}").log();
+
       // save Social Login Type
       _localDataSource
           .setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
 
-      //== to save access Token to be used for wepin login
-      ("the Google Access Toke is: ${googleAuth.accessToken}").log();
       // save id token in secure Storage
       _localDataSource.setGoogleAccessToken(googleAuth.accessToken ?? "");
       //===

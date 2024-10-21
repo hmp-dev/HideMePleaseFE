@@ -11,7 +11,7 @@ RecommendationSpaceDto _$RecommendationSpaceDtoFromJson(
     RecommendationSpaceDto(
       spaceId: json['spaceId'] as String?,
       spaceName: json['spaceName'] as String?,
-      users: json['users'] as int?,
+      users: (json['users'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$RecommendationSpaceDtoToJson(

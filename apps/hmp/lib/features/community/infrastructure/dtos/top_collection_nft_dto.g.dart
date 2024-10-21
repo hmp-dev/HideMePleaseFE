@@ -8,15 +8,15 @@ part of 'top_collection_nft_dto.dart';
 
 TopCollectionNftDto _$TopCollectionNftDtoFromJson(Map<String, dynamic> json) =>
     TopCollectionNftDto(
-      pointFluctuation: json['pointFluctuation'] as int?,
-      totalPoints: json['totalPoints'] as int?,
-      totalMembers: json['totalMembers'] as int?,
+      pointFluctuation: (json['pointFluctuation'] as num?)?.toInt(),
+      totalPoints: (json['totalPoints'] as num?)?.toInt(),
+      totalMembers: (json['totalMembers'] as num?)?.toInt(),
       tokenAddress: json['tokenAddress'] as String?,
       collectionLogo: json['collectionLogo'] as String?,
       name: json['name'] as String?,
       chain: json['chain'] as String?,
       ownedCollection: json['ownedCollection'] as bool?,
-      communityRank: json['communityRank'] as int?,
+      communityRank: (json['communityRank'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$TopCollectionNftDtoToJson(

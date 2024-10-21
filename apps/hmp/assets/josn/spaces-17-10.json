@@ -1,0 +1,506 @@
+[
+    {
+        "id": "346fc960-e359-421d-8a56-b2a58d44ddfa",
+        "name": "HIDE ME PLEASE CAFE at HongJe",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/58ee5924-1580-4a50-878f-c4d355db7d5e.jpg",
+        "category": "CAFE",
+        "benefitDescription": "커피나 음료 한잔 20% 할인, 20% off with any coffee or drink order",
+        "hot": true,
+        "hotPoints": 16
+    },
+    {
+        "id": "139d94e8-fcd0-430a-804a-5207d4b76ad5",
+        "name": "Javeed ETC",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/49aa02aa-8c8e-49f1-adcc-db49e490c057.jpg",
+        "category": "ETC",
+        "hidingCount": 1,
+        "hot": false
+    },
+    {
+        "id": "b8509611-2f29-455f-bc08-cd85a18539fc",
+        "name": "프로메나드",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/404c6451-14e7-4cb7-aefd-40b252bf7fdd.jpeg",
+        "category": "CAFE",
+        "benefitDescription": "메뉴 주문시 웰컴디저트 제공",
+        "hot": false
+    },
+    {
+        "id": "5a1ff56d-9519-4e3a-b2bd-2da15cc817eb",
+        "name": "스페이스결 (SpaceKYOUL) - Korean Restaurant",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/21945335-3c41-43e9-9494-c9c521013d57.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "디너 메뉴 20% 할인 (음료제외), 20% off dinner menu (excluding drinks)",
+        "hot": false
+    },
+    {
+        "id": "4c1afbc2-d61f-4c10-9742-3c14cec4cfdf",
+        "name": "안짱 (ANZZANG) - Izakaya",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/6899c707-82bd-4628-9dc5-a2bd18eeccc0.png",
+        "category": "PUB",
+        "benefitDescription": "5만원 이상 결제시 낫또와냉두부 혹은 아이스망고 제공, Spend over 50,000 won and receive a complimentary Natto with chilled tofu or iced mango",
+        "hot": false
+    },
+    {
+        "id": "8a9add53-ff31-4f27-a2e0-ecf7e84681d7",
+        "name": "올도우베이커리 (ALLDOUGH-BAKERY)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/126640fc-adff-4dd8-b9ef-bc340b203538.jpeg",
+        "category": "CAFE",
+        "benefitDescription": "2만원 이상 구매시 쿠키 한개 제공, Receive a cookie with any purchase over 20,000 KRW",
+        "hot": false
+    },
+    {
+        "id": "4e8ad3b7-cda4-4544-b2ec-45757b15a2db",
+        "name": "금야포차 (Geumya Pocha) - Korean Style Bar",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/9d804cc5-a2c0-43fc-ae26-10bcfb5ef399.jpg",
+        "category": "PUB",
+        "benefitDescription": "전체 금액의 20% 할인, 20% off the total amount",
+        "hot": false
+    },
+    {
+        "id": "645fbfbc-a4eb-4ed3-91ec-cc9838e0f17a",
+        "name": "네츠라멘 (Netsu Ramen)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/efffd8b9-7540-4a8d-9ba2-40ce5f95629e.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "메인메뉴 주문시 튀김교자 or 미니가라아게 제공, (With any main menu order) Choose between Fried Gyoza or Mini Karaage",
+        "hot": false
+    },
+    {
+        "id": "8a8764e4-dc95-4cf0-a6ef-a696812b47ef",
+        "name": "이자카야 날로",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/26cf0e31-f39b-42a5-87f3-e03ae905d687.jpeg",
+        "category": "PUB",
+        "benefitDescription": "사이드 메뉴 중 1개 무료 제공, One complimentary side dish provided",
+        "hot": false
+    },
+    {
+        "id": "d6b3d97d-f0f9-4a80-812e-177d389d9f77",
+        "name": "주땅 (JUDDANG) - Korean Pub",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/0f63f766-9812-4a51-87c4-760d08b1e311.jpg",
+        "category": "PUB",
+        "benefitDescription": "(메인메뉴 주문시) 감자튀김 무료 제공, Free fries with any main course order",
+        "hot": false
+    },
+    {
+        "id": "6f73dc19-9327-4d57-8146-e680b3fc267e",
+        "name": "에헤야서울 (Ayheya Seoul)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/bc62e907-c580-440a-9b0a-db1952819357.jpg",
+        "category": "CAFE",
+        "benefitDescription": "매일 한잔의 커피나 티 40% 할인, 40% off one coffee or tea every day",
+        "hot": false
+    },
+    {
+        "id": "ba7542ed-5f66-41fe-9edc-ff108be2b397",
+        "name": "오드하우스 (ODD HOUSE)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/6a50ee85-2d5a-46ed-b4d2-b4769d43cef6.jpg",
+        "category": "MEAL",
+        "benefitDescription": "와인 1 Bottle 무료 제공, One complimentary bottle of wine",
+        "hot": false
+    },
+    {
+        "id": "6d110682-a2f6-4981-a47c-76b888abdd72",
+        "name": "옹기 (Onggi) - Wine Bar",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/4425b592-f973-4b49-b3fa-dc3a3f490d62.jpg",
+        "category": "PUB",
+        "benefitDescription": "웰컴와인 한잔 제공, One complimentary welcome wine",
+        "hot": false
+    },
+    {
+        "id": "a84175e8-118a-4eb4-95aa-3a28bd8bd6e6",
+        "name": "스페이스오 (SPACE O) - Korean Restaurant",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/c34b842b-2af1-4c0f-99dc-2b04c1921918.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "디너 메뉴 20% 할인 (음료제외), 20% off dinner menu (excluding drinks)",
+        "hot": false
+    },
+    {
+        "id": "aa490f44-e6af-45e1-8908-5b6a76386c28",
+        "name": "HIDE ME PLEASE CAFE at Euljiro",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/d30b89b2-5be8-4974-b166-b181e8146955.jpg",
+        "category": "CAFE",
+        "benefitDescription": "커피나 음료 한잔 20% 할인, 20% off with any coffee or drink order",
+        "hidingCount": 2,
+        "hot": false
+    },
+    {
+        "id": "4c084ba4-1746-4d8e-a2c1-598168b3b92e",
+        "name": "영동호프",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/cf80f2e1-e551-476a-ba27-83f524c1390c.jpeg",
+        "category": "PUB",
+        "benefitDescription": "메인메뉴 주문시, 사이드 메뉴 1개 무료 제공",
+        "hot": false
+    },
+    {
+        "id": "c86dbbfa-855f-40b7-84f5-c37e4885e2d7",
+        "name": "라쏘 바이 라즈무 (Lazo by Lazmoo) - Bar",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/3d703083-1a7d-46af-8eef-0a991b638a36.jpeg",
+        "category": "PUB",
+        "benefitDescription": "웰컴 칵테일 한잔 무료 제공, One complimentary welcome cocktail",
+        "hot": false
+    },
+    {
+        "id": "bbfde7cd-8733-4dc1-b4ff-56fd29de5800",
+        "name": "위안 (Wian) - Korean Style Bar",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/0cda3b2d-5f21-4d5f-8076-88c467f04c1b.jpeg",
+        "category": "PUB",
+        "benefitDescription": "테이블 금액 20% 할인, 20% off the total order amount",
+        "hot": false
+    },
+    {
+        "id": "298ab753-7925-4731-90ba-99c3b9ffdfba",
+        "name": "서울맥 (SEOUL MAC) - Burger",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/7c4a1eb1-f80f-4a51-a8d9-4a080c5cb64e.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "결제금액의 10% 할인, 10% off the total bill",
+        "hot": false
+    },
+    {
+        "id": "4cc53b5b-d599-43f8-8cda-a399aadd957d",
+        "name": "바 아지트 (BAR-AZIT) - Bar",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/15f51d2a-900e-42ae-b6b5-5768f82d716b.jpeg",
+        "category": "PUB",
+        "benefitDescription": "1메뉴 이상 주문시 10,000원 할인, 10,000 KRW off with the purchase of one or more menu items",
+        "hot": false
+    },
+    {
+        "id": "1fc0eb05-f33f-48e1-b2dd-39cb3df020a0",
+        "name": "빈터커피바 (Coffee Bar)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/67b36c05-e650-49df-955c-28cf1dc02aa0.jpg",
+        "category": "CAFE",
+        "benefitDescription": "전체 금액 10% 할인, 10% off the total amount",
+        "hot": false
+    },
+    {
+        "id": "6916f746-bb03-4a63-b861-331616f98a14",
+        "name": "션즈피자 (Shawn's Pizza)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/e3a9a894-dfd8-4ce7-9608-2423d174636b.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "테이블 금액의 20% 할인(음료제외), 20% off the table total (excluding drinks)",
+        "hot": false
+    },
+    {
+        "id": "758c7d21-72ee-4a1a-84d9-2f65cc884368",
+        "name": "블루밍 재즈바 (Jazz Bar)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/37cf1b02-e9d3-4042-bf48-93945f4f7f7f.jpg",
+        "category": "MUSIC",
+        "benefitDescription": "웰컴칵테일과 간식 무료 제공, Complimentary welcome cocktail and snacks",
+        "hot": false
+    },
+    {
+        "id": "a9cbd98e-462d-4a41-99a1-d8c15c803e9f",
+        "name": "도스트 (DOUST) - Cookies",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/e9ff236b-1c66-4e9b-a053-d66b2b35e84d.jpeg",
+        "category": "CAFE",
+        "benefitDescription": "전체 금액의 20% 할인, 20% off the total amount",
+        "hot": false
+    },
+    {
+        "id": "626da970-e62f-4dfd-bff6-76f2ed9a1fe0",
+        "name": "페이지스 (Music Bar)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/b875bf74-d663-4679-8bc8-24702b2e61f9.jpeg",
+        "category": "MUSIC",
+        "benefitDescription": "웰컴 드링크(진토닉) 1잔 + 디저트(케익) 무료 제공, One complimentary welcome drink (Gin and Tonic) + free dessert (cake)",
+        "hot": false
+    },
+    {
+        "id": "b56f867b-9381-4c64-a10b-9eb019caea9f",
+        "name": "북앤레스트 (Book Cafe)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/0f7b2fe0-a3f1-4fa4-8bcf-34902e83a7f5.jpeg",
+        "category": "CAFE",
+        "benefitDescription": "모든 음료 10% 할인, All beverages 10% off",
+        "hot": false
+    },
+    {
+        "id": "8041f9c7-626f-4337-b467-865ad96c0827",
+        "name": "이화옥 (EWHA-OK) - Korean BBQ",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/e182739e-a9d5-4109-87c5-f9d019ad5d2e.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "테이블 당 된장찌개 하나 무료 제공, One complimentary 'doenjang jjigae' per table",
+        "hot": false
+    },
+    {
+        "id": "1bda4842-9527-4262-ae1d-9147bb70ea56",
+        "name": "뮤직아날로그 (Music Pub)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/d11e9e18-3a13-43ed-906d-7531c9e23cc4.jpeg",
+        "category": "MUSIC",
+        "benefitDescription": "5만원 이상 주문시 나쵸 제공 (26,000원 상당), Free nachos with orders over 50,000 KRW",
+        "hot": false
+    },
+    {
+        "id": "f130ee45-aed1-4789-aaf5-b40c9e7caa53",
+        "name": "오스테리아 현 (Osteria HYUN) - Italian Restaurant",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/e0e0e28a-3f44-47e5-ae03-ca59376a4289.png",
+        "category": "WALKERHILL",
+        "benefitDescription": "하우스와인 1인 1잔 제공, One glass of house wine per person provided",
+        "hot": false
+    },
+    {
+        "id": "0b13a448-a5ea-489f-a8d3-9851a660b484",
+        "name": "레빗홀 버거 (Rabbit hole Burger)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/3462971c-c431-4f7d-9fa9-b24d40e840f2.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "1인 1음료 제공, One drink per person provided",
+        "hot": false
+    },
+    {
+        "id": "6d382663-f5ce-424c-ba3f-747354d7ff89",
+        "name": "뚝방길 홍차가게 (Tea House TTUKBANG)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/b489c20a-8150-4db2-b14f-153309406eba.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "전체 금액의 20% 할인 (애프터눈티세트는 10%할인 - 단, 예약 필수), 20% off the total bill (10% off the afternoon tea set - reservation required)",
+        "hot": false
+    },
+    {
+        "id": "0732b98d-559c-4d71-936b-f97b4a8cc2ef",
+        "name": "이이요 (IIYO) - Japaness Restaurant",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/d020b76e-bf71-4bc8-b6f2-234357aac717.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "1인 1 고로케 제공, One croquette per person provided",
+        "hot": false
+    },
+    {
+        "id": "b3b12f44-182f-4776-bb20-03dc415cab4a",
+        "name": "데판야끼 한 (Teppanyaki Han)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/0bafd627-656b-403f-adc0-0b56a1b5a39e.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "5만원 이상 주문시, 하이볼 1잔과 만두 제공 (15000원 상당), With orders over 50,000 KRW, receive one highball and a serving of dumplings (worth 15,000 KRW)",
+        "hot": false
+    },
+    {
+        "id": "f2a890ac-0511-4611-a1e8-f56b75620540",
+        "name": "플록 (FLOC) - French Bistro",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/1d0c1877-2a7b-4545-9cec-2df49b3da42c.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "2인당 1 어니언슾 제공, One onion soup provided for every two people",
+        "hot": false
+    },
+    {
+        "id": "9b3c3aeb-b335-441b-8f0f-6eaf594a9f9b",
+        "name": "고공 (GOGONG) - Korean BBQ",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/5663dc2b-4f5c-435f-bcbc-6fd3234c4915.png",
+        "category": "WALKERHILL",
+        "benefitDescription": "2인당 찌개 1개(2-3인용) 제공, One stew (serving 2-3 people) provided for every two people",
+        "hot": false
+    },
+    {
+        "id": "d215062f-101d-4715-b655-949dade23928",
+        "name": "아쿠슈 (Akushu) - Izakaya",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/a418209e-2ab1-4bcd-8542-833a3ee65d9f.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "테이블 당 통감자구이 or 계란말이구이 중 1개 제공, One whole roasted potato or rolled omelette provided per table",
+        "hot": false
+    },
+    {
+        "id": "4de231ae-bf03-447e-a75d-36670186e1a2",
+        "name": "디도재즈라운지 (DIDO JAZZ LOUNGE)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/650f6cf3-4a1a-475a-a596-861d2ff2b334.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "입장료(1인당 11,000원) 무료, Free admission (11,000 KRW per person)",
+        "hot": false
+    },
+    {
+        "id": "45c191f1-4c7f-4092-97d6-d6c10d5ec379",
+        "name": "핀커피 (Pin Coffee)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/c80d1def-b075-41c8-be57-7703fdddcdcc.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "전 메뉴 10% 할인, 10% off all menu items",
+        "hot": false
+    },
+    {
+        "id": "3a48fdf8-7ce8-4949-a99b-31ded4845d97",
+        "name": "수작나베 (Sujak Nabe)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/a4778072-cfa3-4c08-a4a8-0bf98a6d2386.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "(테이블당) 소고기120g 추가 제공, 120g of additional beef provided per table",
+        "hot": false
+    },
+    {
+        "id": "94587f29-43c8-4951-9496-58022dfecb89",
+        "name": "오늘 (OH-NEUL) - Gastropub",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/75e6cae1-fa74-4738-b329-018cc298aee1.png",
+        "category": "WALKERHILL",
+        "benefitDescription": "테이블마다 리코타샐러드 무료 제공, Complimentary ricotta salad provided at each table",
+        "hot": false
+    },
+    {
+        "id": "0471baa1-e2ff-4c36-99c0-2ae25c29dfd5",
+        "name": "광오지마을 (Gwangoji Maeul) - K-BBQ",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/ef9c8ee7-c96b-4da2-af43-0651be1d77eb.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "(테이블 당) 김치말이국수 제공, Kimchi noodles provided per table",
+        "hot": false
+    },
+    {
+        "id": "0da1e8ec-c634-4c4b-a15c-c411741b1863",
+        "name": "범가 (BEOMGA) - Chiness Restaurant",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/9f03b242-875f-485e-9eaa-197d01f13bb5.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "전체 금액의 10%할인, 10% off the total bill",
+        "hot": false
+    },
+    {
+        "id": "a2e8b6aa-aae8-4a9e-8270-1b11059119d0",
+        "name": "소소쿠키빌 (Soso Cookie Ville)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/72c8b344-c4c5-409f-b551-01f10f82736f.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "결제 금액의 10% 할인, 10% off the total bill",
+        "hot": false
+    },
+    {
+        "id": "0df5af39-f331-42c3-ba9c-51b1238decc2",
+        "name": "도깨비전집 (Dokkaebi Jeon-jip) - Korean Pub",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/810ce8a2-4388-48fa-9e3b-a7f47e1346db.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "결제 금액의 10% 할인 혹은 김치전 서비스 중 택1, Choose either 10% off the total bill or a complimentary kimchi pancake",
+        "hot": false
+    },
+    {
+        "id": "87caced6-46bb-4f79-a8fa-ba7477452918",
+        "name": "스시토푸 (SUSHI TOP)",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/ea191ed7-237e-456f-8536-eaa16ea952c3.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "결제금액 5% 할인 / (10만원 이상) 10% 할인, 5% off the total bill / 10% off on orders over 100,000 KRW",
+        "hot": false
+    },
+    {
+        "id": "32209573-5d52-40ae-a14b-57288543c52d",
+        "name": "갈비살데이 (Galbi-sal Day) - K-BBQ",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/abb5268f-6f31-4921-8b53-e49693f155cd.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "결제금액 5% 할인 (세트메뉴 주문시에도 중복 할인 가능), 5% off the total bill (can be combined with set menu orders)",
+        "hot": false
+    },
+    {
+        "id": "fd6b03b6-2713-4895-b16b-54b9af551ba1",
+        "name": "램스야 (Lamb's Ya) - Lamb Grill Restaurant",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/0f9ef131-6273-4645-aa8e-9144e77ce62f.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "결제 금액 5% 할인, 5% off the total bill",
+        "hot": false
+    },
+    {
+        "id": "00139fec-c84e-4864-99f0-d1dd40cac3a0",
+        "name": "워커힐 호텔 & 리조트",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/d665cc82-e81b-4471-8248-38c22e1b69bb.jpeg",
+        "category": "WALKERHILL",
+        "hot": false
+    },
+    {
+        "id": "f2e38b02-28ea-4bf2-b564-8943283f2ebd",
+        "name": "괴르츠 (Görtz) - Cafe",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/32290492-1491-45de-82e6-8b1815b17a2f.jpeg",
+        "category": "WALKERHILL",
+        "benefitDescription": "결제금액 10% 할인, 10% off the total bill",
+        "hot": false
+    },
+    {
+        "id": "910a37a7-80bb-47a9-bcb2-15d6cc783bdf",
+        "name": "아쿠슈 별내점 (Akushu) - Izakaya",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/9044888e-24ee-40c4-a294-e12595280244.jpeg",
+        "category": "PUB",
+        "benefitDescription": "테이블 당 통감자구이 or 계란말이구이 중 1개 제공, One whole roasted potato or rolled omelette provided per table",
+        "hot": false
+    },
+    {
+        "id": "e451ca7f-0bb1-4d66-9a7e-7d691be49dc1",
+        "name": "트리츠 (TREATS) - Vape Juice",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/8356eb9a-046f-4995-9566-9f2f772e0337.jpg",
+        "category": "ETC",
+        "benefitDescription": "첫 방문 시 웰컴 액상(30ml) 제공, 자사제품 주문건의 20% 할인",
+        "hot": false
+    },
+    {
+        "id": "eb131dce-9d8d-4d15-8450-74ce9a5223f1",
+        "name": "어반컨트리클럽 다산 (Urban CC Dasan) - Screen Golf and Restaurant",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/c539fd41-c7a3-45a5-8230-1e1eaf550517.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "동반객 포함 1인당 맥주 1캔 무료 제공(~8월 限), 하우스 샹그리아 1병 무료 제공(식사 주문 필수), 스포츠클럽 2시간 무료 이용권(평일 한정) - 3가지 혜택 중복 사용 가능",
+        "hot": false
+    },
+    {
+        "id": "391c247c-1c13-437d-bbf8-c10c300a3acb",
+        "name": "카페 보다",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/c577d357-808a-4e72-b5b5-3905bfd98c4f.png",
+        "category": "CAFE",
+        "benefitDescription": "베이커리 20% 할인, 20% off on bakery items",
+        "hot": false
+    },
+    {
+        "id": "872ff122-fed3-4a91-a1fa-0f5c55fa7fc4",
+        "name": "화명옥",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/7f80ca07-e592-49d7-b91e-545514170388.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "주문 금액의 10% 할인, 10% off your total order",
+        "hot": false
+    },
+    {
+        "id": "01c3a70a-f8bc-4300-935d-77abdb3a33b0",
+        "name": "1969부원동칼국수",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/015f96c1-7ee8-42fd-9fb6-16f6d03b6c6b.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "전체 금액의 10% 할인, Receive a 10% discount on the total bill",
+        "hot": false
+    },
+    {
+        "id": "312d5124-c593-440c-abab-49386c4c74bf",
+        "name": "양아치",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/09bf6e30-f55a-4eed-9639-5e88526ec11a.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "양꼬치 외 메인메뉴 중 1개 제공, One main dish of your choice provided, excluding lamb skewers",
+        "hot": false
+    },
+    {
+        "id": "0346df6a-ab7f-490c-a64e-b72c0a7a88bd",
+        "name": "리파인",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/fbc1bd60-cdfe-4215-a004-d1b979e81364.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "전통주 1병 이용시, 5~6가지 주류 시음서비스, Order one bottle of traditional liquor and enjoy a tasting of 5-6 different drinks",
+        "hot": false
+    },
+    {
+        "id": "e9fb10cf-1a35-44a8-a339-928db59ff746",
+        "name": "부산 시청역",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/8adb2d92-963a-4a14-90b4-2175b61f6ad5.jpeg",
+        "category": "ETC",
+        "hot": false
+    },
+    {
+        "id": "87c80a88-628c-404f-b72c-48df7015ebb4",
+        "name": "마이페이보릿보틀",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/08591396-2097-4b69-9610-537ac18f1c38.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "5만원 이상 주문시, 제철과일과 루꼴라샐러드 제공",
+        "hot": false
+    },
+    {
+        "id": "454b8f8b-a7e7-46aa-b8dd-7f2b7be35408",
+        "name": "디에이블",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/cde06ae6-ccf7-4577-8c54-3a7d1303b3f7.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "파스타 메뉴 1개에 한하여 20% 할인, 20% off on pasta dishes",
+        "hot": false
+    },
+    {
+        "id": "4456a334-ecb5-4543-82d1-18c29acf0fa3",
+        "name": "비스트로 호텔엠비언스",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/98f6a011-2e28-4a78-b3f8-5038f303d824.jpeg",
+        "category": "MEAL",
+        "benefitDescription": "웰컴 케익 제공, Complimentary welcome cake provided",
+        "hot": false
+    },
+    {
+        "id": "2a2454de-6b1f-4d83-8e26-3184de2109a3",
+        "name": "마가진",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/6492f163-e416-4d90-927e-6cc5405b1529.jpeg",
+        "category": "CAFE",
+        "benefitDescription": "전체 금액의 10% 할인, 10% off the total amount",
+        "hot": false
+    },
+    {
+        "id": "14e0c179-3c47-4593-bf7a-a765ac1d56c4",
+        "name": "Southern Brews",
+        "image": "https://hidemeplease-2024.s3.ap-northeast-2.amazonaws.com/40ab8fac-0729-472a-bf89-02efe44e89bd.webp",
+        "category": "CAFE",
+        "benefitDescription": "전체 금액의 30% 할인, 30% off the total amount",
+        "hot": false
+    }
+]

@@ -11,7 +11,7 @@ NftUsageHistoryDto _$NftUsageHistoryDtoFromJson(Map<String, dynamic> json) =>
       items: (json['items'] as List<dynamic>?)
           ?.map((e) => UsageHistoryItem.fromJson(e as Map<String, dynamic>))
           .toList(),
-      count: json['count'] as int?,
+      count: (json['count'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$NftUsageHistoryDtoToJson(NftUsageHistoryDto instance) =>
@@ -23,7 +23,7 @@ Map<String, dynamic> _$NftUsageHistoryDtoToJson(NftUsageHistoryDto instance) =>
 UsageHistoryItem _$UsageHistoryItemFromJson(Map<String, dynamic> json) =>
     UsageHistoryItem(
       id: json['id'] as String?,
-      pointsEarned: json['pointsEarned'] as int?,
+      pointsEarned: (json['pointsEarned'] as num?)?.toInt(),
       createdAt: json['createdAt'] as String?,
       spaceName: json['spaceName'] as String?,
       benefitDescription: json['benefitDescription'] as String?,

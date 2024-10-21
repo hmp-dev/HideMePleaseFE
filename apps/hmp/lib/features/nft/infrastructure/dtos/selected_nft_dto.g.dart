@@ -9,17 +9,17 @@ part of 'selected_nft_dto.dart';
 SelectedNFTDto _$SelectedNFTDtoFromJson(Map<String, dynamic> json) =>
     SelectedNFTDto(
       id: json['id'] as String?,
-      order: json['order'] as int?,
+      order: (json['order'] as num?)?.toInt(),
       name: json['name'] as String?,
       tokenAddress: json['tokenAddress'] as String?,
       symbol: json['symbol'] as String?,
       chain: json['chain'] as String?,
       imageUrl: json['imageUrl'] as String?,
       videoUrl: json['videoUrl'] as String?,
-      totalPoints: json['totalPoints'] as int?,
-      communityRank: json['communityRank'] as int?,
-      totalMembers: json['totalMembers'] as int?,
-      pointFluctuation: json['pointFluctuation'] as int?,
+      totalPoints: (json['totalPoints'] as num?)?.toInt(),
+      communityRank: (json['communityRank'] as num?)?.toInt(),
+      totalMembers: (json['totalMembers'] as num?)?.toInt(),
+      pointFluctuation: (json['pointFluctuation'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SelectedNFTDtoToJson(SelectedNFTDto instance) =>
