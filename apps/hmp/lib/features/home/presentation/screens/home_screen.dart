@@ -355,6 +355,10 @@ class _HomeScreenState extends State<HomeScreen> {
         // appleIdToken: appleIdToken,
         // selectedLanguage: context.locale.languageCode,
         onConnectWallet: () async {
+          getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
+          //
+          await Future.delayed(const Duration(milliseconds: 100));
+          //
           getIt<WalletsCubit>().onConnectWallet(
               context: context, isFromWePinWelcomeNftRedeem: true);
         },

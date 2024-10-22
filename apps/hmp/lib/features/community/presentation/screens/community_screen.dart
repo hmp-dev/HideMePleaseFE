@@ -9,6 +9,7 @@ import 'package:mobile/features/community/presentation/views/community_view.dart
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/features/wepin/wepin_wallet_connect_list_tile.dart';
 
 class CommunityScreen extends StatefulWidget {
@@ -55,9 +56,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       CommunityChatScreen.push(context,
                           channel: community.tokenAddress);
                     },
-                    onConnectWallet: () {
+                    onConnectWallet: () async {
                       if (getIt<WalletsCubit>().state.reownAppKitModal !=
                           null) {
+                        getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
+                        //
+                        await Future.delayed(const Duration(milliseconds: 100));
+                        //
                         getIt<WalletsCubit>().onConnectWallet(
                             context: context, isFromWePinWalletConnect: true);
                       }

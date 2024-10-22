@@ -544,6 +544,12 @@ class NftCubit extends BaseCubit<NftState> {
     );
   }
 
+  onUpdateIsWelcomeNFTConsumedStatus(bool status) {
+    emit(state.copyWith(
+      isWelcomeNftConsumed: status,
+    ));
+  }
+
   /// Calls the [NftRepository.getConsumeUserWelcomeNft] method to consume the user's welcome NFT.
   ///
   /// This method performs the following actions:
@@ -567,8 +573,6 @@ class NftCubit extends BaseCubit<NftState> {
 
     // Dismiss loading indicator
     EasyLoading.dismiss();
-    EasyLoading.dismiss();
-    EasyLoading.dismiss();
 
     // Handle response from the repository call
     response.fold(
@@ -581,15 +585,8 @@ class NftCubit extends BaseCubit<NftState> {
         // Update state with failure status and error message
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
+          errorMessage: err.message,
         ));
-
-        // Show error snackbar
-        snackbarService.showSnackbar(
-          title: "Error",
-          message: err.message,
-          duration: const Duration(seconds: 5),
-        );
       },
       // If the repository call succeeds, update state and show success message
       (_) async {

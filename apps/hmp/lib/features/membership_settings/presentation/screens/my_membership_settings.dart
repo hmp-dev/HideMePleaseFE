@@ -51,6 +51,7 @@ class _MyMembershipSettingsScreenState
   bool _isShowToolTip = false;
   bool _isLoadingMore = false;
   final ScrollController _scrollController = ScrollController();
+  bool _isWepinModelOpen = false;
 
   @override
   void initState() {
@@ -153,8 +154,15 @@ class _MyMembershipSettingsScreenState
                   // automatically register
                   if (state.wepinLifeCycleStatus ==
                       WepinLifeCycle.loginBeforeRegister) {
+                    EasyLoading.dismiss();
                     // Now loader will be shown by
-                    getIt<WepinCubit>().registerToWepin(context);
+                    if (!_isWepinModelOpen) {
+                      getIt<WepinCubit>().registerToWepin(context);
+
+                      setState(() {
+                        _isWepinModelOpen = true;
+                      });
+                    }
                   }
 
                   // 1- Listen Wepin Status if it is login

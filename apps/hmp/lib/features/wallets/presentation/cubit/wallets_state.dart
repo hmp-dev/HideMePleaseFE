@@ -15,6 +15,11 @@ class WalletsState extends BaseState {
   /// The error message.
   final bool isEventViewActive;
 
+  /// Tapped Wallet Name
+  final String tappedWalletName;
+
+  final bool isWelcomeNftRedeemInProcess;
+
   /// The error message.
   final String errorMessage;
 
@@ -28,6 +33,8 @@ class WalletsState extends BaseState {
     required this.connectedWallets,
     this.submitStatus = RequestStatus.initial,
     this.isEventViewActive = false,
+    required this.tappedWalletName,
+    required this.isWelcomeNftRedeemInProcess,
     required this.errorMessage,
   });
 
@@ -37,6 +44,8 @@ class WalletsState extends BaseState {
         connectedWallets: [],
         submitStatus: RequestStatus.initial,
         isEventViewActive: false,
+        tappedWalletName: "",
+        isWelcomeNftRedeemInProcess: false,
         errorMessage: "",
       );
 
@@ -59,6 +68,8 @@ class WalletsState extends BaseState {
         connectedWallets,
         submitStatus,
         isEventViewActive,
+        tappedWalletName,
+        isWelcomeNftRedeemInProcess,
         errorMessage,
       ];
 
@@ -72,6 +83,8 @@ class WalletsState extends BaseState {
     List<ConnectedWalletEntity>? connectedWallets,
     RequestStatus? submitStatus,
     bool? isProfileIncomplete,
+    String? tappedWalletName,
+    bool? isWelcomeNftRedeemInProcess,
     bool? isEventViewActive,
     String? errorMessage,
   }) {
@@ -80,6 +93,9 @@ class WalletsState extends BaseState {
       connectedWallets: connectedWallets ?? this.connectedWallets,
       submitStatus: submitStatus ?? this.submitStatus,
       isEventViewActive: isEventViewActive ?? this.isEventViewActive,
+      tappedWalletName: tappedWalletName ?? this.tappedWalletName,
+      isWelcomeNftRedeemInProcess:
+          isWelcomeNftRedeemInProcess ?? this.isWelcomeNftRedeemInProcess,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

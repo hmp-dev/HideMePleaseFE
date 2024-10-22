@@ -70,7 +70,11 @@ class ConnectedWalletsWidget extends StatelessWidget {
                       // tapping on this connect
 
                       PlusIconRoundButton(
-                        onTap: () {
+                        onTap: () async {
+                          //
+                          await Future.delayed(
+                              const Duration(milliseconds: 100));
+                          //
                           getIt<WalletsCubit>().onConnectWallet(
                               context: context, isFromWePinWalletConnect: true);
                         },

@@ -5,4 +5,5 @@ enum WalletProvider {
   KLIP,
   PHANTOM,
   WALLET_CONNECT,
+  WEPIN,
 }

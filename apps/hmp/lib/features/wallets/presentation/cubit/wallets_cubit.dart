@@ -10,6 +10,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/constants/wallet_connects_constants.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
+import 'package:mobile/app/core/enum/wallet_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -39,6 +40,7 @@ final kSolanaAppId = AppIdentity(
 @lazySingleton
 class WalletsCubit extends BaseCubit<WalletsState> {
   final WalletsRepository _walletsRepository;
+
   ReownAppKitModal? _reownAppKitModel;
   SolanaWalletProvider? _solanaWallet;
 
@@ -74,6 +76,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
   Future<void> onPostWallet({
     required SaveWalletRequestDto saveWalletRequestDto,
   }) async {
+    onUpdateIsWelcomeNftRedeemInProcess(false);
     // disconnect W3MService
     onDisconnectW3MService();
 
@@ -241,11 +244,15 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     ('[$runtimeType] onModalDisconnect $args').log();
   }
 
-  onConnectWallet({
+  Future<void> onConnectWallet({
     required BuildContext context,
     bool isFromWePinWalletConnect = false,
     bool isFromWePinWelcomeNftRedeem = false,
+    bool onTapConnectWalletButton = false,
   }) async {
+    // reset the tapped wallet name
+    onUpdateTappedWalletName('');
+    onUpdateIsWelcomeNftRedeemInProcess(false);
     await _reownAppKitModel!.openModalView();
 
     if (_reownAppKitModel!.selectedWallet?.listing.id == 'phantom-custom') {
@@ -278,6 +285,9 @@ class WalletsCubit extends BaseCubit<WalletsState> {
           LocaleKeys.wepin_already_connected.tr(),
         );
       } else {
+        // Update the tapped wallet name
+        onUpdateTappedWalletName(WalletProvider.WEPIN.name);
+
         if (isFromWePinWalletConnect) {
           getIt<WepinCubit>().initWepinSDK(
               selectedLanguageCode: context.locale.languageCode,
@@ -285,7 +295,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
         }
 
         //
-        if (isFromWePinWelcomeNftRedeem) {
+        if (isFromWePinWelcomeNftRedeem && !isFromWePinWalletConnect) {
           getIt<WepinCubit>().initWepinSDK(
               selectedLanguageCode: context.locale.languageCode,
               isFromWePinWelcomeNftRedeem: true);
@@ -296,6 +306,14 @@ class WalletsCubit extends BaseCubit<WalletsState> {
 
   onCloseWalletConnectModel() async {
     _reownAppKitModel!.closeModal();
+  }
+
+  onUpdateTappedWalletName(String walletName) async {
+    emit(state.copyWith(tappedWalletName: walletName));
+  }
+
+  onUpdateIsWelcomeNftRedeemInProcess(bool value) async {
+    emit(state.copyWith(isWelcomeNftRedeemInProcess: value));
   }
 
   onConnectSolWallet(BuildContext context) async {

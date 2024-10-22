@@ -5,9 +5,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/social_login_type.dart';
+import 'package:mobile/app/core/enum/wallet_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
+import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
@@ -29,6 +31,7 @@ class WepinWalletConnectLisTile extends StatefulWidget {
   final bool isShowWelcomeNFTCard;
   final bool isShowCustomButton;
   final bool isPerformRedeemWelcomeNft;
+  final bool isShowWalletConnectModelButton;
 
   /// Creates a [WepinWalletConnectLisTile].
   ///
@@ -39,6 +42,7 @@ class WepinWalletConnectLisTile extends StatefulWidget {
     this.isShowWelcomeNFTCard = false,
     this.isPerformRedeemWelcomeNft = false,
     this.isShowCustomButton = false,
+    this.isShowWalletConnectModelButton = false,
   });
 
   @override
@@ -239,7 +243,9 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   @override
   void dispose() {
     super.dispose();
-    wepinSDK!.finalize();
+    if (wepinSDK != null) {
+      wepinSDK!.finalize();
+    }
     getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
   }
 
@@ -306,14 +312,20 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
           listener: (context, state) {
             // perform action to redeem free NFT only from Home ViewBefore
             // isShowWelcomeNFTCard is  true
-            if (state.isSubmitSuccess) {
+            if (state.isSubmitSuccess && !state.isWelcomeNftRedeemInProcess) {
+              getIt<WalletsCubit>().onUpdateIsWelcomeNftRedeemInProcess(true);
               // close Wallet Connect Model
               getIt<WalletsCubit>().onCloseWalletConnectModel();
+
               if (widget.isPerformRedeemWelcomeNft) {
                 if (getIt<WalletsCubit>().state.isWepinWalletConnected &&
                     getIt<NftCubit>().state.welcomeNftEntity.remainingCount >
                         0) {
+                  "inside call to onGetConsumeWelcomeNft".log();
+
                   getIt<NftCubit>().onGetConsumeWelcomeNft();
+
+                  //
                   context.showSnackBarBottom(
                     LocaleKeys.welcomeNftRedeemRequesting.tr(),
                   );
@@ -323,6 +335,10 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                   // Navigate to start up screen
                   Navigator.pushNamedAndRemoveUntil(
                       context, Routes.startUpScreen, (route) => false);
+                }
+
+                if (state.isFailure) {
+                  context.showErrorSnackBar(state.errorMessage);
                 }
               }
             }
@@ -370,41 +386,88 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                               },
                             ),
                           )
-                        : Container(
-                            margin: const EdgeInsets.only(
-                                left: 10, top: 10, right: 10),
-                            child: const Text("data")
+                        : BlocConsumer<WalletsCubit, WalletsState>(
+                            bloc: getIt<WalletsCubit>(),
+                            listener: (context, state) {},
+                            builder: (context, state) {
+                              "state.tappedWalletName: ${state.tappedWalletName}"
+                                  .log();
+                              return ElevatedButton(
+                                style: _elevatedButtonStyle(),
+                                onPressed: () async {
+                                  getIt<WepinCubit>()
+                                      .onResetWepinSDKFetchedWallets();
+                                  //
+                                  await Future.delayed(
+                                      const Duration(milliseconds: 100));
+                                  //
+                                  await getIt<WalletsCubit>().onConnectWallet(
+                                    context: context,
+                                    onTapConnectWalletButton: true,
+                                  );
 
-                            // WalletListItem(
-                            //   title: 'Wepin',
-                            //   onTap: () {
-                            //     if (getIt<WalletsCubit>()
-                            //         .state
-                            //         .isWepinWalletConnected) {
-                            //       getIt<WalletsCubit>()
-                            //           .onCloseWalletConnectModel();
+                                  // Wait for a brief moment to ensure state is updated
+                                  await Future.delayed(
+                                      const Duration(milliseconds: 100));
 
-                            //       context.showSnackBar(
-                            //         LocaleKeys.wepin_already_connected.tr(),
-                            //       );
-                            //     } else {
-                            //       initializeWepinSdk();
-                            //     }
-                            //   },
-                            //   imageUrl:
-                            //       'https://dev-admin.hidemeplease.xyz/assets/244989c6-90e3-428f-b2a7-0316174240c1',
-                            //   trailing: const Icon(
-                            //     Icons.arrow_forward_ios,
-                            //     size: 17,
-                            //     color: Color(0x4DFFFFFF),
-                            //   ),
-                            // ),
-                            )
+                                  // Re-fetch the state after the delay
+                                  final updatedState =
+                                      getIt<WalletsCubit>().state;
+
+                                  if (updatedState.tappedWalletName ==
+                                      WalletProvider.WEPIN.name) {
+                                    initializeWepinSdk();
+                                  }
+                                },
+                                child: Text(
+                                  LocaleKeys.walletConnection.tr(),
+                                  style: fontCompactMdMedium(color: white),
+                                ),
+
+                                // WalletListItem(
+                                //   title: 'Wepin',
+                                //   onTap: () {
+                                //     if (getIt<WalletsCubit>()
+                                //         .state
+                                //         .isWepinWalletConnected) {
+                                //       getIt<WalletsCubit>()
+                                //           .onCloseWalletConnectModel();
+
+                                //       context.showSnackBar(
+                                //         LocaleKeys.wepin_already_connected.tr(),
+                                //       );
+                                //     } else {
+                                //       initializeWepinSdk();
+                                //     }
+                                //   },
+                                //   imageUrl:
+                                //       'https://dev-admin.hidemeplease.xyz/assets/244989c6-90e3-428f-b2a7-0316174240c1',
+                                //   trailing: const Icon(
+                                //     Icons.arrow_forward_ios,
+                                //     size: 17,
+                                //     color: Color(0x4DFFFFFF),
+                                //   ),
+                                // ),
+                              );
+                            },
+                          )
               ],
             );
           },
         ),
       ),
+    );
+  }
+
+  ButtonStyle _elevatedButtonStyle() {
+    return ButtonStyle(
+      backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50.0),
+        ),
+      ),
+      overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
     );
   }
 

@@ -1,21 +1,16 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/error_codes.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
-import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/wepin_wallet_connect_list_tile.dart';
-import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 /// [HomeViewBeforeWalletConnect] is a stateless widget that displays
 /// the home view before the wallet is connected.
@@ -95,14 +90,16 @@ class _HomeViewBeforeWalletConnectState
               ),
               const SizedBox(height: 20),
               // Display the connect wallet button
-              ElevatedButton(
-                style: _elevatedButtonStyle(),
-                onPressed: widget.onConnectWallet,
-                child: Text(
-                  LocaleKeys.walletConnection.tr(),
-                  style: fontCompactMdMedium(color: white),
-                ),
-              ),
+              // ElevatedButton(
+              //   style: _elevatedButtonStyle(),
+              //   onPressed: widget.onConnectWallet,
+              //   child: Text(
+              //     LocaleKeys.walletConnection.tr(),
+              //     style: fontCompactMdMedium(color: white),
+              //   ),
+              // ),
+
+              const WepinWalletConnectLisTile(isPerformRedeemWelcomeNft: true),
               const SizedBox(height: 5),
               // FreeWelcomeNftCard(
               //   welcomeNftEntity: nftState.welcomeNftEntity,
@@ -125,35 +122,5 @@ class _HomeViewBeforeWalletConnectState
         },
       ),
     );
-  }
-
-  /// Returns the style for the elevated button.
-  ButtonStyle _elevatedButtonStyle() {
-    return ButtonStyle(
-      backgroundColor: MaterialStateProperty.all<Color>(bgNega4),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50.0),
-        ),
-      ),
-      overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
-    );
-  }
-
-  void logAccountDetails(WepinAccount account) {
-    "the Wallet account Address is ${account.address}".log();
-    "the Wallet account Network is ${account.network}".log();
-    "the Wallet account Contract is ${account.contract}".log();
-  }
-
-  showErrorAlertAndPerformLogout({required String errorMessage}) {
-    context.showErrorSnackBarDismissible(errorMessage);
-
-    getIt<AppCubit>().onLogOut();
-    // reset all cubits
-    getIt<AppCubit>().onRefresh();
-    // Navigate to start up screen
-    Navigator.pushNamedAndRemoveUntil(
-        context, Routes.startUpScreen, (route) => false);
   }
 }
