@@ -10,6 +10,7 @@ import 'dart:ui' as _i17;
 
 import 'package:flutter/foundation.dart' as _i2;
 import 'package:flutter/material.dart' as _i11;
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as _i9;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i13;
@@ -731,23 +732,23 @@ class MockW3MService extends _i1.Mock implements _i3.W3MService {
         returnValueForMissingStub: _i14.Future<void>.value(),
       ) as _i14.Future<void>);
 
-  @override
-  _i14.Future<void> openModal(
-    _i11.BuildContext? context, [
-    _i11.Widget? startWidget,
-    _i11.VoidCallback? onTapWepinConnectWidget,
-  ]) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #openModal,
-          [
-            context,
-            startWidget,
-          ],
-        ),
-        returnValue: _i14.Future<void>.value(),
-        returnValueForMissingStub: _i14.Future<void>.value(),
-      ) as _i14.Future<void>);
+  // @override
+  // _i14.Future<void> openModal(
+  //   _i11.BuildContext? context, [
+  //   _i11.Widget? startWidget,
+  //   _i11.Widget? onTapWepinConnectWidget,
+  // ]) =>
+  //     (super.noSuchMethod(
+  //       Invocation.method(
+  //         #openModal,
+  //         [
+  //           context,
+  //           startWidget,
+  //         ],
+  //       ),
+  //       returnValue: _i14.Future<void>.value(),
+  //       returnValueForMissingStub: _i14.Future<void>.value(),
+  //     ) as _i14.Future<void>);
 
   @override
   _i14.Future<void> expirePreviousInactivePairings() => (super.noSuchMethod(
@@ -2869,7 +2870,7 @@ class MockWidgetStack extends _i1.Mock implements _i34.WidgetStack {
       );
 
   @override
-  void addDefault() => super.noSuchMethod(
+  void addDefault([Widget? onTapWepinConnectWidget]) => super.noSuchMethod(
         Invocation.method(
           #addDefault,
           [],

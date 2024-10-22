@@ -1,6 +1,6 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/Users/javeedishaq/flutter"
+export "FLUTTER_ROOT=/Users/javeedishaq/fvm/versions/3.19.6"
 export "FLUTTER_APPLICATION_PATH=/Users/javeedishaq/devwork/hyperhire/HideMePleaseFE/packages/web3modal_flutter"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib/main.dart"

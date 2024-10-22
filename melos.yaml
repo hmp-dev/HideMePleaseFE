@@ -4,6 +4,8 @@ packages:
   - apps/hmp
   - packages/web3modal_flutter
   - packages/sendbird_uikit
+  - packages/reown_appkit
+  - packages/wepin_flutter_widget_sdk
 
 repository: https://github.com/hyperhire-dev/HideMePleaseFE
 

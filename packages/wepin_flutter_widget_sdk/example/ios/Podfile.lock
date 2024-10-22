@@ -1,0 +1,90 @@
+PODS:
+  - AppAuth (1.7.5):
+    - AppAuth/Core (= 1.7.5)
+    - AppAuth/ExternalUserAgent (= 1.7.5)
+  - AppAuth/Core (1.7.5)
+  - AppAuth/ExternalUserAgent (1.7.5):
+    - AppAuth/Core
+  - BCryptSwift (1.1)
+  - Flutter (1.0.0)
+  - flutter_bcrypt (0.0.1):
+    - BCryptSwift (~> 1.1)
+    - Flutter
+  - flutter_inappwebview_ios (0.0.1):
+    - Flutter
+    - flutter_inappwebview_ios/Core (= 0.0.1)
+    - OrderedSet (~> 5.0)
+  - flutter_inappwebview_ios/Core (0.0.1):
+    - Flutter
+    - OrderedSet (~> 5.0)
+  - flutter_secure_storage (6.0.0):
+    - Flutter
+  - OrderedSet (5.0.0)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - permission_handler_apple (9.3.0):
+    - Flutter
+  - video_player_avfoundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - wepin_flutter_common (0.0.1):
+    - Flutter
+  - wepin_flutter_login_lib (0.0.1):
+    - AppAuth (~> 1.7.5)
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - flutter_bcrypt (from `.symlinks/plugins/flutter_bcrypt/ios`)
+  - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
+  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
+  - wepin_flutter_common (from `.symlinks/plugins/wepin_flutter_common/ios`)
+  - wepin_flutter_login_lib (from `.symlinks/plugins/wepin_flutter_login_lib/ios`)
+
+SPEC REPOS:
+  trunk:
+    - AppAuth
+    - BCryptSwift
+    - OrderedSet
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  flutter_bcrypt:
+    :path: ".symlinks/plugins/flutter_bcrypt/ios"
+  flutter_inappwebview_ios:
+    :path: ".symlinks/plugins/flutter_inappwebview_ios/ios"
+  flutter_secure_storage:
+    :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
+  video_player_avfoundation:
+    :path: ".symlinks/plugins/video_player_avfoundation/darwin"
+  wepin_flutter_common:
+    :path: ".symlinks/plugins/wepin_flutter_common/ios"
+  wepin_flutter_login_lib:
+    :path: ".symlinks/plugins/wepin_flutter_login_lib/ios"
+
+SPEC CHECKSUMS:
+  AppAuth: 501c04eda8a8d11f179dbe8637b7a91bb7e5d2fa
+  BCryptSwift: f69992ea5685f6714260842c2770688043b89ab2
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_bcrypt: 8ae63c682225f69d9981465509cb26b9e93522ef
+  flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
+  flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
+  OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
+  wepin_flutter_common: 505ac18aa0e2b9878d5d728df83d3ecd8bb93db9
+  wepin_flutter_login_lib: 7a5c331e8de42fc7423dcddc0ca0cb21341c0826
+
+PODFILE CHECKSUM: 7c8a4cfe1ff8a99e7133ccae184f6e9baa630f9e
+
+COCOAPODS: 1.15.2

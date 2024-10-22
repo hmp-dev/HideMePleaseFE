@@ -226,7 +226,7 @@ extension on SessionRequestParams {
           fromAddress: jsonData['from'],
           toAddress: jsonData['to'],
           chainId: chainId!,
-          weiValue: BigInt.from(value).toString(),
+          weiValue: BigInt.from(value),
           data: jsonData['data'] ?? '',
         );
       case MethodsConstants.walletSwitchEthChain:
