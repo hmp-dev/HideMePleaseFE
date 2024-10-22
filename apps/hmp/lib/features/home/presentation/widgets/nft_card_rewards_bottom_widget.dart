@@ -116,25 +116,25 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
             GlassmorphicButton(
               width: MediaQuery.of(context).size.width * 0.80,
               height: 60,
-              onPressed: () {
-                // if (!getIt<WalletsCubit>().state.isKlipWalletConnected) {
-                //   return snackBarService.showSnackbar(
-                //     message: "Klip월렛에 연동해주세요.",
-                //     duration: const Duration(seconds: 5),
-                //   );
-                // }
+              onPressed: (connectedWallets.isEmpty)
+                  ? onTapClaimButton
+                  : () {
+                      // if (!getIt<WalletsCubit>().state.isKlipWalletConnected) {
+                      //   return snackBarService.showSnackbar(
+                      //     message: "Klip월렛에 연동해주세요.",
+                      //     duration: const Duration(seconds: 5),
+                      //   );
+                      // }
 
-                if (connectedWallets.isEmpty) {
-                  onTapClaimButton();
-                } else if (welcomeNftEntity.remainingCount > 0) {
-                  getIt<NftCubit>().onGetConsumeWelcomeNft();
-                } else {
-                  snackBarService.showSnackbar(
-                    message: "무료 NFT를 사용할 수 없습니다",
-                    duration: const Duration(seconds: 5),
-                  );
-                }
-              },
+                      if (welcomeNftEntity.remainingCount > 0) {
+                        getIt<NftCubit>().onGetConsumeWelcomeNft();
+                      } else {
+                        snackBarService.showSnackbar(
+                          message: "무료 NFT를 사용할 수 없습니다",
+                          duration: const Duration(seconds: 5),
+                        );
+                      }
+                    },
               child: Text(
                 '${LocaleKeys.getNftForFree.tr()} ${welcomeNftEntity.remainingCount}',
                 style: fontCompactLgMedium(),

@@ -9,6 +9,7 @@ class WepinState extends BaseState {
   final List<WepinAccount> accounts;
   final bool isPerformWepinWalletSave;
   final bool isPerformWepinWelcomeNftRedeem;
+  final bool isWepinModelOpen;
 
   @override
   final bool isLoading;
@@ -27,6 +28,7 @@ class WepinState extends BaseState {
     this.accounts = const [],
     this.isPerformWepinWalletSave = false,
     this.isPerformWepinWelcomeNftRedeem = false,
+    this.isWepinModelOpen = false,
     this.isLoading = false,
     this.error,
   });
@@ -41,6 +43,7 @@ class WepinState extends BaseState {
         accounts: [],
         isPerformWepinWalletSave: false,
         isPerformWepinWelcomeNftRedeem: false,
+        isWepinModelOpen: false,
       );
 
   @override
@@ -54,6 +57,7 @@ class WepinState extends BaseState {
         accounts,
         isPerformWepinWalletSave,
         isPerformWepinWelcomeNftRedeem,
+        isWepinModelOpen,
         isLoading,
         error,
       ];
@@ -69,6 +73,7 @@ class WepinState extends BaseState {
     List<WepinAccount>? accounts,
     bool? isPerformWepinWalletSave,
     bool? isPerformWepinWelcomeNftRedeem,
+    bool? isWepinModelOpen,
     bool? isLoading,
     String? error,
   }) {
@@ -85,6 +90,7 @@ class WepinState extends BaseState {
           isPerformWepinWalletSave ?? this.isPerformWepinWalletSave,
       isPerformWepinWelcomeNftRedeem:
           isPerformWepinWelcomeNftRedeem ?? this.isPerformWepinWelcomeNftRedeem,
+      isWepinModelOpen: isWepinModelOpen ?? this.isWepinModelOpen,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
     );

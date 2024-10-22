@@ -355,13 +355,8 @@ class _HomeScreenState extends State<HomeScreen> {
         // appleIdToken: appleIdToken,
         // selectedLanguage: context.locale.languageCode,
         onConnectWallet: () async {
-          if (getIt<WalletsCubit>().state.reownAppKitModal != null) {
-            getIt<WepinCubit>().updateIsPerformWepinWelcomeNftRedeem(true);
-            await getIt<WepinCubit>().initWepinSDK(
-              selectedLanguageCode: context.locale.languageCode,
-              isFromWePinWelcomeNftRedeem: true,
-            );
-          }
+          getIt<WalletsCubit>().onConnectWallet(
+              context: context, isFromWePinWelcomeNftRedeem: true);
         },
       );
     }

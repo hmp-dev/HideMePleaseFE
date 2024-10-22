@@ -25,12 +25,6 @@ import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
-/// [WepinWalletConnectLisTile] is a stateless widget that displays
-/// the home view before the wallet is connected.
-///
-/// It listens to the [WalletsCubit] state and shows an error snackbar
-/// if there is an error in connecting the wallet. It also listens to the
-/// [NftCubit] state and shows the welcome NFT card if it is available.
 class WepinWalletConnectLisTile extends StatefulWidget {
   final bool isShowWelcomeNFTCard;
   final bool isShowCustomButton;
@@ -80,10 +74,9 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   @override
   void initState() {
     super.initState();
-    initValues();
   }
 
-  initValues() async {
+  initSocialLoginValues() async {
     socialTokenIsAppleOrGoogle =
         await getIt<AuthLocalDataSource>().getSocialTokenIsAppleOrGoogle() ??
             '';
@@ -100,7 +93,10 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
     setState(() {});
   }
 
-  void initializeWepinSdk() {
+  void initializeWepinSdk() async {
+    initSocialLoginValues();
+    await Future.delayed(const Duration(milliseconds: 500));
+
     final selectedConfig =
         sdkConfigs.firstWhere((config) => config['name'] == selectedValue);
     //_updateConfig(selectedConfig);
@@ -241,20 +237,19 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    wepinSDK!.finalize();
+    getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
         BlocListener<WepinCubit, WepinState>(
           bloc: getIt<WepinCubit>(),
           listener: (context, state) async {
-            // 0 - Listen Wepin Status if it is not initialized
-            if (state.wepinLifeCycleStatus == WepinLifeCycle.notInitialized) {
-              final selectedConfig = sdkConfigs
-                  .firstWhere((config) => config['name'] == selectedValue);
-              initWepinSDK(selectedConfig['appId']!, selectedConfig['appKey']!,
-                  selectedConfig['privateKey']!);
-            }
-
             // 0- Listen Wepin Status if it is login before registered
             // automatically register
             if (state.wepinLifeCycleStatus ==
@@ -268,7 +263,8 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
             // 1- Listen Wepin Status if it is login
             // fetch the wallets created by Wepin
 
-            if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
+            if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
+                wepinSDK != null) {
               accountsList = await wepinSDK!.getAccounts();
 
               getIt<WepinCubit>().saveAccounts(accountsList);
@@ -318,6 +314,9 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                     getIt<NftCubit>().state.welcomeNftEntity.remainingCount >
                         0) {
                   getIt<NftCubit>().onGetConsumeWelcomeNft();
+                  context.showSnackBarBottom(
+                    LocaleKeys.welcomeNftRedeemRequesting.tr(),
+                  );
                 } else {
                   // reset all cubits
                   getIt<AppCubit>().onRefresh();
@@ -344,6 +343,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                     ? FreeWelcomeNftCard(
                         welcomeNftEntity: nftState.welcomeNftEntity,
                         onTapClaimButton: () {
+                          "hello the onTapClaimButton is called".tr();
                           initializeWepinSdk();
                         },
                       )

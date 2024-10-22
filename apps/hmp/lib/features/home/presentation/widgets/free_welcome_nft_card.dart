@@ -44,7 +44,7 @@ class FreeWelcomeNftCard extends StatelessWidget {
             ),
             bottomWidget: NftCardRewardsBottomWidget(
               welcomeNftEntity: welcomeNftEntity,
-              onTapClaimButton: onTapClaimButton,
+              onTapClaimButton:  onTapClaimButton,
             ),
             index: 0,
           ),

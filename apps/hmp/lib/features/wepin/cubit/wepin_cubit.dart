@@ -200,7 +200,6 @@ class WepinCubit extends BaseCubit<WepinState> {
               .log();
           emit(state.copyWith(
             wepinLifeCycleStatus: wepinStatus,
-            isLoading: false,
           ));
         } else {
           emit(state.copyWith(
@@ -232,7 +231,7 @@ class WepinCubit extends BaseCubit<WepinState> {
   Future<void> fetchAccounts() async {
     try {
       final accounts = await state.wepinWidgetSDK!.getAccounts();
-      emit(state.copyWith(accounts: accounts, isLoading: false));
+      emit(state.copyWith(accounts: accounts));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     } finally {
@@ -244,8 +243,20 @@ class WepinCubit extends BaseCubit<WepinState> {
     emit(state.copyWith(accounts: accounts, isLoading: false));
   }
 
+  closeWePinWidget() async {
+    await state.wepinWidgetSDK!.closeWidget();
+    await state.wepinWidgetSDK!.finalize();
+  }
+
+  updateIsWepinModelOpen(bool value) {
+    emit(state.copyWith(isWepinModelOpen: value));
+  }
+
   Future<void> registerToWepin(BuildContext context) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(
+      isLoading: false,
+      isWepinModelOpen: true,
+    ));
 
     try {
       await state.wepinWidgetSDK!.register(context);
@@ -256,9 +267,13 @@ class WepinCubit extends BaseCubit<WepinState> {
       emit(state.copyWith(
         wepinLifeCycleStatus: wepinStatus,
         isLoading: false,
+        isWepinModelOpen: false,
       ));
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      await state.wepinWidgetSDK!.closeWidget();
+      await state.wepinWidgetSDK!.finalize();
+      emit(state.copyWith(
+          isLoading: false, isWepinModelOpen: false, error: e.toString()));
     }
   }
 
@@ -272,6 +287,7 @@ class WepinCubit extends BaseCubit<WepinState> {
   Future<void> openWepinWidget(BuildContext context,
       [bool isShowWidget = false]) async {
     if (state.isPerformWepinWalletSave || isShowWidget) {
+      "inside openWepinWidget".log();
       showLoader();
 
       final wepinStatus = await state.wepinWidgetSDK!.getStatus();
@@ -284,15 +300,30 @@ class WepinCubit extends BaseCubit<WepinState> {
         await state.wepinWidgetSDK!.openWidget(context);
       }
 
+      if (wepinStatus == WepinLifeCycle.notInitialized) {
+        // if not initialized login into wepin
+        await initWepinSDK(selectedLanguageCode: context.locale.languageCode);
+
+        // again check status of wepin
+        final wepinStatus = await state.wepinWidgetSDK!.getStatus();
+
+        "inside openWepinWidget after ==> wepinStatus is $wepinStatus".log();
+        dismissLoader();
+        if (wepinStatus == WepinLifeCycle.login) {
+          await state.wepinWidgetSDK!.openWidget(context);
+        }
+      }
+
       if (wepinStatus == WepinLifeCycle.initialized) {
         // if not initialized login into wepin
         await loginSocialAuthProvider();
 
         // again check status of wepin
         final wepinStatus = await state.wepinWidgetSDK!.getStatus();
+
         "inside openWepinWidget after ==> wepinStatus is $wepinStatus".log();
+        dismissLoader();
         if (wepinStatus == WepinLifeCycle.login) {
-          dismissLoader();
           await state.wepinWidgetSDK!.openWidget(context);
         }
       }
@@ -344,6 +375,8 @@ class WepinCubit extends BaseCubit<WepinState> {
       accounts: [],
       isLoading: false,
       isPerformWepinWalletSave: false,
+      error: '',
+      wepinLifeCycleStatus: WepinLifeCycle.notInitialized,
     ));
   }
 }

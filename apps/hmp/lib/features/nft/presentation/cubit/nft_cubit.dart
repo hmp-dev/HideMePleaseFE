@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/core/enum/usage_type_enum.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/features/community/presentation/cubit/community_cubit.dart';
@@ -562,7 +563,11 @@ class NftCubit extends BaseCubit<NftState> {
     final response = await _nftRepository.getConsumeUserWelcomeNft(
         tokenAddress: state.welcomeNftEntity.tokenAddress);
 
+    "Log response: $response".log();
+
     // Dismiss loading indicator
+    EasyLoading.dismiss();
+    EasyLoading.dismiss();
     EasyLoading.dismiss();
 
     // Handle response from the repository call
@@ -588,6 +593,8 @@ class NftCubit extends BaseCubit<NftState> {
       },
       // If the repository call succeeds, update state and show success message
       (_) async {
+        // Dismiss loading indicator
+        EasyLoading.dismiss();
         // Call onGetWelcomeNft to fetch welcome NFT data
         await onGetWelcomeNft();
 
