@@ -118,10 +118,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
 
   Future<void> initWepinSDK(
       String appId, String appKey, String privateKey) async {
-    // Show Loader
-    getIt<WepinCubit>().showLoader();
-
-    wepinSDK?.finalize();
+    await wepinSDK?.finalize();
     wepinSDK = WepinWidgetSDK(wepinAppKey: appKey, wepinAppId: appId);
     await wepinSDK!.init(
       attributes: WidgetAttributes(
@@ -254,31 +251,10 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
     return MultiBlocListener(
       listeners: [
         BlocListener<WepinCubit, WepinState>(
+          listenWhen: (previous, current) =>
+              current.wepinLifeCycleStatus == WepinLifeCycle.login,
           bloc: getIt<WepinCubit>(),
           listener: (context, state) async {
-            // 0- Listen Wepin Status if it is login before registered
-            // automatically register
-            if (state.wepinLifeCycleStatus ==
-                WepinLifeCycle.loginBeforeRegister) {
-              // Now loader will be shown by
-              getIt<WepinCubit>().dismissLoader();
-              await wepinSDK!.register(context);
-              getStatus();
-            }
-
-            // 1- Listen Wepin Status if it is login
-            // fetch the wallets created by Wepin
-
-            if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
-                wepinSDK != null) {
-              accountsList = await wepinSDK!.getAccounts();
-
-              getIt<WepinCubit>().saveAccounts(accountsList);
-              // Dismiss Loader with in WepinCubit
-              // Now loader will be dismmissed by
-              getIt<WepinCubit>().dismissLoader();
-            }
-
             // 2- Listen Wepin Status if it is login and wallets are in the state
             // save these wallets for the user
 
@@ -302,12 +278,57 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
           },
         ),
 
+        BlocListener<WepinCubit, WepinState>(
+          listenWhen: (previous, current) =>
+              current.wepinLifeCycleStatus == WepinLifeCycle.login,
+          bloc: getIt<WepinCubit>(),
+          listener: (context, state) async {
+            // 1- Listen Wepin Status if it is login
+            // fetch the wallets created by Wepin
+
+            "listening inside state.wepinLifeCycleStatus == WepinLifeCycle.login"
+                .log();
+
+            if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
+                wepinSDK != null) {
+              accountsList = await wepinSDK!.getAccounts();
+
+              getIt<WepinCubit>().saveAccounts(accountsList);
+              // Dismiss Loader with in WepinCubit
+              // Now loader will be dismissed by
+              getIt<WepinCubit>().dismissLoader();
+            }
+          },
+        ),
+
+        BlocListener<WepinCubit, WepinState>(
+          listenWhen: (previous, current) =>
+              previous.wepinLifeCycleStatus !=
+                  WepinLifeCycle.loginBeforeRegister &&
+              current.wepinLifeCycleStatus ==
+                  WepinLifeCycle.loginBeforeRegister,
+          bloc: getIt<WepinCubit>(),
+          listener: (context, state) async {
+            // 0- Listen Wepin Status if it is login before registered
+            // automatically register
+            if (state.wepinLifeCycleStatus ==
+                WepinLifeCycle.loginBeforeRegister) {
+              // Now loader will be shown by
+              getIt<WepinCubit>().dismissLoader();
+              await wepinSDK!.register(context);
+              getStatus();
+            }
+          },
+        ),
+
         // 3- Listen Wallets status if it is saved
         // If wallets are saved into backend
         // navigate to start up screen to refetch wallets and navigate to Home
         BlocListener<WalletsCubit, WalletsState>(
           listenWhen: (previous, current) =>
-              current.connectedWallets.isNotEmpty,
+              previous.connectedWallets.length !=
+                  current.connectedWallets.length &&
+              previous.connectedWallets != current.connectedWallets,
           bloc: getIt<WalletsCubit>(),
           listener: (context, state) {
             // perform action to redeem free NFT only from Home ViewBefore
@@ -360,6 +381,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                         welcomeNftEntity: nftState.welcomeNftEntity,
                         onTapClaimButton: () {
                           "hello the onTapClaimButton is called".tr();
+                          getIt<WepinCubit>().showLoader();
                           initializeWepinSdk();
                         },
                       )
@@ -381,6 +403,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                                     LocaleKeys.wepin_already_connected.tr(),
                                   );
                                 } else {
+                                  getIt<WepinCubit>().showLoader();
                                   initializeWepinSdk();
                                 }
                               },
@@ -395,12 +418,12 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                               return ElevatedButton(
                                 style: _elevatedButtonStyle(),
                                 onPressed: () async {
-                                  getIt<WepinCubit>()
-                                      .onResetWepinSDKFetchedWallets();
-                                  //
-                                  await Future.delayed(
-                                      const Duration(milliseconds: 100));
-                                  //
+                                  // getIt<WepinCubit>()
+                                  //     .onResetWepinSDKFetchedWallets();
+
+                                  // await Future.delayed(
+                                  //     const Duration(milliseconds: 200));
+                                  // //
                                   await getIt<WalletsCubit>().onConnectWallet(
                                     context: context,
                                     onTapConnectWalletButton: true,
@@ -408,7 +431,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
 
                                   // Wait for a brief moment to ensure state is updated
                                   await Future.delayed(
-                                      const Duration(milliseconds: 100));
+                                      const Duration(milliseconds: 300));
 
                                   // Re-fetch the state after the delay
                                   final updatedState =
@@ -416,6 +439,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
 
                                   if (updatedState.tappedWalletName ==
                                       WalletProvider.WEPIN.name) {
+                                    getIt<WepinCubit>().showLoader();
                                     initializeWepinSdk();
                                   }
                                 },
@@ -480,11 +504,11 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   showErrorAlertAndPerformLogout({required String errorMessage}) {
     context.showErrorSnackBarDismissible(errorMessage);
 
-    getIt<AppCubit>().onLogOut();
-    // reset all cubits
-    getIt<AppCubit>().onRefresh();
-    // Navigate to start up screen
-    Navigator.pushNamedAndRemoveUntil(
-        context, Routes.startUpScreen, (route) => false);
+    // getIt<AppCubit>().onLogOut();
+    // // reset all cubits
+    // getIt<AppCubit>().onRefresh();
+    // // Navigate to start up screen
+    // Navigator.pushNamedAndRemoveUntil(
+    //     context, Routes.startUpScreen, (route) => false);
   }
 }

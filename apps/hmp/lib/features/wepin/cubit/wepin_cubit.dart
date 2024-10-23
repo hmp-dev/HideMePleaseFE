@@ -318,10 +318,12 @@ class WepinCubit extends BaseCubit<WepinState> {
         // if not initialized login into wepin
         await loginSocialAuthProvider();
 
+        await Future.delayed(const Duration(milliseconds: 500));
         // again check status of wepin
         final wepinStatus = await state.wepinWidgetSDK!.getStatus();
 
-        "inside openWepinWidget after ==> wepinStatus is $wepinStatus".log();
+        "inside openWepinWidget after loginSocialAuthProvider ==> wepinStatus is $wepinStatus"
+            .log();
         dismissLoader();
         if (wepinStatus == WepinLifeCycle.login) {
           await state.wepinWidgetSDK!.openWidget(context);

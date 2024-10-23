@@ -82,6 +82,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // initialize the WepinSDK and Login
     getIt<WepinCubit>()
         .initWepinSDK(selectedLanguageCode: context.locale.languageCode);
+
+    // getIt<WepinCubit>().initWepinSDK(
+    //   selectedLanguageCode: context.locale.languageCode,
+    // );
   }
 
   void _scrollListener() {
