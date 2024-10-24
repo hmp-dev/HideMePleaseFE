@@ -2,13 +2,17 @@
 
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
+import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
@@ -54,6 +58,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   String? googleAccessToken;
   String? socialTokenIsAppleOrGoogle;
   String? appleIdToken;
+  final SecureStorage _secureStorage = getIt<SecureStorage>();
 
   final Map<String, String> currency = {
     'ko': 'KRW',
@@ -86,7 +91,8 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
             '';
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
-      appleIdToken = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
+      appleIdToken =
+          await _secureStorage.read(StorageValues.appleIdToken) ?? '';
     }
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
@@ -104,8 +110,16 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
     final selectedConfig =
         sdkConfigs.firstWhere((config) => config['name'] == selectedValue);
     //_updateConfig(selectedConfig);
-    initWepinSDK(selectedConfig['appId']!, selectedConfig['appKey']!,
-        selectedConfig['privateKey']!);
+
+    if (Platform.isAndroid) {
+      initWepinSDK(selectedConfig['appId']!, selectedConfig['appKeyAndroid']!,
+          selectedConfig['privateKey']!);
+    }
+
+    if (Platform.isIOS) {
+      initWepinSDK(selectedConfig['appId']!, selectedConfig['appKeyApple']!,
+          selectedConfig['privateKey']!);
+    }
   }
 
   // void _updateConfig(Map<String, dynamic> config) {
@@ -119,7 +133,9 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   Future<void> initWepinSDK(
       String appId, String appKey, String privateKey) async {
     await wepinSDK?.finalize();
+
     wepinSDK = WepinWidgetSDK(wepinAppKey: appKey, wepinAppId: appId);
+
     await wepinSDK!.init(
       attributes: WidgetAttributes(
           defaultLanguage: context.locale.languageCode,

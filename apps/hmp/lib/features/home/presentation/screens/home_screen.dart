@@ -3,11 +3,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
+import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/home/presentation/widgets/notice_dialog.dart';
@@ -63,7 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
             '';
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
-      appleIdToken = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
+      appleIdToken =
+          await getIt<SecureStorage>().read(StorageValues.appleIdToken) ?? '';
     }
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {

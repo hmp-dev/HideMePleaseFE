@@ -76,12 +76,21 @@ class _BottomBarState extends State<BottomBar> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            DefaultImage(
-              path:
-                  isActiveType ? type.activeIconPath : type.deactivateIconPath,
-              height: 28,
-              width: 28,
-            ),
+            (type == MenuType.events)
+                ? DefaultImage(
+                    path: isActiveType
+                        ? type.activeIconPath
+                        : type.deactivateIconPath,
+                    height: 20,
+                    width: 20,
+                  )
+                : DefaultImage(
+                    path: isActiveType
+                        ? type.activeIconPath
+                        : type.deactivateIconPath,
+                    height: 28,
+                    width: 28,
+                  ),
           ],
         ),
       ),

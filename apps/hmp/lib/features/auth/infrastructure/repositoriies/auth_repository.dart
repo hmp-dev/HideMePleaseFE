@@ -73,9 +73,9 @@ class AuthRepositoryImpl implements AuthRepository {
       _localDataSource
           .setSocialTokenIsAppleOrGoogle(SocialLoginType.APPLE.name);
       //== to save access Token to be used for wepin login
-      ("the Apple ID Token is: ${appleCredential.identityToken}").log();
+      ("the Apple ID Token is: ${oauthCredential.idToken}").log();
       // save id token in secure Storage
-      _localDataSource.setAppleIdToken(appleCredential.identityToken ?? "");
+      _localDataSource.setAppleIdToken(oauthCredential.idToken ?? "");
       //===
 
       // Sign in the user with Firebase. If the nonce we generated earlier does

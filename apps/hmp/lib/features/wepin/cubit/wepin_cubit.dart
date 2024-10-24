@@ -1,7 +1,10 @@
 // ignore_for_file: unused_field, use_build_context_synchronously
 
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobile/app/core/constants/storage.dart';
@@ -10,8 +13,10 @@ import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
+import 'package:mobile/features/auth/infrastructure/repositoriies/auth_repository.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/wepin/values/sdk_app_info.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
@@ -85,7 +90,8 @@ class WepinCubit extends BaseCubit<WepinState> {
     "inside initWepinSDK ==>".log();
 
     String appId = sdkConfigs[0]['appId']!;
-    String appKey = sdkConfigs[0]['appKey']!;
+    String appKeyAndroid = sdkConfigs[0]['appKeyAndroid']!;
+    String appKeyApple = sdkConfigs[0]['appKeyApple']!;
 
     await getSocialLoginValues();
 
@@ -112,8 +118,14 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
 
     try {
-      // Reinitialize the Wepin SDK
-      _wepinSDK = WepinWidgetSDK(wepinAppKey: appKey, wepinAppId: appId);
+      if (Platform.isAndroid) {
+        _wepinSDK =
+            WepinWidgetSDK(wepinAppKey: appKeyAndroid, wepinAppId: appId);
+      }
+
+      if (Platform.isIOS) {
+        _wepinSDK = WepinWidgetSDK(wepinAppKey: appKeyApple, wepinAppId: appId);
+      }
 
       // Initialize the SDK with specified attributes
       await _wepinSDK!.init(
@@ -152,9 +164,10 @@ class WepinCubit extends BaseCubit<WepinState> {
     String socialTokenIsAppleOrGoogle =
         await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle) ??
             '';
+
     if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
       final appleIdTokenResult =
-          await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
+          await _secureStorage.read(StorageValues.appleIdToken) ?? '';
 
       emit(state.copyWith(
         socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
@@ -163,12 +176,50 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
+      //
       final googleAccessTokenResult =
           await getIt<AuthCubit>().refreshGoogleAccessToken() ?? '';
+
+      //
       emit(state.copyWith(
         socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
         googleAccessToken: googleAccessTokenResult,
       ));
+    }
+  }
+
+  String generateNonce([int length = 32]) {
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
+        .join();
+  }
+
+  Future<String?> refreshAppleToken() async {
+    try {
+      final rawNonce = generateNonce();
+      final nonce = sha256ofString(rawNonce);
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: nonce,
+      );
+      final oauthCredential = OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        rawNonce: rawNonce,
+      );
+
+      // // Re-authenticate the user and return a new token
+      // await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+      // final newIdToken =
+      //     await FirebaseAuth.instance.currentUser?.getIdToken(true);
+      return oauthCredential.idToken;
+    } catch (e, t) {
+      // handle error
+      return null;
     }
   }
 
@@ -186,6 +237,8 @@ class WepinCubit extends BaseCubit<WepinState> {
 
       // if Login Type is Apple
       if (state.socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
+        "inside state.socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name ${state.socialTokenIsAppleOrGoogle}"
+            .log();
         fbToken = await _wepinSDK!.login
             .loginWithIdToken(idToken: state.appleIdToken);
       }

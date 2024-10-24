@@ -4,8 +4,10 @@ import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 final List<Map<String, dynamic>> sdkConfigs = [
   {
     'name': 'sample app',
-    'appId': 'd410836424c7fd52e2bfd5eaa1560b4e', // 'wepin-app-id',
-    'appKey':
+    'appId': 'd410836424c7fd52e2bfd5eaa1560b4e',
+    'appKeyApple':
+        'ak_live_Fyg0axkpzax636HqnmfzKmj0XTdBys0Q55XVvSLUdt', // 'wepin-app-id',
+    'appKeyAndroid':
         'ak_live_OvIn9KoWHQjXOlKyTW3tyPtvSWZUOGfpBy0VkY5Xz09', //'wepin-app-key-android',
     'privateKey': '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',
     'provider': 'google',

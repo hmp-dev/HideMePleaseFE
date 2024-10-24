@@ -7,8 +7,8 @@ enum MenuType {
     menuIndex: 0,
   ),
   events(
-    activeIconPath: "assets/icons/ic_events_enabled.svg",
-    deactivateIconPath: "assets/icons/ic_events_disabled.svg",
+    activeIconPath: "assets/icons/ic_wallet_enabled.svg",
+    deactivateIconPath: "assets/icons/ic_wallet_disabled.svg",
     menuIndex: 1,
   ),
   home(

@@ -1,7 +1,6 @@
 // ignore_for_file: unused_field
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -9,10 +8,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
-import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
-import 'package:mobile/features/wepin/values/sdk_app_info.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
@@ -85,37 +82,6 @@ class AuthCubit extends BaseCubit<AuthState> {
         onBackendApiLogin(firebaseIdToken: idToken);
       },
     );
-  }
-
-  Future<String?> refreshAppleIdToken() async {
-    try {
-      // Get the currently signed-in user
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        // Force a refresh of the ID token
-        final idToken = await user.getIdToken(true);
-
-        // Save the refreshed ID token
-        // save Social Login Type
-        _localDataSource
-            .setSocialTokenIsAppleOrGoogle(SocialLoginType.APPLE.name);
-        //== to save access Token to be used for wepin login
-        ("the Apple ID Token is: $idToken").log();
-        // save id token in secure Storage
-        _localDataSource.setAppleIdToken(idToken ?? "");
-        //===
-
-        return idToken;
-      } else {
-        // User is not signed in; you may need to prompt the user to sign in again
-        return null;
-      }
-    } catch (e) {
-      // Handle error (e.g., log it, or return a meaningful error message)
-      ("Error refreshing Apple ID token: $e").log();
-      return null;
-    }
   }
 
   Future<void> onWorldIdLogin() async {}
