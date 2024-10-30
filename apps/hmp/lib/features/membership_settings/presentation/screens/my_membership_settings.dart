@@ -204,7 +204,7 @@ class _MyMembershipSettingsScreenState
                   String errorMessage = getErrorMessage(state.errorMessage);
 
                   // Show Error Snackbar If Wallet is Already Connected
-                  context.showErrorSnackBarDismissible(state.errorMessage);
+                  //context.showErrorSnackBarDismissible(state.errorMessage);
 
                   "inside listener++++++ error message is $errorMessage".log();
                 }

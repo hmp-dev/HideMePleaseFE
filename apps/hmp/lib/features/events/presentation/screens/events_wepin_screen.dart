@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,41 +30,32 @@ class _EventsWepinScreenState extends State<EventsWepinScreen> {
     return MultiBlocListener(
       listeners: [
         BlocListener<WepinCubit, WepinState>(
-          //ensure that the listenWhen condition checks if current.isPerformWepinWalletSave is true
-          // and that it changes only when transitioning from false to true.
           listenWhen: (previous, current) =>
-              previous.wepinLifeCycleStatus != WepinLifeCycle.login &&
-              current.wepinLifeCycleStatus == WepinLifeCycle.login &&
-              current.isPerformWepinWalletSave,
-          // listenWhen: (previous, current) => current.isPerformWepinWalletSave,
+              current.isPerformWepinWalletSave &&
+              current.wepinLifeCycleStatus == WepinLifeCycle.login,
           bloc: getIt<WepinCubit>(),
-          listener: (context, state) {
+          listener: (context, state) async {
             if (!state.isPerformWepinWelcomeNftRedeem) {
               "[EventsWepinScreen] the WepinState is: $state".log();
 
+              // Manage loader based on isLoading state
               if (state.isLoading) {
                 getIt<WepinCubit>().showLoader();
               } else {
                 getIt<WepinCubit>().dismissLoader();
               }
 
-              // 1- Listen Wepin Status if it is login
-              // fetch the wallets created by Wepin
-
               if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
-                getIt<WepinCubit>().fetchAccounts();
+                await getIt<WepinCubit>().fetchAccounts();
+                getIt<WepinCubit>()
+                    .dismissLoader(); // Ensure loader dismisses post-fetch
               }
-
-              // 2- Listen Wepin Status if it is login and wallets are in the state
-              // save these wallets for the user
 
               if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
                   state.accounts.isNotEmpty) {
-                // if status is login save wallets to backend
-
                 for (var account in state.accounts) {
                   if (account.network.toLowerCase() == "ethereum") {
-                    getIt<WalletsCubit>().onPostWallet(
+                    await getIt<WalletsCubit>().onPostWallet(
                       saveWalletRequestDto: SaveWalletRequestDto(
                         publicAddress: account.address,
                         provider: "WEPIN_EVM",
@@ -76,6 +69,56 @@ class _EventsWepinScreenState extends State<EventsWepinScreen> {
             }
           },
         ),
+
+        // BlocListener<WepinCubit, WepinState>(
+        //   //ensure that the listenWhen condition checks if current.isPerformWepinWalletSave is true
+        //   // and that it changes only when transitioning from false to true.
+        //   listenWhen: (previous, current) =>
+        //       previous.wepinLifeCycleStatus != WepinLifeCycle.login &&
+        //       current.wepinLifeCycleStatus == WepinLifeCycle.login &&
+        //       current.isPerformWepinWalletSave,
+        //   // listenWhen: (previous, current) => current.isPerformWepinWalletSave,
+        //   bloc: getIt<WepinCubit>(),
+        //   listener: (context, state) {
+        //     if (!state.isPerformWepinWelcomeNftRedeem) {
+        //       "[EventsWepinScreen] the WepinState is: $state".log();
+
+        //       if (state.isLoading) {
+        //         getIt<WepinCubit>().showLoader();
+        //       } else {
+        //         getIt<WepinCubit>().dismissLoader();
+        //       }
+
+        //       // 1- Listen Wepin Status if it is login
+        //       // fetch the wallets created by Wepin
+
+        //       if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
+        //         getIt<WepinCubit>().fetchAccounts();
+        //       }
+
+        //       // 2- Listen Wepin Status if it is login and wallets are in the state
+        //       // save these wallets for the user
+
+        //       if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
+        //           state.accounts.isNotEmpty) {
+        //         // if status is login save wallets to backend
+
+        //         for (var account in state.accounts) {
+        //           if (account.network.toLowerCase() == "ethereum") {
+        //             getIt<WalletsCubit>().onPostWallet(
+        //               saveWalletRequestDto: SaveWalletRequestDto(
+        //                 publicAddress: account.address,
+        //                 provider: "WEPIN_EVM",
+        //               ),
+        //             );
+        //           }
+        //         }
+        //         getIt<WepinCubit>().openWepinWidget(context);
+        //         getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
+        //       }
+        //     }
+        //   },
+        // ),
         BlocListener<WepinCubit, WepinState>(
           listenWhen: (previous, current) =>
               previous.wepinLifeCycleStatus !=

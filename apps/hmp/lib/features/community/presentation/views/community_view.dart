@@ -13,6 +13,7 @@ import 'package:mobile/features/community/presentation/widgets/hot_communities_v
 import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
 import 'package:mobile/features/community/presentation/widgets/user_communities_view.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
+import 'package:mobile/features/wepin/wepin_wallet_connect_list_tile.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class CommunityView extends StatefulWidget {
@@ -116,12 +117,15 @@ class _CommunityViewState extends State<CommunityView> {
               ),
             )
           else if (!widget.isWalletConnected)
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: GetFreeNftView(
-                  onTap: widget.onConnectWallet,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: WepinWalletConnectLisTile(
+                    isShowCommunityWelcomeNFTRedeemButton: true),
+
+                // GetFreeNftView(
+                //   onTap: widget.onConnectWallet,
+                // ),
               ),
             ),
           if (widget.hotNftCommunities.isNotEmpty)

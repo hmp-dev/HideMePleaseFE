@@ -348,8 +348,15 @@ class WepinCubit extends BaseCubit<WepinState> {
       // log th status
       "inside openWepinWidget ==> wepinStatus is $wepinStatus".log();
 
+      if (wepinStatus == WepinLifeCycle.loginBeforeRegister) {
+        dismissLoader();
+        emit(state.copyWith(isLoading: false));
+        await state.wepinWidgetSDK!.register(context);
+      }
+
       if (wepinStatus == WepinLifeCycle.login) {
         dismissLoader();
+        emit(state.copyWith(isLoading: false));
         await state.wepinWidgetSDK!.openWidget(context);
       }
 
@@ -362,6 +369,7 @@ class WepinCubit extends BaseCubit<WepinState> {
 
         "inside openWepinWidget after ==> wepinStatus is $wepinStatus".log();
         dismissLoader();
+        emit(state.copyWith(isLoading: false));
         if (wepinStatus == WepinLifeCycle.login) {
           await state.wepinWidgetSDK!.openWidget(context);
         }
@@ -378,6 +386,7 @@ class WepinCubit extends BaseCubit<WepinState> {
         "inside openWepinWidget after loginSocialAuthProvider ==> wepinStatus is $wepinStatus"
             .log();
         dismissLoader();
+        emit(state.copyWith(isLoading: false));
         if (wepinStatus == WepinLifeCycle.login) {
           await state.wepinWidgetSDK!.openWidget(context);
         }

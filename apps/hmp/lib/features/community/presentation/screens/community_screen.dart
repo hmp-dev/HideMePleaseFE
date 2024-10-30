@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -61,10 +63,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           null) {
                         getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
                         //
-                        await Future.delayed(const Duration(milliseconds: 100));
+                        await Future.delayed(const Duration(milliseconds: 500));
                         //
                         getIt<WalletsCubit>().onConnectWallet(
-                            context: context, isFromWePinWalletConnect: true);
+                            context: context,
+                            isFromWePinWelcomeNftRedeem: true);
                       }
                     },
                     onGetFreeNft: () {},

@@ -1,6 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/enum/menu_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/preload_page_view/preload_page_view.dart';
@@ -10,7 +8,6 @@ import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_screen.dart';
-import 'package:mobile/features/events/presentation/screens/events_screen_coming_soon.dart';
 import 'package:mobile/features/events/presentation/screens/events_wepin_screen.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
@@ -21,7 +18,6 @@ import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
-import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});

@@ -136,7 +136,7 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                       }
                     },
               child: Text(
-                '${LocaleKeys.getNftForFree.tr()} ${welcomeNftEntity.remainingCount}',
+                LocaleKeys.getNftForFree.tr(),
                 style: fontCompactLgMedium(),
               ),
             )
