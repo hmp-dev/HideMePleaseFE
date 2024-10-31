@@ -493,7 +493,7 @@ class _MyMembershipSettingsScreenState
                       right: 0,
                       child: InfoTextToolTipWidget(
                         title:
-                            "보유한 NFT 컬렉션의 대표 NFT를 설정하세요.설정은 최대 3개 컬렉션에서 각 1개씩 가능합니다. 대표 NFT가 속한 컬렉션은 1개의 혜택을 제공합니다.",
+                            LocaleKeys.memebershipListSettingToolTipText.tr(),
                         onTap: () {
                           setState(() {
                             _isShowToolTip = false;

@@ -96,7 +96,9 @@ class BenefitRedeemCardWidgetParent extends StatelessWidget {
                                 ),
                                 const HorizontalSpace(5),
                                 Text(
-                                  "무료 혜택은 각 제휴 공간에서 1개 사용가능",
+                                  LocaleKeys.freeNftCanBeRedeemedOncePerSpace
+                                      .tr(),
+                                  //"무료 혜택은 각 제휴 공간에서 1개 사용가능",
                                   style: fontCompact2Xs(color: fore2),
                                 )
                               ],

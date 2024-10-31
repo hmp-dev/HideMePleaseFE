@@ -25,6 +25,7 @@ class BenefitUnavailableText extends StatelessWidget {
         const HorizontalSpace(5),
         Text(
           LocaleKeys.unavailable.tr(),
+          textAlign: TextAlign.center,
           style: fontCompactSm(color: fore3),
         ),
       ],

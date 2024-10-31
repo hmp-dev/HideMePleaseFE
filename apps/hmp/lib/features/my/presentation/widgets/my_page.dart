@@ -1,8 +1,10 @@
 // ignore_for_file: must_be_immutable
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/my/presentation/widgets/nft_medium_card_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/temp_data.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -31,11 +33,11 @@ class MyPageState extends State<MyPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "총 12개",
+                        "${LocaleKeys.total.tr()} 12${LocaleKeys.item.tr()}",
                         style: fontTitle07Medium(),
                       ),
                       Text(
-                        "04/15 18:00 기준",
+                        "04/15 18:00 ${LocaleKeys.as_of.tr()}",
                         style: fontCompactSm(),
                       ),
                     ],

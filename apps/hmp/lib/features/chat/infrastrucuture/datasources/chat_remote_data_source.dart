@@ -15,6 +15,7 @@ class ChatRemoteDataSource {
       SendbirdUIKit.init(
         appId: appId,
         theme: SBUTheme.dark,
+        
       ),
       SendbirdChat.init(
         appId: appId,

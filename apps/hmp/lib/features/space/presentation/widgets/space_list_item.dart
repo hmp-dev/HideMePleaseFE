@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -8,6 +9,7 @@ import 'package:mobile/features/common/presentation/widgets/svg_aware_image_widg
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class SpaceListItem extends StatelessWidget {
   const SpaceListItem({
@@ -64,7 +66,8 @@ class SpaceListItem extends StatelessWidget {
                                   ? Row(
                                       children: [
                                         Text(
-                                          "이번 주 핫 플레이스",
+                                          LocaleKeys.thisWeeksHotPlace.tr(),
+                                          //"이번 주 핫 플레이스",
                                           style: fontCompactSm(color: pink),
                                         ),
                                         const HorizontalSpace(5),

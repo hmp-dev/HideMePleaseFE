@@ -106,7 +106,9 @@ class BenefitCardWidgetWithSpaceDetailEntity extends StatelessWidget {
                                 ),
                                 const HorizontalSpace(5),
                                 Text(
-                                  "무료 혜택은 각 제휴 공간에서 1개 사용가능",
+                                  LocaleKeys.freeNftCanBeRedeemedOncePerSpace
+                                      .tr(),
+                                  //"무료 혜택은 각 제휴 공간에서 1개 사용가능",
                                   style: fontCompactXs(color: fore2),
                                 )
                               ],
@@ -133,6 +135,7 @@ class BenefitCardWidgetWithSpaceDetailEntity extends StatelessWidget {
                                 : Center(
                                     child: Text(
                                       LocaleKeys.unavailable.tr(),
+                                      textAlign: TextAlign.center,
                                       style: fontCompactMd(),
                                     ),
                                   ),

@@ -1,9 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/presentation/cubit/dummy_data.dart';
 import 'package:mobile/features/community/presentation/widgets/participated_community_nft_view.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class UserCommunitiesView extends StatelessWidget {
   const UserCommunitiesView({
@@ -32,7 +34,8 @@ class UserCommunitiesView extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        '대화중인 커뮤니티',
+                        LocaleKeys.active_community.tr(),
+                        //'대화중인 커뮤니티',
                         style: fontTitle07Medium(),
                       ),
                     ),

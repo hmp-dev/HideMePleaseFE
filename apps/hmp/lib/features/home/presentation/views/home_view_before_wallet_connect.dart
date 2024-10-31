@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/error_codes.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -11,6 +12,7 @@ import 'package:mobile/features/common/presentation/widgets/default_snackbar.dar
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/wepin_wallet_connect_list_tile.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 /// [HomeViewBeforeWalletConnect] is a stateless widget that displays
 /// the home view before the wallet is connected.
@@ -83,7 +85,8 @@ class _HomeViewBeforeWalletConnectState
               Center(
                 // Display the welcome message
                 child: Text(
-                  "지갑을 연결하고\n웹컴 NFT를 받아보세요!",
+                  // "지갑을 연결하고\n웹컴 NFT를 받아보세요!",
+                  LocaleKeys.connect_wallet_to_redeem_nft.tr(),
                   textAlign: TextAlign.center,
                   style: fontR(18, lineHeight: 1.4),
                 ),

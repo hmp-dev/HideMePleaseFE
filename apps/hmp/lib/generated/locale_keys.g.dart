@@ -190,5 +190,23 @@ abstract class  LocaleKeys {
   static const open_wepin_wallet_details_widget = 'open_wepin_wallet_details_widget';
   static const access_wepin_wallet = 'access_wepin_wallet';
   static const welcomeNftRedeemRequesting = 'welcomeNftRedeemRequesting';
+  static const connect_wallet_to_redeem_nft = 'connect_wallet_to_redeem_nft';
+  static const memebershipListSettingToolTipText = 'memebershipListSettingToolTipText';
+  static const nftSelection = 'nftSelection';
+  static const active_community = 'active_community';
+  static const trending_community = 'trending_community';
+  static const as_of = 'as_of';
+  static const total = 'total';
+  static const item = 'item';
+  static const total_points = 'total_points';
+  static const thisWeeksHotPlace = 'thisWeeksHotPlace';
+  static const rank = 'rank';
+  static const peopleAreTogether = 'peopleAreTogether';
+  static const users = 'users';
+  static const selectLanguage = 'selectLanguage';
+  static const korean_language = 'korean_language';
+  static const english_language = 'english_language';
+  static const freeNftCanBeRedeemedOncePerSpace = 'freeNftCanBeRedeemedOncePerSpace';
+  static const freeNftRedeemSuccessMessage = 'freeNftRedeemSuccessMessage';
 
 }

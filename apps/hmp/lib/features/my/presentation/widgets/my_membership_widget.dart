@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lottie/lottie.dart';
@@ -11,6 +12,7 @@ import 'package:mobile/features/my/presentation/widgets/members_item_widget.dart
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyMembershipWidget extends StatelessWidget {
   const MyMembershipWidget({
@@ -47,7 +49,7 @@ class MyMembershipWidget extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "총 ${selectedNftTokensList.length}개",
+                          "${LocaleKeys.total.tr()} ${selectedNftTokensList.length}${LocaleKeys.item.tr()}",
                           style: fontTitle07Medium(),
                         ),
                         UpdateAtTimeWidget(

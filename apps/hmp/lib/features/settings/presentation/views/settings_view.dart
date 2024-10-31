@@ -14,6 +14,7 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/settings/domain/entities/settings_banner_entity.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/announcement_screen.dart';
+import 'package:mobile/features/settings/presentation/screens/language_select_screen.dart';
 import 'package:mobile/features/settings/presentation/screens/membership_withdrawal_screen.dart';
 import 'package:mobile/features/settings/presentation/screens/terms_of_use_main_screen.dart';
 import 'package:mobile/features/settings/presentation/widgets/feature_tile.dart';
@@ -95,6 +96,12 @@ class _SettingsViewState extends State<SettingsView> {
                   title: LocaleKeys.termsOfUse.tr(),
                   onTap: () {
                     TermsOfUseMainScreen.push(context);
+                  },
+                ),
+                FeatureTile(
+                  title: LocaleKeys.selectLanguage.tr(),
+                  onTap: () {
+                    LanguageSelectScreen.push(context);
                   },
                 ),
                 const VerticalSpace(10),

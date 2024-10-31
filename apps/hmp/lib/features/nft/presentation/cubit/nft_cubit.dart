@@ -606,7 +606,8 @@ class NftCubit extends BaseCubit<NftState> {
 
         // Show success snackbar
         snackbarService.showSnackbar(
-          message: 'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
+          message: LocaleKeys.freeNftRedeemSuccessMessage.tr(),
+          //'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
           duration: const Duration(seconds: 5),
         );
       },

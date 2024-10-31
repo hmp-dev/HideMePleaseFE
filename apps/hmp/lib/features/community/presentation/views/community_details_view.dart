@@ -132,9 +132,11 @@ class CommunityDetailsView extends StatelessWidget {
                 indicatorColor: fore3,
                 dividerColor: fore5,
                 indicatorWeight: 1.0,
-                tabs: const [
-                  Tab(text: "커뮤니티"),
-                  Tab(text: "멤버"),
+                tabs: [
+                  Tab(text: LocaleKeys.community.tr() //"커뮤니티",
+                      ),
+                  Tab(text: LocaleKeys.member.tr() //"멤버",
+                      ),
                 ],
               ),
             ),
@@ -177,7 +179,8 @@ class CommunityDetailsView extends StatelessWidget {
                                   horizontal: 16.0,
                                 ),
                                 children: [
-                                  Text('총 0명',
+                                  Text(
+                                      '${LocaleKeys.total.tr()} 0${LocaleKeys.item.tr()}',
                                       style: fontTitle07Medium(color: fore1)),
                                   SizedBox(
                                     height: 183,
@@ -277,7 +280,8 @@ class _CommunityMembersListState extends State<_CommunityMembersList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (index == 0)
-              Text('총 ${widget.membersCount}명',
+              Text(
+                  '${LocaleKeys.total.tr()} ${widget.membersCount}${LocaleKeys.people.tr()}',
                   style: fontTitle07Medium(color: fore1)),
             GestureDetector(
               onTap: () => widget.onMemberTap(member),
@@ -381,7 +385,11 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text('포인트', style: fontTitle06Medium()),
+                child: Text(
+                  LocaleKeys.points.tr(),
+                  //'포인트',
+                  style: fontTitle06Medium(),
+                ),
               ),
               const SizedBox(height: 12),
               Padding(
@@ -398,7 +406,11 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('총 포인트', style: fontCompactXs(color: fore2)),
+                            Text(
+                              LocaleKeys.total_points.tr(),
+                              //'총 포인트',
+                              style: fontCompactXs(color: fore2),
+                            ),
                             const SizedBox(height: 4),
                             Text(
                                 '${widget.koreanNumFormat.format(widget.nftEntity.totalPoints)} P',
@@ -422,7 +434,7 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                             children: [
                               Row(
                                 children: [
-                                  Text('포인트 랭킹 ',
+                                  Text('${LocaleKeys.pointRanking.tr()} ',
                                       style: fontCompactXs(color: fore2)),
                                   const SizedBox(height: 2),
                                   DefaultImage(
@@ -434,7 +446,7 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                  '${widget.koreanNumFormat.format(widget.nftEntity.communityRank)}위',
+                                  '${widget.koreanNumFormat.format(widget.nftEntity.communityRank)}${LocaleKeys.rank.tr()}',
                                   style: fontBoldEmpty(color: fore1)),
                             ],
                           ),
@@ -467,7 +479,8 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                   ),
                   const SizedBox(width: 4.0),
                   Text(
-                    '혜택',
+                    LocaleKeys.benefits.tr(),
+                    //'혜택',
                     style: fontTitle06Medium(),
                   ),
                   const SizedBox(width: 4.0),
@@ -555,7 +568,8 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '더보기',
+                        LocaleKeys.seeMore.tr(),
+                        //'더보기',
                         style: fontBody2Xs(),
                       ),
                       const SizedBox(width: 2.0),

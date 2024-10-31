@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bloc/bloc.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/helpers/shared_preferences_keys.dart';
 import 'package:talker_bloc_logger/talker_bloc_logger.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -24,6 +26,8 @@ import 'package:timeago/timeago.dart' as timeago;
 /// check if it is first time App is launched by user
 
 int? isShowOnBoarding;
+
+String? _userSavedLanguageCode;
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
@@ -35,16 +39,27 @@ void main() async {
 
   timeago.setLocaleMessages('ko', KoTimeAgoMessages());
 
-  await initApp();
+  // Detect device language using PlatformDispatcher
+  final Locale deviceLocale = PlatformDispatcher.instance.locale;
+  _userSavedLanguageCode =
+      await SharedPreferencesKeys().getStringData(key: 'language_type');
 
+  "user saved locale $_userSavedLanguageCode".log();
+  "user Device locale $deviceLocale".log();
+
+  await initApp();
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('en'), Locale('ko')],
+      supportedLocales: const [Locale('en', 'US'), Locale('ko', 'KR')],
       path: 'assets/translations',
-      fallbackLocale: const Locale('ko'),
+      fallbackLocale: const Locale('en'),
       startLocale: AppEnv.flavor.isProd && kReleaseMode
-          ? const Locale('ko')
-          : const Locale('ko'),
+          ? _userSavedLanguageCode != null
+              ? Locale(_userSavedLanguageCode!)
+              : deviceLocale
+          : _userSavedLanguageCode != null
+              ? Locale(_userSavedLanguageCode!)
+              : deviceLocale,
       useOnlyLangCode: true,
       child: DevicePreview(
         enabled: false,

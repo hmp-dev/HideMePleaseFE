@@ -116,7 +116,7 @@ class _SelectProfileImageScreenState extends State<SelectProfileImageScreen> {
                       Padding(
                         padding: const EdgeInsets.only(right: 20),
                         child: Text(
-                          "${formatDate(DateTime.now())} 기준",
+                          "${formatDate(DateTime.now())} ${LocaleKeys.as_of.tr()}",
                           style: fontCompactSm(color: fore3),
                         ),
                       ),

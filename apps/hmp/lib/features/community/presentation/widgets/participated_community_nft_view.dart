@@ -1,10 +1,12 @@
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/community/presentation/cubit/dummy_data.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class ParticipatedCommunityNftView extends StatelessWidget {
   final String communityPeoples;
@@ -130,7 +132,11 @@ class ParticipatedCommunityNftView extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('채팅방 입장', style: fontCompactMdMedium()),
+                            Text(
+                              LocaleKeys.enterTheChatRoom.tr(),
+                              //'채팅방 입장',
+                              style: fontCompactMdMedium(),
+                            ),
                             if (unreadMsgCount > 0)
                               Container(
                                 margin: const EdgeInsets.only(left: 4.0),

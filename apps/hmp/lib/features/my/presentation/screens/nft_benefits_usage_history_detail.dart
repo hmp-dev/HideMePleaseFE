@@ -201,7 +201,7 @@ class _MyNftBenefitsUsageHistoryDetailScreenState
                   SizedBox(
                     width: 226,
                     child: Text(
-                      "총 $nftUsedCount회 사용",
+                      "${LocaleKeys.total.tr()} $nftUsedCount${LocaleKeys.users.tr()}",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: fontTitle05Medium(),

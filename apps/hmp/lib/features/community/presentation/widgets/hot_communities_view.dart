@@ -1,9 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
-import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
 import 'package:mobile/features/community/presentation/widgets/nft_hot_community_card_widget.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class HotCommunitiesView extends StatelessWidget {
   const HotCommunitiesView({
@@ -33,7 +34,8 @@ class HotCommunitiesView extends StatelessWidget {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  'Hot한 커뮤니티',
+                  LocaleKeys.trending_community.tr(),
+                  // 'Hot한 커뮤니티',
                   style: fontCompactMdMedium(),
                 ),
               ),
