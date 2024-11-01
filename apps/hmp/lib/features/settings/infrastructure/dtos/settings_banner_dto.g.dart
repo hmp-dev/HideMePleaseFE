@@ -11,6 +11,9 @@ SettingsBannerDto _$SettingsBannerDtoFromJson(Map<String, dynamic> json) =>
       settingsBannerLink: json['settingsBannerLink'] as String?,
       settingsBannerHeading: json['settingsBannerHeading'] as String?,
       settingsBannerDescription: json['settingsBannerDescription'] as String?,
+      settingsBannerDescriptionEn:
+          json['settingsBannerDescriptionEn'] as String?,
+      settingsBannerHeadingEn: json['settingsBannerHeadingEn'] as String?,
     );
 
 Map<String, dynamic> _$SettingsBannerDtoToJson(SettingsBannerDto instance) =>
@@ -18,4 +21,6 @@ Map<String, dynamic> _$SettingsBannerDtoToJson(SettingsBannerDto instance) =>
       'settingsBannerLink': instance.settingsBannerLink,
       'settingsBannerHeading': instance.settingsBannerHeading,
       'settingsBannerDescription': instance.settingsBannerDescription,
+      'settingsBannerDescriptionEn': instance.settingsBannerDescriptionEn,
+      'settingsBannerHeadingEn': instance.settingsBannerHeadingEn,
     };

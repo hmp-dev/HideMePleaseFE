@@ -159,7 +159,9 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  Widget buildTopHmpBlueBannerBox(SettingsBannerEntity settingsBannerEntity) {
+  Widget buildTopHmpBlueBannerBox(
+    SettingsBannerEntity settingsBannerEntity,
+  ) {
     return GestureDetector(
       onTap: () {
         "the link is ${settingsBannerEntity.settingsBannerLink}".log();
@@ -184,12 +186,16 @@ class _SettingsViewState extends State<SettingsView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                settingsBannerEntity.settingsBannerHeading,
+                context.locale.languageCode == 'ko'
+                    ? settingsBannerEntity.settingsBannerHeading
+                    : settingsBannerEntity.settingsBannerHeadingEn,
                 style: fontCompactSmMedium(color: fore2),
               ),
               const VerticalSpace(7),
               Text(
-                settingsBannerEntity.settingsBannerDescription,
+                context.locale.languageCode == 'ko'
+                    ? settingsBannerEntity.settingsBannerDescription
+                    : settingsBannerEntity.settingsBannerDescriptionEn,
                 style: fontCompactMdBold(),
               ),
             ],

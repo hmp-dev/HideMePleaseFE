@@ -2,7 +2,7 @@
 
 abstract class  LocaleKeys {
   static const connectYourWallet = 'connectYourWallet';
-  static const getAWebcomNFT = 'getAWebcomNFT';
+  static const getAWelcomeNFT = 'getAWelcomeNFT';
   static const closeApp = 'closeApp';
   static const doYouWantToCloseTheApp = 'doYouWantToCloseTheApp';
   static const somethingError = 'somethingError';

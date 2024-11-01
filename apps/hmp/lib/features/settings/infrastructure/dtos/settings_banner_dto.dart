@@ -12,12 +12,19 @@ class SettingsBannerDto extends Equatable {
   final String? settingsBannerHeading;
   @JsonKey(name: "settingsBannerDescription")
   final String? settingsBannerDescription;
+  @JsonKey(name: "settingsBannerDescriptionEn")
+  final String? settingsBannerDescriptionEn;
+  @JsonKey(name: "settingsBannerHeadingEn")
+  final String? settingsBannerHeadingEn;
+  //  "settingsBannerDescriptionEn": "Apply for Space Partnership",
+  // "settingsBannerHeadingEn": "HidemePlease",
 
-  const SettingsBannerDto({
-    this.settingsBannerLink,
-    this.settingsBannerHeading,
-    this.settingsBannerDescription,
-  });
+  const SettingsBannerDto(
+      {this.settingsBannerLink,
+      this.settingsBannerHeading,
+      this.settingsBannerDescription,
+      this.settingsBannerDescriptionEn,
+      this.settingsBannerHeadingEn});
 
   factory SettingsBannerDto.fromJson(Map<String, dynamic> json) =>
       _$SettingsBannerDtoFromJson(json);
@@ -29,11 +36,15 @@ class SettingsBannerDto extends Equatable {
         settingsBannerLink,
         settingsBannerHeading,
         settingsBannerDescription,
+        settingsBannerDescriptionEn,
+        settingsBannerHeadingEn
       ];
 
   SettingsBannerEntity toEntity() => SettingsBannerEntity(
         settingsBannerLink: settingsBannerLink ?? "",
         settingsBannerHeading: settingsBannerHeading ?? "",
         settingsBannerDescription: settingsBannerDescription ?? "",
+        settingsBannerDescriptionEn: settingsBannerDescriptionEn ?? "",
+        settingsBannerHeadingEn: settingsBannerHeadingEn ?? "",
       );
 }

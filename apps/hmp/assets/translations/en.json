@@ -1,6 +1,6 @@
 {
      "connectYourWallet": "Connect Your Wallet",
-     "getAWebcomNFT": "Get a Webcom NFT!",
+     "getAWelcomeNFT": "Get a Welcome NFT!",
      "closeApp": "Close App",
      "doYouWantToCloseTheApp": "Do you want to close the app?",
      "somethingError": "Something went wrong!",
@@ -188,7 +188,7 @@
      "open_wepin_wallet_details_widget": "Open Wepin Wallet Details Widget",
      "access_wepin_wallet": "Access Wepin Wallet",
      "welcomeNftRedeemRequesting": "Requesting to Redeem Free Welcome NFT",
-     "connect_wallet_to_redeem_nft": "Connect Your Wallet \nand Receive Your Webcom NFT!",
+     "connect_wallet_to_redeem_nft": "Connect Your Wallet \nand Receive Your Welcome NFT!",
      "memebershipListSettingToolTipText": "Set a representative NFT for the NFT collection you own. You can set up to 3 collections, 1 for each. The collection to which the representative NFT belongs provides 1 benefit.",
      "nftSelection": "Choose Main NFT",
      "active_community": "Active Community",
