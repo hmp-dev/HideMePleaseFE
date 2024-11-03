@@ -427,10 +427,12 @@ class WepinCubit extends BaseCubit<WepinState> {
   }
 
   showLoader() {
+    emit(state.copyWith(isLoading: true));
     EasyLoading.show();
   }
 
   dismissLoader() {
+    emit(state.copyWith(isLoading: false));
     EasyLoading.dismiss();
   }
 

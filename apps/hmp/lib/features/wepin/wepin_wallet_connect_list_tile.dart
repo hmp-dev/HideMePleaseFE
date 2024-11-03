@@ -425,12 +425,20 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                         },
                       )
                     : (widget.isShowWelcomeNFTCard)
-                        ? FreeWelcomeNftCard(
-                            welcomeNftEntity: nftState.welcomeNftEntity,
-                            onTapClaimButton: () {
-                              "hello the onTapClaimButton is called".tr();
-                              getIt<WepinCubit>().showLoader();
-                              initializeWepinSdk();
+                        ? BlocBuilder<WepinCubit, WepinState>(
+                            bloc: getIt<WepinCubit>(),
+                            builder: (context, state) {
+                              return FreeWelcomeNftCard(
+                                welcomeNftEntity: nftState.welcomeNftEntity,
+                                onTapClaimButton: () {
+                                  "hello the onTapClaimButton is called".tr();
+                                  if (state.isLoading) {
+                                    return; // Do nothing if in loading state
+                                  }
+                                  getIt<WepinCubit>().showLoader();
+                                  initializeWepinSdk();
+                                },
+                              );
                             },
                           )
                         : widget.isShowCustomButton
@@ -440,6 +448,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 16.0),
                                 child: HMPCustomButton(
+                                  //Connect your WePin wallet
                                   text: "위핀 지갑 연결",
                                   onPressed: () {
                                     if (getIt<WalletsCubit>()
@@ -497,31 +506,6 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                                       LocaleKeys.walletConnection.tr(),
                                       style: fontCompactMdMedium(color: white),
                                     ),
-
-                                    // WalletListItem(
-                                    //   title: 'Wepin',
-                                    //   onTap: () {
-                                    //     if (getIt<WalletsCubit>()
-                                    //         .state
-                                    //         .isWepinWalletConnected) {
-                                    //       getIt<WalletsCubit>()
-                                    //           .onCloseWalletConnectModel();
-
-                                    //       context.showSnackBar(
-                                    //         LocaleKeys.wepin_already_connected.tr(),
-                                    //       );
-                                    //     } else {
-                                    //       initializeWepinSdk();
-                                    //     }
-                                    //   },
-                                    //   imageUrl:
-                                    //       'https://dev-admin.hidemeplease.xyz/assets/244989c6-90e3-428f-b2a7-0316174240c1',
-                                    //   trailing: const Icon(
-                                    //     Icons.arrow_forward_ios,
-                                    //     size: 17,
-                                    //     color: Color(0x4DFFFFFF),
-                                    //   ),
-                                    // ),
                                   );
                                 },
                               )
