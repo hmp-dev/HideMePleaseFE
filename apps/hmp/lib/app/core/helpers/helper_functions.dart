@@ -603,3 +603,19 @@ List<BenefitEntity> removeDuplicates(List<BenefitEntity> benefitList) {
 
   return uniqueBenefits;
 }
+
+String getRankWithSuffix(String rank) {
+  String suffix;
+  if (rank == "1") {
+    suffix = LocaleKeys.st
+        .tr(); // You can also use ${LocaleKeys.rank["1"].tr()} here
+  } else if (rank == "2") {
+    suffix = LocaleKeys.nd.tr(); // Or use ${LocaleKeys.rank["2"].tr()} here
+  } else if (rank == "3") {
+    suffix = LocaleKeys.rd.tr(); // Or use ${LocaleKeys.rank["3"].tr()} here
+  } else {
+    suffix = LocaleKeys.rank
+        .tr(); // You can use {rank} as a placeholder in your localization string
+  }
+  return suffix;
+}

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -5,6 +6,7 @@ import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/default_field.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:solana/solana.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 
@@ -44,7 +46,7 @@ class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: DefaultField(
               onFocus: (isFocused) {},
-              hintText: '지갑 주소 입력', //'지갑 공개키 입력',
+              hintText: LocaleKeys.enterYourWalletAddress.tr(), // '지갑 주소 입력',
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))
               ],
@@ -63,7 +65,7 @@ class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
             padding: EdgeInsets.fromLTRB(20.0, .0, 20.0,
                 MediaQuery.of(context).viewInsets.bottom + 20.0),
             child: HMPCustomButton(
-              text: '연결하기',
+              text: LocaleKeys.connectWallet.tr(), //'연결하기',
               onPressed: () async {
                 try {
                   if (isPointOnEd25519Curve(base58Decode(publicKey))) {
@@ -72,7 +74,9 @@ class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
                 } catch (e) {
                   e.log();
                 }
-                context.showErrorSnackBar('잘못된 공개 키.');
+
+                //'잘못된 공개 키.'
+                context.showErrorSnackBar(LocaleKeys.invalidPublicKey.tr());
               },
             ),
           ),

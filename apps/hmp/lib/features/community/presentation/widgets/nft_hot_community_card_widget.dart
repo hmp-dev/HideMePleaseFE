@@ -1,20 +1,24 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class NftHotCommunityCardWidget extends StatelessWidget {
-  const NftHotCommunityCardWidget(
-      {super.key,
-      required this.onTap,
-      required this.title,
-      required this.imagePath,
-      required this.networkLogo,
-      required this.timeAgo,
-      required this.rank,
-      required this.people});
+  const NftHotCommunityCardWidget({
+    super.key,
+    required this.onTap,
+    required this.title,
+    required this.imagePath,
+    required this.networkLogo,
+    required this.timeAgo,
+    required this.rank,
+    required this.people,
+    required this.totalMembers,
+  });
 
   final VoidCallback onTap;
   final String title;
@@ -23,6 +27,7 @@ class NftHotCommunityCardWidget extends StatelessWidget {
   final String timeAgo;
   final String rank;
   final String people;
+  final String totalMembers;
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +86,8 @@ class NftHotCommunityCardWidget extends StatelessWidget {
                     const Spacer(),
                     Center(
                       child: MembersCountValueRoundedWidget(
-                        title: people, // "120명"
+                        title:
+                            "$totalMembers${LocaleKeys.people.tr()}", // "120명"
                         onTap: () {},
                       ),
                     ),

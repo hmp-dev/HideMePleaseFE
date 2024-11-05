@@ -201,6 +201,9 @@ abstract class  LocaleKeys {
   static const total_points = 'total_points';
   static const thisWeeksHotPlace = 'thisWeeksHotPlace';
   static const rank = 'rank';
+  static const st = 'st';
+  static const nd = 'nd';
+  static const rd = 'rd';
   static const peopleAreTogether = 'peopleAreTogether';
   static const users = 'users';
   static const selectLanguage = 'selectLanguage';
@@ -208,5 +211,13 @@ abstract class  LocaleKeys {
   static const english_language = 'english_language';
   static const freeNftCanBeRedeemedOncePerSpace = 'freeNftCanBeRedeemedOncePerSpace';
   static const freeNftRedeemSuccessMessage = 'freeNftRedeemSuccessMessage';
+  static const eventParticipationForm = 'eventParticipationForm';
+  static const youCanNotUseTheFreeNft = 'youCanNotUseTheFreeNft';
+  static const inputFieldsAreEmpty = 'inputFieldsAreEmpty';
+  static const instantlyJoinAbleCommunity = 'instantlyJoinAbleCommunity';
+  static const nftQuantity = 'nftQuantity';
+  static const connectWallet = 'connectWallet';
+  static const enterYourWalletAddress = 'enterYourWalletAddress';
+  static const invalidPublicKey = 'invalidPublicKey';
 
 }

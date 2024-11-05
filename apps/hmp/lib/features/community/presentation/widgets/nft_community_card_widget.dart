@@ -1,20 +1,26 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class NftCommunityCardWidget extends StatelessWidget {
-  const NftCommunityCardWidget(
-      {super.key,
-      required this.onTap,
-      required this.title,
-      required this.imagePath,
-      required this.networkLogo,
-      required this.timeAgo,
-      required this.rank,
-      required this.people});
+  const NftCommunityCardWidget({
+    super.key,
+    required this.onTap,
+    required this.title,
+    required this.imagePath,
+    required this.networkLogo,
+    required this.timeAgo,
+    required this.rank,
+    required this.people,
+    required this.totalMembers,
+    required this.communityRank,
+  });
 
   final VoidCallback onTap;
   final String title;
@@ -23,6 +29,8 @@ class NftCommunityCardWidget extends StatelessWidget {
   final String timeAgo;
   final String rank;
   final String people;
+  final String totalMembers;
+  final String communityRank;
 
   @override
   Widget build(BuildContext context) {
@@ -84,13 +92,18 @@ class NftCommunityCardWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 8.0),
                     RoundedButtonSmallWithOpacity(
-                        title: people, // "120명"
+                        title:
+                            "$totalMembers${LocaleKeys.people.tr()}", // "120명"
                         onTap: () {}),
                     const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        RectangleButtonSmall(title: rank, onTap: () {}),
+                        RectangleButtonSmall(
+                          title:
+                              "$communityRank${getRankWithSuffix(communityRank)}",
+                          onTap: () {},
+                        ),
                         Text(
                           timeAgo, // "3초 전",
                           style: fontR(12, color: whiteWithOpacityOne),
@@ -108,6 +121,50 @@ class NftCommunityCardWidget extends StatelessWidget {
   }
 }
 
+// class RoundedButtonSmallWithOpacity extends StatelessWidget {
+//   const RoundedButtonSmallWithOpacity({
+//     super.key,
+//     required this.title,
+//     required this.onTap,
+//   });
+
+//   final String title;
+//   final VoidCallback onTap;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: SizedBox(
+//         height: 20,
+//         width: 46,
+//         child: Stack(
+//           children: [
+//             Opacity(
+//               opacity: 0.5,
+//               child: Container(
+//                 height: 20,
+//                 width: 46,
+//                 decoration: const BoxDecoration(
+//                   color: black900,
+//                   borderRadius: BorderRadius.all(Radius.circular(16)),
+//                 ),
+//               ),
+//             ),
+//             Center(
+//               child: Text(
+//                 title,
+//                 textAlign: TextAlign.center,
+//                 style: fontR(12, lineHeight: 1.3),
+//               ),
+//             )
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
 class RoundedButtonSmallWithOpacity extends StatelessWidget {
   const RoundedButtonSmallWithOpacity({
     super.key,
@@ -122,30 +179,34 @@ class RoundedButtonSmallWithOpacity extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        height: 20,
-        width: 46,
-        child: Stack(
-          children: [
-            Opacity(
-              opacity: 0.5,
-              child: Container(
-                height: 20,
-                width: 46,
-                decoration: const BoxDecoration(
-                  color: black900,
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
+      child: IntrinsicWidth(
+        child: IntrinsicHeight(
+          child: Stack(
+            children: [
+              Opacity(
+                opacity: 0.5,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8), // Add padding for width adjustment
+                  decoration: const BoxDecoration(
+                    color: black900,
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
                 ),
               ),
-            ),
-            Center(
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: fontR(12, lineHeight: 1.3),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8), // Add padding for the text
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: fontR(12, lineHeight: 1.3),
+                  ),
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -166,40 +227,42 @@ class RectangleButtonSmall extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        height: 20,
-        child: Stack(
-          children: [
-            Container(
-              height: 20,
-              width: 49,
-              decoration: const BoxDecoration(
-                color: black900,
-                borderRadius: BorderRadius.all(Radius.circular(2)),
+      child: IntrinsicWidth(
+        child: IntrinsicHeight(
+          child: Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  color: black900,
+                  borderRadius: BorderRadius.all(Radius.circular(2)),
+                ),
               ),
-            ),
-            Center(
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
-                    child: DefaultImage(
-                      path: "assets/icons/ic_triangle_arrow_up.svg",
-                      width: 12,
-                      height: 12,
-                      color: pink,
-                      boxFit: BoxFit.fitHeight,
+              Center(
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: DefaultImage(
+                        path: "assets/icons/ic_triangle_arrow_up.svg",
+                        width: 12,
+                        height: 12,
+                        color: pink,
+                        boxFit: BoxFit.fitHeight,
+                      ),
                     ),
-                  ),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: fontR(12, lineHeight: 1.3),
-                  ),
-                ],
-              ),
-            )
-          ],
+                    Padding(
+                      padding: const EdgeInsets.only(right: 3),
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: fontR(12, lineHeight: 1.3),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

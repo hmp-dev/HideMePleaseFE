@@ -3,6 +3,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
@@ -126,11 +127,16 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                       //   );
                       // }
 
-                      if (welcomeNftEntity.remainingCount > 0) {
+                      "welcomeNftEntity.remainingCount ${welcomeNftEntity.remainingCount}"
+                          .log();
+
+                      if (welcomeNftEntity.freeNftAvailable &&
+                          welcomeNftEntity.remainingCount > 0) {
                         getIt<NftCubit>().onGetConsumeWelcomeNft();
                       } else {
                         snackBarService.showSnackbar(
-                          message: "무료 NFT를 사용할 수 없습니다",
+                          message: LocaleKeys.youCanNotUseTheFreeNft
+                              .tr(), //"무료 NFT를 사용할 수 없습니다",
                           duration: const Duration(seconds: 5),
                         );
                       }

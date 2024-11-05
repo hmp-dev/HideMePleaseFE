@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class FreeNftRedeemView extends StatelessWidget {
   final String totalNfts;
@@ -38,7 +40,8 @@ class FreeNftRedeemView extends StatelessWidget {
             const SizedBox(width: 4),
             Expanded(
               child: Text(
-                '즉시 가입 가능한 커뮤니티',
+                LocaleKeys.instantlyJoinAbleCommunity.tr(),
+                //'즉시 가입 가능한 커뮤니티',
                 style: fontCompactMdMedium(),
               ),
             ),
@@ -97,7 +100,8 @@ class FreeNftRedeemView extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'NFT 수량',
+                        LocaleKeys.nftQuantity.tr(),
+                        //'NFT 수량',
                         style: fontTitle07(),
                       ),
                       const SizedBox(width: 10),
@@ -135,7 +139,7 @@ class FreeNftRedeemView extends StatelessWidget {
                   const SizedBox(height: 16.0),
                   HMPCustomButton(
                     bgColor: backgroundGr1,
-                    text: '지갑 연결하기',
+                    text: LocaleKeys.connectWallet.tr(), //'지갑 연결하기',
                     onPressed: onTap,
                   ),
                 ],

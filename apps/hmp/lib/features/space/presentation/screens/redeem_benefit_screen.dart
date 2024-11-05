@@ -606,8 +606,8 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
 
             WebViewScreen.push(
               context: context,
-              // title: LocaleKeys.agreeTermsAlertMSG.tr(),
-              title: "이벤트 참여 양식", // Event Participation Form
+              title: LocaleKeys.eventParticipationForm
+                  .tr(), //"이벤트 참여 양식", // Event Participation Form
               url: termsUrl,
             );
           },

@@ -18,16 +18,19 @@ class CustomRoundedButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 32,
-        width: context.locale == const Locale('en') ? 180 : 149,
+        width: context.locale == const Locale('en') ? 190 : 190,
         decoration: const BoxDecoration(
           color: black,
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
         child: Center(
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: fontCompactMdMedium(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: fontCompactMdMedium(),
+            ),
           ),
         ),
       ),

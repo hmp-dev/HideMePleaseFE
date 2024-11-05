@@ -50,7 +50,6 @@ class MyEditView extends StatefulWidget {
 }
 
 class _MyEditViewState extends State<MyEditView> {
-
   // ScrollController for the ScrollView.
   //
   // Used to control the scroll position of the form.
@@ -163,14 +162,18 @@ class _MyEditViewState extends State<MyEditView> {
                                 setState(() {
                                   nickName = text;
                                 });
-
-                                getIt<NickNameCubit>()
-                                    .onCheckNickName(nickName: text);
+                                if (text.length > 3 &&
+                                    text != userProfile.nickName) {
+                                  getIt<NickNameCubit>()
+                                      .onCheckNickName(nickName: text);
+                                }
                               },
                               onEditingComplete: () {
                                 // unfocus and close the Soft Key Board
                                 FocusScope.of(context)
                                     .requestFocus(FocusNode());
+
+                                return;
                               },
                             ),
                             const SizedBox(height: 16),
@@ -294,6 +297,9 @@ class _MyEditViewState extends State<MyEditView> {
                         if (widget.nickNameState.nickNameError) {
                           context.showErrorSnackBar(
                               LocaleKeys.nickNameIsAlreadyUsed.tr());
+                        } else if (nickName.isEmpty || introduction.isEmpty) {
+                          context.showErrorSnackBar(
+                              LocaleKeys.inputFieldsAreEmpty.tr());
                         } else {
                           getIt<ProfileCubit>().onUpdateUserProfile(
                             UpdateProfileRequestDto(

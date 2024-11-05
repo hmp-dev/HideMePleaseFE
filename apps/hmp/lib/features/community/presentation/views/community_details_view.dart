@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -446,7 +447,7 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                  '${widget.koreanNumFormat.format(widget.nftEntity.communityRank)}${LocaleKeys.rank.tr()}',
+                                  '${widget.koreanNumFormat.format(widget.nftEntity.communityRank)}${getRankWithSuffix('${widget.nftEntity.communityRank}')}',
                                   style: fontBoldEmpty(color: fore1)),
                             ],
                           ),

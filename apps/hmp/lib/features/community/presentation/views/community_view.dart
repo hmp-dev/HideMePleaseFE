@@ -8,7 +8,6 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
 import 'package:mobile/features/community/presentation/widgets/free_nft_redeem_view.dart';
-import 'package:mobile/features/community/presentation/widgets/get_free_nft_view.dart';
 import 'package:mobile/features/community/presentation/widgets/hot_communities_view.dart';
 import 'package:mobile/features/community/presentation/widgets/nft_community_card_widget.dart';
 import 'package:mobile/features/community/presentation/widgets/user_communities_view.dart';
@@ -170,6 +169,10 @@ class _CommunityViewState extends State<CommunityView> {
                   people: widget.allNftCommunities[index].people,
                   rank: widget.allNftCommunities[index].rank,
                   timeAgo: widget.allNftCommunities[index].timeAgo,
+                  communityRank:
+                      widget.allNftCommunities[index].communityRank.toString(),
+                  totalMembers:
+                      widget.allNftCommunities[index].totalMembers.toString(),
                 ),
               );
             },

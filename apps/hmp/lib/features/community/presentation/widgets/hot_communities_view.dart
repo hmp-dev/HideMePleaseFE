@@ -59,6 +59,7 @@ class HotCommunitiesView extends StatelessWidget {
                 people: hotNftCommunities[index].people,
                 rank: hotNftCommunities[index].rank,
                 timeAgo: hotNftCommunities[index].timeAgo,
+                totalMembers: "${hotNftCommunities[index].totalMembers}",
               );
             },
           ),

@@ -414,8 +414,8 @@ class _RedeemBenefitScreenWithSpaceState
             Navigator.pop(context);
             WebViewScreen.push(
               context: context,
-              //title: LocaleKeys.agreeTermsAlertMSG.tr(),
-              title: "이벤트 참여 양식", // Event Participation Form
+              title: LocaleKeys.eventParticipationForm.tr(),
+              //title: "이벤트 참여 양식", // Event Participation Form
               url: termsUrl,
             );
           },

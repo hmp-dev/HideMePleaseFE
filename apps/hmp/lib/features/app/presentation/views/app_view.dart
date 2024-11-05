@@ -2,6 +2,7 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/enum/menu_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/preload_page_view/preload_page_view.dart';
@@ -12,6 +13,7 @@ import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/community/presentation/screens/community_screen.dart';
 import 'package:mobile/features/events/presentation/screens/events_wepin_screen.dart';
+import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
@@ -203,11 +205,18 @@ class _AppViewState extends State<AppView> {
                                       getIt<WepinCubit>()
                                           .openWepinWidget(context, true);
                                     } else {
-                                      getIt<WepinCubit>().showLoader();
-                                      getIt<WepinCubit>().initWepinSDK(
-                                          selectedLanguageCode:
-                                              context.locale.languageCode,
-                                          isFromWePinWalletConnect: true);
+                                      if (getIt<HomeCubit>()
+                                              .state
+                                              .homeViewType ==
+                                          HomeViewType.afterWalletConnected) {
+                                        getIt<WepinCubit>().showLoader();
+                                        getIt<WepinCubit>().initWepinSDK(
+                                            selectedLanguageCode:
+                                                context.locale.languageCode,
+                                            isFromWePinWalletConnect: true);
+                                      } else {
+                                        _onChangeMenu(MenuType.home);
+                                      }
                                     }
                                   } else {
                                     _onChangeMenu(type);
