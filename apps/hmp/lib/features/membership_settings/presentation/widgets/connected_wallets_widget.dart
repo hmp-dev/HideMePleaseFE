@@ -1,14 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/common/presentation/widgets/wepin_icon_widget.dart';
-import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/common/presentation/widgets/wepin_icon_widget.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/plus_icon_round_button.dart';
-import 'package:mobile/features/wepin/wepin_wallet_connect_list_tile.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class ConnectedWalletsWidget extends StatelessWidget {

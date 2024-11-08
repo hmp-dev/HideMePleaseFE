@@ -3,7 +3,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
@@ -27,7 +26,6 @@ import 'package:mobile/features/home/presentation/widgets/members_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_iconnav_row.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
-import 'package:mobile/features/home/presentation/widgets/temp_test_button.dart';
 import 'package:mobile/features/nft/domain/entities/selected_nft_entity.dart';
 import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';

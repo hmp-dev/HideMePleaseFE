@@ -1,7 +1,3 @@
-import 'dart:convert';
-import 'dart:math';
-
-import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,27 +8,11 @@ import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/app/core/exceptions/login_with_google_failure.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart' as helper;
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_remote_data_source.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-
-/// Generates a cryptographically secure random nonce, to be included in a
-/// credential request.
-String generateNonce([int length = 32]) {
-  const charset =
-      '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
-  final random = Random.secure();
-  return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-      .join();
-}
-
-/// Returns the sha256 hash of [input] in hex notation.
-String sha256ofString(String input) {
-  final bytes = utf8.encode(input);
-  final digest = sha256.convert(bytes);
-  return digest.toString();
-}
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -52,7 +32,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Firebase, the nonce in the id token returned by Apple, is expected to
       // match the sha256 hash of `rawNonce`.
       final rawNonce = generateNonce();
-      final nonce = sha256ofString(rawNonce);
+      final nonce = helper.sha256ofString(rawNonce);
 
       // Request credential for the currently signed in Apple account.
       final appleCredential = await SignInWithApple.getAppleIDCredential(

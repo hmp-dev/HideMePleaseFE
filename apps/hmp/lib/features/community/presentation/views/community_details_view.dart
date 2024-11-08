@@ -811,9 +811,9 @@ class _CommunityInfoViewState extends State<_CommunityInfoView> {
                   Text(LocaleKeys.numberOfMembers.tr(),
                       style: fontTitle07(color: fore2)),
                   Expanded(
-                    child: Text(
+                    child: Text(widget.membersCount.toString(),
                         //membersCount [int.tryParse(widget.membersCount)]
-                        widget.koreanNumFormat.format(widget.membersCount),
+                        // widget.koreanNumFormat.format(widget.membersCount),
                         // widget.koreanNumFormat.format(
                         //     int.tryParse(widget.nftNetwork.holderCount) ?? 0),
                         textAlign: TextAlign.end,

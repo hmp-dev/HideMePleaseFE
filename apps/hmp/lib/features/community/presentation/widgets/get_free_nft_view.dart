@@ -20,7 +20,7 @@ class GetFreeNftView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
+              width: MediaQuery.of(context).size.width * 0.65,
               child: Text(
                 LocaleKeys.evenPeopleWithNftTitle.tr(),
                 style: fontTitle05Medium(),

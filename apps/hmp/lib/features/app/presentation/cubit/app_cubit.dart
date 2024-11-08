@@ -3,10 +3,13 @@
 import 'dart:async';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 
 part 'app_state.dart';
 
@@ -15,6 +18,8 @@ class AppCubit extends BaseCubit<AppState> {
   final AuthRepository _authRepository;
 
   AppCubit(this._authRepository) : super(AppState.initial());
+
+  final SecureStorage _secureStorage = getIt<SecureStorage>();
 
   Future<void> onStart() async {
     await _updateAuthStatus();
@@ -42,7 +47,14 @@ class AppCubit extends BaseCubit<AppState> {
 
     result.fold(
       (l) => ("inside onLogOut Error").log(),
-      (r) {
+      (r) async {
+        _secureStorage.delete(StorageValues.appleIdToken);
+        _secureStorage.delete(StorageValues.googleAccessToken);
+        _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
+
+        // logout from wepin
+        await getIt<WepinCubit>().onLogoutWepinSdk();
+        // emit state for login status as false
         emit(state.copyWith(isLoggedIn: false));
       },
     );

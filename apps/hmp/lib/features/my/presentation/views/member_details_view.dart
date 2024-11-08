@@ -48,7 +48,7 @@ class MemberDetailsView extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: BaseScaffold(
-        title: '멤버 상세',
+        title: LocaleKeys.memberDetails.tr(), //'멤버 상세',
         isCenterTitle: true,
         onBack: () {
           Navigator.pop(context);
@@ -74,7 +74,7 @@ class MemberDetailsView extends StatelessWidget {
                       isLoading: isPointsLoading,
                       nftPointsList: nftPointsList,
                       isOwner: false,
-                      title: '획득 포인트',
+                      title: LocaleKeys.earnedPoints.tr(), //'획득 포인트',
                     ),
                   ],
                 ),

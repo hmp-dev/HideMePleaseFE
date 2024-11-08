@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 final koreanNumFormat = NumberFormat("###,###,###", "en_US");
 
@@ -31,7 +32,8 @@ class WelcomeNftEntity extends Equatable {
   int get remainingCount => totalCount - usedCount;
 
   String get remainingNfts =>
-      NumberFormat("###,###,### 남음", "en_US").format(remainingCount);
+      NumberFormat("###,###,### ${LocaleKeys.remaining.tr()}", "en_US")
+          .format(remainingCount);
 
   @override
   List<Object?> get props =>

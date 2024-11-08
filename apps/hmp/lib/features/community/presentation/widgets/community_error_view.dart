@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class CommunityErrorView extends StatelessWidget {
   final String message;
@@ -23,7 +25,7 @@ class CommunityErrorView extends StatelessWidget {
             width: 200.0,
             child: HMPCustomButton(
               bgColor: backgroundGr1,
-              text: '다시 불러오기',
+              text: LocaleKeys.reload.tr(), //'다시 불러오기',
               onPressed: onRetry,
             ),
           ),

@@ -11,7 +11,6 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/empty_data_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/info_text_tool_tip_widget.dart';
@@ -146,7 +145,7 @@ class _MyMembershipSettingsScreenState
                   // 0 - Listen Wepin Status if it is not initialized
                   if (state.wepinLifeCycleStatus ==
                       WepinLifeCycle.notInitialized) {
-                    getIt<WepinCubit>().initWepinSDK(
+                    getIt<WepinCubit>().initializeWepinSDK(
                         selectedLanguageCode: context.locale.languageCode);
                   }
 

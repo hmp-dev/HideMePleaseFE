@@ -2,11 +2,13 @@
 
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_dialog.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_loading.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 /// The base scaffold widget for all screens.
 ///
@@ -81,8 +83,9 @@ class _BaseScaffoldState extends State<BaseScaffold> {
 
               if (widget.isFirstPage) {
                 var result = await DefaultDialog.show(context,
-                    title: "앱 종료",
-                    description: "앱을 종료하시겠습니까?",
+                    title: LocaleKeys.access_wepin_wallet.tr(), //"앱 종료",
+                    description: LocaleKeys.doYouWantToExitTheApp
+                        .tr(), // "앱을 종료하시겠습니까?",
                     onSuccess: () {});
                 return result ?? false;
               } else {

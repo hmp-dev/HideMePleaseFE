@@ -9,7 +9,6 @@ import 'package:mobile/features/common/presentation/widgets/custom_image_view.da
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/nft_video_player.dart';
-import 'package:mobile/features/common/presentation/widgets/nft_video_thumbnail.dart';
 import 'package:mobile/features/common/presentation/widgets/thick_divider.dart';
 import 'package:mobile/features/my/presentation/screens/nft_benefits_usage_history_detail.dart';
 import 'package:mobile/features/my/presentation/widgets/benefits_item_widget.dart';

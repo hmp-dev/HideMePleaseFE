@@ -297,9 +297,12 @@ class _MyEditViewState extends State<MyEditView> {
                         if (widget.nickNameState.nickNameError) {
                           context.showErrorSnackBar(
                               LocaleKeys.nickNameIsAlreadyUsed.tr());
-                        } else if (nickName.isEmpty || introduction.isEmpty) {
+                        } else if (nickName.isEmpty) {
                           context.showErrorSnackBar(
-                              LocaleKeys.inputFieldsAreEmpty.tr());
+                              LocaleKeys.nickNameIsRequired.tr());
+                        } else if (introduction.isEmpty) {
+                          context.showErrorSnackBar(
+                              LocaleKeys.introductionIsRequired.tr());
                         } else {
                           getIt<ProfileCubit>().onUpdateUserProfile(
                             UpdateProfileRequestDto(

@@ -259,8 +259,9 @@ class _RedeemBenefitScreenWithSpaceState
                                       context: context,
                                       buttonTitle:
                                           LocaleKeys.employeeConfirmation.tr(),
+                                      //직원에게 혜택 사용 화면을 보여주세요!
                                       title:
-                                          "직원에게 혜택 사용 화면을 보여주세요!\n${widget.benefit.description} ",
+                                          "${LocaleKeys.showTheEmployeeBenefitUsageScreen.tr()}\n${widget.benefit.description} ",
                                       onConfirm: () {
                                         Navigator.pop(context, true);
                                       },

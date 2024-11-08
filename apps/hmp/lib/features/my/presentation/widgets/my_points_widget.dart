@@ -115,7 +115,7 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
                     itemCount: widget.nftPointsList.length,
                     itemBuilder: (context, index) {
                       // get a value true if the index is the last one in widget.nftPointsList
-                      
+
                       return Container(
                         height: 120,
                         color: Colors.transparent,
@@ -190,8 +190,8 @@ class _MyPointsWidgetState extends State<MyPointsWidget> {
             top: 50,
             left: 100,
             child: InfoTextToolTipWidget(
-              title:
-                  "획득한 포인트는 혜택을 이용하고, 대화에 참여한 커뮤니티에 자동으로 기여됩니다. 포인트가 모이면, 멤버십의 혜택을 업그레이드 하는데 활용됩니다.",
+              title: LocaleKeys.pointsEarnedToolTipMessage.tr(),
+              //"획득한 포인트는 혜택을 이용하고, 대화에 참여한 커뮤니티에 자동으로 기여됩니다. 포인트가 모이면, 멤버십의 혜택을 업그레이드 하는데 활용됩니다.",
               onTap: () {
                 setState(() {
                   _isShowToolTip = false;

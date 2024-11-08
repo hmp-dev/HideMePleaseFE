@@ -210,7 +210,7 @@ class _AppViewState extends State<AppView> {
                                               .homeViewType ==
                                           HomeViewType.afterWalletConnected) {
                                         getIt<WepinCubit>().showLoader();
-                                        getIt<WepinCubit>().initWepinSDK(
+                                        getIt<WepinCubit>().initializeWepinSDK(
                                             selectedLanguageCode:
                                                 context.locale.languageCode,
                                             isFromWePinWalletConnect: true);

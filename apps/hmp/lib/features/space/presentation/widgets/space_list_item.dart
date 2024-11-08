@@ -109,7 +109,7 @@ class SpaceListItem extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 5),
                                     Text(
-                                      "${spaceEntity.hidingCount}명 숨어있어요",
+                                      "${spaceEntity.hidingCount}${LocaleKeys.peopleAreHiding.tr()}",
                                       style: fontCompactSm(color: fore2),
                                     ),
                                   ],

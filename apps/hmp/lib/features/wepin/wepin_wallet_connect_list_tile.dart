@@ -2,21 +2,14 @@
 
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/app/core/constants/storage.dart';
-import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/enum/wallet_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
-import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
-import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
-import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
@@ -26,10 +19,7 @@ import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
-import 'package:mobile/features/wepin/values/sdk_app_info.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-// import 'package:web3modal_flutter/widgets/lists/list_items/wallet_list_item.dart';
-import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 class WepinWalletConnectLisTile extends StatefulWidget {
@@ -58,232 +48,15 @@ class WepinWalletConnectLisTile extends StatefulWidget {
 }
 
 class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
-  String? googleAccessToken;
-  String? socialTokenIsAppleOrGoogle;
-  String? appleIdToken;
-  final SecureStorage _secureStorage = getIt<SecureStorage>();
-
-  final Map<String, String> currency = {
-    'ko': 'KRW',
-    'en': 'USD',
-    'ja': 'JPY',
-  };
-
-  WepinWidgetSDK? wepinSDK;
-  String? selectedValue = sdkConfigs[0]['name'];
-
-  WepinLifeCycle wepinStatus = WepinLifeCycle.notInitialized;
-  String userEmail = '';
-  List<WepinAccount> selectedAccounts = [];
-  List<WepinAccount> accountsList = [];
-  List<WepinAccountBalanceInfo> balanceList = [];
-  List<WepinNFT> nftList = [];
-  bool isLoading = false;
-  //String? privateKey;
-  //List<LoginProvider> loginProviders = sdkConfigs[0]['loginProviders'];
-  //List<LoginProvider> selectedSocialLogins = sdkConfigs[0]['loginProviders'];
-
   @override
   void initState() {
     super.initState();
   }
 
-  initSocialLoginValues() async {
-    socialTokenIsAppleOrGoogle =
-        await getIt<AuthLocalDataSource>().getSocialTokenIsAppleOrGoogle() ??
-            '';
-
-    if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
-      appleIdToken =
-          await _secureStorage.read(StorageValues.appleIdToken) ?? '';
-    }
-
-    if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
-      googleAccessToken =
-          await getIt<AuthCubit>().refreshGoogleAccessToken() ?? '';
-    }
-
-    setState(() {});
-  }
-
-  void initializeWepinSdk() async {
-    initSocialLoginValues();
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    final selectedConfig =
-        sdkConfigs.firstWhere((config) => config['name'] == selectedValue);
-
-    if (Platform.isAndroid) {
-      initWepinSDK(selectedConfig['appId']!, selectedConfig['appKeyAndroid']!,
-          selectedConfig['privateKey']!);
-    }
-
-    if (Platform.isIOS &&
-        socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
-      initWepinSDK(selectedConfig['appId']!, selectedConfig['appKeyApple']!,
-          selectedConfig['privateKey']!);
-    }
-
-    if (Platform.isIOS &&
-        socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
-      initWepinSDK(selectedConfig['appId']!, selectedConfig['appKeyApple']!,
-          selectedConfig['privateKey']!);
-    }
-  }
-
-  /// Initializes the Wepin SDK.
-  ///
-  /// This function will finalize any existing Wepin SDK instance and then
-  /// initialize a new Wepin SDK instance with the provided appId, appKey, and
-  /// privateKey.
-  ///
-  /// If the SDK initialization is successful, it will then call the
-  /// [loginSocialAuthProvider] function to attempt to login with the
-  /// user's social login token.
-  ///
-  /// If the SDK initialization fails, it will log an error message and
-  /// throw an exception.
-  ///
-  /// Returns a [Future] that completes when the SDK initialization is
-  /// complete.
-  Future<void> initWepinSDK(
-      String appId, String appKey, String privateKey) async {
-    await wepinSDK?.finalize();
-
-    try {
-      "Initializing WepinSDK AppKey: $appKey".log();
-
-      wepinSDK = WepinWidgetSDK(wepinAppKey: appKey, wepinAppId: appId);
-
-      await wepinSDK!.init(
-        attributes: WidgetAttributes(
-            defaultLanguage: context.locale.languageCode,
-            defaultCurrency: currency[context.locale.languageCode]!),
-      );
-    } on Exception catch (e) {
-      getIt<WepinCubit>().dismissLoader();
-      "Error Initializing WepinSDK: $e".log();
-
-      throw Exception(e);
-    }
-
-    wepinStatus = await wepinSDK!.getStatus();
-    // Save to Cubit
-    getIt<WepinCubit>().updateWepinStatus(wepinStatus);
-    //
-    userEmail = wepinStatus == WepinLifeCycle.login
-        ? (await wepinSDK!.login.getCurrentWepinUser())?.userInfo?.email ?? ''
-        : '';
-
-    if (wepinStatus == WepinLifeCycle.notInitialized) {
-      showError('WepinSDK is not initialized.');
-    }
-
-    getStatus();
-    //setState(() {});
-
-    // call Login with AccessToken
-
-    if (wepinSDK != null) {
-      loginSocialAuthProvider();
-    }
-  }
-
-  void showError(String message) {
-    "Error occurred: $message".log();
-    //
-    if (!message.contains('User Cancel')) {
-      context.showErrorSnackBar(LocaleKeys.somethingError.tr());
-    }
-
-    // showDialog(
-    //   context: context,
-    //   builder: (ctx) => CustomDialog(message: message, isError: true),
-    // );
-  }
-
-  void showSuccess(String title, String message) {
-    context.showSnackBar(message);
-    // showDialog(
-    //   context: context,
-    //   builder: (ctx) => CustomDialog(title: title, message: message),
-    // );
-  }
-
-  Future<void> performActionWithLoading(Function action) async {
-    //setState(() => isLoading = true);
-    try {
-      await action();
-    } catch (e) {
-      showError(e.toString());
-      //"Error occurred: $e".log();
-    } finally {
-      //setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> loginSocialAuthProvider() async {
-    await performActionWithLoading(() async {
-      try {
-        LoginResult? fbToken;
-
-        // if Login Type is Google
-        if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
-          fbToken = await wepinSDK!.login.loginWithAccessToken(
-              provider: 'google', accessToken: googleAccessToken ?? '');
-        }
-
-        // if Login Type is Apple
-        if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
-          fbToken = await wepinSDK!.login
-              .loginWithIdToken(idToken: appleIdToken ?? '');
-        }
-
-        if (fbToken != null) {
-          final wepinUser = await wepinSDK?.login.loginWepin(fbToken);
-
-          if (wepinUser != null && wepinUser.userInfo != null) {
-            userEmail = wepinUser.userInfo!.email; // Update user's email
-            wepinStatus = await wepinSDK!.getStatus(); // Get wepin status
-            getIt<WepinCubit>().updateWepinStatus(wepinStatus);
-          } else {
-            ('Login Failed. No user info found.').log();
-
-            showErrorAlertAndPerformLogout(
-                errorMessage: LocaleKeys.somethingError.tr());
-          }
-        } else {
-          ('Login Failed. Invalid token.').log();
-          showErrorAlertAndPerformLogout(
-              errorMessage: LocaleKeys.somethingError.tr());
-        }
-      } catch (e) {
-        if (!e.toString().contains('UserCancelled')) {
-          ('Login Failed. (error code - $e)').log();
-        }
-
-        //
-        showErrorAlertAndPerformLogout(
-            errorMessage: LocaleKeys.somethingError.tr());
-      }
-    });
-  }
-
-  void getStatus() async {
-    await performActionWithLoading(() async {
-      if (wepinSDK != null) {
-        wepinStatus = await wepinSDK!.getStatus();
-        getIt<WepinCubit>().updateWepinStatus(wepinStatus);
-      }
-    });
-  }
-
   @override
   void dispose() {
     super.dispose();
-    if (wepinSDK != null) {
-      wepinSDK!.finalize();
-    }
+
     getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
   }
 
@@ -291,6 +64,20 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
+        BlocListener<WepinCubit, WepinState>(
+          listenWhen: (previous, current) =>
+              current.isCountDownFinished == true,
+          bloc: getIt<WepinCubit>(),
+          listener: (context, state) async {
+            // 0- Listen Wepin Status if it is login before registered
+            // automatically register
+
+            // Now loader will be shown by
+            getIt<WepinCubit>().dismissLoader();
+            ('${LocaleKeys.somethingError.tr()}\n${state.error}\n wepinLifeCycleStatus: ${state.wepinLifeCycleStatus}')
+                .log();
+          },
+        ),
         BlocListener<WepinCubit, WepinState>(
           listenWhen: (previous, current) =>
               current.wepinLifeCycleStatus == WepinLifeCycle.login,
@@ -303,7 +90,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                 state.accounts.isNotEmpty) {
               // if status is login save wallets to backend
 
-              for (var account in accountsList) {
+              for (var account in state.accounts) {
                 logAccountDetails(account);
 
                 if (account.network.toLowerCase() == "ethereum") {
@@ -331,8 +118,8 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                 .log();
 
             if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
-                wepinSDK != null) {
-              accountsList = await wepinSDK!.getAccounts();
+                state.wepinWidgetSDK != null) {
+              var accountsList = await state.wepinWidgetSDK!.getAccounts();
 
               getIt<WepinCubit>().saveAccounts(accountsList);
               // Dismiss Loader with in WepinCubit
@@ -344,10 +131,10 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
 
         BlocListener<WepinCubit, WepinState>(
           listenWhen: (previous, current) =>
-              previous.wepinLifeCycleStatus !=
-                  WepinLifeCycle.loginBeforeRegister &&
               current.wepinLifeCycleStatus ==
-                  WepinLifeCycle.loginBeforeRegister,
+                  WepinLifeCycle.loginBeforeRegister &&
+              previous.wepinLifeCycleStatus != current.wepinLifeCycleStatus &&
+              !current.isWepinModelOpen,
           bloc: getIt<WepinCubit>(),
           listener: (context, state) async {
             // 0- Listen Wepin Status if it is login before registered
@@ -356,8 +143,16 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                 WepinLifeCycle.loginBeforeRegister) {
               // Now loader will be shown by
               getIt<WepinCubit>().dismissLoader();
-              await wepinSDK!.register(context);
-              getStatus();
+
+              if (!state.isWepinModelOpen) {
+                getIt<WepinCubit>().updateIsWepinModelOpen(true);
+                if (state.wepinWidgetSDK != null) {
+                  await state.wepinWidgetSDK!.register(context);
+                }
+              }
+
+              getIt<WepinCubit>().updateWepinStatus(state.wepinLifeCycleStatus);
+              getIt<WepinCubit>().updateIsWepinModelOpen(false);
             }
           },
         ),
@@ -421,7 +216,8 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                     ? GetFreeNftView(
                         onTap: () {
                           getIt<WepinCubit>().showLoader();
-                          initializeWepinSdk();
+
+                          getIt<WepinCubit>().onConnectWepinWallet(context);
                         },
                       )
                     : (widget.isShowWelcomeNFTCard)
@@ -436,7 +232,8 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                                     return; // Do nothing if in loading state
                                   }
                                   getIt<WepinCubit>().showLoader();
-                                  initializeWepinSdk();
+                                  getIt<WepinCubit>()
+                                      .onConnectWepinWallet(context);
                                 },
                               );
                             },
@@ -462,7 +259,10 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                                       );
                                     } else {
                                       getIt<WepinCubit>().showLoader();
-                                      initializeWepinSdk();
+                                      //initializeWepin();
+
+                                      getIt<WepinCubit>()
+                                          .onConnectWepinWallet(context);
                                     }
                                   },
                                 ),
@@ -499,7 +299,9 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                                       if (updatedState.tappedWalletName ==
                                           WalletProvider.WEPIN.name) {
                                         getIt<WepinCubit>().showLoader();
-                                        initializeWepinSdk();
+                                        //initializeWepin();
+                                        getIt<WepinCubit>()
+                                            .onConnectWepinWallet(context);
                                       }
                                     },
                                     child: Text(
@@ -536,6 +338,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   }
 
   showErrorAlertAndPerformLogout({required String errorMessage}) {
+    getIt<WepinCubit>().dismissLoader();
     context.showErrorSnackBarDismissible(errorMessage);
 
     // getIt<AppCubit>().onLogOut();

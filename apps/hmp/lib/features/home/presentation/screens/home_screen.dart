@@ -84,11 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .init(context: context, solWallet: SolanaWalletProvider.of(context));
     // initialize the WepinSDK and Login
     getIt<WepinCubit>()
-        .initWepinSDK(selectedLanguageCode: context.locale.languageCode);
-
-    // getIt<WepinCubit>().initWepinSDK(
-    //   selectedLanguageCode: context.locale.languageCode,
-    // );
+        .initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
   }
 
   void _scrollListener() {

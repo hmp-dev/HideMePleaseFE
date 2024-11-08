@@ -1,17 +1,19 @@
-// ignore_for_file: unused_field
-
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart' as helper;
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
+
+/// Generates a cryptographically secure random nonce, to be included in a
+/// credential request.
 
 part 'auth_state.dart';
 
@@ -70,6 +72,43 @@ class AuthCubit extends BaseCubit<AuthState> {
       ("Error refreshing Google access token: $e").log();
       return null;
     }
+  }
+
+  Future<String?> refreshAppleIdToken() async {
+    try {
+      // Retrieve the stored nonce if you are using it again, or generate a new one
+      final rawNonce = generateNonce();
+      final nonce = helper.sha256ofString(rawNonce);
+
+      // Request a fresh Apple credential
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: nonce,
+      );
+
+      // Create a new OAuthCredential using the fresh credential from Apple
+      final oauthCredential = OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        rawNonce: rawNonce,
+      );
+
+      // Re-authenticate with the new credential to refresh the token
+      await FirebaseAuth.instance.currentUser
+          ?.reauthenticateWithCredential(oauthCredential);
+
+      // save Social Login Type
+      _localDataSource
+          .setSocialTokenIsAppleOrGoogle(SocialLoginType.APPLE.name);
+      _localDataSource.setAppleIdToken(oauthCredential.idToken ?? "");
+
+      return oauthCredential.idToken ?? "";
+    } catch (e) {
+      ('Error refreshing Apple ID token: $e').log();
+    }
+    return null;
   }
 
   Future<void> onAppleLogin() async {

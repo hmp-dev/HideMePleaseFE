@@ -289,14 +289,14 @@ class WalletsCubit extends BaseCubit<WalletsState> {
         onUpdateTappedWalletName(WalletProvider.WEPIN.name);
 
         if (isFromWePinWalletConnect) {
-          getIt<WepinCubit>().initWepinSDK(
+          getIt<WepinCubit>().initializeWepinSDK(
               selectedLanguageCode: context.locale.languageCode,
               isFromWePinWalletConnect: true);
         }
 
         //
         if (isFromWePinWelcomeNftRedeem && !isFromWePinWalletConnect) {
-          getIt<WepinCubit>().initWepinSDK(
+          getIt<WepinCubit>().initializeWepinSDK(
               selectedLanguageCode: context.locale.languageCode,
               isFromWePinWelcomeNftRedeem: true);
         }

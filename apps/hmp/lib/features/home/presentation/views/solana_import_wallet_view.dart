@@ -33,7 +33,7 @@ class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      title: '지갑 가져오기',
+      title: LocaleKeys.getYourWallet.tr(), //'지갑 가져오기',
       isCenterTitle: true,
       backIconPath: "assets/icons/ic_close.svg",
       onBack: () {

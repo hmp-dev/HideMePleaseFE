@@ -217,5 +217,15 @@
     "nftQuantity": "NFT 수량",
     "connectWallet": "지갑 연결하기",
     "enterYourWalletAddress": "지갑 주소 입력",
-    "invalidPublicKey": "잘못된 공개 키"
+    "invalidPublicKey": "잘못된 공개 키",
+    "getYourWallet": "지갑 가져오기",
+    "nickNameIsRequired": "별명이 필요합니다",
+    "introductionIsRequired": "소개가 필요합니다",
+    "memberDetails": "멤버 상세",
+    "earnedPoints": "획득 포인트",
+    "pointsEarnedToolTipMessage": "획득한 포인트는 혜택을 이용하고, 대화에 참여한 커뮤니티에 자동으로 기여됩니다. 포인트가 모이면, 멤버십의 혜택을 업그레이드 하는데 활용됩니다.",
+    "showTheEmployeeBenefitUsageScreen": "직원에게 혜택 사용 화면을 보여주세요!",
+    "exitTheApp": "앱 종료",
+    "doYouWantToExitTheApp": "앱을 종료하시겠습니까?",
+    "reload": "다시 불러오기"
 }

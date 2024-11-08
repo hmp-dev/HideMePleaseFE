@@ -219,5 +219,15 @@ abstract class  LocaleKeys {
   static const connectWallet = 'connectWallet';
   static const enterYourWalletAddress = 'enterYourWalletAddress';
   static const invalidPublicKey = 'invalidPublicKey';
+  static const getYourWallet = 'getYourWallet';
+  static const nickNameIsRequired = 'nickNameIsRequired';
+  static const introductionIsRequired = 'introductionIsRequired';
+  static const memberDetails = 'memberDetails';
+  static const earnedPoints = 'earnedPoints';
+  static const pointsEarnedToolTipMessage = 'pointsEarnedToolTipMessage';
+  static const showTheEmployeeBenefitUsageScreen = 'showTheEmployeeBenefitUsageScreen';
+  static const exitTheApp = 'exitTheApp';
+  static const doYouWantToExitTheApp = 'doYouWantToExitTheApp';
+  static const reload = 'reload';
 
 }

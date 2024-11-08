@@ -216,5 +216,15 @@
      "nftQuantity": "NFT Quantity",
      "connectWallet": "Connect Wallet",
      "enterYourWalletAddress": "Enter your wallet address",
-     "invalidPublicKey": "Invalid public key"
+     "invalidPublicKey": "Invalid public key",
+     "getYourWallet": "Get the wallet",
+     "nickNameIsRequired": "Nick name is required",
+     "introductionIsRequired": "Introduction is required",
+     "memberDetails": "Member Details",
+     "earnedPoints": "Earned Points",
+     "pointsEarnedToolTipMessage": "Points you earn can be used for special benefits and are also shared automatically with the community you engage with. As you collect more points, you can unlock even more membership rewards.",
+     "showTheEmployeeBenefitUsageScreen": "Show the employee the benefits usage screen!",
+     "exitTheApp": "Exit the app",
+     "doYouWantToExitTheApp": "Do you want to exit the app?",
+     "reload": "Reload"
 }

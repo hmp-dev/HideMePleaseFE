@@ -11,9 +11,9 @@ import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/enum/social_login_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
-import 'package:mobile/features/auth/infrastructure/repositoriies/auth_repository.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/wepin/values/sdk_app_info.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -32,10 +32,37 @@ class WepinCubit extends BaseCubit<WepinState> {
 
   WepinWidgetSDK? _wepinSDK;
 
+  Future<void> resetState() async {
+    emit(state.copyWith(wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
+  }
+
+  void startCountdown() {
+    "start counter is called".log();
+
+    int counter = 0;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      counter++;
+
+      "inside startCountdown ==> counter is $counter".log();
+      if (counter >= 20) {
+        timer.cancel();
+        dismissLoader();
+        emit(
+          state.copyWith(isCountDownFinished: true, isLoading: false),
+        ); // Emit true when reaching 20 seconds
+      }
+    });
+  }
+
   updateIsPerformWepinWelcomeNftRedeem(bool value) {
     emit(state.copyWith(
       isPerformWepinWelcomeNftRedeem: value,
     ));
+  }
+
+  Future<void> onLogoutWepinSdk() async {
+    await state.wepinWidgetSDK!.login.logoutWepin();
+    emit(state.copyWith(wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
   }
 
   Future<void> onConnectWepinWallet(BuildContext context) async {
@@ -53,36 +80,34 @@ class WepinCubit extends BaseCubit<WepinState> {
       error: '',
     ));
 
-    if (state.wepinWidgetSDK != null) {
-      switch (state.wepinLifeCycleStatus) {
-        case WepinLifeCycle.notInitialized:
-          // Optionally call login with Google if SDK initialization is successful
-          initWepinSDK(selectedLanguageCode: context.locale.languageCode);
-          break;
+    // if (state.wepinWidgetSDK != null) {
+    //   switch (state.wepinLifeCycleStatus) {
+    //     case WepinLifeCycle.notInitialized:
+    //       initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
+    //       break;
 
-        case WepinLifeCycle.initialized:
-          // Optionally call login with Google if SDK initialization is successful
-          loginSocialAuthProvider();
-          break;
+    //     case WepinLifeCycle.initialized:
+    //       loginSocialAuthProvider();
+    //       break;
 
-        case WepinLifeCycle.loginBeforeRegister:
-          registerToWepin(context);
-          break;
+    //     case WepinLifeCycle.loginBeforeRegister:
+    //       registerToWepin(context);
+    //       break;
 
-        case WepinLifeCycle.login:
-          fetchAccounts();
-          break;
+    //     case WepinLifeCycle.login:
+    //       fetchAccounts();
+    //       break;
 
-        default:
-          // No action needed for other statuses
-          break;
-      }
-    } else {
-      initWepinSDK(selectedLanguageCode: context.locale.languageCode);
-    }
+    //     default:
+    //       // No action needed for other statuses
+    //       break;
+    //   }
+    // } else {
+    //   initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
+    // }
   }
 
-  Future<void> initWepinSDK({
+  Future<void> initializeWepinSDK({
     required String selectedLanguageCode,
     bool isFromWePinWalletConnect = false,
     bool isFromWePinWelcomeNftRedeem = false,
@@ -362,7 +387,8 @@ class WepinCubit extends BaseCubit<WepinState> {
 
       if (wepinStatus == WepinLifeCycle.notInitialized) {
         // if not initialized login into wepin
-        await initWepinSDK(selectedLanguageCode: context.locale.languageCode);
+        await initializeWepinSDK(
+            selectedLanguageCode: context.locale.languageCode);
 
         // again check status of wepin
         final wepinStatus = await state.wepinWidgetSDK!.getStatus();
@@ -414,6 +440,7 @@ class WepinCubit extends BaseCubit<WepinState> {
   }
 
   updateWepinStatus(WepinLifeCycle newStatus) {
+    "updateWepinStatus is called ==> newStatus is $newStatus".log();
     emit(state.copyWith(wepinLifeCycleStatus: newStatus));
   }
 
@@ -427,6 +454,7 @@ class WepinCubit extends BaseCubit<WepinState> {
   }
 
   showLoader() {
+    dismissLoader();
     emit(state.copyWith(isLoading: true));
     EasyLoading.show();
   }

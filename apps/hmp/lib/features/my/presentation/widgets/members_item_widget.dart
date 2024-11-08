@@ -73,7 +73,7 @@ class MembersItemWidget extends StatelessWidget {
                             style: fontCompactSm(color: fore2),
                           ),
                           Text(
-                            "${nft.communityRank}위",
+                            "${nft.communityRank}${getRankWithSuffix(nft.communityRank.toString())}",
                             style: fontCompactLgBold(),
                           ),
                         ],
