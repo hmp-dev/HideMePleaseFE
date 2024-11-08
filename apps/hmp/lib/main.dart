@@ -1,3 +1,4 @@
+import 'package:bloc/bloc.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -5,20 +6,19 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:bloc/bloc.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
-import 'package:mobile/app/core/helpers/shared_preferences_keys.dart';
-import 'package:talker_bloc_logger/talker_bloc_logger.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/app.dart';
 import 'package:mobile/app/core/env/app_env.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
+import 'package:mobile/app/core/helpers/shared_preferences_keys.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/localisation/ko_timeago_messages.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/firebase_options.dart';
+import 'package:talker_bloc_logger/talker_bloc_logger.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 

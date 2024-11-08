@@ -109,7 +109,7 @@ class _AppViewState extends State<AppView> {
                           alignment: Alignment.topCenter,
                           children: [
                             BottomBar(
-                              onTap: (type) {
+                              onTap: (type) async {
                                 ('type: $type').log();
                                 if (type == MenuType.settings) {
                                   // update EventView Active Status
@@ -135,15 +135,15 @@ class _AppViewState extends State<AppView> {
                                       .state
                                       .isWepinWalletConnected) {
                                     getIt<WepinCubit>()
-                                        .openWepinWidget(context, true);
+                                        .openWepinWidget(context);
                                   } else {
                                     if (getIt<HomeCubit>().state.homeViewType ==
                                         HomeViewType.afterWalletConnected) {
+                                      //
                                       getIt<WepinCubit>().showLoader();
-                                      getIt<WepinCubit>().initializeWepinSDK(
-                                          selectedLanguageCode:
-                                              context.locale.languageCode,
-                                          isFromWePinWalletConnect: true);
+                                      getIt<WepinCubit>().onConnectWepinWallet(
+                                          context,
+                                          isOpenWepinModel: true);
                                     } else {
                                       _onChangeMenu(MenuType.home);
                                     }

@@ -41,7 +41,6 @@ final kSolanaAppId = AppIdentity(
 class WalletsCubit extends BaseCubit<WalletsState> {
   final WalletsRepository _walletsRepository;
 
-  ReownAppKitModal? _reownAppKitModel;
   SolanaWalletProvider? _solanaWallet;
 
   WalletsCubit(
@@ -125,7 +124,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
   ///
   /// Returns:
   /// - A [Future] that completes when the initialization is done.
-  Future<void> init(
+  Future<void> initReownAppKitSdk(
       {required BuildContext context,
       required SolanaWalletProvider solWallet}) async {
     // Set the initial state to loading
@@ -136,45 +135,55 @@ class WalletsCubit extends BaseCubit<WalletsState> {
       _solanaWallet = solWallet;
 
       // Initialize the WalletConnect service
-      _reownAppKitModel = ReownAppKitModal(
-        context: context,
-        logLevel: LogLevel.nothing,
-        featuredWalletIds: Web3Constants.allowedWalletIds,
-        includedWalletIds: Web3Constants.allowedWalletIds,
-        projectId: Web3Constants.projectId,
-        metadata: const PairingMetadata(
-          name: kAppName,
-          description: 'Hide Me Please App',
-          url: kAppWeb,
-          icons: [kAppIcon],
-          redirect: Redirect(
-            native: 'web3modalflutter://',
-            universal: 'HideMePlease',
+
+      emit(
+        state.copyWith(
+          reownAppKitModal: ReownAppKitModal(
+            context: context,
+            logLevel: LogLevel.all,
+            featuredWalletIds: Web3Constants.allowedWalletIds,
+            includedWalletIds: Web3Constants.allowedWalletIds,
+            projectId: Web3Constants.projectId,
+            metadata: const PairingMetadata(
+              name: kAppName,
+              description: 'Hide Me Please App',
+              url: kAppWeb,
+              icons: [kAppIcon],
+              redirect: Redirect(
+                native: 'web3modalflutter://',
+                universal: 'HideMePlease',
+              ),
+            ),
           ),
         ),
       );
 
-      await _reownAppKitModel!.init();
+      await state.reownAppKitModal!.init();
 
       // Subscribe to session events
-      _reownAppKitModel!.onSessionEventEvent.subscribe(_onSessionEvent);
+      state.reownAppKitModal!.onSessionEventEvent.subscribe(_onSessionEvent);
       // Subscribe to session updates
-      _reownAppKitModel!.onSessionUpdateEvent.subscribe(_onSessionUpdate);
+      state.reownAppKitModal!.onSessionUpdateEvent.subscribe(_onSessionUpdate);
       // Subscribe to session expiration
-      _reownAppKitModel!.onSessionExpireEvent.subscribe(_onSessionExpired);
+      state.reownAppKitModal!.onSessionExpireEvent.subscribe(_onSessionExpired);
       // Subscribe to modal errors
-      _reownAppKitModel!.onModalError.subscribe(_onModalError);
+      state.reownAppKitModal!.onModalError.subscribe(_onModalError);
       // Subscribe to modal connection
-      _reownAppKitModel!.onModalConnect.subscribe(_onModalConnect);
+      state.reownAppKitModal!.onModalConnect.subscribe(_onModalConnect);
       // Subscribe to modal disconnection
-      _reownAppKitModel!.onModalDisconnect.subscribe(_onModalDisconnect);
+      state.reownAppKitModal!.onModalDisconnect.subscribe(_onModalDisconnect);
 
       // Emit the success state
       emit(state.copyWith(
-        reownAppKitModal: _reownAppKitModel,
         submitStatus: RequestStatus.success,
       ));
-    } catch (e) {
+    } catch (e, t) {
+      "_reownAppKitModel init error $e".log();
+
+      "_reownAppKitModel init error: StackTrace $t".log();
+
+      "_reownAppKitModel init error ${state.reownAppKitModal!.status}".log();
+
       // Emit the failure state with an error message
       emit(state.copyWith(
         submitStatus: RequestStatus.failure,
@@ -186,11 +195,8 @@ class WalletsCubit extends BaseCubit<WalletsState> {
   void _onSessionEvent(SessionEvent? args) {
     if (args?.name == EventsConstants.chainChanged) {
       final chainId = args?.data.toString() ?? '';
-      // if (W3MChainPresets.chains.containsKey(chainId)) {
-      //   final chain = W3MChainPresets.chains[chainId];
 
-      //   ('onSessionEvent Chain: $chain').log();
-      // }
+      ('onSessionEvent Chain: $chainId').log();
     }
   }
 
@@ -244,7 +250,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     ('[$runtimeType] onModalDisconnect $args').log();
   }
 
-  Future<void> onConnectWallet({
+  Future<void> onOpenReownAppKitBottomModal({
     required BuildContext context,
     bool isFromWePinWalletConnect = false,
     bool isFromWePinWelcomeNftRedeem = false,
@@ -253,9 +259,10 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     // reset the tapped wallet name
     onUpdateTappedWalletName('');
     onUpdateIsWelcomeNftRedeemInProcess(false);
-    await _reownAppKitModel!.openModalView();
+    await state.reownAppKitModal!.openModalView();
 
-    if (_reownAppKitModel!.selectedWallet?.listing.id == 'phantom-custom') {
+    if (state.reownAppKitModal!.selectedWallet?.listing.id ==
+        'phantom-custom') {
       if (Platform.isAndroid) {
         onConnectSolWallet(context);
       } else if (Platform.isIOS) {
@@ -278,7 +285,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
       }
     }
 
-    if (_reownAppKitModel!.selectedWallet?.listing.id == 'wepin-custom') {
+    if (state.reownAppKitModal!.selectedWallet?.listing.id == 'wepin-custom') {
       "Wepin Connect is called".log();
       if (state.isWepinWalletConnected) {
         context.showSnackBar(
@@ -289,23 +296,23 @@ class WalletsCubit extends BaseCubit<WalletsState> {
         onUpdateTappedWalletName(WalletProvider.WEPIN.name);
 
         if (isFromWePinWalletConnect) {
-          getIt<WepinCubit>().initializeWepinSDK(
-              selectedLanguageCode: context.locale.languageCode,
-              isFromWePinWalletConnect: true);
+          getIt<WepinCubit>().showLoader();
+          getIt<WepinCubit>()
+              .onConnectWepinWallet(context, isFromWePinWalletConnect: true);
         }
 
         //
         if (isFromWePinWelcomeNftRedeem && !isFromWePinWalletConnect) {
-          getIt<WepinCubit>().initializeWepinSDK(
-              selectedLanguageCode: context.locale.languageCode,
-              isFromWePinWelcomeNftRedeem: true);
+          getIt<WepinCubit>().showLoader();
+          getIt<WepinCubit>()
+              .onConnectWepinWallet(context, isFromWePinWelcomeNftRedeem: true);
         }
       }
     }
   }
 
   onCloseWalletConnectModel() async {
-    _reownAppKitModel!.closeModal();
+    state.reownAppKitModal!.closeModal();
   }
 
   onUpdateTappedWalletName(String walletName) async {

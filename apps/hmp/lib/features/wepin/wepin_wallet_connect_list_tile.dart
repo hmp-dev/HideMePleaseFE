@@ -175,7 +175,8 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                                     // await Future.delayed(
                                     //     const Duration(milliseconds: 200));
                                     // //
-                                    await getIt<WalletsCubit>().onConnectWallet(
+                                    await getIt<WalletsCubit>()
+                                        .onOpenReownAppKitBottomModal(
                                       context: context,
                                       onTapConnectWalletButton: true,
                                     );

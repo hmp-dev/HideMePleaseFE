@@ -80,8 +80,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _initWallets() async {
     await SolanaWalletProvider.initialize();
     // initialize the w3mService
-    await getIt<WalletsCubit>()
-        .init(context: context, solWallet: SolanaWalletProvider.of(context));
+    await getIt<WalletsCubit>().initReownAppKitSdk(
+        context: context, solWallet: SolanaWalletProvider.of(context));
     // initialize the WepinSDK and Login
     await getIt<WepinCubit>()
         .initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
@@ -362,7 +362,7 @@ class _HomeScreenState extends State<HomeScreen> {
           //
           await Future.delayed(const Duration(milliseconds: 100));
           //
-          getIt<WalletsCubit>().onConnectWallet(
+          getIt<WalletsCubit>().onOpenReownAppKitBottomModal(
               context: context, isFromWePinWelcomeNftRedeem: true);
         },
       );

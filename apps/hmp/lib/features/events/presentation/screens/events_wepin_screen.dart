@@ -98,8 +98,7 @@ class EventsComingSoonChildView extends StatelessWidget {
                 );
               } else {
                 getIt<WepinCubit>().showLoader();
-                getIt<WepinCubit>().initializeWepinSDK(
-                    selectedLanguageCode: context.locale.languageCode,
+                getIt<WepinCubit>().onConnectWepinWallet(context,
                     isFromWePinWalletConnect: true);
               }
             },

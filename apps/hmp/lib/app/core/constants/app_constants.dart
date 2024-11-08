@@ -16,3 +16,18 @@ const String invitationModelTile = '''
  거부할 권리가 있습니다. 단, 동의를 거부하실 
  경우 이벤트 참여 대상에서 제외됩니다.
 ''';
+
+const String invitationModelTileEN = '''
+‘Final Treasure’ Giveaway Event Participation Guide
+※ This NFT includes entry into the ‘Final Treasure’ 
+giveaway event. Only those who consent to the 
+collection and use of personal information will be 
+entered into the event draw.
+1. Purpose of Collection: To provide prizes through drawing
+2. Collection Items: Name, Phone Number
+3. Retention and Use Period: Destroyed within 3 months 
+   after prize delivery
+※ Users have the right to refuse consent to the 
+   collection and use of personal information above. 
+   However, refusal may result in exclusion from the event.
+''';

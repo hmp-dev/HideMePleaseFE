@@ -65,7 +65,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         //
                         await Future.delayed(const Duration(milliseconds: 500));
                         //
-                        getIt<WalletsCubit>().onConnectWallet(
+                        getIt<WalletsCubit>().onOpenReownAppKitBottomModal(
                             context: context,
                             isFromWePinWelcomeNftRedeem: true);
                       }

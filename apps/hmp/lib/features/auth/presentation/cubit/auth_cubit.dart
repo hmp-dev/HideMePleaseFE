@@ -26,9 +26,6 @@ class AuthCubit extends BaseCubit<AuthState> {
   final AuthLocalDataSource _localDataSource;
 
   // Declare wepinSDK here
-  WepinWidgetSDK? wepinSDK;
-  WepinLifeCycle wepinStatus = WepinLifeCycle.notInitialized;
-  String userEmail = '';
 
   Future<void> onGoogleLogin() async {
     final result = await _authRepository.requestGoogleLogin();
@@ -156,6 +153,4 @@ class AuthCubit extends BaseCubit<AuthState> {
       ),
     );
   }
-
-  // wepin related functions
 }

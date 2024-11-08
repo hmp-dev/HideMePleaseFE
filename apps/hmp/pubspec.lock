@@ -77,10 +77,10 @@ packages:
     dependency: transitive
     description:
       name: asn1lib
-      sha256: "6b151826fcc95ff246cd219a0bf4c753ea14f4081ad71c61939becf3aba27f70"
+      sha256: "4bae5ae63e6d6dd17c4aac8086f3dec26c0236f6a0f03416c6c19d830c367cf5"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.5"
+    version: "1.5.8"
   async:
     dependency: transitive
     description:
@@ -397,10 +397,10 @@ packages:
     dependency: transitive
     description:
       name: csslib
-      sha256: "706b5707578e0c1b4b7550f64078f0a0f19dec3f50a178ffae7006b0a9ca58fb"
+      sha256: "09bad715f418841f976c77db72d5398dc1253c21fb9c0c7f0b0b985860b2d58e"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.2"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -413,10 +413,10 @@ packages:
     dependency: transitive
     description:
       name: custom_sliding_segmented_control
-      sha256: "53c3e931c3ae1f696085d1ec70ac8e934da836595a9b7d9b88fdd0fcbf2a5574"
+      sha256: eca54f37c999351522a6aa82bf451241df05ae4e231d593f77034615251034eb
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.3"
+    version: "1.8.4"
   darq:
     dependency: "direct main"
     description:
@@ -906,10 +906,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: "49eeef364fddb71515bc78d5a8c51435a68bccd6e4d68e25a942c5e47761ae71"
+      sha256: "674173fd3c9eda9d4c8528da2ce0ea69f161577495a9cc835a2a4ecd7eadeb35"
       url: "https://pub.dev"
     source: hosted
-    version: "17.2.3"
+    version: "17.2.4"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -1265,10 +1265,10 @@ packages:
     dependency: "direct main"
     description:
       name: google_sign_in
-      sha256: "0b8787cb9c1a68ad398e8010e8c8766bfa33556d2ab97c439fb4137756d7308f"
+      sha256: fad6ddc80c427b0bba705f2116204ce1173e09cf299f85e053d57a55e5b2dd56
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.1"
+    version: "6.2.2"
   google_sign_in_android:
     dependency: transitive
     description:
@@ -1297,10 +1297,10 @@ packages:
     dependency: transitive
     description:
       name: google_sign_in_web
-      sha256: "042805a21127a85b0dc46bba98a37926f17d2439720e8a459d27045d8ef68055"
+      sha256: ada595df6c30cead48e66b1f3a050edf0c5cf2ba60c185d69690e08adcc6281b
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.4+2"
+    version: "0.12.4+3"
   graphs:
     dependency: transitive
     description:
@@ -1329,10 +1329,10 @@ packages:
     dependency: transitive
     description:
       name: html
-      sha256: "3a7812d5bcd2894edf53dfaf8cd640876cf6cef50a8f238745c8b8120ea74d3a"
+      sha256: "1fc58edeaec4307368c60d59b7e15b9d658b57d7f3125098b6294153c75337ec"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.4"
+    version: "0.15.5"
   http:
     dependency: "direct main"
     description:
@@ -1489,10 +1489,10 @@ packages:
     dependency: transitive
     description:
       name: just_audio
-      sha256: b41646a8241688f1d99c2e69c4da2bb26aa4b3a99795f6ff205c2a165e033fda
+      sha256: a49e7120b95600bd357f37a2bb04cd1e88252f7cdea8f3368803779b925b1049
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.41"
+    version: "0.9.42"
   just_audio_platform_interface:
     dependency: transitive
     description:
@@ -1713,10 +1713,10 @@ packages:
     dependency: transitive
     description:
       name: path_parsing
-      sha256: e3e67b1629e6f7e8100b367d3db6ba6af4b1f0bb80f64db18ef1fbabd2fa9ccf
+      sha256: "883402936929eac138ee0a45da5b0f2c80f89913e6dc3bf77eb65b84b409c6ca"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "1.1.0"
   path_provider:
     dependency: "direct main"
     description:
@@ -1936,18 +1936,18 @@ packages:
     dependency: transitive
     description:
       name: reown_core
-      sha256: "79415acb5cd3cba570da271ccf83bc5a75db527098c5df6bcf417284ac99f049"
+      sha256: e21ad9ca211ecd5221f027a76f978105eaf2335edb0687ddcebda1da53417d20
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "1.0.4"
   reown_sign:
     dependency: transitive
     description:
       name: reown_sign
-      sha256: "47ac35b16353c743ec9502fb977709910c8af6772928469d5c769cd08253fabe"
+      sha256: ef2493a3992772d9495b9232b4ece7e7be0e0893f88d34f80aa6eda2e49b3e6e
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "1.0.4"
   rxdart:
     dependency: transitive
     description:
@@ -1976,10 +1976,10 @@ packages:
     dependency: "direct main"
     description:
       name: sendbird_chat_sdk
-      sha256: "5ad48f0f339dec98422b4dbdb8e90760db694bfa5f4da0015c852b86aca6adfa"
+      sha256: "3339d8d00db2033980c3aa66954dc796eac2f4a7dcd40a5b8adf854facc5482a"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.24"
+    version: "4.2.27"
   sendbird_uikit:
     dependency: "direct main"
     description:
@@ -2316,10 +2316,10 @@ packages:
     dependency: "direct main"
     description:
       name: stacked_services
-      sha256: "01c5b1875d383b39dce780ee0a8ce4de99f2500d52d2e26676e787fd163e36bd"
+      sha256: a70c5c86f89a9258139ff174bf045a527099ea8552f8497ebb0b755469841bb4
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.1"
+    version: "1.6.0"
   stacked_shared:
     dependency: transitive
     description:
@@ -2788,10 +2788,10 @@ packages:
     dependency: transitive
     description:
       name: wepin_flutter_modal
-      sha256: "7d4ce93bedf3a699b378ec40ed3adc879f2734f826af93a7f263403fa35be7f2"
+      sha256: ea08d52fb05ae94b98f32fd764b87e88c1843c280c42412a7378254b658a2f5a
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4"
   wepin_flutter_network:
     dependency: transitive
     description:
@@ -2804,10 +2804,10 @@ packages:
     dependency: transitive
     description:
       name: wepin_flutter_storage
-      sha256: "28bc402c5601e54da05e22a70a2b3fa7d1f16cb0e53fa2933bc1eaf447cdc622"
+      sha256: "26399fc556fb5d0212341fa6c1c54fa8444dbd6890898d738359c7319cb1af09"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.4"
+    version: "0.0.5"
   wepin_flutter_widget_sdk:
     dependency: "direct main"
     description:

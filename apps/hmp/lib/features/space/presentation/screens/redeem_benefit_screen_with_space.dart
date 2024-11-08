@@ -410,7 +410,9 @@ class _RedeemBenefitScreenWithSpaceState
         await showBenefitRedeemAgreeTermsAlertDialog(
           context: context,
           //title: LocaleKeys.agreeTermDialogMessage.tr(),
-          title: invitationModelTile,
+          title: context.locale.languageCode == "en"
+              ? invitationModelTileEN
+              : invitationModelTile,
           onConfirm: () {
             Navigator.pop(context);
             WebViewScreen.push(

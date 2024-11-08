@@ -30,7 +30,7 @@ class _WepinWalletDetailsViewState extends State<WepinWalletDetailsView> {
   @override
   void initState() {
     super.initState();
-    getIt<WepinCubit>().openWepinWidget(context);
+    //getIt<WepinCubit>().openWepinWidget(context);
   }
 
   @override

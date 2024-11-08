@@ -600,7 +600,9 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
         await showBenefitRedeemAgreeTermsAlertDialog(
           context: context,
           // title: LocaleKeys.agreeTermDialogMessage.tr(),
-          title: invitationModelTile,
+          title: context.locale.languageCode == "en"
+              ? invitationModelTileEN
+              : invitationModelTile,
           onConfirm: () {
             Navigator.of(context).pop();
 

@@ -78,7 +78,7 @@ class ConnectedWalletsWidget extends StatelessWidget {
                           await Future.delayed(
                               const Duration(milliseconds: 100));
                           //
-                          getIt<WalletsCubit>().onConnectWallet(
+                          getIt<WalletsCubit>().onOpenReownAppKitBottomModal(
                               context: context, isFromWePinWalletConnect: true);
                         },
                       )

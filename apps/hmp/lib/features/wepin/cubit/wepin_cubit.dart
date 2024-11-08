@@ -32,37 +32,64 @@ class WepinCubit extends BaseCubit<WepinState> {
 
   final SecureStorage _secureStorage;
 
-  Future<void> resetState() async {
-    emit(state.copyWith(wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
-  }
+  Future<void> initializeWepinSDK(
+      {required String selectedLanguageCode}) async {
+    "inside initWepinSDK ==>".log();
 
-  void startCountdown() {
-    "start counter is called".log();
+    String appId = sdkConfigs[0]['appId']!;
+    String appKeyAndroid = sdkConfigs[0]['appKeyAndroid']!;
+    String appKeyApple = sdkConfigs[0]['appKeyApple']!;
 
-    int counter = 0;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      counter++;
+    await getSocialLoginValues();
 
-      "inside startCountdown ==> counter is $counter".log();
-      if (counter >= 20) {
-        timer.cancel();
-        dismissLoader();
-        emit(
-          state.copyWith(isCountDownFinished: true, isLoading: false),
-        ); // Emit true when reaching 20 seconds
+    // Finalize any existing Wepin SDK instance
+    //state.wepinWidgetSDK?.finalize();
+
+    try {
+      if (Platform.isAndroid) {
+        emit(state.copyWith(
+          wepinWidgetSDK:
+              WepinWidgetSDK(wepinAppKey: appKeyAndroid, wepinAppId: appId),
+        ));
       }
-    });
-  }
 
-  updateIsPerformWepinWelcomeNftRedeem(bool value) {
-    emit(state.copyWith(
-      isPerformWepinWelcomeNftRedeem: value,
-    ));
-  }
+      if (Platform.isIOS) {
+        emit(state.copyWith(
+          wepinWidgetSDK:
+              WepinWidgetSDK(wepinAppKey: appKeyApple, wepinAppId: appId),
+        ));
+      }
 
-  Future<void> onLogoutWepinSdk() async {
-    await state.wepinWidgetSDK!.login.logoutWepin();
-    emit(state.copyWith(wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
+      // Initialize the SDK with specified attributes
+      await state.wepinWidgetSDK!.init(
+        attributes: WidgetAttributes(
+          defaultLanguage: selectedLanguageCode,
+          defaultCurrency: 'KRW',
+        ),
+      );
+
+      // Fetch the current status from Wepin SDK
+      final wepinStatus = await state.wepinWidgetSDK!.getStatus();
+
+      // Emit the updated state with lifecycle, email, and other details
+      emit(state.copyWith(
+        wepinLifeCycleStatus: wepinStatus,
+      ));
+
+      // Handle case if the SDK is not initialized properly
+      if (wepinStatus == WepinLifeCycle.notInitialized) {
+        emit(state.copyWith(error: 'WepinSDK is not initialized.'));
+      } else {
+        "inside initWepinSDK ==> $wepinStatus".log();
+        //Optionally call login with Google if SDK initialization is successful
+
+        "inside initWepinSDK ==> Calling loginSocialAuthProvider".log();
+        loginSocialAuthProvider();
+      }
+    } catch (error) {
+      // Handle any errors during SDK initialization
+      emit(state.copyWith(isLoading: false, error: error.toString()));
+    }
   }
 
   // requirement for this function is to save wepin wallet inside HMP Backend
@@ -79,7 +106,19 @@ class WepinCubit extends BaseCubit<WepinState> {
   // if "before_login" then perform register to wepin
   // if "login_before_register" then perform register to wepin
   // wait for register to wepin and then fetch wallets to save in HMP backend
-  Future<void> onConnectWepinWallet(BuildContext context) async {
+  Future<void> onConnectWepinWallet(
+    BuildContext context, {
+    bool isFromWePinWalletConnect = false,
+    bool isFromWePinWelcomeNftRedeem = false,
+    bool isOpenWepinModel = false,
+  }) async {
+    if (isFromWePinWalletConnect) {
+      emit(state.copyWith(isPerformWepinWalletSave: true));
+    }
+
+    if (isFromWePinWelcomeNftRedeem) {
+      emit(state.copyWith(isPerformWepinWelcomeNftRedeem: true));
+    }
     // get social login values
     await getSocialLoginValues();
 
@@ -88,6 +127,7 @@ class WepinCubit extends BaseCubit<WepinState> {
 
     // Get updated lifecycle status from Wepin SDK
     final status = await state.wepinWidgetSDK!.getStatus();
+
     "the lifecycle status from state.wepinWidgetSDK!.getStatus() is $status"
         .log();
 
@@ -138,9 +178,127 @@ class WepinCubit extends BaseCubit<WepinState> {
       }
     } else {
       "Cannot fetch wallets, login status is $updatedStatus".log();
+
+      if (updatedStatus == WepinLifeCycle.loginBeforeRegister) {
+        dismissLoader();
+        // Perform registration if status is 'login_before_register'
+        await state.wepinWidgetSDK!.register(context);
+
+        // Check status again after attempting login or registration
+        final updatedStatus = await state.wepinWidgetSDK!.getStatus();
+        "Updated lifecycle status after login/register attempt is $updatedStatus"
+            .log();
+
+        // If login is successful, fetch wallets and save them to HMP backend
+
+        if (updatedStatus == WepinLifeCycle.login) {
+          try {
+            final wallets = await state.wepinWidgetSDK!.getAccounts();
+            await saveWalletsToHMPBackend(wallets);
+
+            "Wallets successfully saved to HMP backend".log();
+            emit(state.copyWith(
+              isPerformWepinWalletSave: false,
+              isLoading: false,
+              error: '',
+            ));
+          } catch (e) {
+            "Failed to save wallets to HMP backend: $e".log();
+            emit(state.copyWith(
+              isPerformWepinWalletSave: false,
+              isLoading: false,
+              error: 'Failed to save wallets to HMP backend',
+            ));
+          }
+        }
+      }
     }
 
-    dismissLoader();
+    if (isOpenWepinModel) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(state.copyWith(isLoading: false));
+      dismissLoader();
+      await openWepinWidget(context);
+    } else {
+      dismissLoader();
+    }
+  }
+
+  /// Opens the Wepin widget based on the current status of the SDK.
+  ///
+  /// If the SDK is in the [WepinLifeCycle.login] state, the widget is opened
+  /// immediately. If the SDK is in the [WepinLifeCycle.initialized] state, the
+  /// user is first logged into Wepin using the saved social token, and then the
+  /// widget is opened. If the SDK is in any other state, the widget is not
+  /// opened.
+  Future<void> openWepinWidget(BuildContext context) async {
+    "inside openWepinWidget".log();
+    showLoader();
+
+    // Check initial Wepin SDK status
+    WepinLifeCycle wepinStatus = await state.wepinWidgetSDK!.getStatus();
+    "inside openWepinWidget wepinStatus: $wepinStatus".log();
+
+    // Define a helper function to handle widget opening if login status is valid
+    Future<void> tryOpenWidget() async {
+      dismissLoader();
+      emit(state.copyWith(isLoading: false));
+      await state.wepinWidgetSDK!.openWidget(context);
+    }
+
+    // Handle different Wepin lifecycle statuses
+    switch (wepinStatus) {
+      case WepinLifeCycle.loginBeforeRegister:
+        dismissLoader();
+        emit(state.copyWith(isLoading: false));
+        await state.wepinWidgetSDK!.register(context);
+        await tryOpenWidget();
+        break;
+
+      case WepinLifeCycle.login:
+        await tryOpenWidget();
+        break;
+
+      case WepinLifeCycle.notInitialized:
+        await initializeWepinSDK(
+            selectedLanguageCode: context.locale.languageCode);
+        wepinStatus = await state.wepinWidgetSDK!.getStatus();
+        "wepinStatus after initialization: $wepinStatus".log();
+
+        if (wepinStatus == WepinLifeCycle.login) {
+          await tryOpenWidget();
+        } else {
+          dismissLoader();
+        }
+        break;
+
+      case WepinLifeCycle.initialized:
+        await loginSocialAuthProvider();
+        await Future.delayed(const Duration(milliseconds: 1000));
+        wepinStatus = await state.wepinWidgetSDK!.getStatus();
+        "wepinStatus after login attempt: $wepinStatus".log();
+
+        if (wepinStatus == WepinLifeCycle.login) {
+          await tryOpenWidget();
+        } else {
+          dismissLoader();
+        }
+        break;
+
+      default:
+        dismissLoader();
+        emit(state.copyWith(isLoading: false));
+        "Unhandled Wepin lifecycle status: $wepinStatus".log();
+    }
+  }
+
+  Future<void> saveWalletToHMP(bool isWepinWalletConnected,
+      Future<void> Function() tryOpenWidget) async {
+    if (!isWepinWalletConnected) {
+      final wallets = await state.wepinWidgetSDK!.getAccounts();
+      await saveWalletsToHMPBackend(wallets);
+    }
+    await tryOpenWidget();
   }
 
   Future<void> saveWalletsToHMPBackend(List wallets) async {
@@ -158,90 +316,6 @@ class WepinCubit extends BaseCubit<WepinState> {
           ),
         );
       }
-    }
-  }
-
-  Future<void> initializeWepinSDK({
-    required String selectedLanguageCode,
-    bool isFromWePinWalletConnect = false,
-    bool isFromWePinWelcomeNftRedeem = false,
-  }) async {
-    "inside initWepinSDK ==>".log();
-
-    String appId = sdkConfigs[0]['appId']!;
-    String appKeyAndroid = sdkConfigs[0]['appKeyAndroid']!;
-    String appKeyApple = sdkConfigs[0]['appKeyApple']!;
-
-    await getSocialLoginValues();
-
-    // Finalize any existing Wepin SDK instance
-    //state.wepinWidgetSDK?.finalize();
-
-  
-
-    // Initialize a new Wepin SDK instance with provided appId, appKey, and privateKey
-    if (isFromWePinWalletConnect) {
-      emit(state.copyWith(
-        wepinLifeCycleStatus: WepinLifeCycle.initializing,
-        isPerformWepinWalletSave: true,
-        isLoading: true,
-        error: '',
-      ));
-    }
-
-    if (isFromWePinWelcomeNftRedeem) {
-      emit(state.copyWith(
-        wepinLifeCycleStatus: WepinLifeCycle.initializing,
-        isPerformWepinWelcomeNftRedeem: true,
-        isLoading: true,
-        error: '',
-      ));
-    }
-
-    try {
-      if (Platform.isAndroid) {
-        emit(state.copyWith(
-          wepinWidgetSDK:
-              WepinWidgetSDK(wepinAppKey: appKeyAndroid, wepinAppId: appId),
-        ));
-      }
-
-      if (Platform.isIOS) {
-        emit(state.copyWith(
-          wepinWidgetSDK:
-              WepinWidgetSDK(wepinAppKey: appKeyApple, wepinAppId: appId),
-        ));
-      }
-
-      // Initialize the SDK with specified attributes
-      await state.wepinWidgetSDK!.init(
-        attributes: WidgetAttributes(
-          defaultLanguage: selectedLanguageCode,
-          defaultCurrency: 'KRW',
-        ),
-      );
-
-      // Fetch the current status from Wepin SDK
-      final wepinStatus = await state.wepinWidgetSDK!.getStatus();
-
-      // Emit the updated state with lifecycle, email, and other details
-      emit(state.copyWith(
-        wepinLifeCycleStatus: wepinStatus,
-      ));
-
-      // Handle case if the SDK is not initialized properly
-      if (wepinStatus == WepinLifeCycle.notInitialized) {
-        emit(state.copyWith(error: 'WepinSDK is not initialized.'));
-      } else {
-        "inside initWepinSDK ==> $wepinStatus".log();
-        //Optionally call login with Google if SDK initialization is successful
-
-        "inside initWepinSDK ==> Calling loginSocialAuthProvider".log();
-        loginSocialAuthProvider();
-      }
-    } catch (error) {
-      // Handle any errors during SDK initialization
-      emit(state.copyWith(isLoading: false, error: error.toString()));
     }
   }
 
@@ -415,76 +489,6 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
   }
 
-  /// Opens the Wepin widget based on the current status of the SDK.
-  ///
-  /// If the SDK is in the [WepinLifeCycle.login] state, the widget is opened
-  /// immediately. If the SDK is in the [WepinLifeCycle.initialized] state, the
-  /// user is first logged into Wepin using the saved social token, and then the
-  /// widget is opened. If the SDK is in any other state, the widget is not
-  /// opened.
-  Future<void> openWepinWidget(BuildContext context,
-      [bool isShowWidget = false]) async {
-    if (!state.isPerformWepinWalletSave && !isShowWidget) return;
-
-    "inside openWepinWidget".log();
-    showLoader();
-
-    // Check initial Wepin SDK status
-    WepinLifeCycle wepinStatus = await state.wepinWidgetSDK!.getStatus();
-    "initial wepinStatus: $wepinStatus".log();
-
-    // Define a helper function to handle widget opening if login status is valid
-    Future<void> tryOpenWidget() async {
-      dismissLoader();
-      emit(state.copyWith(isLoading: false));
-      await state.wepinWidgetSDK!.openWidget(context);
-    }
-
-    // Handle different Wepin lifecycle statuses
-    switch (wepinStatus) {
-      case WepinLifeCycle.loginBeforeRegister:
-        dismissLoader();
-        emit(state.copyWith(isLoading: false));
-        await state.wepinWidgetSDK!.register(context);
-        break;
-
-      case WepinLifeCycle.login:
-        await tryOpenWidget();
-        break;
-
-      case WepinLifeCycle.notInitialized:
-        await initializeWepinSDK(
-            selectedLanguageCode: context.locale.languageCode);
-        wepinStatus = await state.wepinWidgetSDK!.getStatus();
-        "wepinStatus after initialization: $wepinStatus".log();
-
-        if (wepinStatus == WepinLifeCycle.login) {
-          await tryOpenWidget();
-        } else {
-          dismissLoader();
-        }
-        break;
-
-      case WepinLifeCycle.initialized:
-        await loginSocialAuthProvider();
-        await Future.delayed(const Duration(milliseconds: 500));
-        wepinStatus = await state.wepinWidgetSDK!.getStatus();
-        "wepinStatus after login attempt: $wepinStatus".log();
-
-        if (wepinStatus == WepinLifeCycle.login) {
-          await tryOpenWidget();
-        } else {
-          dismissLoader();
-        }
-        break;
-
-      default:
-        dismissLoader();
-        emit(state.copyWith(isLoading: false));
-        "Unhandled Wepin lifecycle status: $wepinStatus".log();
-    }
-  }
-
   // Logout Wepin
   Future<void> logout() async {
     emit(state.copyWith(isLoading: true));
@@ -537,5 +541,38 @@ class WepinCubit extends BaseCubit<WepinState> {
       error: '',
       wepinLifeCycleStatus: WepinLifeCycle.notInitialized,
     ));
+  }
+
+  Future<void> resetState() async {
+    emit(state.copyWith(wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
+  }
+
+  void startCountdown() {
+    "start counter is called".log();
+
+    int counter = 0;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      counter++;
+
+      "inside startCountdown ==> counter is $counter".log();
+      if (counter >= 20) {
+        timer.cancel();
+        dismissLoader();
+        emit(
+          state.copyWith(isCountDownFinished: true, isLoading: false),
+        ); // Emit true when reaching 20 seconds
+      }
+    });
+  }
+
+  updateIsPerformWepinWelcomeNftRedeem(bool value) {
+    emit(state.copyWith(
+      isPerformWepinWelcomeNftRedeem: value,
+    ));
+  }
+
+  Future<void> onLogoutWepinSdk() async {
+    await state.wepinWidgetSDK!.login.logoutWepin();
+    emit(state.copyWith(wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
   }
 }
