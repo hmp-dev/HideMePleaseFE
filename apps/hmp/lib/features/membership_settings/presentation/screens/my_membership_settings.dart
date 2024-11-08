@@ -50,7 +50,7 @@ class _MyMembershipSettingsScreenState
   bool _isShowToolTip = false;
   bool _isLoadingMore = false;
   final ScrollController _scrollController = ScrollController();
-  bool _isWepinModelOpen = false;
+  final bool _isWepinModelOpen = false;
 
   @override
   void initState() {
@@ -126,75 +126,6 @@ class _MyMembershipSettingsScreenState
       body: SafeArea(
         child: MultiBlocListener(
           listeners: [
-            BlocListener<WepinCubit, WepinState>(
-              //ensure that the listenWhen condition checks if current.isPerformWepinWalletSave is true
-              // and that it changes only when transitioning from false to true.
-              listenWhen: (previous, current) =>
-                  previous.isPerformWepinWalletSave !=
-                      current.isPerformWepinWalletSave &&
-                  current.isPerformWepinWalletSave,
-              bloc: getIt<WepinCubit>(),
-              listener: (context, state) async {
-                if (!state.isPerformWepinWelcomeNftRedeem) {
-                  if (state.isLoading) {
-                    EasyLoading.show();
-                  } else {
-                    EasyLoading.dismiss();
-                  }
-
-                  // 0 - Listen Wepin Status if it is not initialized
-                  if (state.wepinLifeCycleStatus ==
-                      WepinLifeCycle.notInitialized) {
-                    getIt<WepinCubit>().initializeWepinSDK(
-                        selectedLanguageCode: context.locale.languageCode);
-                  }
-
-                  // 0- Listen Wepin Status if it is login before registered
-                  // automatically register
-                  if (state.wepinLifeCycleStatus ==
-                      WepinLifeCycle.loginBeforeRegister) {
-                    EasyLoading.dismiss();
-                    // Now loader will be shown by
-                    if (!_isWepinModelOpen) {
-                      getIt<WepinCubit>().registerToWepin(context);
-
-                      setState(() {
-                        _isWepinModelOpen = true;
-                      });
-                    }
-                  }
-
-                  // 1- Listen Wepin Status if it is login
-                  // fetch the wallets created by Wepin
-
-                  if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
-                    getIt<WepinCubit>().fetchAccounts();
-                    getIt<WepinCubit>().dismissLoader();
-                  }
-
-                  // 2- Listen Wepin Status if it is login and wallets are in the state
-                  // save these wallets for the user
-
-                  if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
-                      state.accounts.isNotEmpty) {
-                    // if status is login save wallets to backend
-
-                    for (var account in state.accounts) {
-                      if (account.network.toLowerCase() == "ethereum") {
-                        getIt<WalletsCubit>().onPostWallet(
-                          saveWalletRequestDto: SaveWalletRequestDto(
-                            publicAddress: account.address,
-                            provider: "WEPIN_EVM",
-                          ),
-                        );
-                      }
-                    }
-
-                    getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
-                  }
-                }
-              },
-            ),
             BlocListener<WalletsCubit, WalletsState>(
               bloc: getIt<WalletsCubit>(),
               listener: (context, state) {

@@ -16,7 +16,6 @@ import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.da
 import 'package:mobile/features/community/presentation/widgets/get_free_nft_view.dart';
 import 'package:mobile/features/home/presentation/widgets/free_welcome_nft_card.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
-import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -57,264 +56,156 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
   void dispose() {
     super.dispose();
 
-    getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
+    //getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<WepinCubit, WepinState>(
-          listenWhen: (previous, current) =>
-              current.isCountDownFinished == true,
-          bloc: getIt<WepinCubit>(),
-          listener: (context, state) async {
-            // 0- Listen Wepin Status if it is login before registered
-            // automatically register
+    return BlocListener<WalletsCubit, WalletsState>(
+      // Listen to the wallets cubit state
+      bloc: getIt<WalletsCubit>(),
+      listenWhen: (previous, current) =>
+          previous.connectedWallets.length != current.connectedWallets.length &&
+          previous.connectedWallets != current.connectedWallets,
+      listener: (context, state) {
+        // perform action to redeem free NFT only from Home ViewBefore
+        // isShowWelcomeNFTCard is  true
+        if (state.isSubmitSuccess && !state.isWelcomeNftRedeemInProcess) {
+          getIt<WalletsCubit>().onUpdateIsWelcomeNftRedeemInProcess(true);
+          // close Wallet Connect Model
+          getIt<WalletsCubit>().onCloseWalletConnectModel();
 
-            // Now loader will be shown by
-            getIt<WepinCubit>().dismissLoader();
-            ('${LocaleKeys.somethingError.tr()}\n${state.error}\n wepinLifeCycleStatus: ${state.wepinLifeCycleStatus}')
-                .log();
-          },
-        ),
-        BlocListener<WepinCubit, WepinState>(
-          listenWhen: (previous, current) =>
-              current.wepinLifeCycleStatus == WepinLifeCycle.login,
-          bloc: getIt<WepinCubit>(),
-          listener: (context, state) async {
-            // 2- Listen Wepin Status if it is login and wallets are in the state
-            // save these wallets for the user
+          if (widget.isPerformRedeemWelcomeNft) {
+            if (getIt<WalletsCubit>().state.isWepinWalletConnected &&
+                getIt<NftCubit>().state.welcomeNftEntity.remainingCount > 0) {
+              "inside call to onGetConsumeWelcomeNft".log();
 
-            if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
-                state.accounts.isNotEmpty) {
-              // if status is login save wallets to backend
+              getIt<NftCubit>().onGetConsumeWelcomeNft();
 
-              for (var account in state.accounts) {
-                logAccountDetails(account);
-
-                if (account.network.toLowerCase() == "ethereum") {
-                  getIt<WalletsCubit>().onPostWallet(
-                    saveWalletRequestDto: SaveWalletRequestDto(
-                      publicAddress: account.address,
-                      provider: "WEPIN_EVM",
-                    ),
-                  );
-                }
-              }
+              //
+              context.showSnackBarBottom(
+                LocaleKeys.welcomeNftRedeemRequesting.tr(),
+              );
+            } else {
+              // reset all cubits
+              getIt<AppCubit>().onRefresh();
+              // Navigate to start up screen
+              Navigator.pushNamedAndRemoveUntil(
+                  context, Routes.startUpScreen, (route) => false);
             }
-          },
-        ),
 
-        BlocListener<WepinCubit, WepinState>(
-          listenWhen: (previous, current) =>
-              current.wepinLifeCycleStatus == WepinLifeCycle.login,
-          bloc: getIt<WepinCubit>(),
-          listener: (context, state) async {
-            // 1- Listen Wepin Status if it is login
-            // fetch the wallets created by Wepin
-
-            "listening inside state.wepinLifeCycleStatus == WepinLifeCycle.login"
-                .log();
-
-            if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
-                state.wepinWidgetSDK != null) {
-              var accountsList = await state.wepinWidgetSDK!.getAccounts();
-
-              getIt<WepinCubit>().saveAccounts(accountsList);
-              // Dismiss Loader with in WepinCubit
-              // Now loader will be dismissed by
-              getIt<WepinCubit>().dismissLoader();
+            if (state.isFailure) {
+              context.showErrorSnackBar(state.errorMessage);
             }
-          },
-        ),
+          }
+        }
+      },
+      child: BlocConsumer<NftCubit, NftState>(
+        bloc: getIt<NftCubit>(),
+        listener: (context, nftState) {},
+        builder: (context, nftState) {
+          return Column(
+            children: [
+              widget.isShowCommunityWelcomeNFTRedeemButton
+                  ? GetFreeNftView(
+                      onTap: () {
+                        getIt<WepinCubit>().showLoader();
 
-        BlocListener<WepinCubit, WepinState>(
-          listenWhen: (previous, current) =>
-              current.wepinLifeCycleStatus ==
-                  WepinLifeCycle.loginBeforeRegister &&
-              previous.wepinLifeCycleStatus != current.wepinLifeCycleStatus &&
-              !current.isWepinModelOpen,
-          bloc: getIt<WepinCubit>(),
-          listener: (context, state) async {
-            // 0- Listen Wepin Status if it is login before registered
-            // automatically register
-            if (state.wepinLifeCycleStatus ==
-                WepinLifeCycle.loginBeforeRegister) {
-              // Now loader will be shown by
-              getIt<WepinCubit>().dismissLoader();
+                        getIt<WepinCubit>().onConnectWepinWallet(context);
+                      },
+                    )
+                  : (widget.isShowWelcomeNFTCard)
+                      ? BlocBuilder<WepinCubit, WepinState>(
+                          bloc: getIt<WepinCubit>(),
+                          builder: (context, state) {
+                            return FreeWelcomeNftCard(
+                              welcomeNftEntity: nftState.welcomeNftEntity,
+                              onTapClaimButton: () {
+                                "hello the onTapClaimButton is called".tr();
+                                if (state.isLoading) {
+                                  return; // Do nothing if in loading state
+                                }
+                                getIt<WepinCubit>().showLoader();
+                                getIt<WepinCubit>()
+                                    .onConnectWepinWallet(context);
+                              },
+                            );
+                          },
+                        )
+                      : widget.isShowCustomButton
+                          ? Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: HMPCustomButton(
+                                //Connect your WePin wallet
+                                text: "위핀 지갑 연결",
+                                onPressed: () {
+                                  if (getIt<WalletsCubit>()
+                                      .state
+                                      .isWepinWalletConnected) {
+                                    getIt<WalletsCubit>()
+                                        .onCloseWalletConnectModel();
 
-              if (!state.isWepinModelOpen) {
-                getIt<WepinCubit>().updateIsWepinModelOpen(true);
-                if (state.wepinWidgetSDK != null) {
-                  await state.wepinWidgetSDK!.register(context);
-                }
-              }
+                                    context.showSnackBar(
+                                      LocaleKeys.wepin_already_connected.tr(),
+                                    );
+                                  } else {
+                                    getIt<WepinCubit>().showLoader();
+                                    //initializeWepin();
 
-              getIt<WepinCubit>().updateWepinStatus(state.wepinLifeCycleStatus);
-              getIt<WepinCubit>().updateIsWepinModelOpen(false);
-            }
-          },
-        ),
-
-        // 3- Listen Wallets status if it is saved
-        // If wallets are saved into backend
-        // navigate to start up screen to refetch wallets and navigate to Home
-        BlocListener<WalletsCubit, WalletsState>(
-          listenWhen: (previous, current) =>
-              previous.connectedWallets.length !=
-                  current.connectedWallets.length &&
-              previous.connectedWallets != current.connectedWallets,
-          bloc: getIt<WalletsCubit>(),
-          listener: (context, state) {
-            // perform action to redeem free NFT only from Home ViewBefore
-            // isShowWelcomeNFTCard is  true
-            if (state.isSubmitSuccess && !state.isWelcomeNftRedeemInProcess) {
-              getIt<WalletsCubit>().onUpdateIsWelcomeNftRedeemInProcess(true);
-              // close Wallet Connect Model
-              getIt<WalletsCubit>().onCloseWalletConnectModel();
-
-              if (widget.isPerformRedeemWelcomeNft) {
-                if (getIt<WalletsCubit>().state.isWepinWalletConnected &&
-                    getIt<NftCubit>().state.welcomeNftEntity.remainingCount >
-                        0) {
-                  "inside call to onGetConsumeWelcomeNft".log();
-
-                  getIt<NftCubit>().onGetConsumeWelcomeNft();
-
-                  //
-                  context.showSnackBarBottom(
-                    LocaleKeys.welcomeNftRedeemRequesting.tr(),
-                  );
-                } else {
-                  // reset all cubits
-                  getIt<AppCubit>().onRefresh();
-                  // Navigate to start up screen
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, Routes.startUpScreen, (route) => false);
-                }
-
-                if (state.isFailure) {
-                  context.showErrorSnackBar(state.errorMessage);
-                }
-              }
-            }
-          },
-        ),
-      ],
-      child: BlocListener<WalletsCubit, WalletsState>(
-        // Listen to the wallets cubit state
-        bloc: getIt<WalletsCubit>(),
-        listener: (context, state) {},
-        child: BlocConsumer<NftCubit, NftState>(
-          bloc: getIt<NftCubit>(),
-          listener: (context, nftState) {},
-          builder: (context, nftState) {
-            return Column(
-              children: [
-                widget.isShowCommunityWelcomeNFTRedeemButton
-                    ? GetFreeNftView(
-                        onTap: () {
-                          getIt<WepinCubit>().showLoader();
-
-                          getIt<WepinCubit>().onConnectWepinWallet(context);
-                        },
-                      )
-                    : (widget.isShowWelcomeNFTCard)
-                        ? BlocBuilder<WepinCubit, WepinState>(
-                            bloc: getIt<WepinCubit>(),
-                            builder: (context, state) {
-                              return FreeWelcomeNftCard(
-                                welcomeNftEntity: nftState.welcomeNftEntity,
-                                onTapClaimButton: () {
-                                  "hello the onTapClaimButton is called".tr();
-                                  if (state.isLoading) {
-                                    return; // Do nothing if in loading state
+                                    getIt<WepinCubit>()
+                                        .onConnectWepinWallet(context);
                                   }
-                                  getIt<WepinCubit>().showLoader();
-                                  getIt<WepinCubit>()
-                                      .onConnectWepinWallet(context);
                                 },
-                              );
-                            },
-                          )
-                        : widget.isShowCustomButton
-                            ? Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0),
-                                child: HMPCustomButton(
-                                  //Connect your WePin wallet
-                                  text: "위핀 지갑 연결",
-                                  onPressed: () {
-                                    if (getIt<WalletsCubit>()
-                                        .state
-                                        .isWepinWalletConnected) {
-                                      getIt<WalletsCubit>()
-                                          .onCloseWalletConnectModel();
+                              ),
+                            )
+                          : BlocConsumer<WalletsCubit, WalletsState>(
+                              bloc: getIt<WalletsCubit>(),
+                              listener: (context, state) {},
+                              builder: (context, state) {
+                                "state.tappedWalletName: ${state.tappedWalletName}"
+                                    .log();
+                                return ElevatedButton(
+                                  style: _elevatedButtonStyle(),
+                                  onPressed: () async {
+                                    // getIt<WepinCubit>()
+                                    //     .onResetWepinSDKFetchedWallets();
 
-                                      context.showSnackBar(
-                                        LocaleKeys.wepin_already_connected.tr(),
-                                      );
-                                    } else {
+                                    // await Future.delayed(
+                                    //     const Duration(milliseconds: 200));
+                                    // //
+                                    await getIt<WalletsCubit>().onConnectWallet(
+                                      context: context,
+                                      onTapConnectWalletButton: true,
+                                    );
+
+                                    // Wait for a brief moment to ensure state is updated
+                                    await Future.delayed(
+                                        const Duration(milliseconds: 300));
+
+                                    // Re-fetch the state after the delay
+                                    final updatedState =
+                                        getIt<WalletsCubit>().state;
+
+                                    if (updatedState.tappedWalletName ==
+                                        WalletProvider.WEPIN.name) {
                                       getIt<WepinCubit>().showLoader();
                                       //initializeWepin();
-
                                       getIt<WepinCubit>()
                                           .onConnectWepinWallet(context);
                                     }
                                   },
-                                ),
-                              )
-                            : BlocConsumer<WalletsCubit, WalletsState>(
-                                bloc: getIt<WalletsCubit>(),
-                                listener: (context, state) {},
-                                builder: (context, state) {
-                                  "state.tappedWalletName: ${state.tappedWalletName}"
-                                      .log();
-                                  return ElevatedButton(
-                                    style: _elevatedButtonStyle(),
-                                    onPressed: () async {
-                                      // getIt<WepinCubit>()
-                                      //     .onResetWepinSDKFetchedWallets();
-
-                                      // await Future.delayed(
-                                      //     const Duration(milliseconds: 200));
-                                      // //
-                                      await getIt<WalletsCubit>()
-                                          .onConnectWallet(
-                                        context: context,
-                                        onTapConnectWalletButton: true,
-                                      );
-
-                                      // Wait for a brief moment to ensure state is updated
-                                      await Future.delayed(
-                                          const Duration(milliseconds: 300));
-
-                                      // Re-fetch the state after the delay
-                                      final updatedState =
-                                          getIt<WalletsCubit>().state;
-
-                                      if (updatedState.tappedWalletName ==
-                                          WalletProvider.WEPIN.name) {
-                                        getIt<WepinCubit>().showLoader();
-                                        //initializeWepin();
-                                        getIt<WepinCubit>()
-                                            .onConnectWepinWallet(context);
-                                      }
-                                    },
-                                    child: Text(
-                                      LocaleKeys.walletConnection.tr(),
-                                      style: fontCompactMdMedium(color: white),
-                                    ),
-                                  );
-                                },
-                              )
-              ],
-            );
-          },
-        ),
+                                  child: Text(
+                                    LocaleKeys.walletConnection.tr(),
+                                    style: fontCompactMdMedium(color: white),
+                                  ),
+                                );
+                              },
+                            )
+            ],
+          );
+        },
       ),
     );
   }

@@ -151,9 +151,9 @@ class ExplorerService implements IExplorerService {
         installed: true,
         recent: true,
       ),
-      //...allListings[0],
-      ...allListings[2].sortByFeaturedIds(featuredWalletIds),
+      ...allListings[0],
       ...allListings[1].sortByFeaturedIds(featuredWalletIds),
+      ...allListings[2].sortByFeaturedIds(featuredWalletIds),
       ...allListings[3].sortByFeaturedIds(featuredWalletIds),
     ];
     listings.value = _listings;

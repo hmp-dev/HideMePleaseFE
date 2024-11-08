@@ -4,18 +4,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/features/wepin/wepin_wallet_details_view.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 class EventsWepinScreen extends StatefulWidget {
   const EventsWepinScreen({super.key});
@@ -27,135 +24,21 @@ class EventsWepinScreen extends StatefulWidget {
 class _EventsWepinScreenState extends State<EventsWepinScreen> {
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<WepinCubit, WepinState>(
-          listenWhen: (previous, current) =>
-              current.isPerformWepinWalletSave &&
-              current.wepinLifeCycleStatus == WepinLifeCycle.login,
-          bloc: getIt<WepinCubit>(),
-          listener: (context, state) async {
-            if (!state.isPerformWepinWelcomeNftRedeem) {
-              "[EventsWepinScreen] the WepinState is: $state".log();
-
-              // Manage loader based on isLoading state
-              if (state.isLoading) {
-                getIt<WepinCubit>().showLoader();
-              } else {
-                getIt<WepinCubit>().dismissLoader();
-              }
-
-              if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
-                await getIt<WepinCubit>().fetchAccounts();
-                getIt<WepinCubit>()
-                    .dismissLoader(); // Ensure loader dismisses post-fetch
-              }
-
-              if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
-                  state.accounts.isNotEmpty) {
-                for (var account in state.accounts) {
-                  if (account.network.toLowerCase() == "ethereum") {
-                    await getIt<WalletsCubit>().onPostWallet(
-                      saveWalletRequestDto: SaveWalletRequestDto(
-                        publicAddress: account.address,
-                        provider: "WEPIN_EVM",
-                      ),
-                    );
-                  }
-                }
-                getIt<WepinCubit>().openWepinWidget(context);
-                getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
-              }
-            }
-          },
-        ),
-
-        // BlocListener<WepinCubit, WepinState>(
-        //   //ensure that the listenWhen condition checks if current.isPerformWepinWalletSave is true
-        //   // and that it changes only when transitioning from false to true.
-        //   listenWhen: (previous, current) =>
-        //       previous.wepinLifeCycleStatus != WepinLifeCycle.login &&
-        //       current.wepinLifeCycleStatus == WepinLifeCycle.login &&
-        //       current.isPerformWepinWalletSave,
-        //   // listenWhen: (previous, current) => current.isPerformWepinWalletSave,
-        //   bloc: getIt<WepinCubit>(),
-        //   listener: (context, state) {
-        //     if (!state.isPerformWepinWelcomeNftRedeem) {
-        //       "[EventsWepinScreen] the WepinState is: $state".log();
-
-        //       if (state.isLoading) {
-        //         getIt<WepinCubit>().showLoader();
-        //       } else {
-        //         getIt<WepinCubit>().dismissLoader();
-        //       }
-
-        //       // 1- Listen Wepin Status if it is login
-        //       // fetch the wallets created by Wepin
-
-        //       if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
-        //         getIt<WepinCubit>().fetchAccounts();
-        //       }
-
-        //       // 2- Listen Wepin Status if it is login and wallets are in the state
-        //       // save these wallets for the user
-
-        //       if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
-        //           state.accounts.isNotEmpty) {
-        //         // if status is login save wallets to backend
-
-        //         for (var account in state.accounts) {
-        //           if (account.network.toLowerCase() == "ethereum") {
-        //             getIt<WalletsCubit>().onPostWallet(
-        //               saveWalletRequestDto: SaveWalletRequestDto(
-        //                 publicAddress: account.address,
-        //                 provider: "WEPIN_EVM",
-        //               ),
-        //             );
-        //           }
-        //         }
-        //         getIt<WepinCubit>().openWepinWidget(context);
-        //         getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
-        //       }
-        //     }
-        //   },
-        // ),
-        BlocListener<WepinCubit, WepinState>(
-          listenWhen: (previous, current) =>
-              previous.wepinLifeCycleStatus !=
-                  WepinLifeCycle.loginBeforeRegister &&
-              current.wepinLifeCycleStatus ==
-                  WepinLifeCycle.loginBeforeRegister &&
-              current.isPerformWepinWalletSave,
-          // listenWhen: (previous, current) => current.isPerformWepinWalletSave,
-          bloc: getIt<WepinCubit>(),
-          listener: (context, state) {
-            if (!state.isPerformWepinWelcomeNftRedeem) {
-              if (state.wepinLifeCycleStatus ==
-                  WepinLifeCycle.loginBeforeRegister) {
-                getIt<WepinCubit>().dismissLoader();
-                // Now loader will be shown by
-                getIt<WepinCubit>().registerToWepin(context);
-              }
-            }
-          },
-        )
-      ],
-      child: BlocBuilder<WalletsCubit, WalletsState>(
-        bloc: getIt<WalletsCubit>(),
-        builder: (context, state) {
-          return state.isWepinWalletConnected
-              ? const WepinWalletDetailsView()
-              : Center(
-                  child: EventsComingSoonChildView(
-                    onBoardingSlideData: EventsViewData(
-                        titleTextA: LocaleKeys.connect_your_wepin_wallet.tr(),
-                        titleTextB: "커지는 혜택", // Growing benefits"
-                        descText: "무료NFT증정과 함께\n다양한 혜택을 받아보세요!",
-                        animationPath: "assets/lottie/onboarding4.json"),
-                  ),
-                );
-        },
-      ),
+    return BlocBuilder<WalletsCubit, WalletsState>(
+      bloc: getIt<WalletsCubit>(),
+      builder: (context, state) {
+        return state.isWepinWalletConnected
+            ? const WepinWalletDetailsView()
+            : Center(
+                child: EventsComingSoonChildView(
+                  onBoardingSlideData: EventsViewData(
+                      titleTextA: LocaleKeys.connect_your_wepin_wallet.tr(),
+                      titleTextB: "커지는 혜택", // Growing benefits"
+                      descText: "무료NFT증정과 함께\n다양한 혜택을 받아보세요!",
+                      animationPath: "assets/lottie/onboarding4.json"),
+                ),
+              );
+      },
     );
   }
 }
@@ -241,3 +124,120 @@ class EventsViewData {
     required this.animationPath,
   });
 }
+
+
+
+
+// MultiBlocListener(
+//       listeners: [
+//         BlocListener<WepinCubit, WepinState>(
+//           listenWhen: (previous, current) =>
+//               current.isPerformWepinWalletSave &&
+//               current.wepinLifeCycleStatus == WepinLifeCycle.login,
+//           bloc: getIt<WepinCubit>(),
+//           listener: (context, state) async {
+//             if (!state.isPerformWepinWelcomeNftRedeem) {
+//               "[EventsWepinScreen] the WepinState is: $state".log();
+
+//               // Manage loader based on isLoading state
+//               if (state.isLoading) {
+//                 getIt<WepinCubit>().showLoader();
+//               } else {
+//                 getIt<WepinCubit>().dismissLoader();
+//               }
+
+//               if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
+//                 await getIt<WepinCubit>().fetchAccounts();
+//                 getIt<WepinCubit>()
+//                     .dismissLoader(); // Ensure loader dismisses post-fetch
+//               }
+
+//               if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
+//                   state.accounts.isNotEmpty) {
+//                 for (var account in state.accounts) {
+//                   if (account.network.toLowerCase() == "ethereum") {
+//                     await getIt<WalletsCubit>().onPostWallet(
+//                       saveWalletRequestDto: SaveWalletRequestDto(
+//                         publicAddress: account.address,
+//                         provider: "WEPIN_EVM",
+//                       ),
+//                     );
+//                   }
+//                 }
+//                 getIt<WepinCubit>().openWepinWidget(context);
+//                 getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
+//               }
+//             }
+//           },
+//         ),
+
+//         // BlocListener<WepinCubit, WepinState>(
+//         //   //ensure that the listenWhen condition checks if current.isPerformWepinWalletSave is true
+//         //   // and that it changes only when transitioning from false to true.
+//         //   listenWhen: (previous, current) =>
+//         //       previous.wepinLifeCycleStatus != WepinLifeCycle.login &&
+//         //       current.wepinLifeCycleStatus == WepinLifeCycle.login &&
+//         //       current.isPerformWepinWalletSave,
+//         //   // listenWhen: (previous, current) => current.isPerformWepinWalletSave,
+//         //   bloc: getIt<WepinCubit>(),
+//         //   listener: (context, state) {
+//         //     if (!state.isPerformWepinWelcomeNftRedeem) {
+//         //       "[EventsWepinScreen] the WepinState is: $state".log();
+
+//         //       if (state.isLoading) {
+//         //         getIt<WepinCubit>().showLoader();
+//         //       } else {
+//         //         getIt<WepinCubit>().dismissLoader();
+//         //       }
+
+//         //       // 1- Listen Wepin Status if it is login
+//         //       // fetch the wallets created by Wepin
+
+//         //       if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
+//         //         getIt<WepinCubit>().fetchAccounts();
+//         //       }
+
+//         //       // 2- Listen Wepin Status if it is login and wallets are in the state
+//         //       // save these wallets for the user
+
+//         //       if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
+//         //           state.accounts.isNotEmpty) {
+//         //         // if status is login save wallets to backend
+
+//         //         for (var account in state.accounts) {
+//         //           if (account.network.toLowerCase() == "ethereum") {
+//         //             getIt<WalletsCubit>().onPostWallet(
+//         //               saveWalletRequestDto: SaveWalletRequestDto(
+//         //                 publicAddress: account.address,
+//         //                 provider: "WEPIN_EVM",
+//         //               ),
+//         //             );
+//         //           }
+//         //         }
+//         //         getIt<WepinCubit>().openWepinWidget(context);
+//         //         getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
+//         //       }
+//         //     }
+//         //   },
+//         // ),
+//         BlocListener<WepinCubit, WepinState>(
+//           listenWhen: (previous, current) =>
+//               previous.wepinLifeCycleStatus !=
+//                   WepinLifeCycle.loginBeforeRegister &&
+//               current.wepinLifeCycleStatus ==
+//                   WepinLifeCycle.loginBeforeRegister &&
+//               current.isPerformWepinWalletSave,
+//           // listenWhen: (previous, current) => current.isPerformWepinWalletSave,
+//           bloc: getIt<WepinCubit>(),
+//           listener: (context, state) {
+//             if (!state.isPerformWepinWelcomeNftRedeem) {
+//               if (state.wepinLifeCycleStatus ==
+//                   WepinLifeCycle.loginBeforeRegister) {
+//                 getIt<WepinCubit>().dismissLoader();
+//                 // Now loader will be shown by
+//                 getIt<WepinCubit>().registerToWepin(context);
+//               }
+//             }
+//           },
+//         )
+//       ],

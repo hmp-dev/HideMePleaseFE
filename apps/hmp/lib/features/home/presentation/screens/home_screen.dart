@@ -80,10 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _initWallets() async {
     await SolanaWalletProvider.initialize();
     // initialize the w3mService
-    getIt<WalletsCubit>()
+    await getIt<WalletsCubit>()
         .init(context: context, solWallet: SolanaWalletProvider.of(context));
     // initialize the WepinSDK and Login
-    getIt<WepinCubit>()
+    await getIt<WepinCubit>()
         .initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
   }
 

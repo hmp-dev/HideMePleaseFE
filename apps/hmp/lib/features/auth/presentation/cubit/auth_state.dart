@@ -3,7 +3,6 @@ part of 'auth_cubit.dart';
 class AuthState extends BaseState {
   final bool isLogInSuccessful;
   final String message;
-  final WepinWidgetSDK? wepinSDK;
 
   @override
   final RequestStatus submitStatus;
@@ -12,14 +11,12 @@ class AuthState extends BaseState {
     required this.isLogInSuccessful,
     this.submitStatus = RequestStatus.initial,
     this.message = "",
-    this.wepinSDK,
   });
 
   factory AuthState.initial() => const AuthState(
         isLogInSuccessful: false,
         submitStatus: RequestStatus.initial,
         message: "",
-        wepinSDK: null,
       );
 
   @override
@@ -27,21 +24,15 @@ class AuthState extends BaseState {
         isLogInSuccessful,
         submitStatus,
         message,
-        wepinSDK,
       ];
 
   @override
-  AuthState copyWith({
-    bool? isLogInSuccessful,
-    RequestStatus? submitStatus,
-    String? message,
-    WepinWidgetSDK? wepinSDK,
-  }) {
+  AuthState copyWith(
+      {bool? isLogInSuccessful, RequestStatus? submitStatus, String? message}) {
     return AuthState(
       isLogInSuccessful: isLogInSuccessful ?? this.isLogInSuccessful,
       submitStatus: submitStatus ?? this.submitStatus,
       message: message ?? this.message,
-      wepinSDK: wepinSDK ?? this.wepinSDK,
     );
   }
 }

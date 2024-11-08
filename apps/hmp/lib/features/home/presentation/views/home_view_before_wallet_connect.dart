@@ -64,7 +64,7 @@ class _HomeViewBeforeWalletConnectState
           // Map the error message to the appropriate enum message
           String errorMessage = getErrorMessage(state.errorMessage);
           // Show Error Snackbar If Wallet is Already Connected
-          context.showErrorSnackBarDismissible(errorMessage);
+          //context.showErrorSnackBarDismissible(errorMessage);
           "inside listener++++++ error message is $errorMessage".log();
         }
       },
