@@ -7,6 +7,7 @@ import 'package:mobile/app/core/constants/app_constants.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -71,6 +72,24 @@ class RedeemBenefitScreenWithSpace extends StatefulWidget {
     required bool isMatchedSpaceFound,
   }) async {
     return await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RedeemBenefitScreenWithSpace(
+          space: space,
+          benefit: selectedBenefitEntity,
+          isMatchedSpaceFound: isMatchedSpaceFound,
+        ),
+      ),
+    );
+  }
+
+  static Future<dynamic> pushReplacement(
+    BuildContext context, {
+    required SpaceDetailEntity space,
+    required BenefitEntity selectedBenefitEntity,
+    required bool isMatchedSpaceFound,
+  }) async {
+    return await Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => RedeemBenefitScreenWithSpace(
@@ -360,7 +379,12 @@ class _RedeemBenefitScreenWithSpaceState
         children: [
           GestureDetector(
             onTap: () {
-              Navigator.pop(context);
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              } else {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    Routes.appScreen, (Route<dynamic> route) => false);
+              }
             },
             child: DefaultImage(
               path: 'assets/icons/ic_close.svg',

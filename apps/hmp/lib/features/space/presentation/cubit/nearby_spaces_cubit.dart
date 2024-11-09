@@ -26,6 +26,12 @@ class NearBySpacesCubit extends BaseCubit<NearBySpacesState> {
     emit(state.copyWith(submitStatus: RequestStatus.initial));
   }
 
+  onUpdateNavigatedToBenefitScreen(bool isNavigatedToBenefitScreen) {
+    emit(state.copyWith(
+      isNavigatedToBenefitScreen: isNavigatedToBenefitScreen,
+    ));
+  }
+
   // write a method to pass selected Benefit Entity adn send it to state
 
   onSetSelectedBenefitEntity(BenefitEntity selectedBenefitEntity) {

@@ -146,6 +146,7 @@ class WepinCubit extends BaseCubit<WepinState> {
       "Performed login to Wepin".log();
     } else if (status == WepinLifeCycle.beforeLogin ||
         status == WepinLifeCycle.loginBeforeRegister) {
+      dismissLoader();
       // Perform registration if status is 'before_login' or 'login_before_register'
       await state.wepinWidgetSDK!.register(context);
       "Performed registration to Wepin".log();
@@ -170,6 +171,7 @@ class WepinCubit extends BaseCubit<WepinState> {
         ));
       } catch (e) {
         "Failed to save wallets to HMP backend: $e".log();
+        dismissLoader();
         emit(state.copyWith(
           isPerformWepinWalletSave: false,
           isLoading: false,
@@ -204,6 +206,7 @@ class WepinCubit extends BaseCubit<WepinState> {
             ));
           } catch (e) {
             "Failed to save wallets to HMP backend: $e".log();
+            dismissLoader();
             emit(state.copyWith(
               isPerformWepinWalletSave: false,
               isLoading: false,

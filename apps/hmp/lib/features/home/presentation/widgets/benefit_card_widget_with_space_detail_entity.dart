@@ -105,11 +105,14 @@ class BenefitCardWidgetWithSpaceDetailEntity extends StatelessWidget {
                                   color: fore2,
                                 ),
                                 const HorizontalSpace(5),
-                                Text(
-                                  LocaleKeys.freeNftCanBeRedeemedOncePerSpace
-                                      .tr(),
-                                  //"무료 혜택은 각 제휴 공간에서 1개 사용가능",
-                                  style: fontCompactXs(color: fore2),
+                                SizedBox(
+                                  width: 230,
+                                  child: Text(
+                                    LocaleKeys.freeNftCanBeRedeemedOncePerSpace
+                                        .tr(),
+                                    //"무료 혜택은 각 제휴 공간에서 1개 사용가능",
+                                    style: fontCompactXs(color: fore2),
+                                  ),
                                 )
                               ],
                             ),

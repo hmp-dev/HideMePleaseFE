@@ -48,6 +48,7 @@ void main() async {
   "user Device locale $deviceLocale".log();
 
   await initApp();
+  
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en', 'US'), Locale('ko', 'KR')],

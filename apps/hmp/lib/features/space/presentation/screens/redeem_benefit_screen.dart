@@ -8,6 +8,7 @@ import 'package:mobile/app/core/constants/app_constants.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -16,6 +17,7 @@ import 'package:mobile/features/common/presentation/widgets/horizontal_space.dar
 import 'package:mobile/features/common/presentation/widgets/page_dot_indicator.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/common/presentation/widgets/web_view_screen.dart';
+import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_card_widget_with_nearby_space_entityt.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
@@ -75,6 +77,25 @@ class RedeemBenefitScreen extends StatefulWidget {
   }) async {
     // Push the RedeemBenefitScreen to the navigation stack
     return await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RedeemBenefitScreen(
+          nearBySpaceEntity: nearBySpaceEntity,
+          selectedBenefitEntity: selectedBenefitEntity,
+          isMatchedSpaceFound: isMatchedSpaceFound,
+        ),
+      ),
+    );
+  }
+
+  static Future<dynamic> pushReplacement(
+    BuildContext context, {
+    required NearBySpaceEntity nearBySpaceEntity,
+    BenefitEntity? selectedBenefitEntity,
+    bool? isMatchedSpaceFound,
+  }) async {
+    // Push the RedeemBenefitScreen to the navigation stack
+    return await Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => RedeemBenefitScreen(
@@ -523,7 +544,12 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
         children: [
           GestureDetector(
             onTap: () {
-              Navigator.pop(context);
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              } else {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    Routes.appScreen, (Route<dynamic> route) => false);
+              }
             },
             child: DefaultImage(
               path: 'assets/icons/ic_close.svg',

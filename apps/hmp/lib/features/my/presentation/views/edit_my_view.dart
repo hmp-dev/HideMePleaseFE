@@ -82,10 +82,16 @@ class _MyEditViewState extends State<MyEditView> {
     super.initState();
     _scrollController = ScrollController();
     setIsLocationPublic();
+    setReceivedUserData();
   }
 
   setIsLocationPublic() {
     isLocationPublic = widget.userData.locationPublic;
+  }
+
+  setReceivedUserData() {
+    nickName = widget.userData.nickName;
+    introduction = widget.userData.introduction;
   }
 
   @override
