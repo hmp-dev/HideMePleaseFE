@@ -162,7 +162,7 @@ class ExplorerService implements IExplorerService {
       _canPaginate = false;
     }
 
-    await _getRecentWalletAndOrder();
+    //await _getRecentWalletAndOrder();
   }
 
   Future<List<ReownAppKitModalWalletInfo>> _loadWCSampleWallets() async {
