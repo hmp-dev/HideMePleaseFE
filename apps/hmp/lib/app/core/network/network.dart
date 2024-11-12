@@ -70,14 +70,7 @@ class Network {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // const String yanDaneToke =
-    //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4MTMyNGQxMC0yNTMwLTQwOGMtYTQ2YS0zMDEyZGM0ODBkZTkiLCJpYXQiOjE3MzAyNjEzNTYsImV4cCI6MTczMjg5MTM1Nn0.-TURDyMMGRzyNsdFgMQAgO4CjSeFgo1NBeiukYGXsk0";
-
-    // const String iXplorerToken =
-    //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhNGRjMTljNC05Y2I0LTRjYTUtOGVlNi03NGYwZTJjZTc5N2EiLCJpYXQiOjE3MjgzNzU0NjcsImV4cCI6MTczMTAwNTQ2N30.6z1siIy9JeWMyfHNQLJQvOn1J3WOkcj7EUQOVxKcrsk";
-
-    const String pppizzaToken =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MjU3MjYxOC02NzBkLTQ1NzgtYjI5MS04MzcxMTBlY2ZhODEiLCJpYXQiOjE3MzA3MDU1MTAsImV4cCI6MTczMzMzNTUxMH0.85II8RsCy5SoIBZcqJyz5WRP96TH6bAPOsQNuQA-X4c";
+    // get token from secure storage
     final accessToken = await _secureStorage.read(StorageValues.accessToken);
 
     options.headers['Authorization'] = 'Bearer $accessToken';

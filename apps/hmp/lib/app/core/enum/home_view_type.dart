@@ -1,1 +1,5 @@
-enum HomeViewType { beforeWalletConnected, afterWalletConnected }
+enum HomeViewType {
+  beforeWalletConnected,
+  afterWalletConnected,
+  beforeWalletConnectedWithNoFreeNft
+}

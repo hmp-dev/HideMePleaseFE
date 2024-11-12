@@ -168,7 +168,7 @@
      "walletConnectionStatus": "Wallet connection status",
      "disconnect": "Disconnect",
      "businessClosed": "Business Closed",
-     "unavailable": "Free benefits can be used once at each partner location",
+     "unavailable": "unavailable",
      "retryButtonTitle": "Retry",
      "serviceUpdatingMessage": "We are currently undergoing temporary maintenance to add new features. See you again in a moment",
      "serviceUpdating": "Service Updating",
@@ -226,5 +226,6 @@
      "showTheEmployeeBenefitUsageScreen": "Show the employee the benefits usage screen!",
      "exitTheApp": "Exit the app",
      "doYouWantToExitTheApp": "Do you want to exit the app?",
-     "reload": "Reload"
+     "reload": "Reload",
+     "unavailableBenefitEnMessage": "Free benefits can be used once at each partner location"
 }

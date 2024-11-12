@@ -379,7 +379,8 @@ class _MyMembershipSettingsScreenState
                               text:
                                   "${LocaleKeys.next.tr()} (${state.selectedCollectionCount}/${state.maxSelectableCount})",
                               onPressed: () {
-                                getIt<NftCubit>().onGetSelectedNftTokens();
+                                getIt<NftCubit>()
+                                    .onGetSelectedNftTokens(isShowLoader: true);
                                 EditMembershipListScreen.push(context, false);
                               },
                             ),

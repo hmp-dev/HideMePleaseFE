@@ -23,13 +23,10 @@ class BenefitUnavailableText extends StatelessWidget {
           ),
         ),
         const HorizontalSpace(5),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.6,
-          child: Text(
-            LocaleKeys.unavailable.tr(),
-            textAlign: TextAlign.center,
-            style: fontCompactSm(color: fore3),
-          ),
+        Text(
+          LocaleKeys.unavailable.tr(),
+          textAlign: TextAlign.center,
+          style: fontCompactSm(color: fore3),
         ),
       ],
     );

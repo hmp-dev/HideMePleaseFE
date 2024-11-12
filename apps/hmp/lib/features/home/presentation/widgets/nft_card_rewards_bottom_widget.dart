@@ -141,10 +141,16 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
                         );
                       }
                     },
-              child: Text(
-                LocaleKeys.getNftForFree.tr(),
-                style: fontCompactLgMedium(),
-              ),
+              child: (welcomeNftEntity.freeNftAvailable &&
+                      welcomeNftEntity.remainingCount > 0)
+                  ? Text(
+                      LocaleKeys.getNftForFree.tr(),
+                      style: fontCompactLgMedium(),
+                    )
+                  : Text(
+                      LocaleKeys.getNftForFree.tr(),
+                      style: fontCompactLgMedium(),
+                    ),
             )
           ],
         ),

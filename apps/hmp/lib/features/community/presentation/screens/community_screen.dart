@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/chat/presentation/screens/chat_screen.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
@@ -9,6 +10,7 @@ import 'package:mobile/features/community/presentation/cubit/community_cubit.dar
 import 'package:mobile/features/community/presentation/screens/community_details_screen.dart';
 import 'package:mobile/features/community/presentation/views/community_view.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
+import 'package:mobile/features/membership_settings/presentation/screens/edit_membership_list.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
@@ -70,7 +72,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             isFromWePinWelcomeNftRedeem: true);
                       }
                     },
-                    onGetFreeNft: () {},
+                    onGetFreeNft: () {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        EditMembershipListScreen.push(context, true);
+                      });
+                    },
                     onOrderByChanged: (orderBy) =>
                         getIt<CommunityCubit>().onOrderByChanged(orderBy),
                     welcomeNft: nftState.welcomeNftEntity,

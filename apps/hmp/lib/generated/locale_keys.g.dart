@@ -229,5 +229,6 @@ abstract class  LocaleKeys {
   static const exitTheApp = 'exitTheApp';
   static const doYouWantToExitTheApp = 'doYouWantToExitTheApp';
   static const reload = 'reload';
+  static const unavailableBenefitEnMessage = 'unavailableBenefitEnMessage';
 
 }

@@ -1,11 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/enum/chain_type.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class FreeNftRedeemView extends StatelessWidget {
@@ -28,126 +32,137 @@ class FreeNftRedeemView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
+    return BlocBuilder<NftCubit, NftState>(
+      bloc: getIt<NftCubit>(),
+      builder: (context, nftState) {
+        final isFreeWelcomeNFTAvailable =
+            nftState.welcomeNftEntity.freeNftAvailable &&
+                nftState.welcomeNftEntity.remainingCount > 0;
+
+        return Column(
           children: [
-            CustomImageView(
-              svgPath: 'assets/icons/title.svg',
-              width: 20,
-              height: 20,
+            Row(
+              children: [
+                CustomImageView(
+                  svgPath: 'assets/icons/title.svg',
+                  width: 20,
+                  height: 20,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    LocaleKeys.instantlyJoinAbleCommunity.tr(),
+                    //'즉시 가입 가능한 커뮤니티',
+                    style: fontCompactMdMedium(),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Text(
-                LocaleKeys.instantlyJoinAbleCommunity.tr(),
-                //'즉시 가입 가능한 커뮤니티',
-                style: fontCompactMdMedium(),
-              ),
-            ),
-          ],
-        ),
-        Container(
-          margin: const EdgeInsets.only(top: 16.0, bottom: 32.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: black100),
-            image: DecorationImage(
-              image: CachedNetworkImageProvider(bgImage),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(2.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0.8),
-                  Colors.black.withOpacity(0),
-                  Colors.black.withOpacity(0.6),
-                  Colors.black.withOpacity(0.8),
-                ],
-              ),
-            ),
-            child: Container(
+            Container(
+              margin: const EdgeInsets.only(top: 16.0, bottom: 32.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(6),
                 border: Border.all(color: black100),
+                image: DecorationImage(
+                  image: CachedNetworkImageProvider(bgImage),
+                  fit: BoxFit.cover,
+                ),
               ),
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomImageView(
-                    imagePath: ChainType.KLAYTN.chainLogo,
-                    width: 28,
-                    height: 28,
+              child: Container(
+                padding: const EdgeInsets.all(2.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.8),
+                      Colors.black.withOpacity(0),
+                      Colors.black.withOpacity(0.6),
+                      Colors.black.withOpacity(0.8),
+                    ],
                   ),
-                  const SizedBox(height: 16.0),
-                  Text(
-                    name,
-                    style: fontTitle01Bold(),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: black100),
                   ),
-                  const SizedBox(height: 46.0),
-                  Center(
-                    child: Lottie.asset('assets/lottie/lock.json',
-                        width: 120, height: 120, fit: BoxFit.contain),
-                  ),
-                  const SizedBox(height: 64.0),
-                  Row(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        LocaleKeys.nftQuantity.tr(),
-                        //'NFT 수량',
-                        style: fontTitle07(),
+                      CustomImageView(
+                        imagePath: ChainType.KLAYTN.chainLogo,
+                        width: 28,
+                        height: 28,
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                      const SizedBox(height: 16.0),
+                      Text(
+                        name,
+                        style: fontTitle01Bold(),
+                      ),
+                      const SizedBox(height: 46.0),
+                      Center(
+                        child: Lottie.asset('assets/lottie/lock.json',
+                            width: 120, height: 120, fit: BoxFit.contain),
+                      ),
+                      const SizedBox(height: 64.0),
+                      Row(
+                        children: [
+                          Text(
+                            LocaleKeys.nftQuantity.tr(),
+                            //'NFT 수량',
+                            style: fontTitle07(),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(
-                                  redeemedNfts,
-                                  style: fontCompactLgBold(),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      redeemedNfts,
+                                      style: fontCompactLgBold(),
+                                    ),
+                                    Text(
+                                      ' / ',
+                                      style: fontBodyLg(),
+                                    ),
+                                    Text(
+                                      totalNfts,
+                                      style: fontBodyLg(),
+                                    ),
+                                  ],
                                 ),
+                                const SizedBox(height: 4),
                                 Text(
-                                  ' / ',
-                                  style: fontBodyLg(),
-                                ),
-                                Text(
-                                  totalNfts,
-                                  style: fontBodyLg(),
+                                  remainingNfts,
+                                  style: fontBodyXs(),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              remainingNfts,
-                              style: fontBodyXs(),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16.0),
+                      HMPCustomButton(
+                        bgColor: backgroundGr1,
+                        text: isFreeWelcomeNFTAvailable
+                            ? LocaleKeys.connectWallet.tr()
+                            : LocaleKeys.myMembershipSettings.tr(), //'지갑 연결하기',
+                        onPressed: onTap,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16.0),
-                  HMPCustomButton(
-                    bgColor: backgroundGr1,
-                    text: LocaleKeys.connectWallet.tr(), //'지갑 연결하기',
-                    onPressed: onTap,
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }

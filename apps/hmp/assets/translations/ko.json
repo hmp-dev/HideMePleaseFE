@@ -227,5 +227,6 @@
     "showTheEmployeeBenefitUsageScreen": "직원에게 혜택 사용 화면을 보여주세요!",
     "exitTheApp": "앱 종료",
     "doYouWantToExitTheApp": "앱을 종료하시겠습니까?",
-    "reload": "다시 불러오기"
+    "reload": "다시 불러오기",
+    "unavailableBenefitEnMessage": "사용불가"
 }

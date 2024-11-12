@@ -12,6 +12,7 @@ import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.da
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
+import 'package:mobile/features/community/presentation/cubit/community_cubit.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/selected_nft_item.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
@@ -123,9 +124,8 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
       body: SafeArea(
         top: false,
         bottom: true,
-        child: BlocConsumer<NftCubit, NftState>(
+        child: BlocBuilder<NftCubit, NftState>(
           bloc: getIt<NftCubit>(),
-          listener: (context, state) {},
           builder: (context, state) {
             return Stack(
               children: [
@@ -137,74 +137,81 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                             'assets/lottie/loader.json',
                           ),
                         )
-                      : state.submitStatus == RequestStatus.failure
-                          ? const Center(child: EmptyDataWidget())
-                          : Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: ReorderableListView.builder(
-                                      buildDefaultDragHandles: false,
-                                      shrinkWrap: true,
-                                      itemCount:
-                                          state.selectedNftTokensList.length,
-                                      itemBuilder: (context, index) {
-                                        final nft =
-                                            state.selectedNftTokensList[index];
-                                        final imageUrl = nft.imageUrl;
-                                        final videoUrl = nft.videoUrl;
-                                        final name = nft.name;
-                                        final chain = nft.chain.toLowerCase();
+                      :
+                      // state.submitStatus == RequestStatus.failure
+                      //     ? const Center(child: EmptyDataWidget())
+                      //     :
 
-                                        return SelectedNftItem(
-                                          key: ValueKey(
-                                              '${nft.id}-${nft.tokenAddress}-$index'),
-                                          index: index,
-                                          imageUrl: imageUrl,
-                                          videoUrl: videoUrl,
-                                          name: name,
-                                          chain: chain,
-                                        );
-                                      },
-                                      onReorder: (oldIndex, newIndex) {
-                                        if (oldIndex < newIndex) {
-                                          newIndex -= 1;
-                                        }
-                                        final item = state.selectedNftTokensList
-                                            .removeAt(oldIndex);
+                      Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              state.selectedNftTokensList.isEmpty
+                                  ? const Expanded(
+                                      child: Center(child: EmptyDataWidget()))
+                                  : Expanded(
+                                      child: ReorderableListView.builder(
+                                        buildDefaultDragHandles: false,
+                                        shrinkWrap: true,
+                                        itemCount:
+                                            state.selectedNftTokensList.length,
+                                        itemBuilder: (context, index) {
+                                          final nft = state
+                                              .selectedNftTokensList[index];
+                                          final imageUrl = nft.imageUrl;
+                                          final videoUrl = nft.videoUrl;
+                                          final name = nft.name;
+                                          final chain = nft.chain.toLowerCase();
 
-                                        state.selectedNftTokensList
-                                            .insert(newIndex, item);
-                                      },
+                                          return SelectedNftItem(
+                                            key: ValueKey(
+                                                '${nft.id}-${nft.tokenAddress}-$index'),
+                                            index: index,
+                                            imageUrl: imageUrl,
+                                            videoUrl: videoUrl,
+                                            name: name,
+                                            chain: chain,
+                                          );
+                                        },
+                                        onReorder: (oldIndex, newIndex) {
+                                          if (oldIndex < newIndex) {
+                                            newIndex -= 1;
+                                          }
+                                          final item = state
+                                              .selectedNftTokensList
+                                              .removeAt(oldIndex);
+
+                                          state.selectedNftTokensList
+                                              .insert(newIndex, item);
+                                        },
+                                      ),
                                     ),
-                                  ),
 
-                                  const VerticalSpace(20),
+                              const VerticalSpace(20),
 
-                                  // show Membership Button
-                                  //of if isShowMembershipButton is true
-                                  widget.isShowMembershipButton
-                                      ? Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            buildMyMembershipSettingsTextIconButton(),
-                                            const VerticalSpace(10),
-                                            HMPCustomButton(
-                                              text: LocaleKeys.confirm.tr(),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        )
-                                      : const SizedBox.shrink(),
-                                ],
-                              ),
-                            ),
+                              // show Membership Button
+                              //of if isShowMembershipButton is true
+                              widget.isShowMembershipButton
+                                  ? Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        buildMyMembershipSettingsTextIconButton(),
+                                        const VerticalSpace(10),
+                                        HMPCustomButton(
+                                          text: LocaleKeys.confirm.tr(),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ],
+                                    )
+                                  : const SizedBox.shrink(),
+                            ],
+                          ),
+                        ),
                 ),
                 if (!widget.isShowMembershipButton)
                   Align(
@@ -228,6 +235,9 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                               text: LocaleKeys.next.tr(),
                               onPressed: () {
                                 getIt<NftCubit>().onCollectionOrderChanged();
+
+                                // refetch Communities list
+                                getIt<CommunityCubit>().onStart();
                                 // Navigate to Home
                                 Navigator.pushNamedAndRemoveUntil(
                                   context,

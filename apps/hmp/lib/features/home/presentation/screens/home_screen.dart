@@ -12,12 +12,13 @@ import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:mobile/features/home/presentation/widgets/notice_dialog.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/screens/space_selection_screen.dart';
 import 'package:mobile/features/home/presentation/views/home_view_after_wallet_connected.dart';
 import 'package:mobile/features/home/presentation/views/home_view_before_wallet_connect.dart';
+import 'package:mobile/features/home/presentation/views/home_view_before_wallet_connect_no_free_nft.dart';
+import 'package:mobile/features/home/presentation/widgets/notice_dialog.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_benefits_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
@@ -29,7 +30,6 @@ import 'package:mobile/features/space/presentation/screens/redeem_benefit_screen
 import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
-import 'package:mobile/features/wepin/wepin_wallet_connect_list_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -333,21 +333,44 @@ class _HomeScreenState extends State<HomeScreen> {
       // Build the widget tree based on the HomeState and NftState
       child: BlocBuilder<HomeCubit, HomeState>(
         bloc: getIt<HomeCubit>(),
-        builder: (context, state) {
-          return BlocBuilder<NftCubit, NftState>(
-            bloc: getIt<NftCubit>(),
-            builder: (context, nftState) {
-              return kDebugMode
-                  ? SingleChildScrollView(
-                      controller: _scrollController,
-                      child: getHomeView(state.homeViewType),
-                    )
-                  : UpgradeAlert(
-                      child: SingleChildScrollView(
-                        controller: _scrollController,
-                        child: getHomeView(state.homeViewType),
-                      ),
-                    );
+        builder: (context, homeState) {
+          return BlocBuilder<WalletsCubit, WalletsState>(
+            bloc: getIt<WalletsCubit>(),
+            builder: (context, walletsState) {
+              return BlocBuilder<NftCubit, NftState>(
+                bloc: getIt<NftCubit>(),
+                builder: (context, nftState) {
+                  "HomeScreen-freeNftAvailable:${nftState.welcomeNftEntity.freeNftAvailable}"
+                      .log();
+
+                  return !nftState.welcomeNftEntity.freeNftAvailable &&
+                          walletsState.connectedWallets.isEmpty
+                      ? kDebugMode
+                          ? SingleChildScrollView(
+                              controller: _scrollController,
+                              child: getHomeView(HomeViewType
+                                  .beforeWalletConnectedWithNoFreeNft),
+                            )
+                          : UpgradeAlert(
+                              child: SingleChildScrollView(
+                                controller: _scrollController,
+                                child: getHomeView(HomeViewType
+                                    .beforeWalletConnectedWithNoFreeNft),
+                              ),
+                            )
+                      : kDebugMode
+                          ? SingleChildScrollView(
+                              controller: _scrollController,
+                              child: getHomeView(homeState.homeViewType),
+                            )
+                          : UpgradeAlert(
+                              child: SingleChildScrollView(
+                                controller: _scrollController,
+                                child: getHomeView(homeState.homeViewType),
+                              ),
+                            );
+                },
+              );
             },
           );
         },
@@ -356,11 +379,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getHomeView(HomeViewType homeViewType) {
+    "getHomeView $homeViewType".log();
     if (homeViewType == HomeViewType.afterWalletConnected) {
       return HomeViewAfterWalletConnected(
         isOverIconNavVisible: _isVisible,
         homeViewScrollController: _scrollController,
       );
+    } else if (homeViewType ==
+        HomeViewType.beforeWalletConnectedWithNoFreeNft) {
+      return const HomeViewBeforeWalletConnectedWithNoFreeNFT();
     } else {
       return HomeViewBeforeWalletConnect(
         // googleAccessToken: googleAccessToken,

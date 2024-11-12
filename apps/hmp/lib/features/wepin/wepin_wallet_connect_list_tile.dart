@@ -1,6 +1,6 @@
 // class WepinWalletConnectLisTile extends StatefulWidget {
 
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, curly_braces_in_flow_control_structures
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -104,6 +104,10 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
         bloc: getIt<NftCubit>(),
         listener: (context, nftState) {},
         builder: (context, nftState) {
+          final isFreeWelcomeNFTAvailable =
+              nftState.welcomeNftEntity.freeNftAvailable &&
+                  nftState.welcomeNftEntity.remainingCount > 0;
+
           return Column(
             children: [
               widget.isShowCommunityWelcomeNFTRedeemButton
@@ -111,7 +115,12 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                       onTap: () {
                         getIt<WepinCubit>().showLoader();
 
-                        getIt<WepinCubit>().onConnectWepinWallet(context);
+                        if (isFreeWelcomeNFTAvailable) {
+                          getIt<WepinCubit>().onConnectWepinWallet(context);
+                        } else {
+                          getIt<WepinCubit>().onConnectWepinWallet(context,
+                              isFromWePinWalletConnect: true);
+                        }
                       },
                     )
                   : (widget.isShowWelcomeNFTCard)
@@ -126,8 +135,15 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                                   return; // Do nothing if in loading state
                                 }
                                 getIt<WepinCubit>().showLoader();
-                                getIt<WepinCubit>()
-                                    .onConnectWepinWallet(context);
+
+                                if (isFreeWelcomeNFTAvailable) {
+                                  getIt<WepinCubit>()
+                                      .onConnectWepinWallet(context);
+                                } else {
+                                  getIt<WepinCubit>().onConnectWepinWallet(
+                                      context,
+                                      isFromWePinWalletConnect: true);
+                                }
                               },
                             );
                           },
@@ -192,9 +208,15 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                                     if (updatedState.tappedWalletName ==
                                         WalletProvider.WEPIN.name) {
                                       getIt<WepinCubit>().showLoader();
-                                      //initializeWepin();
-                                      getIt<WepinCubit>()
-                                          .onConnectWepinWallet(context);
+
+                                      if (isFreeWelcomeNFTAvailable) {
+                                        getIt<WepinCubit>()
+                                            .onConnectWepinWallet(context);
+                                      } else {
+                                        getIt<WepinCubit>()
+                                            .onConnectWepinWallet(context,
+                                                isFromWePinWalletConnect: true);
+                                      }
                                     }
                                   },
                                   child: Text(

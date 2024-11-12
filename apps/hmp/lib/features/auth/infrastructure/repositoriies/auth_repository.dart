@@ -52,8 +52,6 @@ class AuthRepositoryImpl implements AuthRepository {
       // save Social Login Type
       _localDataSource
           .setSocialTokenIsAppleOrGoogle(SocialLoginType.APPLE.name);
-      //== to save access Token to be used for wepin login
-      ("the Apple ID Token is: ${oauthCredential.idToken}").log();
       // save id token in secure Storage
       _localDataSource.setAppleIdToken(oauthCredential.idToken ?? "");
       //===
@@ -86,15 +84,11 @@ class AuthRepositoryImpl implements AuthRepository {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-
-      ("hellohmp the Google Access Toke is: ${googleAuth.accessToken}").log();
-      ("hellohmp the Google idToken Token is: ${googleAuth.idToken}").log();
-
       // save Social Login Type
       _localDataSource
           .setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
 
-      // save id token in secure Storage
+      // save Access token in secure Storage to be used wepin login
       _localDataSource.setGoogleAccessToken(googleAuth.accessToken ?? "");
       //===
 

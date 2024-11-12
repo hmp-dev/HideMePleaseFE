@@ -340,7 +340,11 @@ class NftCubit extends BaseCubit<NftState> {
   /// If the response is unsuccessful (`fold` first parameter is not null), it
   /// logs the error and emits the `state` with the submit status and error message
   /// updated.
-  Future<void> onGetSelectedNftTokens() async {
+  Future<void> onGetSelectedNftTokens({bool? isShowLoader}) async {
+    if (isShowLoader == true) {
+      EasyLoading.show();
+    }
+
     // Retrieve the current position
     double latitude = 1;
     double longitude = 1;
@@ -362,7 +366,9 @@ class NftCubit extends BaseCubit<NftState> {
 
     welcomeNFtResponse.fold(
       // Handle the welcome NFT data response
-      (err) {},
+      (err) {
+        EasyLoading.dismiss();
+      },
       (welcomeNftData) async {
         // Update the state with the welcome NFT entity
         emit(state.copyWith(
@@ -379,6 +385,7 @@ class NftCubit extends BaseCubit<NftState> {
           // Handle the selected NFT tokens response
           (err) {
             Log.error(err);
+            EasyLoading.dismiss();
             // Update the state with failure status and error message
             emit(state.copyWith(
               submitStatus: RequestStatus.failure,
@@ -386,6 +393,7 @@ class NftCubit extends BaseCubit<NftState> {
             ));
           },
           (selectedNftTokensList) {
+            EasyLoading.dismiss();
             final resultList =
                 selectedNftTokensList.map((e) => e.toEntity()).toList();
 

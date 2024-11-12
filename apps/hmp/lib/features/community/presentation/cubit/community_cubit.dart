@@ -67,7 +67,12 @@ class CommunityCubit extends BaseCubit<CommunityState> {
   void onOrderByChanged(GetNftCommunityOrderBy? orderBy) {
     if (orderBy == null) return;
 
-    emit(state.copyWith(allNftCommOrderBy: orderBy));
+    emit(state.copyWith(
+      allNftCommOrderBy: orderBy,
+      allNftLoaded: false,
+      loadingMoreStatus: RequestStatus.initial,
+      allCommunitiesPage: 1,
+    ));
     onGetAllNftCommunities();
   }
 

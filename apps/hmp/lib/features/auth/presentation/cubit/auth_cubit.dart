@@ -53,9 +53,7 @@ class AuthCubit extends BaseCubit<AuthState> {
         _localDataSource
             .setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
 
-        //== to save access Token to be used for wepin login
-        ("the Google Access Toke is: ${googleAuth.accessToken}").log();
-        // Save the refreshed access token
+        // Save the refreshed access token to user for Wepin Login
         _localDataSource.setGoogleAccessToken(googleAuth.accessToken ?? "");
         //===
 
