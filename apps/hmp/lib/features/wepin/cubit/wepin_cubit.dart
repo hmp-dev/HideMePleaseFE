@@ -400,10 +400,10 @@ class WepinCubit extends BaseCubit<WepinState> {
 
       // Determine the login type and proceed accordingly
       if (state.socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
-        /*fbToken = await state.wepinWidgetSDK!.login.loginWithAccessToken(
-            provider: 'google', accessToken: state.googleAccessToken);*/
-        fbToken = await state.wepinWidgetSDK!.login.loginWithIdToken(
-            idToken: state.googleAccessToken);
+        fbToken = await state.wepinWidgetSDK!.login.loginWithAccessToken(
+            provider: 'google', accessToken: state.googleAccessToken);
+        /*fbToken = await state.wepinWidgetSDK!.login.loginWithIdToken(
+            idToken: state.googleAccessToken);*/
       }
 
       // if Login Type is Apple

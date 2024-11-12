@@ -57,8 +57,8 @@ class AuthCubit extends BaseCubit<AuthState> {
         _localDataSource.setGoogleAccessToken(googleAuth.accessToken ?? "");
         //===
 
-        // return googleAuth.accessToken;
-        return googleAuth.idToken;//Wepin has suggested that login with id token is recommended. Hence made this change.
+        return googleAuth.accessToken;
+        // return googleAuth.idToken;//Wepin has suggested that login with id token is recommended. Hence made this change.
       } else {
         // User is not signed in; you may need to prompt the user to sign in again
         return null;
