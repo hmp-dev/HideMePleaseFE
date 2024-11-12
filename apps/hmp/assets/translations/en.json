@@ -227,5 +227,6 @@
      "exitTheApp": "Exit the app",
      "doYouWantToExitTheApp": "Do you want to exit the app?",
      "reload": "Reload",
-     "unavailableBenefitEnMessage": "Free benefits can be used once at each partner location"
+     "unavailableBenefitEnMessage": "Free benefits can be used once at each partner location",
+     "sir": "Sir"
 }

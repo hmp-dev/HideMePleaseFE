@@ -72,11 +72,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             isFromWePinWelcomeNftRedeem: true);
                       }
                     },
-                    onGetFreeNft: () {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        EditMembershipListScreen.push(context, true);
-                      });
-                    },
+                    onGetFreeNft: () {},
                     onOrderByChanged: (orderBy) =>
                         getIt<CommunityCubit>().onOrderByChanged(orderBy),
                     welcomeNft: nftState.welcomeNftEntity,

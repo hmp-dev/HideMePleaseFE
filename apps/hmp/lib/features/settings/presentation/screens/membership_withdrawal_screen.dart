@@ -132,7 +132,7 @@ class _MembershipWithdrawalScreenState
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "${userProfile.nickName}님,\n${LocaleKeys.areYouSureYouWantToWithdraw.tr()}",
+                  "${userProfile.nickName} ${LocaleKeys.sir.tr()},\n${LocaleKeys.areYouSureYouWantToWithdraw.tr()}",
                   textAlign: TextAlign.center,
                   style: fontCompactLgMedium(),
                 ),
