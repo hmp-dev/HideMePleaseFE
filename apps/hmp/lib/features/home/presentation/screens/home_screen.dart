@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/constants/storage.dart';
@@ -65,8 +66,10 @@ class _HomeScreenState extends State<HomeScreen> {
             '';
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
-      appleIdToken =
-          await getIt<SecureStorage>().read(StorageValues.appleIdToken) ?? '';
+      /*appleIdToken =
+          await getIt<SecureStorage>().read(StorageValues.appleIdToken) ?? '';*/
+      // appleIdToken = await FirebaseAuth.instance.currentUser?.getIdToken() ?? "";
+      appleIdToken = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
     }
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
