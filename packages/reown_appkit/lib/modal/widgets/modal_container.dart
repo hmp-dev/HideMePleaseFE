@@ -75,6 +75,13 @@ class _ModalContainerState extends State<ModalContainer> {
       child: ClipRRect(
         borderRadius: innerContainerBorderRadius,
         child: DecoratedBox(
+          // decoration: BoxDecoration(
+          //   border: Border.all(
+          //     color: themeColors.grayGlass005,
+          //     width: 1,
+          //   ),
+          //   color: themeColors.background125,
+          // ),
           decoration: BoxDecoration(
               border: Border.all(
                 color: Color(0xFF0C0C0E), //themeColors.grayGlass005,

@@ -97,7 +97,7 @@ class WalletListItem extends StatelessWidget {
                 //   color: onTap == null
                 //       ? themeColors.foreground200
                 //       : themeColors.foreground100,
-                //),
+                // ),
               ),
             ),
           ),

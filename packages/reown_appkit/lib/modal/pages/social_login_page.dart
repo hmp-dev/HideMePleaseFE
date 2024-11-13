@@ -7,16 +7,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:reown_appkit/modal/constants/key_constants.dart';
 import 'package:reown_appkit/modal/constants/string_constants.dart';
-
 import 'package:reown_appkit/modal/i_appkit_modal_impl.dart';
 import 'package:reown_appkit/modal/constants/style_constants.dart';
 import 'package:reown_appkit/modal/pages/farcaster_qrcode_page.dart';
-import 'package:reown_appkit/modal/services/analytics_service/analytics_service_singleton.dart';
+import 'package:reown_appkit/modal/services/analytics_service/i_analytics_service.dart';
 import 'package:reown_appkit/modal/services/analytics_service/models/analytics_event.dart';
 import 'package:reown_appkit/modal/services/magic_service/i_magic_service.dart';
 import 'package:reown_appkit/modal/services/magic_service/models/magic_events.dart';
-import 'package:reown_appkit/modal/services/toast_service/models/toast_message.dart';
-import 'package:reown_appkit/modal/services/toast_service/toast_service_singleton.dart';
 import 'package:reown_appkit/modal/utils/asset_util.dart';
 import 'package:reown_appkit/modal/utils/platform_utils.dart';
 import 'package:reown_appkit/modal/widgets/buttons/simple_icon_button.dart';
@@ -29,9 +26,9 @@ import 'package:reown_appkit/modal/widgets/navigation/navbar.dart';
 import 'package:reown_appkit/modal/widgets/navigation/navbar_action_button.dart';
 import 'package:reown_appkit/modal/widgets/widget_stack/widget_stack_singleton.dart';
 import 'package:reown_appkit/reown_appkit.dart';
-// import 'package:webview_flutter/webview_flutter.dart';
-// import 'package:webview_flutter_android/webview_flutter_android.dart';
-// import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 class SocialLoginPage extends StatefulWidget {
   const SocialLoginPage({
@@ -47,6 +44,7 @@ class SocialLoginPage extends StatefulWidget {
 
 class _SocialLoginPageState extends State<SocialLoginPage> {
   IMagicService get _magicService => GetIt.I<IMagicService>();
+  IAnalyticsService get _analyticsService => GetIt.I<IAnalyticsService>();
 
   IReownAppKitModal? _service;
   ModalError? errorEvent;
@@ -76,17 +74,13 @@ class _SocialLoginPageState extends State<SocialLoginPage> {
   }
 
   void _errorListener(ModalError? event) {
-    toastService.instance.show(ToastMessage(
-      type: ToastType.error,
-      text: event?.message ?? 'Something went wrong.',
-    ));
     setState(() => errorEvent = event);
   }
 
   Future<void> _initSocialLogin(AppKitSocialOption option) async {
     try {
       setState(() => errorEvent = null);
-      analyticsService.instance.sendEvent(SocialLoginStarted(
+      _analyticsService.sendEvent(SocialLoginStarted(
         provider: widget.socialOption.name.toLowerCase(),
       ));
       if (option == AppKitSocialOption.Farcaster) {
@@ -186,8 +180,11 @@ class _SocialLoginPageState extends State<SocialLoginPage> {
         uri: '?${Uri.parse(url).query}',
       );
       if (success == true) {
-        await _magicService.getUser();
-        analyticsService.instance.sendEvent(SocialLoginSuccess(
+        final caip2Chain = ReownAppKitModalNetworks.getCaip2Chain(
+          _service?.selectedChain?.chainId ?? '1',
+        );
+        await _magicService.getUser(chainId: caip2Chain);
+        _analyticsService.sendEvent(SocialLoginSuccess(
           provider: widget.socialOption.name.toLowerCase(),
         ));
         _magicService.onCompleteSocialLogin.unsubscribe(
@@ -218,7 +215,10 @@ class _SocialLoginPageState extends State<SocialLoginPage> {
       _cancelSocialLogin();
     } else {
       setState(() => _retrievingData = true);
-      await _magicService.getUser();
+      final caip2Chain = ReownAppKitModalNetworks.getCaip2Chain(
+        _service?.selectedChain?.chainId ?? '1',
+      );
+      await _magicService.getUser(chainId: caip2Chain);
     }
   }
 
@@ -226,7 +226,7 @@ class _SocialLoginPageState extends State<SocialLoginPage> {
     debugPrint('[$runtimeType] _cancelSocialLogin');
     errorEvent = ModalError('User canceled');
     setState(() => _retrievingData = false);
-    analyticsService.instance.sendEvent(SocialLoginError(
+    _analyticsService.sendEvent(SocialLoginError(
       provider: widget.socialOption.name.toLowerCase(),
     ));
   }
@@ -371,8 +371,8 @@ class _WebViewLoginWidget extends StatefulWidget {
 }
 
 class __WebViewLoginWidgetState extends State<_WebViewLoginWidget> {
-  // final _webViewController = WebViewController();
-  // final _cookieManager = WebViewCookieManager();
+  final _webViewController = WebViewController();
+  final _cookieManager = WebViewCookieManager();
 
   @override
   void initState() {
@@ -383,58 +383,58 @@ class __WebViewLoginWidgetState extends State<_WebViewLoginWidget> {
   // ignore: unused_element
   Future<void> _clearCookies() async {
     if (!kDebugMode) return;
-    // try {
-    //   if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-    //     final webKitManager =
-    //         _cookieManager.platform as WebKitWebViewCookieManager;
-    //     webKitManager.clearCookies();
-    //   } else if (WebViewPlatform.instance is AndroidWebViewPlatform) {
-    //     final androidManager =
-    //         _cookieManager.platform as AndroidWebViewCookieManager;
-    //     androidManager.clearCookies();
-    //     androidManager.setAcceptThirdPartyCookies(
-    //       _webViewController.platform as AndroidWebViewController,
-    //       kDebugMode,
-    //     );
-    //   }
-    // } catch (e) {
-    //   debugPrint('[$runtimeType] _clearCookies error $e');
-    // }
+    try {
+      if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+        final webKitManager =
+            _cookieManager.platform as WebKitWebViewCookieManager;
+        webKitManager.clearCookies();
+      } else if (WebViewPlatform.instance is AndroidWebViewPlatform) {
+        final androidManager =
+            _cookieManager.platform as AndroidWebViewCookieManager;
+        androidManager.clearCookies();
+        androidManager.setAcceptThirdPartyCookies(
+          _webViewController.platform as AndroidWebViewController,
+          kDebugMode,
+        );
+      }
+    } catch (e) {
+      debugPrint('[$runtimeType] _clearCookies error $e');
+    }
   }
 
   void _setDebugMode() {
-    // if (!kDebugMode) return;
-    // if (Platform.isIOS) {
-    //   final wkCtrl = _webViewController.platform as WebKitWebViewController;
-    //   wkCtrl.setInspectable(true);
-    // }
-    // if (Platform.isAndroid) {
-    //   if (_webViewController.platform is AndroidWebViewController) {
-    //     final aCtrl = _webViewController.platform as AndroidWebViewController;
-    //     aCtrl.setMediaPlaybackRequiresUserGesture(false);
-    //     AndroidWebViewController.enableDebugging(true);
+    if (!kDebugMode) return;
+    if (Platform.isIOS) {
+      final wkCtrl = _webViewController.platform as WebKitWebViewController;
+      wkCtrl.setInspectable(true);
+    }
+    if (Platform.isAndroid) {
+      if (_webViewController.platform is AndroidWebViewController) {
+        final aCtrl = _webViewController.platform as AndroidWebViewController;
+        aCtrl.setMediaPlaybackRequiresUserGesture(false);
+        AndroidWebViewController.enableDebugging(true);
 
-    //     final cookieManager =
-    //         _cookieManager.platform as AndroidWebViewCookieManager;
-    //     cookieManager.setAcceptThirdPartyCookies(
-    //       _webViewController.platform as AndroidWebViewController,
-    //       true,
-    //     );
-    //   }
-    // }
+        final cookieManager =
+            _cookieManager.platform as AndroidWebViewCookieManager;
+        cookieManager.setAcceptThirdPartyCookies(
+          _webViewController.platform as AndroidWebViewController,
+          true,
+        );
+      }
+    }
   }
 
   Future<void> _fitToScreen() async {
-    // return await _webViewController.runJavaScript('''
-    //   if (document.querySelector('meta[name="viewport"]') === null) {
-    //     var meta = document.createElement('meta');
-    //     meta.name = 'viewport';
-    //     meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-    //     document.head.appendChild(meta);
-    //   } else {
-    //     document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-    //   }
-    //   ''');
+    return await _webViewController.runJavaScript('''
+      if (document.querySelector('meta[name="viewport"]') === null) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+        document.head.appendChild(meta);
+      } else {
+        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+      }
+      ''');
   }
 
   Future<void> _init() async {
@@ -442,28 +442,29 @@ class __WebViewLoginWidgetState extends State<_WebViewLoginWidget> {
     // await _clearCookies();
     // await _webViewController.clearCache();
     // await _webViewController.clearLocalStorage();
-    // await _webViewController.enableZoom(false);
-    // await _webViewController.setJavaScriptMode(JavaScriptMode.unrestricted);
-    // await _fitToScreen();
-    // await _webViewController.setNavigationDelegate(
-    //   NavigationDelegate(
-    //     onNavigationRequest: (NavigationRequest request) {
-    //       final uri = Uri.parse(request.url);
-    //       final params = uri.queryParameters;
-    //       final secureOrigin1 = UrlConstants.secureOrigin1;
-    //       final secureOrigin2 = UrlConstants.secureOrigin2;
-    //       if ((uri.authority == secureOrigin1 ||
-    //               uri.authority == secureOrigin2) &&
-    //           params.containsKey('state')) {
-    //         Future.delayed(Duration(milliseconds: 500), () {
-    //           Navigator.of(context).pop(request.url);
-    //         });
-    //       }
-    //       return NavigationDecision.navigate;
-    //     },
-    //   ),
-    // );
-    // await _webViewController.loadRequest(Uri.parse(widget.url));
+    await _webViewController.enableZoom(false);
+    await _webViewController.setJavaScriptMode(JavaScriptMode.unrestricted);
+    await _fitToScreen();
+    await _webViewController.setNavigationDelegate(
+      NavigationDelegate(
+        onNavigationRequest: (NavigationRequest request) {
+          final uri = Uri.parse(request.url);
+          final params = uri.queryParameters;
+          final secureOrigin1 = UrlConstants.secureOrigin1;
+          final secureOrigin2 = UrlConstants.secureOrigin2;
+          final origin1 = uri.authority == secureOrigin1;
+          final origin2 = uri.authority == secureOrigin2;
+          final hasState = params.containsKey('state');
+          if ((origin1 || origin2) && hasState) {
+            Future.delayed(Duration(milliseconds: 500), () {
+              Navigator.of(context).pop(request.url);
+            });
+          }
+          return NavigationDecision.navigate;
+        },
+      ),
+    );
+    await _webViewController.loadRequest(Uri.parse(widget.url));
   }
 
   @override
@@ -472,11 +473,23 @@ class __WebViewLoginWidgetState extends State<_WebViewLoginWidget> {
       title: '',
       noBack: true,
       noClose: true,
-      rightAction: NavbarActionButton(
-        asset: 'lib/modal/assets/icons/close.svg',
-        action: widget.onCancel,
-      ),
-      body: Container(), //WebViewWidget(controller: _webViewController),
+      rightActions: [
+        NavbarActionButton(
+          asset: 'lib/modal/assets/icons/disconnect.svg',
+          dimension: 48.0,
+          action: () async {
+            await _clearCookies();
+            await _webViewController.clearCache();
+            await _webViewController.clearLocalStorage();
+            await _webViewController.reload();
+          },
+        ),
+        NavbarActionButton(
+          asset: 'lib/modal/assets/icons/close.svg',
+          action: widget.onCancel,
+        ),
+      ],
+      body: WebViewWidget(controller: _webViewController),
     );
   }
 }
