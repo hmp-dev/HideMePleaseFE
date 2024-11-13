@@ -58,6 +58,7 @@ class AuthCubit extends BaseCubit<AuthState> {
         //===
 
         return googleAuth.accessToken;
+        // return googleAuth.idToken;//Wepin has suggested that login with id token is recommended. Hence made this change.
       } else {
         // User is not signed in; you may need to prompt the user to sign in again
         return null;
@@ -70,6 +71,15 @@ class AuthCubit extends BaseCubit<AuthState> {
   }
 
   Future<String?> refreshAppleIdToken() async {
+    try{
+      final firebaseToken = await FirebaseAuth.instance.currentUser?.getIdToken() ?? "";
+      final result = await _authRepository.requestApiLogin(firebaseToken: firebaseToken);
+
+
+    } catch(e, st){
+      ('Error refreshing Apple ID token: $e').log();
+    }
+    return _localDataSource.getAppleIdToken();
     try {
       // Retrieve the stored nonce if you are using it again, or generate a new one
       final rawNonce = generateNonce();
