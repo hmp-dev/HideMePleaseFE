@@ -229,8 +229,12 @@ class WalletsCubit extends BaseCubit<WalletsState> {
   ///           of the connected wallet.
   void _onModalConnect(ModalConnect? args) {
     // Log the address and name of the connected wallet
-    ('[$runtimeType] onModalConnect ${args?.session.address}').log();
-    final publicAddress = args?.session.address ?? '';
+    // ('[$runtimeType] onModalConnect ${args?.session.address}').log();
+    // final publicAddress = args?.session.address ?? '';
+
+    ('[$runtimeType] onModalConnect ${args?.session.toJson()}').log();
+    final publicAddress = args?.session.controller ?? '';
+
     final connectedWalletName =
         args?.session.connectedWalletName?.toUpperCase() ?? '';
 

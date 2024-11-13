@@ -7,3 +7,4 @@ dependency_overrides:
   wepin_flutter_widget_sdk:
     path: ../../packages/wepin_flutter_widget_sdk
   web_socket_channel: ^2.4.4
+  get_it: ^8.0.0

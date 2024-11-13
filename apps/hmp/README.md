@@ -70,9 +70,184 @@ wallet list is being made by following
 
 ## notes for reown_appkit package for wallet connect
 
-### file name : packages/reown_appkit/lib/modal/pages/public/appkit_modal_main_wallets_page.dart
+### file name : lib/modal/pages/public/appkit_modal_main_wallets_page.dart
 
 `title: '지갑연결', //'Connect wallet',` change for model tile text to korean
+
+### add trailing comma instead of RECENT text inside packages/reown_appkit/lib/modal/widgets/lists/wallets_list.dart
+
+```
+  trailing: Icon(Icons.arrow_forward_ios,
+                      size: 17, color: Color(0x4DFFFFFF))
+                  // trailing: listItem.data.recent
+                  //     ? const WalletItemChip(value: ' RECENT ')
+                  //     : null,
+
+```
+
+to disable checkmark make showCheckmark as false
+
+showCheckmark: false, //listItem.data.installed,
+
+inside below packages/reown_appkit/lib/modal/widgets/lists/wallets_list.dart:54
+
+```
+itemList.map(
+            (listItem) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: WalletListItem(
+                  onTap: () => onTapWallet?.call(listItem.data),
+                  showCheckmark: false, //listItem.data.installed,
+                  imageUrl: listItem.image,
+                  title: listItem.title,
+                  trailing: Icon(Icons.arrow_forward_ios,
+                      size: 17, color: Color(0x4DFFFFFF))
+                  // trailing: listItem.data.recent
+                  //     ? const WalletItemChip(value: ' RECENT ')
+                  //     : null,
+                  ),
+            ),
+          );
+```
+
+### change wallet title text style packages/reown_appkit/lib/modal/widgets/lists/list_items/wallet_list_item.dart:87
+
+```
+ child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFFFFFFF),
+                  letterSpacing: 1,
+                  height: 1.7,
+                ),
+                // style: themeData.textStyles.paragraph500.copyWith(
+                //   color: onTap == null
+                //       ? themeColors.foreground200
+                //       : themeColors.foreground100,
+                //),
+              ),
+            ),
+```
+
+### to change navbar packages/reown_appkit/lib/modal/widgets/navigation/navbar.dart
+
+```
+ SafeArea(
+            left: true,
+            right: true,
+            top: false,
+            bottom: false,
+            child: SizedBox(
+              height: kNavbarHeight,
+              child: ValueListenableBuilder(
+                valueListenable: widgetStack.instance.onRenderScreen,
+                builder: (context, render, _) {
+                  if (!render) return SizedBox.shrink();
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // widgetStack.instance.canPop() && !noBack
+                      //     ? NavbarActionButton(
+                      //         asset: 'lib/modal/assets/icons/chevron_left.svg',
+                      //         action: onBack ?? widgetStack.instance.pop,
+                      //       )
+                      //     : (leftAction ??
+                      //         const SizedBox.square(dimension: kNavbarHeight)),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: GestureDetector(
+                          onTap: () => onTapTitle?.call(),
+                          child: Center(
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                letterSpacing: -0.1,
+                                height: 1.4,
+                              ),
+                              // style: themeData.textStyles.paragraph600.copyWith(
+                              //   color: themeColors.foreground100,
+                              // ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      noClose
+                          ? const SizedBox.square(dimension: kNavbarHeight)
+                          : NavbarActionButton(
+                              asset: 'lib/modal/assets/icons/close.svg',
+                              action: () {
+                                ModalProvider.of(context).instance.closeModal();
+                              },
+                            ),
+                      // Row(
+                      //   children: rightActions,
+                      // ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+          Divider(color: Color(0x0DFFFFFF), height: 1.0),
+          Flexible(
+            child: SafeArea(
+              left: safeAreaLeft,
+              right: safeAreaRight,
+              bottom: safeAreaBottom,
+              child: body,
+            ),
+          ),
+```
+
+### color Scheme
+
+1-changing the background Color of wallet connect bottom model
+file Path ===> lib/modal/widgets/modal_container.dart
+
+```
+ // decoration: BoxDecoration(
+          //   border: Border.all(
+          //     color: themeColors.grayGlass005,
+          //     width: 1,
+          //   ),
+          //   color: themeColors.background125,
+          // ),
+          decoration: BoxDecoration(
+              border: Border.all(
+                color: Color(0xFF0C0C0E), //themeColors.grayGlass005,
+                //color: themeColors.grayGlass005,
+                width: 1,
+              ),
+              color: Color(0xFF0C0C0E)
+              //color: themeColors.background125,
+              ),
+```
+
+## remove all wallets tile inside bottom model
+
+comment out /items.addAll(bottomItems); inside file lib/modal/widgets/lists/wallets_list.dart:70
+
+```
+ if (bottomItems.isNotEmpty) {
+      //items.addAll(bottomItems);
+    }
+
+```
+
+### remove empty space at bottom of model widget
+
+```
+ double maxHeight = isPortrait
+        ? (kListItemHeight * 5)
+        : ResponsiveData.maxHeightOf(context);
+```
 
 ## Steps to include custom wallet inside reown_appkit package
 
