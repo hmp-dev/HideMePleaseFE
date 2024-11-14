@@ -231,5 +231,6 @@ abstract class  LocaleKeys {
   static const reload = 'reload';
   static const unavailableBenefitEnMessage = 'unavailableBenefitEnMessage';
   static const sir = 'sir';
+  static const alreadyConnectWalletMessage = 'alreadyConnectWalletMessage';
 
 }

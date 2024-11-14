@@ -88,14 +88,14 @@ class RedeemBenefitScreen extends StatefulWidget {
     );
   }
 
-  static Future<dynamic> pushReplacement(
+  static Future<dynamic> pushAndRemoveUntil(
     BuildContext context, {
     required NearBySpaceEntity nearBySpaceEntity,
     BenefitEntity? selectedBenefitEntity,
     bool? isMatchedSpaceFound,
   }) async {
     // Push the RedeemBenefitScreen to the navigation stack
-    return await Navigator.pushReplacement(
+    return await Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
         builder: (_) => RedeemBenefitScreen(
@@ -104,6 +104,7 @@ class RedeemBenefitScreen extends StatefulWidget {
           isMatchedSpaceFound: isMatchedSpaceFound,
         ),
       ),
+      (Route<dynamic> route) => route.isFirst,
     );
   }
 
@@ -548,7 +549,9 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
                 Navigator.pop(context);
               } else {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                    Routes.appScreen, (Route<dynamic> route) => false);
+                  Routes.startUpScreen,
+                  (Route<dynamic> route) => route.isFirst,
+                );
               }
             },
             child: DefaultImage(
@@ -609,11 +612,25 @@ class _RedeemBenefitScreenState extends State<RedeemBenefitScreen> {
           ? "${state.benefitGroupEntity.benefits[selectedPageIndex].spaceName}\n${LocaleKeys.youHaveBenefited.tr()}"
           : "${widget.selectedBenefitEntity?.spaceName}\n${LocaleKeys.youHaveBenefited.tr()}",
       onConfirm: () {
-        Navigator.pop(context);
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        } else {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            Routes.startUpScreen,
+            (Route<dynamic> route) => route.isFirst,
+          );
+        }
       },
     );
 
-    Navigator.pop(context);
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        Routes.startUpScreen,
+        (Route<dynamic> route) => route.isFirst,
+      );
+    }
   }
 
   onShowTermsConcentAlert(String termsUrl) async {

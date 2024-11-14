@@ -381,9 +381,11 @@ class _RedeemBenefitScreenWithSpaceState
             onTap: () {
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);
-              } else {
+              } 
+              
+              else {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                    Routes.appScreen, (Route<dynamic> route) => false);
+                    Routes.startUpScreen, (Route<dynamic> route) => false);
               }
             },
             child: DefaultImage(

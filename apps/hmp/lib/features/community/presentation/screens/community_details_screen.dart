@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/features/chat/presentation/screens/chat_screen.dart';
 import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/domain/entities/top_collection_nft_entity.dart';
 import 'package:mobile/features/community/presentation/cubit/community_details_cubit.dart';
@@ -20,7 +21,10 @@ class CommunityDetailsScreen extends StatelessWidget {
         ..onStart(tokenAddress: nftCommunity.tokenAddress),
       builder: (context, state) {
         return CommunityDetailsView(
-          onEnterChat: () {},
+          nftCommunityEntity: nftCommunity,
+          onEnterChat: (community) {
+            CommunityChatScreen.push(context, channel: community.tokenAddress);
+          },
           onRetry: () => getIt<CommunityDetailsCubit>()
               .onStart(tokenAddress: nftCommunity.tokenAddress),
           onTapRank: () => Navigator.push(

@@ -61,6 +61,14 @@ class WalletsState extends BaseState {
       .where((element) => element.provider.toLowerCase() == 'wepin_evm')
       .isNotEmpty;
 
+  bool get isMetamaskWalletConnected => connectedWallets
+      .where((element) => element.provider.toLowerCase() == 'metamask')
+      .isNotEmpty;
+
+  bool get isPhantomWalletConnected => connectedWallets
+      .where((element) => element.provider.toLowerCase() == 'phantom')
+      .isNotEmpty;
+
   /// The list of objects to be used for equality checks.
   @override
   List<Object?> get props => [

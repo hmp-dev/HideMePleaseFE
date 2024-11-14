@@ -169,7 +169,9 @@ class WalletsCubit extends BaseCubit<WalletsState> {
       // Subscribe to modal errors
       state.reownAppKitModal!.onModalError.subscribe(_onModalError);
       // Subscribe to modal connection
-      state.reownAppKitModal!.onModalConnect.subscribe(_onModalConnect);
+      state.reownAppKitModal!.onModalConnect.subscribe(
+        (args) => _onModalConnect(args, context),
+      );
       // Subscribe to modal disconnection
       state.reownAppKitModal!.onModalDisconnect.subscribe(_onModalDisconnect);
 
@@ -227,13 +229,22 @@ class WalletsCubit extends BaseCubit<WalletsState> {
   /// Parameters:
   /// - [args]: The `ModalConnect` object that contains the session details
   ///           of the connected wallet.
-  void _onModalConnect(ModalConnect? args) {
+  void _onModalConnect(ModalConnect? args, BuildContext context) {
     // Log the address and name of the connected wallet
     // ('[$runtimeType] onModalConnect ${args?.session.address}').log();
     // final publicAddress = args?.session.address ?? '';
 
-    ('[$runtimeType] onModalConnect ${args?.session.toJson()}').log();
-    final publicAddress = args?.session.controller ?? '';
+    final firstNamespaceKey = args?.session.namespaces!.keys.first ?? '';
+
+    final val = args?.session.getAccounts() ?? '';
+    ('[$runtimeType]onModalConnect args?.session.getAccounts()$val').log();
+
+    ('[$runtimeType]onModalConnect args?.session.self?.toJson()${args?.session.self?.toJson()}')
+        .log();
+
+    final publicAddress = args?.session.getAddress(firstNamespaceKey) ?? '';
+
+    ('[$runtimeType] onModalConnect publicAddress}$publicAddress').log();
 
     final connectedWalletName =
         args?.session.connectedWalletName?.toUpperCase() ?? '';
@@ -241,13 +252,31 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     // Get the name of the connected wallet provider
     final providerName = getWalletProvider(connectedWalletName);
 
-    // Call the onPostWallet function to save the wallet details
-    onPostWallet(
-      saveWalletRequestDto: SaveWalletRequestDto(
-        publicAddress: publicAddress,
-        provider: providerName,
-      ),
-    );
+    // check if Metamask Wallet is already connected
+    if ((providerName.toLowerCase() == "metamask") &&
+        state.isMetamaskWalletConnected) {
+      state.reownAppKitModal!.disconnect();
+
+      context.showSnackBar(
+        LocaleKeys.alreadyConnectWalletMessage.tr(),
+      );
+    } else if ((providerName.toLowerCase() == "klip") &&
+        state.isKlipWalletConnected) {
+      state.reownAppKitModal!.disconnect();
+
+      context.showSnackBar(
+        LocaleKeys.alreadyConnectWalletMessage.tr(),
+      );
+    } else {
+      // Call the onPostWallet function to save the wallet details
+      state.reownAppKitModal!.disconnect();
+      onPostWallet(
+        saveWalletRequestDto: SaveWalletRequestDto(
+          publicAddress: publicAddress,
+          provider: providerName,
+        ),
+      );
+    }
   }
 
   void _onModalDisconnect(ModalDisconnect? args) {
@@ -265,9 +294,16 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     onUpdateIsWelcomeNftRedeemInProcess(false);
     await state.reownAppKitModal!.openModalView();
 
+    "tapped wallet: ${state.reownAppKitModal!.selectedWallet?.listing.id}"
+        .log();
+
     if (state.reownAppKitModal!.selectedWallet?.listing.id ==
         'phantom-custom') {
-      if (Platform.isAndroid) {
+      if (state.isPhantomWalletConnected) {
+        context.showSnackBar(
+          LocaleKeys.alreadyConnectWalletMessage.tr(),
+        );
+      } else if (Platform.isAndroid) {
         onConnectSolWallet(context);
       } else if (Platform.isIOS) {
         Navigator.push(
@@ -293,7 +329,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
       "Wepin Connect is called".log();
       if (state.isWepinWalletConnected) {
         context.showSnackBar(
-          LocaleKeys.wepin_already_connected.tr(),
+          LocaleKeys.alreadyConnectWalletMessage.tr(),
         );
       } else {
         // Update the tapped wallet name

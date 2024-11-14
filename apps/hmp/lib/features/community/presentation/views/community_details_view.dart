@@ -7,6 +7,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/community/domain/entities/community_member_entity.dart';
+import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
 import 'package:mobile/features/community/domain/entities/top_collection_nft_entity.dart';
 import 'package:mobile/features/community/presentation/widgets/community_error_view.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
@@ -14,7 +15,7 @@ import 'package:mobile/features/nft/domain/entities/nft_network_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class CommunityDetailsView extends StatelessWidget {
-  final VoidCallback onEnterChat;
+  final void Function(NftCommunityEntity) onEnterChat;
   final VoidCallback onRetry;
   final VoidCallback onTapRank;
   final void Function(CommunityMemberEntity) onMemberTap;
@@ -32,6 +33,7 @@ class CommunityDetailsView extends StatelessWidget {
   final bool membersError;
   final bool isMembersLoadingMore;
   final bool isBenefitsLoadingMore;
+  final NftCommunityEntity nftCommunityEntity;
 
   const CommunityDetailsView({
     super.key,
@@ -53,6 +55,7 @@ class CommunityDetailsView extends StatelessWidget {
     required this.onBenefitsLoadMore,
     required this.isMembersLoadingMore,
     required this.isBenefitsLoadingMore,
+    required this.nftCommunityEntity,
   });
 
   @override
@@ -84,7 +87,7 @@ class CommunityDetailsView extends StatelessWidget {
               actions: [
                 if (nftEntity.ownedCollection)
                   IconButton(
-                    onPressed: onEnterChat,
+                    onPressed: () => onEnterChat(nftCommunityEntity),
                     icon: DefaultImage(
                       path: "assets/icons/chat.svg",
                       width: 32,

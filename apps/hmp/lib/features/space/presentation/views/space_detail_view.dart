@@ -278,13 +278,19 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
               // Children of the row.
               children: [
                 // Displays an image based on the category of the space.
-                DefaultImage(
-                  path:
-                      "assets/icons/ic_space_category_${spaceDetailEntity.category.toLowerCase()}.svg",
-                  width: 16,
-                  height: 16,
-                ),
-                // Spacing between the image and the text.
+                (spaceDetailEntity.category.toLowerCase() == "walkerhill")
+                    ? DefaultImage(
+                        path: "assets/icons/walkerhill.png",
+                        width: 16,
+                        height: 16,
+                      )
+                    : DefaultImage(
+                        path:
+                            "assets/icons/ic_space_category_${spaceDetailEntity.category.toLowerCase()}.svg",
+                        width: 16,
+                        height: 16,
+                      ),
+                //Spacing between the image and the text.
                 const HorizontalSpace(3),
                 // Displays the localized name of the category of the space.
                 Text(

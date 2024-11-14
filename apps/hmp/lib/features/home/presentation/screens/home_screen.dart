@@ -247,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Navigate to RedeemBenefitScreen with empty space
                 "Navigate to RedeemBenefitScreen 0".log();
 
-                RedeemBenefitScreen.pushReplacement(
+                RedeemBenefitScreen.pushAndRemoveUntil(
                   context,
                   nearBySpaceEntity: const NearBySpaceEntity.empty(),
                   selectedBenefitEntity: state.selectedBenefitEntity,
@@ -291,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   } else if (isSpaceMatched) {
                     // Navigate to RedeemBenefitScreen with matched space
                     "Navigate to RedeemBenefitScreen 1".log();
-                    RedeemBenefitScreen.pushReplacement(
+                    RedeemBenefitScreen.pushAndRemoveUntil(
                       context,
                       nearBySpaceEntity: matchedSpace,
                       selectedBenefitEntity: state.selectedBenefitEntity,
@@ -301,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Navigate to RedeemBenefitScreen with first space
                     "Navigate to RedeemBenefitScreen 2".log();
 
-                    RedeemBenefitScreen.pushReplacement(
+                    RedeemBenefitScreen.pushAndRemoveUntil(
                       context,
                       nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
                       selectedBenefitEntity: state.selectedBenefitEntity,
@@ -311,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 } else {
                   // Navigate to RedeemBenefitScreen with first space
                   "Navigate to RedeemBenefitScreen 3".log();
-                  RedeemBenefitScreen.pushReplacement(
+                  RedeemBenefitScreen.pushAndRemoveUntil(
                     context,
                     nearBySpaceEntity: state.spacesResponseEntity.spaces[0],
                   );
