@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:mobile/features/chat/presentation/screens/chat_user_detail_popup_screen.dart';
 import 'package:sendbird_uikit/sendbird_uikit.dart';
@@ -6,13 +8,14 @@ class CommunityChatScreen extends StatelessWidget {
   final String channel;
   const CommunityChatScreen({super.key, required this.channel});
 
-  static push(BuildContext context, {required String channel}) async {
-    return await Navigator.push(
+  static Future<void> push(BuildContext context, {required String channel}) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CommunityChatScreen(channel: channel),
       ),
     );
+    return;
   }
 
   @override

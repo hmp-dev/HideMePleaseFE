@@ -58,7 +58,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     },
                     onEnterChat: (community) {
                       CommunityChatScreen.push(context,
-                          channel: community.tokenAddress);
+                          channel: community.tokenAddress).then((value){
+                        getIt<CommunityCubit>().onStart();
+                      });
                     },
                     onConnectWallet: () async {
                       if (getIt<WalletsCubit>().state.reownAppKitModal !=

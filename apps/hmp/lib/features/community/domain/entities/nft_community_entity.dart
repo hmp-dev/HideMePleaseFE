@@ -73,6 +73,7 @@ class NftCommunityEntity extends Equatable {
     String? lastConversation,
     List<BaseMessage>? recentMessages,
     int? unreadCount,
+    bool? shouldShowUnreadCount,
   }) {
     return NftCommunityEntity(
       communityRank: communityRank ?? this.communityRank,

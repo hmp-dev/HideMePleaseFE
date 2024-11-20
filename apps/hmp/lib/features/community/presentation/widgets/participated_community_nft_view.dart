@@ -32,6 +32,8 @@ class ParticipatedCommunityNftView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool shouldShowCount = true;
+    StateSetter? setState;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -116,7 +118,14 @@ class ParticipatedCommunityNftView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12.0),
                 InkWell(
-                  onTap: onEnterChat,
+                  onTap: (){
+                    onEnterChat();
+                    Future.delayed(const Duration(seconds: 1), (){
+                      setState!((){
+                        shouldShowCount = false;
+                      });
+                    });
+                  },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(6.0),
                     child: BackdropFilter(
@@ -137,22 +146,28 @@ class ParticipatedCommunityNftView extends StatelessWidget {
                               //'채팅방 입장',
                               style: fontCompactMdMedium(),
                             ),
-                            if (unreadMsgCount > 0)
-                              Container(
-                                margin: const EdgeInsets.only(left: 4.0),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 1.5),
-                                decoration: BoxDecoration(
-                                  color: hmpBlue,
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                                child: Text(
-                                  unreadMsgCount > 999
-                                      ? '999+'
-                                      : unreadMsgCount.toString(),
-                                  style: fontCompact2XsBold(),
-                                ),
-                              ),
+                            StatefulBuilder(builder: (context2, state){
+                              setState ??= state;
+                              if ((unreadMsgCount > 0) && shouldShowCount){
+                                return Container(
+                                  margin: const EdgeInsets.only(left: 4.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: hmpBlue,
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  child: Text(
+                                    unreadMsgCount > 999
+                                        ? '999+'
+                                        : unreadMsgCount.toString(),
+                                    style: fontCompact2XsBold(),
+                                  ),
+                                );
+                              } else {
+                                return Container();
+                              }
+                            })
                           ],
                         ),
                       ),
