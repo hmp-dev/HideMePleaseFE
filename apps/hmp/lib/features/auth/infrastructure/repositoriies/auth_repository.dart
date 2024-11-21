@@ -13,6 +13,8 @@ import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_local_data_source.dart';
 import 'package:mobile/features/auth/infrastructure/datasources/auth_remote_data_source.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
+import 'package:sendbird_uikit/sendbird_uikit.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -168,7 +170,9 @@ class AuthRepositoryImpl implements AuthRepository {
       await Future.wait([
         FirebaseAuth.instance.signOut(),
         GoogleSignIn().signOut(),
-        _localDataSource.deleteAll()
+        _localDataSource.deleteAll(),
+    SendbirdUIKit.disconnect(),
+    SendbirdChat.disconnect()
       ]);
 
       return right(unit);
