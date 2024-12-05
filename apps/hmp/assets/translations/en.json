@@ -86,7 +86,7 @@
      "benefitRedeemErrorMsg": "Error redeeming benefit.",
      "benefitRedeemSuccessMsg": "The benefit has been used successfully.",
      "save": "Save",
-     "walletConnection": "Wallet Connection",
+     "walletConnection": "Connect Wallet",
      "requiresAgreementToTermsAndConditions": "Terms Agreement Required.",
      "agreeTermDialogMessage": "Terms of Service and Privacy Policy\nYou can use the service after agreeing.",
      "allowLocationPermission": "Allow location permission",
