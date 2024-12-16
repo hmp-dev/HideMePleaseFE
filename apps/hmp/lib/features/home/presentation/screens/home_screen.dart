@@ -207,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
               previous.connectedWallets.length <
               current.connectedWallets.length,
           bloc: getIt<WalletsCubit>(),
-          listener: (context, state) {
+          listener: (context2, state) {
             if (state.isSubmitSuccess) {
               "I am listing submit success inside HomeScreen".log();
               // Show the AfterLoginWithNFT screen

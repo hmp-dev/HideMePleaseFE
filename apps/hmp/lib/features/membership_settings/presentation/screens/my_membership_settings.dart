@@ -27,6 +27,7 @@ import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
+import 'package:mobile/app/core/router/values.dart';
 
 class MyMembershipSettingsScreen extends StatefulWidget {
   const MyMembershipSettingsScreen({super.key});
@@ -395,7 +396,14 @@ class _MyMembershipSettingsScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CustomImageView(
-                          onTap: () => Navigator.pop(context),
+                          onTap: (){
+                            if(!Navigator.canPop(context)){
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  Routes.appScreen, (Route<dynamic> route) => false);
+                            } else {
+                              Navigator.pop(context);
+                            }
+                            },
                           svgPath: "assets/icons/ic_close.svg",
                         ),
                         Text(

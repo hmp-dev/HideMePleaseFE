@@ -9,4 +9,5 @@ abstract class StorageValues {
   static const String appleIdToken = 'appleIdToken';
 
   static const String socialTokenIsAppleOrGoogle = 'socialTokenIsAppleOrGoogle';
+  static const String wasOnWelcomeWalletConnectScreen = 'wasOnWelcomeWalletConnectScreen';
 }

@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/env/app_env.dart';
@@ -115,6 +119,16 @@ class Network {
     }
 
     if (error.type == DioExceptionType.badResponse) {
+      if(error.requestOptions.uri.toString()=="https://dev-api.hidemeplease.xyz/v1/wallet"){
+        await Clipboard.setData(ClipboardData(text: error.requestOptions.data.toString()+error.response.toString()));
+        if(Platform.isIOS){
+          Fluttertoast.showToast(
+              msg: "Error message copied",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+          );
+        }
+      }
       return handler.next(DioException(
         requestOptions: error.requestOptions,
         response: error.response,

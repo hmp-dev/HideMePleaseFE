@@ -2,7 +2,7 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 2.3.1+114
+version: 2.5.0+115
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
@@ -69,7 +69,7 @@ dependencies:
   sendbird_chat_sdk: ^4.2.19
   sendbird_uikit: ^1.0.0-beta.3
   share_plus: ^9.0.0
-  shared_preferences: ^2.2.3
+#  shared_preferences: ^2.2.3
   sign_in_with_apple: ^6.1.0
   smooth_page_indicator: ^1.1.0
   solana: ^0.30.4
@@ -101,6 +101,8 @@ dev_dependencies:
   injectable_generator: ^2.4.2
   isar_generator: ^3.1.0+1
   json_serializable: ^6.7.1
+  # add this line to your dependencies
+  fluttertoast: ^8.2.8
 
 dependency_overrides:
   web_socket_channel: ^2.4.4

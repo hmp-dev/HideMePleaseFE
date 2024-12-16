@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -9,10 +10,14 @@ import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
+import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/model_banner_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:stacked_services/stacked_services.dart';
+
+import '../../../../app/core/storage/secure_storage.dart';
 
 class StartUpScreen extends StatefulWidget {
   const StartUpScreen({super.key});
@@ -89,18 +94,35 @@ class _StartUpScreenState extends State<StartUpScreen>
                 // pass value to appHome with Navigator.pushNamedAndRemoveUntil to disconnect wallet
 
                 if (context.mounted) {
+                  const SecureStorage().write(StorageValues.wasOnWelcomeWalletConnectScreen, "true");
                   Navigator.of(context).pushNamedAndRemoveUntil(
                       Routes.appScreen, (Route<dynamic> route) => false);
                 }
               } else {
+
+                bool wasNoWallet = (await const SecureStorage().read(StorageValues.wasOnWelcomeWalletConnectScreen)) == "true";
+
                 // If a wallet is Connected
                 // Update Home View to Show with Wallet Connected
                 // and then Navigate to Home View
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
 
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    Routes.appScreen, (Route<dynamic> route) => false);
+                if(wasNoWallet && StackedService.navigatorKey?.currentContext!=null){
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MyMembershipSettingsScreen(),
+                    ),
+                          (Route<dynamic> route) => false
+                  );
+                  /*Navigator.of(context).pushNamedAndRemoveUntil(
+                      Routes.appScreen, (Route<dynamic> route) => false);*/
+                  Future.delayed(const Duration(seconds: 1), () => const SecureStorage().write(StorageValues.wasOnWelcomeWalletConnectScreen, "false"));
+                } else {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      Routes.appScreen, (Route<dynamic> route) => false);
+                }
               }
             }
 
