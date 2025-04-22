@@ -10,9 +10,6 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/router.dart';
 import 'package:mobile/app/core/util/observer_utils.dart';
 import 'package:mobile/app/theme/theme.dart';
-import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
-import 'package:sendbird_uikit/sendbird_uikit.dart';
-import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -72,44 +69,36 @@ class _MyAppState extends State<MyApp> {
     return RepositoryProvider.value(
       // Provide the navigator key to the widget tree
       value: navigatorKey,
-      child: SolanaWalletProvider.create(
-        // Create SolanaWalletProvider with the mainnet cluster
-        httpCluster: Cluster.mainnet,
-        // Set the identity of the app
-        identity: kSolanaAppId,
-        child: SendbirdUIKit.provider(
-          child: MaterialApp(
-            // Disable the debug banner
-            debugShowCheckedModeBanner: false,
-            // Set the navigator key for navigation
-            navigatorKey: StackedService.navigatorKey,
-            // Set the delegates for localization
-            localizationsDelegates: context.localizationDelegates,
-            // Set the supported locales
-            supportedLocales: context.supportedLocales,
-            // Set the locale of the app
-            locale: context.locale,
-            // Set the title of the app
-            title: '하이드미플리즈', // Hyde Me Please
-            // Set the theme of the app
-            theme: theme(),
-            // Generate routes for the app
-            onGenerateRoute: generateRoute,
-            // Set the initial route of the app
-            initialRoute: Routes.splashScreen,
-            // Observe the navigation of the app
-            navigatorObservers: [
-              firebaseAnalyticsObserver,
-              // Observe the route changes
-              ObserverUtils.routeObserver,
-              // Observe the route changes using TalkerRouteObserver
-              TalkerRouteObserver(getIt<Talker>()),
-            ],
-            // Build the app with additional features
-            builder: EasyLoading.init(
-              builder: FToastBuilder(),
-            ),
-          ),
+      child: MaterialApp(
+        // Disable the debug banner
+        debugShowCheckedModeBanner: false,
+        // Set the navigator key for navigation
+        navigatorKey: StackedService.navigatorKey,
+        // Set the delegates for localization
+        localizationsDelegates: context.localizationDelegates,
+        // Set the supported locales
+        supportedLocales: context.supportedLocales,
+        // Set the locale of the app
+        locale: context.locale,
+        // Set the title of the app
+        title: '하이드미플리즈', // Hyde Me Please
+        // Set the theme of the app
+        theme: theme(),
+        // Generate routes for the app
+        onGenerateRoute: generateRoute,
+        // Set the initial route of the app
+        initialRoute: Routes.splashScreen,
+        // Observe the navigation of the app
+        navigatorObservers: [
+          firebaseAnalyticsObserver,
+          // Observe the route changes
+          ObserverUtils.routeObserver,
+          // Observe the route changes using TalkerRouteObserver
+          TalkerRouteObserver(getIt<Talker>()),
+        ],
+        // Build the app with additional features
+        builder: EasyLoading.init(
+          builder: FToastBuilder(),
         ),
       ),
     );

@@ -3,8 +3,7 @@ part of 'wallets_cubit.dart';
 /// State class for the Wallets feature.
 ///
 /// This class holds the current state of the Wallets feature, including the
-/// [W3MService], list of [ConnectedWalletEntity], [RequestStatus], and
-/// [errorMessage].
+/// list of [ConnectedWalletEntity], [RequestStatus], and [errorMessage].
 class WalletsState extends BaseState {
   /// The Wallet Connect service.
   final ReownAppKitModal? reownAppKitModal;

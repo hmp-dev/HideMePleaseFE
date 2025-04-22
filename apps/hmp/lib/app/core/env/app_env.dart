@@ -5,7 +5,7 @@ import 'package:mobile/app/core/env/uat_env.dart';
 
 abstract interface class AppEnv implements AppEnvFields {
   factory AppEnv() => _instance;
-
+  //#API_URL=https://dev-api.hidemeplease.xyz/v1/
   static const AppFlavor flavor = String.fromEnvironment('app.flavor') == "prod"
       ? AppFlavor.PROD
       : String.fromEnvironment('app.flavor') == "uat"

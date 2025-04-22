@@ -2,28 +2,28 @@ import 'package:flutter/cupertino.dart';
 
 enum MenuType {
   space(
-    activeIconPath: "assets/icons/ic_space_enabled.svg",
-    deactivateIconPath: "assets/icons/ic_space_disabled.svg",
+    activeIconPath: "assets/icons/nav_space_active.png",
+    deactivateIconPath: "assets/icons/nav_space_deactive.png",
     menuIndex: 0,
   ),
   events(
-    activeIconPath: "assets/icons/ic_wallet_enabled.svg",
-    deactivateIconPath: "assets/icons/ic_wallet_disabled.svg",
+    activeIconPath: "assets/icons/nav_wallet_active.png",
+    deactivateIconPath: "assets/icons/nav_wallet_deactive.png",
     menuIndex: 1,
   ),
   home(
-    activeIconPath: "assets/icons/home_icon_active.png",
-    deactivateIconPath: "assets/icons/home_icon_disabled.png",
+    activeIconPath: "assets/icons/nav_home_active.png",
+    deactivateIconPath: "assets/icons/nav_home_deactive.png",
     menuIndex: 2,
   ),
-  community(
+  /*community(
     activeIconPath: "assets/icons/ic_community_enabled_jayden.svg",
     deactivateIconPath: "assets/icons/ic_community_disabled_jayden.svg",
     menuIndex: 3,
-  ),
+  ),*/
   settings(
-    activeIconPath: "assets/icons/ic_more_enabled.svg",
-    deactivateIconPath: "assets/icons/ic_more_disabled.svg",
+    activeIconPath: "assets/icons/nav_more_active.png",
+    deactivateIconPath: "assets/icons/nav_more_deactive.png",
     menuIndex: 4,
   );
 
@@ -45,8 +45,8 @@ enum MenuType {
         return "Events";
       case MenuType.home:
         return "Home";
-      case MenuType.community:
-        return "Community";
+      //case MenuType.community:
+      //  return "Community";
       case MenuType.settings:
         return "Settings";
     }

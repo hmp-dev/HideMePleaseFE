@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
-import 'package:mobile/features/chat/domain/repositories/chat_repository.dart';
 import 'package:mobile/features/my/domain/entities/base_user_entity.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
@@ -14,11 +13,9 @@ part 'profile_state.dart';
 @lazySingleton
 class ProfileCubit extends BaseCubit<ProfileState> {
   final ProfileRepository _profileRepository;
-  final ChatRepository _chatRepository;
 
   ProfileCubit(
     this._profileRepository,
-    this._chatRepository,
   ) : super(ProfileState.initial());
 
   Future<void> init() async {
@@ -26,13 +23,6 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       onGetBaseUser(),
       onGetUserProfile(),
     ]);
-
-    // init chat
-    await _chatRepository.init(
-      userId: state.userProfileEntity.id,
-      appId: state.userProfileEntity.chatAppId,
-      accessToken: state.userProfileEntity.chatAccessToken,
-    );
   }
 
   Future<void> onGetBaseUser() async {
@@ -47,7 +37,6 @@ class ProfileCubit extends BaseCubit<ProfileState> {
         ));
       },
       (user) {
-        // if users
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,
@@ -73,7 +62,6 @@ class ProfileCubit extends BaseCubit<ProfileState> {
         ));
       },
       (user) {
-        // if users
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,
@@ -107,7 +95,6 @@ class ProfileCubit extends BaseCubit<ProfileState> {
         ));
       },
       (user) {
-        // if users
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,

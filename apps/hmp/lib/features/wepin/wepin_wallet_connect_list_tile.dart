@@ -13,7 +13,7 @@ import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
-import 'package:mobile/features/community/presentation/widgets/get_free_nft_view.dart';
+//import 'package:mobile/features/community/presentation/widgets/get_free_nft_view.dart';
 import 'package:mobile/features/home/presentation/widgets/free_welcome_nft_card.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
@@ -110,122 +110,110 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
 
           return Column(
             children: [
-              widget.isShowCommunityWelcomeNFTRedeemButton
-                  ? GetFreeNftView(
-                      onTap: () {
+              if (widget.isShowWelcomeNFTCard)
+                BlocBuilder<WepinCubit, WepinState>(
+                  bloc: getIt<WepinCubit>(),
+                  builder: (context, state) {
+                    return FreeWelcomeNftCard(
+                      welcomeNftEntity: nftState.welcomeNftEntity,
+                      onTapClaimButton: () {
+                        "hello the onTapClaimButton is called".tr();
+                        if (state.isLoading) {
+                          return; // Do nothing if in loading state
+                        }
                         getIt<WepinCubit>().showLoader();
 
                         if (isFreeWelcomeNFTAvailable) {
-                          getIt<WepinCubit>().onConnectWepinWallet(context);
+                          getIt<WepinCubit>()
+                              .onConnectWepinWallet(context);
                         } else {
-                          getIt<WepinCubit>().onConnectWepinWallet(context,
+                          getIt<WepinCubit>().onConnectWepinWallet(
+                              context,
                               isFromWePinWalletConnect: true);
                         }
                       },
-                    )
-                  : (widget.isShowWelcomeNFTCard)
-                      ? BlocBuilder<WepinCubit, WepinState>(
-                          bloc: getIt<WepinCubit>(),
-                          builder: (context, state) {
-                            return FreeWelcomeNftCard(
-                              welcomeNftEntity: nftState.welcomeNftEntity,
-                              onTapClaimButton: () {
-                                "hello the onTapClaimButton is called".tr();
-                                if (state.isLoading) {
-                                  return; // Do nothing if in loading state
-                                }
-                                getIt<WepinCubit>().showLoader();
+                    );
+                  },
+                )
+              else if (widget.isShowCustomButton)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: HMPCustomButton(
+                    //Connect your WePin wallet
+                    text: "위핀 지갑 연결",
+                    onPressed: () {
+                      if (getIt<WalletsCubit>()
+                          .state
+                          .isWepinWalletConnected) {
+                        getIt<WalletsCubit>()
+                            .onCloseWalletConnectModel();
 
-                                if (isFreeWelcomeNFTAvailable) {
-                                  getIt<WepinCubit>()
-                                      .onConnectWepinWallet(context);
-                                } else {
-                                  getIt<WepinCubit>().onConnectWepinWallet(
-                                      context,
-                                      isFromWePinWalletConnect: true);
-                                }
-                              },
-                            );
-                          },
-                        )
-                      : widget.isShowCustomButton
-                          ? Container(
-                              margin: const EdgeInsets.symmetric(vertical: 8.0),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: HMPCustomButton(
-                                //Connect your WePin wallet
-                                text: "위핀 지갑 연결",
-                                onPressed: () {
-                                  if (getIt<WalletsCubit>()
-                                      .state
-                                      .isWepinWalletConnected) {
-                                    getIt<WalletsCubit>()
-                                        .onCloseWalletConnectModel();
+                        context.showSnackBar(
+                          LocaleKeys.wepin_already_connected.tr(),
+                        );
+                      } else {
+                        getIt<WepinCubit>().showLoader();
+                        //initializeWepin();
 
-                                    context.showSnackBar(
-                                      LocaleKeys.wepin_already_connected.tr(),
-                                    );
-                                  } else {
-                                    getIt<WepinCubit>().showLoader();
-                                    //initializeWepin();
+                        getIt<WepinCubit>()
+                            .onConnectWepinWallet(context);
+                      }
+                    },
+                  ),
+                )
+              else
+                BlocConsumer<WalletsCubit, WalletsState>(
+                  bloc: getIt<WalletsCubit>(),
+                  listener: (context, state) {},
+                  builder: (context, state) {
+                    "state.tappedWalletName: ${state.tappedWalletName}"
+                        .log();
+                    return ElevatedButton(
+                      style: _elevatedButtonStyle(),
+                      onPressed: () async {
+                        // getIt<WepinCubit>()
+                        //     .onResetWepinSDKFetchedWallets();
 
-                                    getIt<WepinCubit>()
-                                        .onConnectWepinWallet(context);
-                                  }
-                                },
-                              ),
-                            )
-                          : BlocConsumer<WalletsCubit, WalletsState>(
-                              bloc: getIt<WalletsCubit>(),
-                              listener: (context, state) {},
-                              builder: (context, state) {
-                                "state.tappedWalletName: ${state.tappedWalletName}"
-                                    .log();
-                                return ElevatedButton(
-                                  style: _elevatedButtonStyle(),
-                                  onPressed: () async {
-                                    // getIt<WepinCubit>()
-                                    //     .onResetWepinSDKFetchedWallets();
+                        // await Future.delayed(
+                        //     const Duration(milliseconds: 200));
+                        // //
+                        await getIt<WalletsCubit>()
+                            .onOpenReownAppKitBottomModal(
+                          context: context,
+                          onTapConnectWalletButton: true,
+                        );
 
-                                    // await Future.delayed(
-                                    //     const Duration(milliseconds: 200));
-                                    // //
-                                    await getIt<WalletsCubit>()
-                                        .onOpenReownAppKitBottomModal(
-                                      context: context,
-                                      onTapConnectWalletButton: true,
-                                    );
+                        // Wait for a brief moment to ensure state is updated
+                        await Future.delayed(
+                            const Duration(milliseconds: 300));
 
-                                    // Wait for a brief moment to ensure state is updated
-                                    await Future.delayed(
-                                        const Duration(milliseconds: 300));
+                        // Re-fetch the state after the delay
+                        final updatedState =
+                            getIt<WalletsCubit>().state;
 
-                                    // Re-fetch the state after the delay
-                                    final updatedState =
-                                        getIt<WalletsCubit>().state;
+                        if (updatedState.tappedWalletName ==
+                            WalletProvider.WEPIN.name) {
+                          getIt<WepinCubit>().showLoader();
 
-                                    if (updatedState.tappedWalletName ==
-                                        WalletProvider.WEPIN.name) {
-                                      getIt<WepinCubit>().showLoader();
-
-                                      if (isFreeWelcomeNFTAvailable) {
-                                        getIt<WepinCubit>()
-                                            .onConnectWepinWallet(context);
-                                      } else {
-                                        getIt<WepinCubit>()
-                                            .onConnectWepinWallet(context,
-                                                isFromWePinWalletConnect: true);
-                                      }
-                                    }
-                                  },
-                                  child: Text(
-                                    LocaleKeys.walletConnection.tr(),
-                                    style: fontCompactMdMedium(color: white),
-                                  ),
-                                );
-                              },
-                            )
+                          if (isFreeWelcomeNFTAvailable) {
+                            getIt<WepinCubit>()
+                                .onConnectWepinWallet(context);
+                          } else {
+                            getIt<WepinCubit>()
+                                .onConnectWepinWallet(context,
+                                    isFromWePinWalletConnect: true);
+                          }
+                        }
+                      },
+                      child: Text(
+                        LocaleKeys.walletConnection.tr(),
+                        style: fontCompactMdMedium(color: white),
+                      ),
+                    );
+                  },
+                ),
             ],
           );
         },

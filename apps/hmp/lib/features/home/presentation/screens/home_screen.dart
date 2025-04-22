@@ -32,7 +32,7 @@ import 'package:mobile/features/wallets/domain/entities/connected_wallet_entity.
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:solana_wallet_provider/solana_wallet_provider.dart';
+//∂import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 import 'package:upgrader/upgrader.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -81,10 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _initWallets() async {
-    await SolanaWalletProvider.initialize();
+    //await SolanaWalletProvider.initialize();
     // initialize the w3mService
     await getIt<WalletsCubit>().initReownAppKitSdk(
-        context: context, solWallet: SolanaWalletProvider.of(context));
+        context: context);
     // initialize the WepinSDK and Login
     await getIt<WepinCubit>()
         .initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);

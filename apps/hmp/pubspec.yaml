@@ -2,7 +2,7 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 2.5.0+115
+version: 2.5.2+124
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
@@ -13,8 +13,8 @@ dependencies:
   auto_size_text: ^3.0.0
   bloc: ^8.1.4
   cached_network_image: ^3.3.1
-  carousel_slider: ^4.2.1
-  chewie: ^1.8.4
+  carousel_slider: ^5.0.0
+  chewie: 1.7.1
   collection: ^1.18.0
   connectivity_plus: ^6.0.1
   crypto: ^3.0.3
@@ -28,17 +28,18 @@ dependencies:
   easy_localization: ^3.0.7
   envied: ^0.5.4
   equatable: ^2.0.5
-  firebase_analytics: ^10.9.0
-  firebase_auth: ^4.19.0
-  firebase_core: ^2.27.2
-  firebase_crashlytics: ^3.4.20
-  firebase_messaging: ^14.7.21
-  firebase_performance: ^0.9.3+19
+  firebase_analytics: ^11.4.4
+  firebase_auth: ^5.4.0
+  firebase_core: ^3.10.0
+  firebase_crashlytics: ^4.3.4
+  firebase_messaging: ^15.2.4
+  #firebase_performance: ^0.9.3+19
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.5
   flutter_easyloading: ^3.0.5
-  flutter_inappwebview: ^6.0.0
+  #flutter_inappwebview: ^6.1.5
+  webview_flutter: ^4.7.0
   flutter_local_notifications: ^17.0.0
   flutter_native_splash: ^2.4.0
   flutter_secure_storage: ^9.0.0
@@ -47,14 +48,14 @@ dependencies:
   flutter_widget_from_html: ^0.15.0
   fluttertoast: ^8.2.4
   geolocator: ^11.0.0
-  get_it: ^7.6.7
+  get_it: ^8.0.3
   go_router: ^13.2.2
   google_maps_flutter: ^2.6.1
   google_sign_in: ^6.2.1
   http: ^1.2.1
   injectable: ^2.4.1
   internet_connection_checker: ^1.0.0+1
-  intl: ^0.18.1
+  intl: ^0.19.0
   isar: ^3.1.0+1
   jovial_svg: ^1.1.21
   json_annotation: ^4.8.1
@@ -65,32 +66,35 @@ dependencies:
   page_transition: ^2.1.0
   path_provider: ^2.1.3
   permission_handler: ^11.3.1
-  reown_appkit: ^1.2.0
-  sendbird_chat_sdk: ^4.2.19
-  sendbird_uikit: ^1.0.0-beta.3
-  share_plus: ^9.0.0
+  reown_appkit: ^1.3.0
+  #sendbird_chat_sdk: ^4.2.31
+  #sendbird_uikit: ^1.0.1
+  #share_plus: ^9.0.0
 #  shared_preferences: ^2.2.3
-  sign_in_with_apple: ^6.1.0
+  sign_in_with_apple: ^6.1.4
   smooth_page_indicator: ^1.1.0
-  solana: ^0.30.4
-  solana_wallet_provider: ^0.1.9
+  #solana: ^0.30.4
+  #solana_wallet_provider: ^0.1.9
   stacked_services: ^1.5.0
   talker: ^4.3.0
   talker_bloc_logger: ^4.3.3
   talker_dio_logger: ^4.3.3
   talker_flutter: ^4.3.0
-  timeago: ^3.6.1
+  timeago: ^3.7.0
   upgrader: ^10.3.0
   url_launcher: ^6.3.0
   video_player: ^2.9.1
   video_thumbnail: ^0.5.3
   visibility_detector: ^0.4.0+2
-  wepin_flutter_widget_sdk: ^0.0.5
+  wepin_flutter_login_lib: ^0.0.11
+  wepin_flutter_widget_sdk: ^0.0.6
+  web: ^1.0.0
+  socket_io_client: ^2.0.3+1
 
 dev_dependencies:
   analyzer: ^5.13.0
   build_runner: ^2.4.9
-  build_verify: ^3.1.0
+  #build_verify: ^3.1.0
   change_app_package_name: ^1.1.0
   envied_generator: ^0.5.4
   flutter_launcher_icons: ^0.13.1
@@ -102,12 +106,16 @@ dev_dependencies:
   isar_generator: ^3.1.0+1
   json_serializable: ^6.7.1
   # add this line to your dependencies
-  fluttertoast: ^8.2.8
 
 dependency_overrides:
-  web_socket_channel: ^2.4.4
   flutter_widget_from_html_core: ^0.8.5+3
-  webview_flutter_android: 3.16.1
+  location: ^4.4.0
+  wakelock_plus: 1.1.1
+  appcheck: 1.5.1
+  web: ^1.0.0
+  reown_core: ^1.0.4
+  web_socket_channel: ^2.4.4
+  wepin_flutter_widget_sdk: ^1.0.0
 
 flutter:
   uses-material-design: true
@@ -136,6 +144,3 @@ flutter:
           weight: 700
         - asset: assets/fonts/pretendard/Pretendard-ExtraBold.otf
           weight: 800
-    - family: SendbirdIcons
-      fonts:
-        - asset: packages/sendbird_uikit/fonts/SendbirdIcons.ttf

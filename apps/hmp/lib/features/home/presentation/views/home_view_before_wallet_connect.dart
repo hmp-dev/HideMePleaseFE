@@ -82,11 +82,17 @@ class _HomeViewBeforeWalletConnectState
                 width: 200,
               ),
               const SizedBox(height: 20),
+              DefaultImage(
+                path: "assets/images/noonchi_graphic.png",
+                width: 60,
+                height: 60,
+              ),
+              const SizedBox(height: 20),
               Center(
                 // Display the welcome message
                 child: Text(
                   // "지갑을 연결하고\n웹컴 NFT를 받아보세요!",
-                  LocaleKeys.connect_wallet_to_redeem_nft.tr(),
+                  LocaleKeys.connect_wallet_to_redeem_nft2.tr(),
                   textAlign: TextAlign.center,
                   style: fontR(18, lineHeight: 1.4),
                 ),
@@ -102,7 +108,7 @@ class _HomeViewBeforeWalletConnectState
               //   ),
               // ),
 
-              const WepinWalletConnectLisTile(isPerformRedeemWelcomeNft: true),
+              //const WepinWalletConnectLisTile(isPerformRedeemWelcomeNft: true),
               const SizedBox(height: 5),
               // FreeWelcomeNftCard(
               //   welcomeNftEntity: nftState.welcomeNftEntity,

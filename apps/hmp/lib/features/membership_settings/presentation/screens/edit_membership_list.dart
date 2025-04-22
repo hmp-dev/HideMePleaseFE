@@ -12,7 +12,7 @@ import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.da
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/rounded_button_with_border.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/community/presentation/cubit/community_cubit.dart';
+//import 'package:mobile/features/community/presentation/cubit/community_cubit.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/membership_settings/presentation/widgets/selected_nft_item.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
@@ -237,7 +237,7 @@ class _EditMembershipListScreenState extends State<EditMembershipListScreen> {
                                 getIt<NftCubit>().onCollectionOrderChanged();
 
                                 // refetch Communities list
-                                getIt<CommunityCubit>().onStart();
+                                //getIt<CommunityCubit>().onStart();
                                 // Navigate to Home
                                 Navigator.pushNamedAndRemoveUntil(
                                   context,

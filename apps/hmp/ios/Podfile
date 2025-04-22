@@ -32,7 +32,13 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
+  pod 'Firebase/Core'
+  pod 'Firebase/Messaging'  # firebase_messaging을 위해 필요
+  pod 'Firebase/Analytics'
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  # OpenSSL 관련 설정 추가
+  pod 'OpenSSL-Universal', '~> 1.1.1800'
+
   target 'RunnerTests' do
     inherit! :search_paths
   end
@@ -40,6 +46,100 @@ end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+      
+      # Flutter 프레임워크 검색 경로 수정
+      #config.build_settings['FRAMEWORK_SEARCH_PATHS'] ||= []
+      #config.build_settings['FRAMEWORK_SEARCH_PATHS'] << "${PODS_ROOT}/Flutter"
+      #config.build_settings['FRAMEWORK_SEARCH_PATHS'] << "${PODS_XCFRAMEWORKS_BUILD_DIR}/Flutter"
+      #config.build_settings['FRAMEWORK_SEARCH_PATHS'] << "#{ENV['FLUTTER_ROOT']}/bin/cache/artifacts/engine/ios"
+      
+      # 헤더 검색 경로 추가
+      config.build_settings['HEADER_SEARCH_PATHS'] ||= []
+      config.build_settings['HEADER_SEARCH_PATHS'] << "${PODS_ROOT}/Flutter/engine"
+      config.build_settings['HEADER_SEARCH_PATHS'] << "#{ENV['FLUTTER_ROOT']}/bin/cache/artifacts/engine/ios/Flutter.xcframework/ios-arm64_x86_64-simulator"
+      
+      # 기타 설정
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+      config.build_settings['SWIFT_VERSION'] = '5.0'
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+
+
+      config.build_settings['HEADER_SEARCH_PATHS'] ||= ['$(inherited)']
+      config.build_settings['HEADER_SEARCH_PATHS'] << '${PODS_ROOT}'
+      config.build_settings['HEADER_SEARCH_PATHS'] << '${PODS_TARGET_SRCROOT}'
+      
+      # 비모듈식 포함 허용
+      config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+      config.build_settings['ALWAYS_SEARCH_USER_PATHS'] = 'YES'
+
+      # Add these lines
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+        'PERMISSION_LOCATION=1',
+        'COCOAPODS=1'
+      ]
+      
+      # OpenSSL 헤더 검색 경로 추가
+      config.build_settings['HEADER_SEARCH_PATHS'] ||= [
+        '$(inherited)',
+        '${PODS_ROOT}/OpenSSL-Universal/Framework/OpenSSL.framework/Headers',
+        '${PODS_ROOT}/OpenSSL-Universal/Framework/OpenSSL.framework/Headers/openssl'
+      ]
+      
+      # Fix signing
+      config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
+      config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
+      config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+      
+      if target.name == 'Runner'
+        target.build_phases.each do |phase|
+          if phase.respond_to?(:name)
+            phase.always_run_for_all_targets = false
+          end
+        end
+      end
+      # Remove -G compiler flag for webcrypto
+      if target.name == 'webcrypto'
+        #config.build_settings['OTHER_CFLAGS'] ||= ['$(inherited)']
+        #config.build_settings['OTHER_CFLAGS'].delete('-G')
+        target.source_build_phase.files.each do |file|
+          if file.settings && file.settings['COMPILER_FLAGS']
+            flags = file.settings['COMPILER_FLAGS'].split
+            flags.reject! { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
+            file.settings['COMPILER_FLAGS'] = flags.join(' ')
+          end
+        end
+      end
+      
+      # Enable build phases based on dependency analysis
+      if target.name == 'Runner'
+        target.build_phases.each do |phase|
+          if phase.respond_to?(:name) && 
+             (phase.name == 'Run Script' || phase.name == 'Thin Binary' || phase.name == '[firebase_crashlytics] Crashlytics Upload Symbols')
+            phase.always_run_for_all_targets = false
+          end
+        end
+      end
+    end
+    installer.pods_project.targets.each do |target|
+      # PrivacyInfo.xcprivacy 파일 관련 경고 무시
+      if target.name == 'app_settings'
+        target.build_configurations.each do |config|
+          config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+          config.build_settings['EXCLUDED_SOURCE_FILE_NAMES'] ||= ['**/PrivacyInfo.xcprivacy']
+        end
+      end
+    end
+    # libwebp 타겟을 위한 특별 설정
+    if target.name == 'libwebp'
+      target.build_configurations.each do |config|
+        config.build_settings['VALID_ARCHS'] = 'arm64 arm64e x86_64'
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = ''
+      end
+    end
+    
     flutter_additional_ios_build_settings(target)
   end
 end

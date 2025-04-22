@@ -1,8 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CarouselController;
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobile/app/core/constants/app_constants.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
@@ -108,7 +108,7 @@ class RedeemBenefitScreenWithSpace extends StatefulWidget {
 
 class _RedeemBenefitScreenWithSpaceState
     extends State<RedeemBenefitScreenWithSpace> {
-  final CarouselController _carouselController = CarouselController();
+  //final CarouselController _carouselController = CarouselController();
 
   String selectedBenefitId = "";
   int selectedPageIndex = 0;
@@ -211,7 +211,6 @@ class _RedeemBenefitScreenWithSpaceState
                               Padding(
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: CarouselSlider(
-                                  carouselController: _carouselController,
                                   options: CarouselOptions(
                                     height: 436,
                                     viewportFraction: 0.9,

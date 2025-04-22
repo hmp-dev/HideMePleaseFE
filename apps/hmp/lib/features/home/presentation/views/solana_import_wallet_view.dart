@@ -7,8 +7,8 @@ import 'package:mobile/features/common/presentation/widgets/default_field.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:solana/solana.dart';
-import 'package:solana_wallet_provider/solana_wallet_provider.dart';
+//import 'package:solana/solana.dart';
+//import 'package:solana_wallet_provider/solana_wallet_provider.dart';
 
 /// A [StatefulWidget] that allows the user to import a Solana wallet.
 ///
@@ -68,9 +68,9 @@ class _SolanaImportWalletViewState extends State<SolanaImportWalletView> {
               text: LocaleKeys.connectWallet.tr(), //'연결하기',
               onPressed: () async {
                 try {
-                  if (isPointOnEd25519Curve(base58Decode(publicKey))) {
-                    return Navigator.pop(context, publicKey);
-                  }
+                  //if (isPointOnEd25519Curve(base58Decode(publicKey))) {
+                  //  return Navigator.pop(context, publicKey);
+                  //}
                 } catch (e) {
                   e.log();
                 }

@@ -43,30 +43,32 @@ class ConnectedWalletsWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: state.connectedWallets.length,
-                        itemBuilder: (context, index) {
-                          if (state.connectedWallets[index].provider ==
-                                  'WEPIN_EVM' ||
-                              state.connectedWallets[index].provider ==
-                                  'WEPIN_SOLANA') {
-                            return const Padding(
-                              padding: EdgeInsets.only(right: 8.0),
-                              child: WepinIconWidget(),
+                      Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemCount: state.connectedWallets.length,
+                          itemBuilder: (context, index) {
+                            if (state.connectedWallets[index].provider ==
+                                    'WEPIN_EVM' ||
+                                state.connectedWallets[index].provider ==
+                                    'WEPIN_SOLANA') {
+                              return const Padding(
+                                padding: EdgeInsets.only(right: 8.0),
+                                child: WepinIconWidget(),
+                              );
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: CustomImageView(
+                                svgPath:
+                                    "assets/wallet-logos/${state.connectedWallets[index].provider.toLowerCase()}_wallet.svg",
+                                width: 28,
+                                height: 28,
+                              ),
                             );
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: CustomImageView(
-                              svgPath:
-                                  "assets/wallet-logos/${state.connectedWallets[index].provider.toLowerCase()}_wallet.svg",
-                              width: 28,
-                              height: 28,
-                            ),
-                          );
-                        },
+                          },
+                        ),
                       ),
 
                       //
@@ -74,12 +76,32 @@ class ConnectedWalletsWidget extends StatelessWidget {
 
                       PlusIconRoundButton(
                         onTap: () async {
-                          //
-                          await Future.delayed(
-                              const Duration(milliseconds: 100));
-                          //
-                          getIt<WalletsCubit>().onOpenReownAppKitBottomModal(
-                              context: context, isFromWePinWalletConnect: true);
+                          try {
+                            //if (!mounted) return;
+                            
+                            await Future.delayed(
+                                const Duration(milliseconds: 100));
+                            
+                            //if (!mounted) return;
+                            
+                            final walletsCubit = getIt<WalletsCubit>();
+                            if (walletsCubit != null) {
+                              //await walletsCubit.initReownAppKitSdk();
+                              await walletsCubit.onOpenReownAppKitBottomModal(
+                                context: context,
+                                isFromWePinWalletConnect: true,
+                              );
+                            }
+                          } catch (e) {
+                            debugPrint('Error opening wallet modal: $e');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "지갑 연결 중 오류가 발생했습니다.",
+                                ),
+                              ),
+                            );
+                          }
                         },
                       )
                     ],

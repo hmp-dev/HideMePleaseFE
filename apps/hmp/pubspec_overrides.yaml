@@ -1,10 +1,10 @@
 # melos_managed_dependency_overrides: web_socket_channel,sendbird_uikit,flutter_widget_from_html_core,meta
 dependency_overrides:
-  sendbird_uikit:
-    path: ../../packages/sendbird_uikit
-  reown_appkit:
-    path: ../../packages/reown_appkit
-  wepin_flutter_widget_sdk:
-    path: ../../packages/wepin_flutter_widget_sdk
-  web_socket_channel: ^2.4.4
-  get_it: ^8.0.0
+  #sendbird_uikit:
+  #  path: ../../packages/sendbird_uikit
+  #reown_appkit:
+  #  path: ../../packages/reown_appkit
+  #wepin_flutter_widget_sdk:
+  #  path: ../../packages/wepin_flutter_widget_sdk
+  #web_socket_channel: ^2.4.4
+  #get_it: ^8.0.0

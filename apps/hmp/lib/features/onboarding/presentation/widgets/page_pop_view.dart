@@ -18,56 +18,58 @@ class PagePopup extends StatelessWidget {
     return Column(
       children: <Widget>[
         // Leave some space at the top.
-        const Expanded(
-          flex: 1,
-          child: SizedBox(),
-        ),
+        // const Expanded(
+        //   flex: 1,
+        //   child: SizedBox(),
+        // ),
         // Display the animation.
-        Expanded(
-          flex: 5,
+        Flexible(
+          flex: 8,
           child: Center(
             child: SizedBox(
-              width: MediaQuery.of(context).size.width - 120,
-              child: AspectRatio(
-                aspectRatio: 0.5,
-                child: SizedBox(
-                  width: 182,
-                  height: 158,
-                  child: Lottie.asset(onBoardingSlideData.animationPath,
-                      fit: BoxFit.contain, alignment: Alignment.center),
-                ),
-              ),
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: Image.asset(onBoardingSlideData.imagePath),
             ),
+                // child: SizedBox(
+                //   width: 182,
+                //   height: 158,
+                //   child: Lottie.asset(onBoardingSlideData.animationPath,
+                //       fit: BoxFit.contain, alignment: Alignment.center),
+                // ),
+              //),
           ),
         ),
         // Display the title and subtitle.
         Expanded(
-          flex: 3,
+          flex: 2,
           child: Column(
             children: [
+              SizedBox(
+                height: 5,
+              ),
               const VerticalSpace(10),
               Text(
                 onBoardingSlideData.titleTextA,
                 textAlign: TextAlign.center,
-                style: fontTitle03Bold(),
+                style: fontTitle05Bold(color: hmpBlue),
               ),
               Text(
                 onBoardingSlideData.titleTextB,
                 textAlign: TextAlign.center,
-                style: fontTitle03Bold(color: hmpBlue),
+                style: fontTitle05Bold(),
               ),
             ],
           ),
         ),
         // Display the description.
         Expanded(
-          flex: 3,
+          flex: 2,
           child: SizedBox(
-            width: 250,
+            width: MediaQuery.of(context).size.width,
             child: Text(
               onBoardingSlideData.descText,
               textAlign: TextAlign.center,
-              style: fontCompactMd(color: fore2),
+              style: fontCompactSm(color: fore2),
             ),
           ),
         ),
@@ -86,11 +88,13 @@ class PageViewData {
   final String titleTextB;
   final String descText;
   final String animationPath;
+  final String imagePath;
 
   PageViewData({
     required this.titleTextA,
     required this.titleTextB,
     required this.descText,
     required this.animationPath,
+    required this.imagePath,
   });
 }

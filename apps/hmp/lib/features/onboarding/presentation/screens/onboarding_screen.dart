@@ -77,6 +77,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         titleTextB: LocaleKeys.onBoardingSlide1TitleB.tr(),
         descText: LocaleKeys.onBoardingSlide1Desc.tr(),
         animationPath: "assets/lottie/onboarding1.json",
+        imagePath: "assets/images/onboarding01.png"
       ),
     );
 
@@ -94,7 +95,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           titleTextA: LocaleKeys.onBoardingSlide3TitleA.tr(),
           titleTextB: LocaleKeys.onBoardingSlide3TitleB.tr(),
           descText: LocaleKeys.onBoardingSlide3Desc.tr(),
-          animationPath: "assets/lottie/onboarding3.json"),
+          animationPath: "assets/lottie/onboarding3.json",
+          imagePath: "assets/images/onboarding02.png"
+      ),
     );
 
     pageViewModelData.add(
@@ -102,7 +105,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           titleTextA: LocaleKeys.onBoardingSlide4TitleA.tr(),
           titleTextB: LocaleKeys.onBoardingSlide4TitleB.tr(),
           descText: LocaleKeys.onBoardingSlide4Desc.tr(),
-          animationPath: "assets/lottie/onboarding4.json"),
+          animationPath: "assets/lottie/onboarding4.json",
+          imagePath: "assets/images/onboarding03.png"
+      ),
     );
 
     // call function to check if location is enabled
@@ -175,8 +180,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               Column(
                 children: <Widget>[
                   SizedBox(
-                    height: MediaQuery.of(context).padding.top +
-                        (MediaQuery.of(context).size.height * 0.10),
+                    height: MediaQuery.of(context).padding.top,// +(MediaQuery.of(context).size.height * 0.10
                   ),
                   SmoothPageIndicator(
                     controller: _pageController, // PageController
@@ -188,6 +192,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                         dotWidth: 7.0,
                         spacing: 5.0), // your preferred effect
                     onDotClicked: (index) {},
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).padding.top,
                   ),
                   Expanded(
                     child: PageView(

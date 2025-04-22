@@ -191,6 +191,7 @@ abstract class  LocaleKeys {
   static const access_wepin_wallet = 'access_wepin_wallet';
   static const welcomeNftRedeemRequesting = 'welcomeNftRedeemRequesting';
   static const connect_wallet_to_redeem_nft = 'connect_wallet_to_redeem_nft';
+  static const connect_wallet_to_redeem_nft2 = 'connect_wallet_to_redeem_nft2';
   static const memebershipListSettingToolTipText = 'memebershipListSettingToolTipText';
   static const nftSelection = 'nftSelection';
   static const active_community = 'active_community';

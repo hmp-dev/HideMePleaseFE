@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field
 
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_controller.dart' as carousel_slider;
+import 'package:flutter/src/material/carousel.dart' as flutter_carousel;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';

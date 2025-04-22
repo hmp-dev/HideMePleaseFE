@@ -1,10 +1,10 @@
 // ignore_for_file: unused_field
 
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CarouselController;
 import 'package:flutter/widgets.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
 import 'package:mobile/app/core/animations/fade_indexed_widget.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
@@ -14,7 +14,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/community/presentation/cubit/community_details_cubit.dart';
+//import 'package:mobile/features/community/presentation/cubit/community_details_cubit.dart';
 import 'package:mobile/features/home/presentation/widgets/benefit_list_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/chatting_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/events_widget.dart';
@@ -22,7 +22,7 @@ import 'package:mobile/features/home/presentation/widgets/free_welcome_nft_card.
 import 'package:mobile/features/home/presentation/widgets/go_to_membership_card_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/home_header_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/icon_nav_widgets.dart';
-import 'package:mobile/features/home/presentation/widgets/members_widget.dart';
+//import 'package:mobile/features/home/presentation/widgets/members_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_iconnav_row.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_top_title_widget.dart';
 import 'package:mobile/features/home/presentation/widgets/nft_card_widget_parent.dart';
@@ -80,7 +80,7 @@ class _HomeViewAfterWalletConnectedState
   String _currentTokenAddress = "";
   final bool _isCurrentIndexIsLat = false;
 
-  final CarouselController _carouselController = CarouselController();
+  //final CarouselController _carouselController = CarouselController();
 
   @override
   void dispose() {
@@ -132,7 +132,6 @@ class _HomeViewAfterWalletConnectedState
                         Padding(
                           padding: const EdgeInsets.only(top: 20.0),
                           child: CarouselSlider(
-                            carouselController: _carouselController,
                             options: CarouselOptions(
                               height: 486,
                               viewportFraction: 0.85,
@@ -159,9 +158,9 @@ class _HomeViewAfterWalletConnectedState
                                 }
                                 // if current _currentSelectWidgetIndex is fetch NFT members
                                 if (_currentSelectWidgetIndex == 2) {
-                                  getIt<CommunityDetailsCubit>()
+                                  /*getIt<CommunityDetailsCubit>()
                                       .onGetNftMembers(
-                                          tokenAddress: _currentTokenAddress);
+                                          tokenAddress: _currentTokenAddress);*/
                                 }
                               },
                             ),
@@ -238,10 +237,10 @@ class _HomeViewAfterWalletConnectedState
                                   selectedIndex: _currentSelectWidgetIndex,
                                   onIndexChanged: (index) {
                                     if (index == 2) {
-                                      getIt<CommunityDetailsCubit>()
+                                      /*getIt<CommunityDetailsCubit>()
                                           .onGetNftMembers(
                                               tokenAddress:
-                                                  _currentTokenAddress);
+                                                  _currentTokenAddress);*/
                                     }
                                     setState(() {
                                       _currentSelectWidgetIndex = index;
@@ -257,8 +256,8 @@ class _HomeViewAfterWalletConnectedState
                                       children: const [
                                         BenefitListWidget(),
                                         EventsWidget(),
-                                        MemberWidget(),
-                                        ChattingWidget(),
+                                        //MemberWidget(),
+                                        //ChattingWidget(),
                                       ],
                                     ),
                                   ),
@@ -320,8 +319,8 @@ class _HomeViewAfterWalletConnectedState
                   curve: Curves.easeInOut,
                 );
                 if (index == 2) {
-                  getIt<CommunityDetailsCubit>()
-                      .onGetNftMembers(tokenAddress: _currentTokenAddress);
+                  //getIt<CommunityDetailsCubit>()
+                  //    .onGetNftMembers(tokenAddress: _currentTokenAddress);
                 }
                 setState(() {
                   _currentSelectWidgetIndex = index;

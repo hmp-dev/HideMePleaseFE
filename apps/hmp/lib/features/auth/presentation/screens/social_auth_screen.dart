@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/helpers/target.dart';
 import 'package:mobile/app/core/injection/injection.dart';
@@ -18,6 +19,9 @@ import 'package:mobile/features/common/presentation/widgets/custom_image_view.da
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 
 class SocialAuthScreen extends StatefulWidget {
   const SocialAuthScreen({super.key});
@@ -36,6 +40,73 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
   void initState() {
     super.initState();
     checkIsShowOnBoarding();
+    _checkAndRequestLocationPermission();
+  }
+
+  Future<void> _checkAndRequestLocationPermission() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("위치 권한 필요"),
+              content: Text("이 앱은 위치 정보를 사용합니다. 위치 서비스를 활성화해주세요."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("확인"),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            context.showSnackBar("위치 권한이 거부되었습니다");
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("위치 권한 거부됨"),
+              content: Text("설정에서 위치 권한을 활성화해주세요"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("확인"),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+
+      // 위치 정보 가져오기 (시스템 권한 요청 팝업 표시됨)
+      final position = await Geolocator.getCurrentPosition();
+      "현재 위치: ${position.latitude}, ${position.longitude}".log();
+
+      
+    } catch (e) {
+      "Error getting location permission: $e".log();
+      if (mounted) {
+        context.showSnackBar("위치 정보를 가져오는 중 오류가 발생했습니다");
+      }
+    }
   }
 
   checkIsShowOnBoarding() async {
@@ -70,6 +141,12 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
   //   }
   // }
 
+  void _initWallets() async {
+    // initialize the WepinSDK and Login
+    await getIt<WepinCubit>()
+        .initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
@@ -77,9 +154,16 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
         bloc: getIt<AuthCubit>(),
         listenWhen: (previous, current) =>
             previous.isLogInSuccessful != current.isLogInSuccessful,
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.submitStatus == RequestStatus.success &&
               state.isLogInSuccessful) {
+            //_initWallets();
+            //await Future.delayed(const Duration(milliseconds: 500));
+            //await getIt<WepinCubit>().openWepinWidget(context);
+            if(getIt<WepinCubit>().state.wepinWidgetSDK != null){
+              "${getIt<WepinCubit>().state}".log();
+            }
+
             isShowOnBoarding == 0 || isShowOnBoarding == null
                 ? Navigator.pushNamedAndRemoveUntil(
                     context, Routes.onboardingScreen, (route) => false)

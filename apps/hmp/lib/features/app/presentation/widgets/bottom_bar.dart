@@ -76,7 +76,7 @@ class _BottomBarState extends State<BottomBar> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            (type == MenuType.events)
+            (type == MenuType.events && false)
                 ? DefaultImage(
                     path: isActiveType
                         ? type.activeIconPath

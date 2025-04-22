@@ -65,7 +65,7 @@ class _SpaceViewState extends State<SpaceView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildTopTitleBar(),
-              buildTopUsedNftsRowWidget(widget.topUsedNfts),
+              //buildTopUsedNftsRowWidget(widget.topUsedNfts), //방문률 높은 커뮤니티 제거 250315 by munbbok
               buildNewSpaceList(widget.newSpaceList),
               buildRecommendedSpaceWidget(widget.recommendedSpace, context),
               buildTypeWiseSpaceList(widget.spaceList, widget.spaceCategory),
@@ -154,14 +154,14 @@ class _SpaceViewState extends State<SpaceView> {
                           widget.onSpaceByCategoryTap(SpaceCategory.ENTIRE);
                         },
                       ),
-                      CategoryIconWidget(
-                        icon: "assets/icons/walkerhill_prev_ui1.png",
-                        title: LocaleKeys.walkerhill.tr(),
-                        isSelected: spaceCategory == SpaceCategory.WALKERHILL,
-                        onTap: () {
-                          widget.onSpaceByCategoryTap(SpaceCategory.WALKERHILL);
-                        },
-                      ),
+                      // CategoryIconWidget(
+                      //   icon: "assets/icons/walkerhill_prev_ui1.png",
+                      //   title: LocaleKeys.walkerhill.tr(),
+                      //   isSelected: spaceCategory == SpaceCategory.WALKERHILL,
+                      //   onTap: () {
+                      //     widget.onSpaceByCategoryTap(SpaceCategory.WALKERHILL);
+                      //   },
+                      // ),
                       CategoryIconWidget(
                         icon: "assets/icons/ic_space_category_pub.svg",
                         title: LocaleKeys.pub.tr(),
@@ -375,7 +375,7 @@ class _SpaceViewState extends State<SpaceView> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Hide me", style: fontBody2Bold()),
+            Text("BLUECHECK MAP", style: fontBody2Bold()),
             const AlarmsIconButton(),
           ],
         ),

@@ -163,7 +163,8 @@ class WepinCubit extends BaseCubit<WepinState> {
     if (updatedStatus == WepinLifeCycle.login) {
       try {
         final wallets = await state.wepinWidgetSDK!.getAccounts();
-        await saveWalletsToHMPBackend(wallets);
+        //await
+        saveWalletsToHMPBackend(wallets);
 
         "Wallets successfully saved to HMP backend".log();
         emit(state.copyWith(
@@ -239,6 +240,23 @@ class WepinCubit extends BaseCubit<WepinState> {
   Future<void> openWepinWidget(BuildContext context) async {
     "inside openWepinWidget".log();
     showLoader();
+
+    // Check if SDK is null and initialize it if needed
+    // null check update by munbbok 250315
+    if (state.wepinWidgetSDK == null) {
+      "wepinWidgetSDK is null, initializing...".log();
+      await initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
+      
+      // If still null after initialization, handle the error
+      if (state.wepinWidgetSDK == null) {
+        dismissLoader();
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Failed to initialize Wepin SDK',
+        ));
+        return;
+      }
+    }
 
     // Check initial Wepin SDK status
     WepinLifeCycle wepinStatus = await state.wepinWidgetSDK!.getStatus();
@@ -421,7 +439,7 @@ class WepinCubit extends BaseCubit<WepinState> {
         if (wepinUser?.userInfo != null) {
           // Update user's email and status if login is successful
           final wepinStatus = await state.wepinWidgetSDK!.getStatus();
-          "inside loginSocialAuthProvider After login ==> wepinStatus is $wepinStatus"
+          "inside loginSocialAuthProvider After login ==> wepinStatus is $wepinStatus and wepinUser is ${wepinUser?.userInfo}"
               .log();
           emit(state.copyWith(
             wepinLifeCycleStatus: wepinStatus,

@@ -9,7 +9,7 @@ import 'package:mobile/features/nft/domain/entities/welcome_nft_entity.dart';
 ///
 /// This widget is used to display a welcome NFT card with its image, name, and rewards.
 /// It also includes an optional free graphic overlay.
-class FreeWelcomeNftCard extends StatelessWidget {
+class FreeWelcomeNftCard extends StatefulWidget {
   /// Creates a [FreeWelcomeNftCard].
   ///
   /// The [enableFreeGraphic] parameter determines whether the free graphic overlay should be shown.
@@ -29,6 +29,36 @@ class FreeWelcomeNftCard extends StatelessWidget {
   final VoidCallback onTapClaimButton;
 
   @override
+  State<FreeWelcomeNftCard> createState() => _FreeWelcomeNftCardState();
+}
+
+class _FreeWelcomeNftCardState extends State<FreeWelcomeNftCard> {
+  // 처리 중인지 여부를 추적하는 상태 변수
+  bool _isProcessing = false;
+
+  // 안전한 버튼 클릭 처리
+  void _handleClaimButtonTap() {
+    if (!_isProcessing) {
+      setState(() {
+        _isProcessing = true;
+      });
+
+      // 원래 콜백 실행
+      widget.onTapClaimButton();
+      
+      // 충분한 시간(예: 3초) 후에 상태 초기화
+      // 실제 완료 상태를 감지하는 방법이 있다면 그것을 사용하는 것이 더 좋습니다
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _isProcessing = false;
+          });
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
@@ -36,21 +66,22 @@ class FreeWelcomeNftCard extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(top: 20),
           child: NFTCardWidgetParent(
-            imagePath: welcomeNftEntity.image,
+            imagePath: widget.welcomeNftEntity.image,
             videoUrl: '',
             topWidget: NftCardTopTitleWidget(
-              title: welcomeNftEntity.name,
-              chain: "KLAYTN",
+              title: widget.welcomeNftEntity.name,
+              chain: (widget.welcomeNftEntity.contractType == "AVAX") ? "AVALANCHE" : "KLAYTN",
             ),
             bottomWidget: NftCardRewardsBottomWidget(
-              welcomeNftEntity: welcomeNftEntity,
-              onTapClaimButton:  onTapClaimButton,
+              welcomeNftEntity: widget.welcomeNftEntity,
+              onTapClaimButton: _handleClaimButtonTap,
+              isProcessing: _isProcessing, // 처리 중 상태 전달
             ),
             index: 0,
           ),
         ),
         // Optional free graphic overlay
-        if (enableFreeGraphic)
+        if (widget.enableFreeGraphic)
           Positioned(
             right: 0,
             top: 0,

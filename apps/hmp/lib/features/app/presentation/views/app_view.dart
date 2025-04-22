@@ -10,7 +10,7 @@ import 'package:mobile/app/core/notifications/notification_service.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
-import 'package:mobile/features/community/presentation/screens/community_screen.dart';
+//import 'package:mobile/features/community/presentation/screens/community_screen.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
@@ -90,9 +90,9 @@ class _AppViewState extends State<AppView> {
                                 return const HomeScreen(); // EventsWepinScreen();
                               } else if (index == MenuType.home.menuIndex) {
                                 return const HomeScreen();
-                              } else if (index ==
-                                  MenuType.community.menuIndex) {
-                                return const CommunityScreen();
+                              //} else if (index ==
+                              //    MenuType.community.menuIndex) {
+                              //  return const CommunityScreen();
                               } else if (index == MenuType.settings.menuIndex) {
                                 return Container();
                               }
@@ -112,8 +112,8 @@ class _AppViewState extends State<AppView> {
                                 ('type: $type').log();
                                 if (type == MenuType.settings) {
                                   // update EventView Active Status
-                                  getIt<WalletsCubit>()
-                                      .onIsEventViewActive(false);
+                                  getIt<WalletsCubit>();
+                                  //    .onIsEventViewActive(false);
                                   // fetch SettingBannerInfo and AppVersionInfo
                                   getIt<SettingsCubit>()
                                       .onGetSettingBannerInfo();
@@ -121,8 +121,8 @@ class _AppViewState extends State<AppView> {
                                   SettingsScreen.push(context);
                                 } else if (type == MenuType.space) {
                                   // update EventView Active Status
-                                  getIt<WalletsCubit>()
-                                      .onIsEventViewActive(false);
+                                  getIt<WalletsCubit>();
+                                  //    .onIsEventViewActive(false);
                                   // fetch SettingBannerInfo and AppVersionInfo
                                   getIt<SpaceCubit>().onFetchAllSpaceViewData();
                                   // Navigate to Settings Screen

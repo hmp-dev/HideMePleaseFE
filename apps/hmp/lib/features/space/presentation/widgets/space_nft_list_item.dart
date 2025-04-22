@@ -5,8 +5,8 @@ import 'package:mobile/features/common/presentation/widgets/custom_image_view.da
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
-import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
-import 'package:mobile/features/community/presentation/screens/community_details_screen.dart';
+//import 'package:mobile/features/community/domain/entities/nft_community_entity.dart';
+//import 'package:mobile/features/community/presentation/screens/community_details_screen.dart';
 import 'package:mobile/features/space/domain/entities/top_used_nft_entity.dart';
 
 class SpaceTopNFTListItem extends StatelessWidget {
@@ -23,18 +23,18 @@ class SpaceTopNFTListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CommunityDetailsScreen(
-              nftCommunity: const NftCommunityEntity.empty().copyWith(
-                tokenAddress: topUsedNftEntity.tokenAddress,
-                name: topUsedNftEntity.name,
-                collectionLogo: topUsedNftEntity.collectionLogo,
-              ),
-            ),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => CommunityDetailsScreen(
+        //       nftCommunity: const NftCommunityEntity.empty().copyWith(
+        //         tokenAddress: topUsedNftEntity.tokenAddress,
+        //         name: topUsedNftEntity.name,
+        //         collectionLogo: topUsedNftEntity.collectionLogo,
+        //       ),
+        //     ),
+        //   ),
+        // );
       },
       child: SizedBox(
         width: getWidth(score),

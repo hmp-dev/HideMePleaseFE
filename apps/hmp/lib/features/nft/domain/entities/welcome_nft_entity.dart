@@ -14,6 +14,7 @@ class WelcomeNftEntity extends Equatable {
   final int usedCount;
   final String image;
   final bool freeNftAvailable;
+  final String contractType;
 
   const WelcomeNftEntity({
     required this.name,
@@ -23,6 +24,7 @@ class WelcomeNftEntity extends Equatable {
     required this.tokenAddress,
     required this.redeemTermsUrl,
     required this.freeNftAvailable,
+    required this.contractType,
   });
 
   String get totalNfts => koreanNumFormat.format(totalCount);
@@ -37,7 +39,7 @@ class WelcomeNftEntity extends Equatable {
 
   @override
   List<Object?> get props =>
-      [name, image, totalCount, usedCount, tokenAddress, redeemTermsUrl];
+      [name, image, totalCount, usedCount, tokenAddress, redeemTermsUrl, contractType];
 
   const WelcomeNftEntity.empty()
       : name = '',
@@ -46,7 +48,8 @@ class WelcomeNftEntity extends Equatable {
         usedCount = 0,
         tokenAddress = '',
         redeemTermsUrl = '',
-        freeNftAvailable = false;
+        freeNftAvailable = false,
+        contractType = 'KIP-17';
 
   WelcomeNftEntity copyWith({
     String? name,
@@ -56,6 +59,7 @@ class WelcomeNftEntity extends Equatable {
     String? tokenAddress,
     String? redeemTermsUrl,
     bool? freeNftAvailable,
+    String? contractType,
   }) {
     return WelcomeNftEntity(
       name: name ?? this.name,
@@ -65,11 +69,12 @@ class WelcomeNftEntity extends Equatable {
       tokenAddress: tokenAddress ?? this.tokenAddress,
       redeemTermsUrl: redeemTermsUrl ?? this.redeemTermsUrl,
       freeNftAvailable: freeNftAvailable ?? this.freeNftAvailable,
+      contractType: contractType ?? this.contractType,
     );
   }
 
   @override
   String toString() {
-    return 'WelcomeNftEntity(name: $name, tokenAddress: $tokenAddress, redeemTermsUrl: $redeemTermsUrl, totalCount: $totalCount, usedCount: $usedCount, image: $image, freeNftAvailable: $freeNftAvailable)';
+    return 'WelcomeNftEntity(name: $name, tokenAddress: $tokenAddress, redeemTermsUrl: $redeemTermsUrl, totalCount: $totalCount, usedCount: $usedCount, image: $image, freeNftAvailable: $freeNftAvailable, contractType: $contractType)';
   }
 }

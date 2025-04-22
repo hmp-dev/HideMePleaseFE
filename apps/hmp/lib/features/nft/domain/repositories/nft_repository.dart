@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:mobile/app/core/error/error.dart';
-import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
-import 'package:mobile/features/community/infrastructure/dtos/nft_community_member_dto.dart';
-import 'package:mobile/features/community/infrastructure/dtos/top_collection_nft_dto.dart';
+//import 'package:mobile/features/community/infrastructure/dtos/nft_community_dto.dart';
+//import 'package:mobile/features/community/infrastructure/dtos/nft_community_member_dto.dart';
+//import 'package:mobile/features/community/infrastructure/dtos/top_collection_nft_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/benefit_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_collections_group_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/nft_network_dto.dart';
@@ -23,19 +23,20 @@ abstract class NftRepository {
     required SelectTokenToggleRequestDto selectTokenToggleRequestDto,
   });
 
+  Future<Either<HMPError, List<SelectedNFTDto>>> getSelectNftCollections({String? userId});
+
   Future<Either<HMPError, bool>> postCollectionOrderSave({
-    required SaveSelectedTokensReorderRequestDto
-        saveSelectedTokensReorderRequestDto,
+    required SaveSelectedTokensReorderRequestDto saveSelectedTokensReorderRequestDto,
   });
 
-  Future<Either<HMPError, List<SelectedNFTDto>>> getSelectNftCollections(
-      {String? userId});
+  Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft({
+    required double latitude,
+    required double longitude,
+  });
 
-  Future<Either<HMPError, WelcomeNftDto>> getWelcomeNft(
-      {required double latitude, required double longitude});
-
-  Future<Either<HMPError, Unit>> getConsumeUserWelcomeNft(
-      {required String tokenAddress});
+  Future<Either<HMPError, Unit>> getConsumeUserWelcomeNft({
+    required String tokenAddress,
+  });
 
   Future<Either<HMPError, NftBenefitsResponseDto>> getNftBenefits({
     required String tokenAddress,
@@ -48,8 +49,9 @@ abstract class NftRepository {
 
   Future<Either<HMPError, List<NftPointsDto>>> getNftPoints({String? userId});
 
-  Future<Either<HMPError, NftNetworkDto>> getNftNetworkInfo(
-      {required String tokenAddress});
+  Future<Either<HMPError, NftNetworkDto>> getNftNetworkInfo({
+    required String tokenAddress,
+  });
 
   Future<Either<HMPError, NftUsageHistoryDto>> getNftUsageHistory({
     required String tokenAddress,
@@ -58,19 +60,19 @@ abstract class NftRepository {
     String? type,
   });
 
-  Future<Either<HMPError, NftCommunityResponseDto>> getNftCommunities(
-      {required GetNftCommunityOrderBy order, int? page});
-
-  Future<Either<HMPError, List<NftCommunityDto>>> getHotNftCommunities();
-
-  Future<Either<HMPError, List<NftCommunityDto>>> getUserNftCommunities();
-
-  Future<Either<HMPError, NftCommunityMemberResponseDto>> getNftMembers(
-      {required String tokenAddress, int? page});
-
-  Future<Either<HMPError, TopCollectionNftDto>> getNftCollectionInfo(
-      {required String tokenAddress});
-
-  Future<Either<HMPError, List<TopCollectionNftDto>>> getTopNftColletions(
-      {int? pageSize, int? page});
+  // Future<Either<HMPError, NftCommunityResponseDto>> getNftCommunities(
+  //     {required GetNftCommunityOrderBy order, int? page});
+  //
+  // Future<Either<HMPError, List<NftCommunityDto>>> getHotNftCommunities();
+  //
+  // Future<Either<HMPError, List<NftCommunityDto>>> getUserNftCommunities();
+  //
+  // Future<Either<HMPError, NftCommunityMemberResponseDto>> getNftMembers(
+  //     {required String tokenAddress, int? page});
+  //
+  // Future<Either<HMPError, TopCollectionNftDto>> getNftCollectionInfo(
+  //     {required String tokenAddress});
+  //
+  // Future<Either<HMPError, List<TopCollectionNftDto>>> getTopNftColletions(
+  //     {int? pageSize, int? page});
 }

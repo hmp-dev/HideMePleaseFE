@@ -14,20 +14,25 @@ import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
+import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
+
 class NftCardRewardsBottomWidget extends StatelessWidget {
-  NftCardRewardsBottomWidget({
+  const NftCardRewardsBottomWidget({
     super.key,
     required this.welcomeNftEntity,
     required this.onTapClaimButton,
+    this.isProcessing = false,
   });
 
   final WelcomeNftEntity welcomeNftEntity;
   final VoidCallback onTapClaimButton;
-
-  final SnackbarService snackBarService = getIt<SnackbarService>();
+  final bool isProcessing;
 
   @override
   Widget build(BuildContext context) {
+    final snackBarService = getIt<SnackbarService>();
     final connectedWallets = getIt<WalletsCubit>().state.connectedWallets;
 
     return BlocListener<NftCubit, NftState>(
@@ -117,40 +122,65 @@ class NftCardRewardsBottomWidget extends StatelessWidget {
             GlassmorphicButton(
               width: MediaQuery.of(context).size.width * 0.80,
               height: 60,
-              onPressed: (connectedWallets.isEmpty)
-                  ? onTapClaimButton
-                  : () {
-                      // if (!getIt<WalletsCubit>().state.isKlipWalletConnected) {
-                      //   return snackBarService.showSnackbar(
-                      //     message: "Klip월렛에 연동해주세요.",
-                      //     duration: const Duration(seconds: 5),
-                      //   );
-                      // }
+              onPressed: isProcessing ? () {} : () {
+                // if (!getIt<WalletsCubit>().state.isKlipWalletConnected) {
+                //   return snackBarService.showSnackbar(
+                //     message: "Klip월렛에 연동해주세요.",
+                //     duration: const Duration(seconds: 5),
+                //   );
+                // }
 
-                      "welcomeNftEntity.remainingCount ${welcomeNftEntity.remainingCount}"
-                          .log();
+                "welcomeNftEntity.remainingCount ${welcomeNftEntity.remainingCount}"
+                    .log();
+                if(getIt<WepinCubit>().state.wepinLifeCycleStatus != WepinLifeCycle.login){
+                  if(getIt<WepinCubit>().state.wepinLifeCycleStatus == WepinLifeCycle.notInitialized) {
+                    getIt<WepinCubit>().initializeWepinSDK(
+                        selectedLanguageCode: context.locale.languageCode);
+                    Future.delayed(const Duration(milliseconds: 1000));
+                    getIt<WepinCubit>().onConnectWepinWallet(context, isFromWePinWalletConnect: true, isFromWePinWelcomeNftRedeem:true, isOpenWepinModel:true);
+                  }else{
+                    getIt<WepinCubit>().onConnectWepinWallet(context, isFromWePinWalletConnect: true, isFromWePinWelcomeNftRedeem:true, isOpenWepinModel:true);
+                  }
+                  if(getIt<WepinCubit>().state.wepinLifeCycleStatus == WepinLifeCycle.loginBeforeRegister){
 
-                      if (welcomeNftEntity.freeNftAvailable &&
-                          welcomeNftEntity.remainingCount > 0) {
-                        getIt<NftCubit>().onGetConsumeWelcomeNft();
-                      } else {
-                        snackBarService.showSnackbar(
-                          message: LocaleKeys.youCanNotUseTheFreeNft
-                              .tr(), //"무료 NFT를 사용할 수 없습니다",
-                          duration: const Duration(seconds: 5),
-                        );
-                      }
-                    },
-              child: (welcomeNftEntity.freeNftAvailable &&
-                      welcomeNftEntity.remainingCount > 0)
-                  ? Text(
-                      LocaleKeys.getNftForFree.tr(),
-                      style: fontCompactLgMedium(),
-                    )
-                  : Text(
-                      LocaleKeys.getNftForFree.tr(),
-                      style: fontCompactLgMedium(),
-                    ),
+                  }
+                  //getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
+                }else {
+                  if (welcomeNftEntity.freeNftAvailable &&
+                      welcomeNftEntity.remainingCount > 0) {
+                    getIt<NftCubit>().onGetConsumeWelcomeNft();
+                  } else {
+                    snackBarService.showSnackbar(
+                      message: LocaleKeys.youCanNotUseTheFreeNft
+                          .tr(), //"무료 NFT를 사용할 수 없습니다",
+                      duration: const Duration(seconds: 5),
+                    );
+                  }
+                }
+              },
+              child: isProcessing 
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 20, 
+                        height: 20, 
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        )
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        "처리 중...",
+                        style: fontCompactLgMedium(),
+                      ),
+                    ],
+                  )
+                : Text(
+                    LocaleKeys.getNftForFree.tr(),
+                    style: fontCompactLgMedium(),
+                  ),
             )
           ],
         ),
