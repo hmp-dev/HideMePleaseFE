@@ -5,7 +5,8 @@ enum ChainType {
   ETHEREUM,
   SOLANA,
   POLYGON,
-  KLAYTN;
+  KLAYTN,
+  AVALANCHE;
 
   /// Converts the given [chain] string to a [ChainType] enum case.
   ///
@@ -26,6 +27,8 @@ enum ChainType {
         return ChainType.POLYGON; // Returns ChainType.POLYGON enum case.
       case 'KLAYTN':
         return ChainType.KLAYTN; // Returns ChainType.KLAYTN enum case.
+      case 'AVALANCHE':
+        return ChainType.AVALANCHE; // Returns ChainType.AVALANCHE enum case.
       default:
         return ChainType.ALL; // Returns ChainType.ALL enum case.
     }
@@ -42,6 +45,8 @@ enum ChainType {
         return 'assets/chain-logos/polygon_chain.svg';
       case ChainType.KLAYTN:
         return 'assets/chain-logos/klaytn_chain.png';
+      case ChainType.AVALANCHE:
+        return 'assets/chain-logos/avalanche_chain.svg';
       default:
         return 'assets/chain-logos/ethereum_chain.svg';
     }

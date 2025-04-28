@@ -15,6 +15,7 @@ class WelcomeNftEntity extends Equatable {
   final String image;
   final bool freeNftAvailable;
   final String contractType;
+  final String type;
 
   const WelcomeNftEntity({
     required this.name,
@@ -25,6 +26,7 @@ class WelcomeNftEntity extends Equatable {
     required this.redeemTermsUrl,
     required this.freeNftAvailable,
     required this.contractType,
+    required this.type,
   });
 
   String get totalNfts => koreanNumFormat.format(totalCount);
@@ -49,7 +51,8 @@ class WelcomeNftEntity extends Equatable {
         tokenAddress = '',
         redeemTermsUrl = '',
         freeNftAvailable = false,
-        contractType = 'KIP-17';
+        contractType = 'KIP-17',
+        type = 'global';
 
   WelcomeNftEntity copyWith({
     String? name,
@@ -60,6 +63,7 @@ class WelcomeNftEntity extends Equatable {
     String? redeemTermsUrl,
     bool? freeNftAvailable,
     String? contractType,
+    String? type,
   }) {
     return WelcomeNftEntity(
       name: name ?? this.name,
@@ -70,11 +74,12 @@ class WelcomeNftEntity extends Equatable {
       redeemTermsUrl: redeemTermsUrl ?? this.redeemTermsUrl,
       freeNftAvailable: freeNftAvailable ?? this.freeNftAvailable,
       contractType: contractType ?? this.contractType,
+      type: type ?? this.type,
     );
   }
 
   @override
   String toString() {
-    return 'WelcomeNftEntity(name: $name, tokenAddress: $tokenAddress, redeemTermsUrl: $redeemTermsUrl, totalCount: $totalCount, usedCount: $usedCount, image: $image, freeNftAvailable: $freeNftAvailable, contractType: $contractType)';
+    return 'WelcomeNftEntity(name: $name, tokenAddress: $tokenAddress, redeemTermsUrl: $redeemTermsUrl, totalCount: $totalCount, usedCount: $usedCount, image: $image, freeNftAvailable: $freeNftAvailable, contractType: $contractType, type: $type})';
   }
 }

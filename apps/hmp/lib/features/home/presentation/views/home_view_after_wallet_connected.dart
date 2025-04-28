@@ -174,11 +174,30 @@ class _HomeViewAfterWalletConnectedState
                               }
 
                               if (itemIndex == 0 &&
-                                  nftState.welcomeNftEntity.freeNftAvailable) {
-                                return FreeWelcomeNftCard(
-                                  welcomeNftEntity: nftState.welcomeNftEntity,
-                                  onTapClaimButton: () {},
-                                );
+                                  nftState
+                                      .welcomeNftEntity
+                                      .freeNftAvailable) {
+                                final welcome = nftState.welcomeNftEntity;
+                                if (welcome.type == 'special') {
+                                  return FreeWelcomeNftCard(
+                                    welcomeNftEntity: welcome,
+                                    onTapClaimButton: () {},
+                                  );
+                                } else if (welcome.type == 'global') {
+                                  final hasSpecial = selectedNftsListForHome
+                                      .any((nft) => nft.type == 'special');
+                                  if (!hasSpecial) {
+                                    return FreeWelcomeNftCard(
+                                      welcomeNftEntity: welcome,
+                                      onTapClaimButton: () {},
+                                    );
+                                  }
+                                }else{
+                                  return FreeWelcomeNftCard(
+                                    welcomeNftEntity: nftState.welcomeNftEntity,
+                                    onTapClaimButton: () {},
+                                  );
+                                }
                               }
 
                               return NFTCardWidgetParent(

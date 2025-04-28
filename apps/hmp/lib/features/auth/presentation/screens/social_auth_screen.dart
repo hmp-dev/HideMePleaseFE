@@ -22,6 +22,7 @@ import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class SocialAuthScreen extends StatefulWidget {
   const SocialAuthScreen({super.key});
@@ -155,22 +156,40 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
         listenWhen: (previous, current) =>
             previous.isLogInSuccessful != current.isLogInSuccessful,
         listener: (context, state) async {
-          if (state.submitStatus == RequestStatus.success &&
-              state.isLogInSuccessful) {
-            //_initWallets();
-            //await Future.delayed(const Duration(milliseconds: 500));
-            //await getIt<WepinCubit>().openWepinWidget(context);
-            if(getIt<WepinCubit>().state.wepinWidgetSDK != null){
+          // 로딩 상태 처리
+          if (state.submitStatus == RequestStatus.loading) {
+            EasyLoading.show();
+            return;
+          }
+
+          // 로딩이 끝났을 때 dismiss
+          EasyLoading.dismiss();
+
+          // 성공 상태 처리
+          if (state.submitStatus == RequestStatus.success && state.isLogInSuccessful) {
+            // Wepin SDK 상태 로깅
+            if (getIt<WepinCubit>().state.wepinWidgetSDK != null) {
               "${getIt<WepinCubit>().state}".log();
             }
 
-            isShowOnBoarding == 0 || isShowOnBoarding == null
-                ? Navigator.pushNamedAndRemoveUntil(
-                    context, Routes.onboardingScreen, (route) => false)
-                : Navigator.pushNamedAndRemoveUntil(
-                    context, Routes.startUpScreen, (route) => false);
+            // 온보딩 여부에 따른 화면 전환
+            if (isShowOnBoarding == 0 || isShowOnBoarding == null) {
+              await Navigator.pushNamedAndRemoveUntil(
+                context,
+                Routes.onboardingScreen,
+                (route) => false,
+              );
+            } else {
+              await Navigator.pushNamedAndRemoveUntil(
+                context,
+                Routes.startUpScreen,
+                (route) => false,
+              );
+            }
+            return;
           }
 
+          // 실패 상태 처리
           if (state.submitStatus == RequestStatus.failure) {
             context.showErrorSnackBar(state.message);
           }

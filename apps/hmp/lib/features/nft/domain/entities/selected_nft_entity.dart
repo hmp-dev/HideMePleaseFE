@@ -13,6 +13,7 @@ class SelectedNFTEntity extends Equatable {
   final int communityRank;
   final int totalMembers;
   final int pointFluctuation;
+  final String type;
 
   const SelectedNFTEntity({
     required this.id,
@@ -27,6 +28,7 @@ class SelectedNFTEntity extends Equatable {
     required this.communityRank,
     required this.totalMembers,
     required this.pointFluctuation,
+    required this.type,
   });
 
   const SelectedNFTEntity.empty()
@@ -41,7 +43,8 @@ class SelectedNFTEntity extends Equatable {
         totalPoints = 0,
         communityRank = 0,
         totalMembers = 0,
-        pointFluctuation = 0;
+        pointFluctuation = 0,
+        type = '';
 
   @override
   List<Object?> get props => [
@@ -72,6 +75,7 @@ class SelectedNFTEntity extends Equatable {
     int? communityRank,
     int? totalMembers,
     int? pointFluctuation,
+    String? type,
   }) {
     return SelectedNFTEntity(
       id: id ?? this.id,
@@ -86,6 +90,7 @@ class SelectedNFTEntity extends Equatable {
       communityRank: communityRank ?? this.communityRank,
       totalMembers: totalMembers ?? this.totalMembers,
       pointFluctuation: pointFluctuation ?? this.pointFluctuation,
+      type: type ?? this.type,
     );
   }
 
@@ -101,10 +106,11 @@ class SelectedNFTEntity extends Equatable {
         totalPoints = 0,
         communityRank = 0,
         totalMembers = 0,
-        pointFluctuation = 0;
+        pointFluctuation = 0,
+        type = '';
 
   @override
   String toString() {
-    return 'SelectedNFTEntity(id: $id, name: $name, imageUrl: $imageUrl, videoUrl: $videoUrl, order: $order, tokenAddress: $tokenAddress, symbol: $symbol, chain: $chain, totalPoints: $totalPoints, communityRank: $communityRank, totalMembers: $totalMembers, pointFluctuation: $pointFluctuation)';
+    return 'SelectedNFTEntity(id: $id, name: $name, imageUrl: $imageUrl, videoUrl: $videoUrl, order: $order, tokenAddress: $tokenAddress, symbol: $symbol, chain: $chain, totalPoints: $totalPoints, communityRank: $communityRank, totalMembers: $totalMembers, pointFluctuation: $pointFluctuation, type: ${type})';
   }
 }

@@ -132,17 +132,11 @@ class AuthCubit extends BaseCubit<AuthState> {
   Future<void> onBackendApiLogin({
     required String firebaseIdToken,
   }) async {
-    //
-    EasyLoading.show();
-
     emit(state.copyWith(submitStatus: RequestStatus.loading));
 
     final response =
         await _authRepository.requestApiLogin(firebaseToken: firebaseIdToken);
 
-    EasyLoading.dismiss();
-
-    //
     response.fold(
       (err) {
         "inside error ****************** ${err.message}".log();

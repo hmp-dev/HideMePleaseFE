@@ -24,6 +24,7 @@ class SelectedNFTDto extends Equatable {
   final int? totalMembers;
   @JsonKey(name: 'pointFluctuation')
   final int? pointFluctuation;
+  final String? type;
 
   const SelectedNFTDto({
     this.id,
@@ -38,6 +39,7 @@ class SelectedNFTDto extends Equatable {
     this.communityRank,
     this.totalMembers,
     this.pointFluctuation,
+    this.type,
   });
 
   factory SelectedNFTDto.fromJson(Map<String, dynamic> json) =>
@@ -59,6 +61,7 @@ class SelectedNFTDto extends Equatable {
         communityRank,
         totalMembers,
         pointFluctuation,
+        type,
       ];
 
   SelectedNFTEntity toEntity() => SelectedNFTEntity(
@@ -74,5 +77,6 @@ class SelectedNFTDto extends Equatable {
         communityRank: communityRank ?? 0,
         totalMembers: totalMembers ?? 0,
         pointFluctuation: pointFluctuation ?? 0,
+        type: type ?? "",
       );
 }
