@@ -37,14 +37,15 @@ class IconNavWidgets extends StatelessWidget {
           //   titleColor: selectedIndex == 1 ? white : fore3,
           //   onTap: () => onIndexChanged(1),
           // ),
-          FeatureIconWidget(
-            title: LocaleKeys.member.tr(),
-            imagePath: selectedIndex == 2
-                ? "assets/icons/ic_member_hmp.svg"
-                : "assets/icons/ic_member_dark.svg",
-            titleColor: selectedIndex == 2 ? white : fore3,
-            onTap: () => onIndexChanged(2),
-          ),
+          //250429 remove 멤버
+          // FeatureIconWidget(
+          //   title: LocaleKeys.member.tr(),
+          //   imagePath: selectedIndex == 2
+          //       ? "assets/icons/ic_member_hmp.svg"
+          //       : "assets/icons/ic_member_dark.svg",
+          //   titleColor: selectedIndex == 2 ? white : fore3,
+          //   onTap: () => onIndexChanged(2),
+          // ),
           // FeatureIconWidget(
           //   title: LocaleKeys.chatting.tr(),
           //   imagePath: selectedIndex == 3
