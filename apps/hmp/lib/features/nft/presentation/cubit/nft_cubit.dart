@@ -570,56 +570,64 @@ class NftCubit extends BaseCubit<NftState> {
   ///
   /// Returns a [Future] that completes when the method is done executing.
   Future<void> onGetConsumeWelcomeNft() async {
+    "NFT Cubit - Starting NFT consumption process".log();
+    
     // Show loading indicator
     EasyLoading.show();
 
-    // Call NftRepository to consume the user's welcome NFT
-    final response = await _nftRepository.getConsumeUserWelcomeNft(
-        tokenAddress: state.welcomeNftEntity.tokenAddress);
+    try {
+      // Call NftRepository to consume the user's welcome NFT
+      "NFT Cubit - Calling repository for NFT consumption".log();
+      final response = await _nftRepository.getConsumeUserWelcomeNft(
+          tokenAddress: state.welcomeNftEntity.tokenAddress);
 
-    "Log response: $response".log();
+      "NFT Cubit - Repository response received: $response".log();
 
-    // Dismiss loading indicator
-    EasyLoading.dismiss();
+      // Handle response from the repository call
+      response.fold(
+        // If the repository call fails, update state with error message
+        (err) {
+          "NFT Cubit - Consumption failed with error: ${err.message}".log();
+          Log.error(err);
 
-    // Handle response from the repository call
-    response.fold(
-      // If the repository call fails, update state with error message
-      (err) {
-        // Dismiss loading indicator
-        EasyLoading.dismiss();
-        Log.error(err);
+          // Update state with failure status and error message
+          emit(state.copyWith(
+            submitStatus: RequestStatus.failure,
+            errorMessage: err.message,
+          ));
+        },
+        // If the repository call succeeds, update state and show success message
+        (_) async {
+          "NFT Cubit - Consumption successful, updating welcome NFT data".log();
+          // Call onGetWelcomeNft to fetch welcome NFT data
+          await onGetWelcomeNft();
 
-        // Update state with failure status and error message
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: err.message,
-        ));
-      },
-      // If the repository call succeeds, update state and show success message
-      (_) async {
-        // Dismiss loading indicator
-        EasyLoading.dismiss();
-        // Call onGetWelcomeNft to fetch welcome NFT data
-        await onGetWelcomeNft();
+          // Update state with success status and empty error message
+          emit(state.copyWith(
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+          ));
 
-        // Refresh user NFT communities
-        //getIt<CommunityCubit>().onGetUserNftCommunities();
-
-        // Update state with success status and empty error message
-        emit(state.copyWith(
-          submitStatus: RequestStatus.success,
-          errorMessage: '',
-        ));
-
-        // Show success snackbar
-        snackbarService.showSnackbar(
-          message: LocaleKeys.freeNftRedeemSuccessMessage.tr(),
-          //'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
-          duration: const Duration(seconds: 5),
-        );
-      },
-    );
+          "NFT Cubit - Showing success message to user".log();
+          // Show success snackbar
+          snackbarService.showSnackbar(
+            message: LocaleKeys.freeNftRedeemSuccessMessage.tr(),
+            duration: const Duration(seconds: 5),
+          );
+        },
+      );
+    } catch (e, stackTrace) {
+      "NFT Cubit - Unexpected error during consumption: $e".log();
+      Log.error('Unexpected error during NFT consumption: $e');
+      
+      emit(state.copyWith(
+        submitStatus: RequestStatus.failure,
+        errorMessage: '',
+      ));
+    } finally {
+      "NFT Cubit - Cleaning up and dismissing loading indicator".log();
+      EasyLoading.dismiss();
+    }
   }
 
   // Future<void> onGetNftBenefits({
