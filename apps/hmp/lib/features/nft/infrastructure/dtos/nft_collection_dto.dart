@@ -43,7 +43,7 @@ class NftCollectionDto extends Equatable {
   NftCollectionEntity toEntity() {
     return NftCollectionEntity(
       symbol: symbol ?? '',
-      chain: chain ?? '',
+      chain: chainSymbol ?? '',
       tokenAddress: tokenAddress ?? '',
       contractType: contractType ?? '',
       name: name ?? '',
