@@ -8,6 +8,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobile/app/core/animations/animated_slide_fadein.dart';
 import 'package:mobile/app/core/animations/fade_indexed_widget.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/logger/logger.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -178,6 +179,7 @@ class _HomeViewAfterWalletConnectedState
                                       .welcomeNftEntity
                                       .freeNftAvailable) {
                                 final welcome = nftState.welcomeNftEntity;
+                                "nftState.welcomeNftEntity $welcome".log();
                                 if (welcome.type == 'special') {
                                   return FreeWelcomeNftCard(
                                     welcomeNftEntity: welcome,

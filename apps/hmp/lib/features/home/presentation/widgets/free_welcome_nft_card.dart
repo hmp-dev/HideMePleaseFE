@@ -70,7 +70,7 @@ class _FreeWelcomeNftCardState extends State<FreeWelcomeNftCard> {
             videoUrl: '',
             topWidget: NftCardTopTitleWidget(
               title: widget.welcomeNftEntity.name,
-              chain: (widget.welcomeNftEntity.contractType == "AVALANCHE") ? "AVALANCHE" : "KLAYTN",
+              chain: (widget.welcomeNftEntity.contractType == "AVAX") ? "AVAX" : "KLAYTN",
             ),
             bottomWidget: NftCardRewardsBottomWidget(
               welcomeNftEntity: widget.welcomeNftEntity,
