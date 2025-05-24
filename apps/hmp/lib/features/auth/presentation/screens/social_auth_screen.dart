@@ -151,6 +151,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      isFirstPage: true,
       body: BlocListener<AuthCubit, AuthState>(
         bloc: getIt<AuthCubit>(),
         listenWhen: (previous, current) =>

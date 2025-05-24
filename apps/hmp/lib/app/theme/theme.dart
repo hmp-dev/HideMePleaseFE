@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:flutter/rendering.dart';
 // Hexadecimal opacity values
 // 100% — FF
 // 95% — F2
@@ -827,10 +828,10 @@ ThemeData theme() {
 
     // Set the app bar theme with a transparent background color, a black icon
     // theme, and no elevation.
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       elevation: 0,
-      backgroundColor: Colors.grey[50],
-      iconTheme: const IconThemeData(color: Colors.black),
+      backgroundColor: Colors.transparent,
+      toolbarHeight: 0,
     ),
 
     // Set the text selection theme with a black cursor color.

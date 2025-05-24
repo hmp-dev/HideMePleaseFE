@@ -9,6 +9,7 @@ import 'package:mobile/features/common/presentation/widgets/default_dialog.dart'
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/default_loading.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:flutter/services.dart';
 
 /// The base scaffold widget for all screens.
 ///

@@ -27,6 +27,8 @@ enum ChainType {
         return ChainType.POLYGON; // Returns ChainType.POLYGON enum case.
       case 'KLAYTN':
         return ChainType.KLAYTN; // Returns ChainType.KLAYTN enum case.
+      case 'AVAX':
+        return ChainType.AVALANCHE;
       case 'AVALANCHE':
         return ChainType.AVALANCHE; // Returns ChainType.AVALANCHE enum case.
       default:
