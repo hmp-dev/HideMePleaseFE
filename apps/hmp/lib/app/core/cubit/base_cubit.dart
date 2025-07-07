@@ -22,8 +22,8 @@ abstract class BaseState extends Equatable {
 
   /// Gets the current status of the request.
   ///
-  /// Throws an [UnimplementedError] if the method is not yet implemented.
-  RequestStatus get status => throw UnimplementedError();
+  /// Default implementation returns submitStatus. Override for custom logic.
+  RequestStatus get status => submitStatus;
 
   RequestStatus get submitStatus => throw UnimplementedError();
 

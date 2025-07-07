@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/Users/javeedishaq/flutter"
-export "FLUTTER_APPLICATION_PATH=/Users/javeedishaq/devwork/hyperhire/HideMePleaseFE/packages/web3modal_flutter/example"
+export "FLUTTER_ROOT=/Users/takout/development/flutter"
+export "FLUTTER_APPLICATION_PATH=/Users/takout/Documents/projects/hmp-flt/packages/web3modal_flutter/example"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib/main.dart"
 export "FLUTTER_BUILD_DIR=build"

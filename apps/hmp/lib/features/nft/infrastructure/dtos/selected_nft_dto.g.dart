@@ -20,6 +20,7 @@ SelectedNFTDto _$SelectedNFTDtoFromJson(Map<String, dynamic> json) =>
       communityRank: (json['communityRank'] as num?)?.toInt(),
       totalMembers: (json['totalMembers'] as num?)?.toInt(),
       pointFluctuation: (json['pointFluctuation'] as num?)?.toInt(),
+      type: json['type'] as String?,
     );
 
 Map<String, dynamic> _$SelectedNFTDtoToJson(SelectedNFTDto instance) =>
@@ -36,4 +37,5 @@ Map<String, dynamic> _$SelectedNFTDtoToJson(SelectedNFTDto instance) =>
       'communityRank': instance.communityRank,
       'totalMembers': instance.totalMembers,
       'pointFluctuation': instance.pointFluctuation,
+      'type': instance.type,
     };

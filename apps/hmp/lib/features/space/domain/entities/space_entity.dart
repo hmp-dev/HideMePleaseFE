@@ -9,6 +9,8 @@ class SpaceEntity extends Equatable {
   final bool hot;
   final int hotPoints;
   final int hidingCount;
+  final double latitude;
+  final double longitude;
 
   const SpaceEntity({
     required this.id,
@@ -19,6 +21,8 @@ class SpaceEntity extends Equatable {
     required this.hot,
     required this.hotPoints,
     required this.hidingCount,
+    required this.latitude,
+    required this.longitude,
   });
 
   @override
@@ -32,6 +36,8 @@ class SpaceEntity extends Equatable {
       hot,
       hotPoints,
       hidingCount,
+      latitude,
+      longitude,
     ];
   }
 
@@ -44,6 +50,8 @@ class SpaceEntity extends Equatable {
     bool? hot,
     int? hotPoints,
     int? hidingCount,
+    double? latitude,
+    double? longitude,
   }) {
     return SpaceEntity(
       id: id ?? this.id,
@@ -54,6 +62,8 @@ class SpaceEntity extends Equatable {
       hot: hot ?? this.hot,
       hotPoints: hotPoints ?? this.hotPoints,
       hidingCount: hidingCount ?? this.hidingCount,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 
@@ -65,5 +75,7 @@ class SpaceEntity extends Equatable {
         benefitDescription = '',
         hot = false,
         hotPoints = 0,
-        hidingCount = 0;
+        hidingCount = 0,
+        latitude = 0.0,
+        longitude = 0.0;
 }

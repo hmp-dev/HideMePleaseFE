@@ -124,18 +124,18 @@ Future initApp() async {
   // Get the Talker instance from the dependency injection container
   final talker = getIt<Talker>();
 
-  // Configure the Bloc observer for the app
+  // Configure the Bloc observer for the app (disabled for debugging)
   Bloc.observer = TalkerBlocObserver(
     talker: talker,
     settings: const TalkerBlocLoggerSettings(
-      enabled: true,
-      printEventFullData: true,
-      printStateFullData: true,
-      printChanges: true,
-      printClosings: true,
-      printCreations: true,
-      printEvents: true,
-      printTransitions: true,
+      enabled: false, // BLoC 로그 비활성화
+      printEventFullData: false,
+      printStateFullData: false,
+      printChanges: false,
+      printClosings: false,
+      printCreations: false,
+      printEvents: false,
+      printTransitions: false,
     ),
   );
 }

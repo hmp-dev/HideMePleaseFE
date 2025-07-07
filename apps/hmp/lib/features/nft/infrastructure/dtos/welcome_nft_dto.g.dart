@@ -17,6 +17,7 @@ WelcomeNftDto _$WelcomeNftDtoFromJson(Map<String, dynamic> json) =>
       redeemTermsUrl: json['redeemTermsUrl'] as String?,
       freeNftAvailable: json['freeNftAvailable'] as bool?,
       contractType: json['contractType'] as String?,
+      type: json['type'] as String?,
     );
 
 Map<String, dynamic> _$WelcomeNftDtoToJson(WelcomeNftDto instance) =>
@@ -30,4 +31,5 @@ Map<String, dynamic> _$WelcomeNftDtoToJson(WelcomeNftDto instance) =>
       'redeemTermsUrl': instance.redeemTermsUrl,
       'freeNftAvailable': instance.freeNftAvailable,
       'contractType': instance.contractType,
+      'type': instance.type,
     };

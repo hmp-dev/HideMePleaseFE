@@ -171,7 +171,8 @@ class _HomeViewAfterWalletConnectedState
                               // else  return  NFTCardWidgetParent
                               if (itemIndex ==
                                   selectedNftsListForHome.length - 1) {
-                                return const GoToMemberShipCardWidget();
+                                //return const GoToMemberShipCardWidget();
+                                //250623 마지막 카드 비활성화
                               }
 
                               if (itemIndex == 0 &&

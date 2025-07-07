@@ -22,6 +22,10 @@ class SpaceDto extends Equatable {
   final int? hotPoints;
   @JsonKey(name: "hidingCount")
   final int? hidingCount;
+  @JsonKey(name: "latitude")
+  final double? latitude;
+  @JsonKey(name: "longitude")
+  final double? longitude;
 
   const SpaceDto({
     this.id,
@@ -32,6 +36,8 @@ class SpaceDto extends Equatable {
     this.hot,
     this.hotPoints,
     this.hidingCount,
+    this.latitude,
+    this.longitude,
   });
 
   factory SpaceDto.fromJson(Map<String, dynamic> json) =>
@@ -50,6 +56,8 @@ class SpaceDto extends Equatable {
       hot,
       hotPoints,
       hidingCount,
+      latitude,
+      longitude,
     ];
   }
 
@@ -62,5 +70,7 @@ class SpaceDto extends Equatable {
         hot: hot ?? false,
         hotPoints: hotPoints ?? 0,
         hidingCount: hidingCount ?? 0,
+        latitude: latitude ?? 0.0,
+        longitude: longitude ?? 0.0,
       );
 }

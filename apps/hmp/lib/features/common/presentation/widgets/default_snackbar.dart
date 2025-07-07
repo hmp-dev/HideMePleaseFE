@@ -17,8 +17,18 @@ class DefaultSnackBar {
 
   late FToast _fToast;
   void init(BuildContext context) {
-    _fToast = FToast();
-    _fToast.init(context);
+    try {
+      // Context가 여전히 마운트되어 있는지 확인
+      if (!context.mounted) {
+        Log.warning('Context is not mounted, skipping toast initialization');
+        return;
+      }
+      
+      _fToast = FToast();
+      _fToast.init(context);
+    } catch (e) {
+      Log.error('Error initializing FToast: $e');
+    }
   }
 
   void showToastMsg(
@@ -26,21 +36,27 @@ class DefaultSnackBar {
     Duration toastDuration = const Duration(seconds: 2),
     required String message,
   }) {
-    BuildContext? navigatorContext =
-        context.read<GlobalKey<NavigatorState>>().currentContext;
-    if (navigatorContext != null) {
-      Log.info('Success: navigatorContext is NOT null');
-      init(navigatorContext);
-    } else {
-      Log.info('Info: navigatorContext is null');
-      init(context);
-    }
+    try {
+      BuildContext? navigatorContext =
+          context.read<GlobalKey<NavigatorState>>().currentContext;
+      if (navigatorContext != null) {
+        Log.info('Success: navigatorContext is NOT null');
+        init(navigatorContext);
+      } else {
+        Log.info('Info: navigatorContext is null');
+        init(context);
+      }
 
-    _fToast.showToast(
-      child: _snackBar(context, message),
-      gravity: ToastGravity.TOP,
-      toastDuration: toastDuration,
-    );
+      _fToast.showToast(
+        child: _snackBar(context, message),
+        gravity: ToastGravity.TOP,
+        toastDuration: toastDuration,
+      );
+    } catch (e) {
+      Log.error('Toast error: $e');
+      // Toast 실패 시 디버그 출력으로 대체
+      print('📱 Toast message: $message');
+    }
   }
 
   void showToastMsgBottom(
@@ -162,7 +178,11 @@ class DefaultSnackBar {
           ),
           GestureDetector(
             onTap: () {
-              _fToast.removeCustomToast();
+              try {
+                _fToast.removeCustomToast();
+              } catch (e) {
+                Log.error('Error removing toast: $e');
+              }
             },
             child: DefaultImage(
               path: "assets/icons/ic_cancel.svg",

@@ -108,11 +108,23 @@ class BenefitRedeemCardWidgetParent extends StatelessWidget {
                         const DashedDivider(),
                         const VerticalSpace(20),
                         Center(
-                          child: Text(
-                            nftBenefitEntity.used
-                                ? LocaleKeys.used.tr()
-                                : LocaleKeys.available.tr(),
-                            style: fontCompactMd(),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: nftBenefitEntity.used 
+                                  ? Colors.grey[600] 
+                                  : const Color(0xFF00A3FF), // 블루 아이덴티티 색상
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              nftBenefitEntity.used
+                                  ? LocaleKeys.used.tr()
+                                  : LocaleKeys.available.tr(),
+                              style: fontCompactMd().copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ],

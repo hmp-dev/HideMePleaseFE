@@ -44,6 +44,7 @@ android {
     aaptOptions {
         cruncherEnabled = false
         useNewCruncher = false
+        noCompress 'png', 'jpg', 'jpeg', 'gif', 'webp'
     }
 
     kotlinOptions {

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
@@ -124,10 +125,22 @@ class SpaceRemoteDataSource {
       "longitude": '$longitude',
     };
 
+    print('📡 API 호출 파라미터: $queryParams');
+    
     final response = await _network.get("space", queryParams);
-    return response.data
+    final List<SpaceDto> spaces = response.data
         .map<SpaceDto>((e) => SpaceDto.fromJson(e as Map<String, dynamic>))
         .toList();
+    
+    print('📊 API 응답: ${spaces.length}개 매장 데이터 받음');
+    
+    // 처음 3개 매장의 위치 정보 확인
+    for (int i = 0; i < math.min(3, spaces.length); i++) {
+      final space = spaces[i];
+      print('🏪 API 매장 ${i + 1}: ${space.name} - lat: ${space.latitude}, lng: ${space.longitude}');
+    }
+    
+    return spaces;
   }
 
   // Fetches the list of recommended spaces.

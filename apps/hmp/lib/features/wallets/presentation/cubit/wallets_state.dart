@@ -26,6 +26,20 @@ class WalletsState extends BaseState {
   @override
   final RequestStatus submitStatus;
 
+  @override
+  RequestStatus get status {
+    if (errorMessage.isNotEmpty) {
+      return RequestStatus.failure;
+    }
+    if (submitStatus == RequestStatus.loading) {
+      return RequestStatus.loading;
+    }
+    if (connectedWallets.isNotEmpty) {
+      return RequestStatus.success;
+    }
+    return RequestStatus.initial;
+  }
+
   /// Creates a [WalletsState] with the given parameters.
   const WalletsState({
     this.reownAppKitModal,

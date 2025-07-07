@@ -22,6 +22,20 @@ class NftState extends BaseState {
   @override
   final RequestStatus submitStatus;
 
+  @override
+  RequestStatus get status {
+    if (errorMessage.isNotEmpty) {
+      return RequestStatus.failure;
+    }
+    if (submitStatus == RequestStatus.loading) {
+      return RequestStatus.loading;
+    }
+    if (nftCollectionsGroupEntity.collections.isNotEmpty || selectedNftTokensList.isNotEmpty) {
+      return RequestStatus.success;
+    }
+    return RequestStatus.initial;
+  }
+
   const NftState({
     required this.nftCollectionsGroupEntity,
     required this.selectedNftTokensList,

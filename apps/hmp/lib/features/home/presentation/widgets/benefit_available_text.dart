@@ -15,23 +15,19 @@ class BenefitAvailableText extends StatelessWidget {
       color: Colors.transparent,
       padding: const EdgeInsets.all(8),
       child: Center(
-        child: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 4,
-              margin: const EdgeInsets.only(left: 2),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: hmpBlue,
-              ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: hmpBlue, // 블루 아이덴티티 색상
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            LocaleKeys.available.tr(),
+            style: fontCompactSm().copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
             ),
-            const HorizontalSpace(5),
-            Text(
-              LocaleKeys.available.tr(),
-              style: fontCompactSm(color: hmpBlue),
-            ),
-          ],
+          ),
         ),
       ),
     );

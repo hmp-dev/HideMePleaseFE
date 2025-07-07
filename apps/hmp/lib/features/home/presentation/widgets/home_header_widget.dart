@@ -59,14 +59,15 @@ class HomeHeaderWidget extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: fontCompactLgBold(),
                       ),
-                      const VerticalSpace(10),
+                      const VerticalSpace(10)
+                      /*,
                       LinkedWalletButton(
                         titleText: LocaleKeys.linkedWallet.tr(),
                         count: connectedWallet.length,
                         onTap: () {
                           ConnectedWalletsListScreen.show(context);
                         },
-                      ),
+                      ),*/
                     ],
                   ),
                 ),

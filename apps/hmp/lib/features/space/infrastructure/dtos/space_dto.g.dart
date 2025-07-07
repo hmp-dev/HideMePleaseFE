@@ -15,6 +15,8 @@ SpaceDto _$SpaceDtoFromJson(Map<String, dynamic> json) => SpaceDto(
       hot: json['hot'] as bool?,
       hotPoints: (json['hotPoints'] as num?)?.toInt(),
       hidingCount: (json['hidingCount'] as num?)?.toInt(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{
@@ -26,4 +28,6 @@ Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{
       'hot': instance.hot,
       'hotPoints': instance.hotPoints,
       'hidingCount': instance.hidingCount,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
     };

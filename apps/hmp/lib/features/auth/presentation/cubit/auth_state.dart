@@ -7,6 +7,20 @@ class AuthState extends BaseState {
   @override
   final RequestStatus submitStatus;
 
+  @override
+  RequestStatus get status {
+    if (message.isNotEmpty && !isLogInSuccessful) {
+      return RequestStatus.failure;
+    }
+    if (submitStatus == RequestStatus.loading) {
+      return RequestStatus.loading;
+    }
+    if (isLogInSuccessful) {
+      return RequestStatus.success;
+    }
+    return RequestStatus.initial;
+  }
+
   const AuthState({
     required this.isLogInSuccessful,
     this.submitStatus = RequestStatus.initial,

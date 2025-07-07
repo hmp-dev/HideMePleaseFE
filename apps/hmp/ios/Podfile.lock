@@ -244,6 +244,18 @@ PODS:
     - libwebp/sharpyuv
   - location (0.0.1):
     - Flutter
+  - mapbox_maps_flutter (2.8.0):
+    - Flutter
+    - MapboxMaps (= 11.12.0)
+    - Turf (= 4.0.0)
+  - MapboxCommon (24.12.0):
+    - Turf (= 4.0.0)
+  - MapboxCoreMaps (11.12.0):
+    - MapboxCommon (= 24.12.0)
+  - MapboxMaps (11.12.0):
+    - MapboxCommon (= 24.12.0)
+    - MapboxCoreMaps (= 11.12.0)
+    - Turf (= 4.0.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -272,6 +284,7 @@ PODS:
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
+  - Turf (4.0.0)
   - url_launcher_ios (0.0.1):
     - Flutter
   - video_player_avfoundation (0.0.1):
@@ -318,6 +331,7 @@ DEPENDENCIES:
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
   - location (from `.symlinks/plugins/location/ios`)
+  - mapbox_maps_flutter (from `.symlinks/plugins/mapbox_maps_flutter/ios`)
   - OpenSSL-Universal (~> 1.1.1800)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -361,12 +375,16 @@ SPEC REPOS:
     - GTMAppAuth
     - GTMSessionFetcher
     - libwebp
+    - MapboxCommon
+    - MapboxCoreMaps
+    - MapboxMaps
     - nanopb
     - OpenSSL-Universal
     - OrderedSet
     - PromisesObjC
     - PromisesSwift
     - RecaptchaInterop
+    - Turf
 
 EXTERNAL SOURCES:
   app_settings:
@@ -415,6 +433,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/just_audio/darwin"
   location:
     :path: ".symlinks/plugins/location/ios"
+  mapbox_maps_flutter:
+    :path: ".symlinks/plugins/mapbox_maps_flutter/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
@@ -493,6 +513,10 @@ SPEC CHECKSUMS:
   just_audio: a42c63806f16995daf5b219ae1d679deb76e6a79
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   location: d5cf8598915965547c3f36761ae9cc4f4e87d22e
+  mapbox_maps_flutter: 8cfc72243833dd9249c5b98824e5ec43914492a5
+  MapboxCommon: 5be9807f4d03e616ecf470ab8202f0d88ecbd459
+  MapboxCoreMaps: 036e9ce8711450a368304e30adc0156383357096
+  MapboxMaps: 9539e2193f6723b3179d1e8243aac5abf9b0e365
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   OpenSSL-Universal: ca89c20240633a77c776082ba76b7d90f992bf77
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
@@ -506,6 +530,7 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
+  Turf: c9eb11a65d96af58cac523460fd40fec5061b081
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
   video_thumbnail: c4e2a3c539e247d4de13cd545344fd2d26ffafd1
@@ -514,6 +539,6 @@ SPEC CHECKSUMS:
   wepin_flutter_common: 505ac18aa0e2b9878d5d728df83d3ecd8bb93db9
   wepin_flutter_login_lib: 7a5c331e8de42fc7423dcddc0ca0cb21341c0826
 
-PODFILE CHECKSUM: 13005c1e7bc2de4ab6af15dd6ef44cc6fabc334e
+PODFILE CHECKSUM: 044684804bd8d18b59ff094e1b6c62ae3951581a
 
 COCOAPODS: 1.16.2

@@ -272,7 +272,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                 child: currentSlideIndex + 1 ==
                                         pageViewModelData.length
                                     ? HMPCustomButton(
-                                        text: LocaleKeys.confirm.tr(),
+                                        text: LocaleKeys.confirmStart.tr(),
+                                        bgColor: hmpBlue,
                                         onPressed: _isConfirming
                                             ? () {}
                                             : () async {

@@ -1,5 +1,7 @@
 // DO NOT EDIT. This is code generated via package:easy_localization/generate.dart
 
+// ignore_for_file: constant_identifier_names
+
 abstract class  LocaleKeys {
   static const connectYourWallet = 'connectYourWallet';
   static const getAWelcomeNFT = 'getAWelcomeNFT';
@@ -11,6 +13,7 @@ abstract class  LocaleKeys {
   static const previous = 'previous';
   static const dontShowNextTimeMsg = 'dontShowNextTimeMsg';
   static const confirm = 'confirm';
+  static const confirmStart = 'confirmStart';
   static const agreeTermsAlertMSG = 'agreeTermsAlertMSG';
   static const myMembershipSettings = 'myMembershipSettings';
   static const linkedWallet = 'linkedWallet';

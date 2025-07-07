@@ -7,6 +7,7 @@ import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/preload_page_view/preload_page_view.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/notifications/notification_service.dart';
+import 'package:mobile/features/map/presentation/map_screen.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
@@ -85,7 +86,7 @@ class _AppViewState extends State<AppView> {
                             onPageChanged: (value) {},
                             itemBuilder: (context, index) {
                               if (index == MenuType.space.menuIndex) {
-                                return const SpaceScreen();
+                                return const MapScreen();
                               } else if (index == MenuType.events.menuIndex) {
                                 return const HomeScreen(); // EventsWepinScreen();
                               } else if (index == MenuType.home.menuIndex) {

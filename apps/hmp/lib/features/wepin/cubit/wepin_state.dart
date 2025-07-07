@@ -19,6 +19,20 @@ class WepinState extends BaseState {
   @override
   final RequestStatus submitStatus;
 
+  @override
+  RequestStatus get status {
+    if (error != null && error!.isNotEmpty) {
+      return RequestStatus.failure;
+    }
+    if (isLoading) {
+      return RequestStatus.loading;
+    }
+    if (wepinLifeCycleStatus == WepinLifeCycle.login && accounts.isNotEmpty) {
+      return RequestStatus.success;
+    }
+    return RequestStatus.initial;
+  }
+
   const WepinState({
     this.socialTokenIsAppleOrGoogle = '',
     this.appleIdToken = '',
