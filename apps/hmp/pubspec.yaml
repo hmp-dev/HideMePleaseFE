@@ -2,7 +2,7 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 2.5.9+141
+version: 2.5.10+145
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
