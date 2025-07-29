@@ -9,6 +9,8 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
+import 'package:mobile/features/space/domain/entities/space_entity.dart';
+import 'package:mobile/features/space/domain/entities/business_hours_entity.dart';
 import 'package:mobile/features/space/presentation/widgets/build_hiding_count_widget.dart';
 import 'package:mobile/features/space/presentation/widgets/space_benefit_list_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -61,10 +63,13 @@ class SpaceDetailView extends StatefulWidget {
   /// The [key] parameter is used to uniquely identify the widget. It is optional.
   /// The [space] parameter is the [SpaceDetailEntity] object that contains the
   /// details of the space to be displayed. It is required.
-  const SpaceDetailView({super.key, required this.space});
+  const SpaceDetailView({super.key, required this.space, this.spaceEntity});
 
   /// The [SpaceDetailEntity] object that contains the details of the space.
   final SpaceDetailEntity space;
+  
+  /// The [SpaceEntity] containing business hours information.
+  final SpaceEntity? spaceEntity;
 
   /// Creates the mutable state for this widget at a given location in the tree.
   ///
@@ -318,11 +323,14 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   ///
   /// Returns a [Padding] widget that wraps a [Row] widget.
   Padding buildOpenTimeRow(SpaceDetailEntity spaceDetailEntity) {
-    // Extract the start and end times of business hours from the space detail entity.
+    // spaceEntity가 있으면 요일별 영업시간 사용, 없으면 기존 방식
+    if (widget.spaceEntity != null && widget.spaceEntity!.businessHours.isNotEmpty) {
+      return _buildBusinessHoursWithWeekdays(widget.spaceEntity!);
+    }
+    
+    // 기존 로직 (요일별 데이터가 없을 때)
     final start = spaceDetailEntity.businessHoursStart;
     final end = spaceDetailEntity.businessHoursEnd;
-
-    // Determine whether the space is open or closed.
     bool isSpaceOpen = spaceDetailEntity.spaceOpen == true;
     Color color = isSpaceOpen ? hmpBlue : fore3;
 
@@ -331,7 +339,6 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          // Small circle color-coded based on whether the space is open or closed.
           Container(
             margin: const EdgeInsets.only(right: 10),
             width: 5,
@@ -341,12 +348,10 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
               shape: BoxShape.circle,
             ),
           ),
-          // Text indicating whether the space is open or closed.
           Text(
             getOpenCloseString(start, end),
             style: fontCompactSm(color: color),
           ),
-          // Small vertical line.
           Container(
             margin: const EdgeInsets.only(right: 10, left: 10),
             width: 2,
@@ -356,7 +361,6 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
               shape: BoxShape.circle,
             ),
           ),
-          // Text indicating the start and end times of business hours.
           Text(
             getBusinessHours(spaceDetailEntity.businessHoursStart,
                 spaceDetailEntity.businessHoursEnd),
@@ -365,6 +369,189 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         ],
       ),
     );
+  }
+  
+  // 요일별 영업시간 표시 (MapScreen과 동일한 로직)
+  Padding _buildBusinessHoursWithWeekdays(SpaceEntity space) {
+    // 임시 휴무 체크
+    if (space.isTemporarilyClosed) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(right: 10),
+              width: 5,
+              height: 5,
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            ),
+            Text(
+              '임시 휴무',
+              style: fontCompactSm(color: Colors.red[300]),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // 현재 영업 상태 확인
+    final isOpen = space.isCurrentlyOpen;
+    final now = DateTime.now();
+    final currentDay = _getDayOfWeekFromDateTime(now);
+    
+    // 오늘의 영업시간 찾기
+    final todayHours = space.businessHours.firstWhere(
+      (hours) => hours.dayOfWeek == currentDay,
+      orElse: () => BusinessHoursEntity(
+        dayOfWeek: currentDay,
+        isClosed: true,
+      ),
+    );
+
+    Color color = isOpen ? hmpBlue : fore3;
+    String statusText;
+    String hoursText = '';
+    
+    if (isOpen) {
+      statusText = '영업 중';
+      if (todayHours.closeTime != null) {
+        // 휴게시간 체크
+        if (todayHours.breakStartTime != null && todayHours.breakEndTime != null) {
+          final breakStartParts = todayHours.breakStartTime!.split(':');
+          final breakEndParts = todayHours.breakEndTime!.split(':');
+          final currentMinutes = now.hour * 60 + now.minute;
+          final breakStartMinutes = int.parse(breakStartParts[0]) * 60 + int.parse(breakStartParts[1]);
+          final breakEndMinutes = int.parse(breakEndParts[0]) * 60 + int.parse(breakEndParts[1]);
+          
+          if (currentMinutes >= breakStartMinutes && currentMinutes < breakEndMinutes) {
+            statusText = '휴게시간';
+            hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} 재오픈';
+          } else {
+            hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
+          }
+        } else {
+          hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
+        }
+      }
+    } else {
+      // 영업 종료
+      statusText = '영업 종료';
+      
+      // 다음 영업일 찾기
+      final tomorrow = DateTime.now().add(const Duration(days: 1));
+      final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
+      final tomorrowHours = space.businessHours.firstWhere(
+        (hours) => hours.dayOfWeek == tomorrowDay,
+        orElse: () => BusinessHoursEntity(
+          dayOfWeek: tomorrowDay,
+          isClosed: true,
+        ),
+      );
+      
+      if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
+        hoursText = '내일 ${_formatTime24To12(tomorrowHours.openTime!)} 오픈';
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(right: 10),
+            width: 5,
+            height: 5,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          Text(
+            statusText,
+            style: fontCompactSm(color: color),
+          ),
+          if (hoursText.isNotEmpty) ...[
+            Container(
+              margin: const EdgeInsets.only(right: 10, left: 10),
+              width: 2,
+              height: 2,
+              decoration: const BoxDecoration(
+                color: fore4,
+                shape: BoxShape.circle,
+              ),
+            ),
+            Text(
+              hoursText,
+              style: fontCompactSm(color: fore2),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+  
+  // MapScreen에서 가져온 헬퍼 메서드들
+  DayOfWeek _getDayOfWeekFromDateTime(DateTime dateTime) {
+    switch (dateTime.weekday) {
+      case 1:
+        return DayOfWeek.MONDAY;
+      case 2:
+        return DayOfWeek.TUESDAY;
+      case 3:
+        return DayOfWeek.WEDNESDAY;
+      case 4:
+        return DayOfWeek.THURSDAY;
+      case 5:
+        return DayOfWeek.FRIDAY;
+      case 6:
+        return DayOfWeek.SATURDAY;
+      case 7:
+        return DayOfWeek.SUNDAY;
+      default:
+        return DayOfWeek.MONDAY;
+    }
+  }
+  
+  String _formatTime24To12(String time24) {
+    final parts = time24.split(':');
+    if (parts.length != 2) return time24;
+    
+    final hour = int.parse(parts[0]);
+    final minute = parts[1];
+    
+    if (hour == 0) {
+      return '오전 12:$minute';
+    } else if (hour < 12) {
+      return '오전 $hour:$minute';
+    } else if (hour == 12) {
+      return '오후 12:$minute';
+    } else {
+      return '오후 ${hour - 12}:$minute';
+    }
+  }
+  
+  String _getDayName(DayOfWeek day) {
+    switch (day) {
+      case DayOfWeek.MONDAY:
+        return '월요일';
+      case DayOfWeek.TUESDAY:
+        return '화요일';
+      case DayOfWeek.WEDNESDAY:
+        return '수요일';
+      case DayOfWeek.THURSDAY:
+        return '목요일';
+      case DayOfWeek.FRIDAY:
+        return '금요일';
+      case DayOfWeek.SATURDAY:
+        return '토요일';
+      case DayOfWeek.SUNDAY:
+        return '일요일';
+    }
   }
 
   Positioned buildBackArrowIconButton(BuildContext context) {
@@ -376,7 +563,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
           color: Colors.transparent,
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
+              color: Colors.grey.withValues(alpha: 0.3),
               spreadRadius: 10,
               blurRadius: 10,
               offset: const Offset(0, 0),

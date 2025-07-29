@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/infrastructure/dtos/business_hours_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/space_event_category_dto.dart';
 
 part 'space_dto.g.dart';
 
@@ -31,6 +32,8 @@ class SpaceDto extends Equatable {
   final List<BusinessHoursDto>? businessHours;
   @JsonKey(name: "isTemporarilyClosed")
   final bool? isTemporarilyClosed;
+  @JsonKey(name: "SpaceEventCategory")
+  final List<SpaceEventCategoryDto>? spaceEventCategories;
 
   const SpaceDto({
     this.id,
@@ -45,6 +48,7 @@ class SpaceDto extends Equatable {
     this.longitude,
     this.businessHours,
     this.isTemporarilyClosed,
+    this.spaceEventCategories,
   });
 
   factory SpaceDto.fromJson(Map<String, dynamic> json) =>
@@ -67,6 +71,7 @@ class SpaceDto extends Equatable {
       longitude,
       businessHours,
       isTemporarilyClosed,
+      spaceEventCategories,
     ];
   }
 
@@ -83,5 +88,6 @@ class SpaceDto extends Equatable {
         longitude: longitude ?? 0.0,
         businessHours: businessHours?.map((e) => e.toEntity()).toList() ?? [],
         isTemporarilyClosed: isTemporarilyClosed ?? false,
+        spaceEventCategories: spaceEventCategories?.map((e) => e.toEntity()).toList() ?? [],
       );
 }

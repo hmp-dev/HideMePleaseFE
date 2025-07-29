@@ -21,6 +21,10 @@ SpaceDto _$SpaceDtoFromJson(Map<String, dynamic> json) => SpaceDto(
           ?.map((e) => BusinessHoursDto.fromJson(e as Map<String, dynamic>))
           .toList(),
       isTemporarilyClosed: json['isTemporarilyClosed'] as bool?,
+      spaceEventCategories: (json['SpaceEventCategory'] as List<dynamic>?)
+          ?.map(
+              (e) => SpaceEventCategoryDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{
@@ -36,4 +40,5 @@ Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{
       'longitude': instance.longitude,
       'SpaceBusinessHours': instance.businessHours,
       'isTemporarilyClosed': instance.isTemporarilyClosed,
+      'SpaceEventCategory': instance.spaceEventCategories,
     };

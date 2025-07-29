@@ -3,6 +3,7 @@ import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/util/observer_utils.dart';
+import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/views/space_detail_view.dart';
 
@@ -70,9 +71,20 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
         child: BlocBuilder<SpaceCubit, SpaceState>(
           bloc: getIt<SpaceCubit>(),
           builder: (context, state) {
-            return state.submitStatus == RequestStatus.loading
-                ? const Center(child: SizedBox.shrink())
-                : SpaceDetailView(space: state.spaceDetailEntity);
+            if (state.submitStatus == RequestStatus.loading) {
+              return const Center(child: SizedBox.shrink());
+            }
+            
+            // 현재 선택된 매장의 전체 정보 찾기
+            final currentSpace = state.spaceList.firstWhere(
+              (space) => space.id == state.currentSpaceId,
+              orElse: () => SpaceEntity.empty(),
+            );
+            
+            return SpaceDetailView(
+              space: state.spaceDetailEntity,
+              spaceEntity: currentSpace,
+            );
           },
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:mobile/features/space/domain/entities/business_hours_entity.dart';
+import 'package:mobile/features/space/domain/entities/space_event_category_entity.dart';
 
 class SpaceEntity extends Equatable {
   final String id;
@@ -14,6 +15,7 @@ class SpaceEntity extends Equatable {
   final double longitude;
   final List<BusinessHoursEntity> businessHours;
   final bool isTemporarilyClosed;
+  final List<SpaceEventCategoryEntity> spaceEventCategories;
 
   const SpaceEntity({
     required this.id,
@@ -28,6 +30,7 @@ class SpaceEntity extends Equatable {
     required this.longitude,
     this.businessHours = const [],
     this.isTemporarilyClosed = false,
+    this.spaceEventCategories = const [],
   });
 
   @override
@@ -45,6 +48,7 @@ class SpaceEntity extends Equatable {
       longitude,
       businessHours,
       isTemporarilyClosed,
+      spaceEventCategories,
     ];
   }
 
@@ -61,6 +65,7 @@ class SpaceEntity extends Equatable {
     double? longitude,
     List<BusinessHoursEntity>? businessHours,
     bool? isTemporarilyClosed,
+    List<SpaceEventCategoryEntity>? spaceEventCategories,
   }) {
     return SpaceEntity(
       id: id ?? this.id,
@@ -75,6 +80,7 @@ class SpaceEntity extends Equatable {
       longitude: longitude ?? this.longitude,
       businessHours: businessHours ?? this.businessHours,
       isTemporarilyClosed: isTemporarilyClosed ?? this.isTemporarilyClosed,
+      spaceEventCategories: spaceEventCategories ?? this.spaceEventCategories,
     );
   }
 
@@ -90,7 +96,8 @@ class SpaceEntity extends Equatable {
         latitude = 0.0,
         longitude = 0.0,
         businessHours = const [],
-        isTemporarilyClosed = false;
+        isTemporarilyClosed = false,
+        spaceEventCategories = const [];
 
   // Helper method to check if the store is currently open
   bool get isCurrentlyOpen {

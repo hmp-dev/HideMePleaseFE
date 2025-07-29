@@ -58,7 +58,7 @@ android {
     defaultConfig {
         applicationId "com.kr.hideme"
         minSdkVersion 23
-        targetSdk 34
+        targetSdk 35
         //compileSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

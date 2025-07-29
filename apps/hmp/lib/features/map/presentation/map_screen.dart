@@ -1,12 +1,10 @@
 import 'dart:ui';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -17,12 +15,12 @@ import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/domain/entities/business_hours_entity.dart';
-import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
-import 'package:mobile/features/space/presentation/widgets/category_icon_widget.dart';
+import 'package:mobile/features/space/domain/entities/event_category_entity.dart';
+import 'package:mobile/features/space/presentation/cubit/event_category_cubit.dart';
+import 'package:mobile/features/map/domain/entities/unified_category_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_svg/flutter_svg.dart' as svg;
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -52,9 +50,11 @@ class _MapScreenState extends State<MapScreen> {
   bool showInfoCard = false;
 
   // 카테고리 필터링 관련 상태
-  SpaceCategory selectedCategory = SpaceCategory.ENTIRE;
+  UnifiedCategoryEntity? selectedCategory; // 통합 카테고리 선택
   List<SpaceEntity> allSpaces = []; // 모든 매장 데이터 저장
   List<SpaceEntity> filteredSpaces = []; // 필터된 매장 데이터
+  List<UnifiedCategoryEntity> unifiedCategories = []; // 통합 카테고리 리스트
+  
   
   // 검색 관련 상태
   bool showSearchOverlay = false;
@@ -74,16 +74,28 @@ class _MapScreenState extends State<MapScreen> {
   PointAnnotation? _currentLocationAnnotation; // 현재 위치 마커 참조
   bool _isTrackingLocation = false;
   DateTime? _lastLocationUpdate;
+  
+  // 카테고리 스크롤 컨트롤러
+  ScrollController _categoryScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    print('🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 EVENT CATEGORY: MapScreen initState START 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨');
+    print('🚨🚨🚨 EVENT CATEGORY: MapScreen initState called at ${DateTime.now()}');
     MapboxOptions.setAccessToken(mapboxAccessToken);
     // 현재 위치 가져오기 및 매장 데이터 로드
     _initializeLocation();
     // 검색 기록 로드
     _loadSearchHistory();
+    // 통합 카테고리 초기화
+    _initializeUnifiedCategories();
+    // 이벤트 카테고리 로드
+    print('🚨🚨🚨 EVENT CATEGORY: About to call _loadEventCategories()');
+    _loadEventCategories();
+    print('🚨🚨🚨 EVENT CATEGORY: _loadEventCategories() call completed');
     // 실시간 위치 추적은 지도 초기화 후 시작
+    print('🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 EVENT CATEGORY: MapScreen initState END 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨');
   }
 
   // 검색 기록 로드 (SharedPreferences에서)
@@ -99,6 +111,110 @@ class _MapScreenState extends State<MapScreen> {
     } catch (e) {
       print('❌ 검색 기록 로드 실패: $e');
     }
+  }
+
+  // 통합 카테고리 초기화
+  void _initializeUnifiedCategories() {
+    // 매장 카테고리들을 통합 카테고리로 변환
+    unifiedCategories = [
+      UnifiedCategoryEntity.fromSpaceCategory(
+        SpaceCategory.ENTIRE,
+        LocaleKeys.entire.tr(),
+        "assets/icons/icon_cate_all.png",
+      ),
+      UnifiedCategoryEntity.fromSpaceCategory(
+        SpaceCategory.MEAL,
+        LocaleKeys.meal.tr(),
+        "assets/icons/icon_cate_food.png",
+      ),
+      UnifiedCategoryEntity.fromSpaceCategory(
+        SpaceCategory.CAFE,
+        LocaleKeys.cafe.tr(),
+        "assets/icons/icon_cate_cafe.png",
+      ),
+      UnifiedCategoryEntity.fromSpaceCategory(
+        SpaceCategory.PUB,
+        LocaleKeys.pub.tr(),
+        "assets/icons/icon_cate_beer.png",
+      ),
+      UnifiedCategoryEntity.fromSpaceCategory(
+        SpaceCategory.MUSIC,
+        LocaleKeys.music.tr(),
+        "assets/icons/ic_space_category_music.svg",
+      ),
+      UnifiedCategoryEntity.fromSpaceCategory(
+        SpaceCategory.ETC,
+        "기타",
+        "assets/icons/icon_cate_etc.png",
+      ),
+    ];
+    
+    // 기본값으로 전체 선택
+    selectedCategory = unifiedCategories.first;
+  }
+  
+  // 이벤트 카테고리 로드
+  Future<void> _loadEventCategories() async {
+    try {
+      print('🚨🚨🚨 EVENT CATEGORY: Starting to load event categories...');
+      print('🚨🚨🚨 EVENT CATEGORY: mounted = $mounted');
+      
+      // 먼저 getIt에서 가져올 수 있는지 확인
+      final eventCategoryCubit = getIt<EventCategoryCubit>();
+      print('🚨🚨🚨 EVENT CATEGORY: Got EventCategoryCubit from getIt: $eventCategoryCubit');
+      
+      // 현재 상태 확인
+      final initialState = eventCategoryCubit.state;
+      print('🚨🚨🚨 EVENT CATEGORY: Initial state - status: ${initialState.submitStatus}, categories: ${initialState.eventCategories.length}, isDataLoaded: ${initialState.isDataLoaded}');
+      
+      // 이미 데이터가 로드되어 있으면 스킵
+      if (initialState.isDataLoaded && initialState.eventCategories.isNotEmpty) {
+        print('🚨🚨🚨 EVENT CATEGORY: Data already loaded, skipping API call');
+        _updateUnifiedCategoriesWithEvents(initialState.eventCategories);
+        return;
+      }
+      
+      // API 호출
+      print('🚨🚨🚨 EVENT CATEGORY: Calling loadEventCategories...');
+      await eventCategoryCubit.loadEventCategories(includeInactive: true);
+      print('🚨🚨🚨 EVENT CATEGORY: Load completed');
+      
+      // 상태 확인
+      final state = eventCategoryCubit.state;
+      print('🚨🚨🚨 EVENT CATEGORY STATE AFTER LOAD: ${state.submitStatus}, categories count: ${state.eventCategories.length}');
+      if (state.errorMessage != null) {
+        print('🚨🚨🚨 EVENT CATEGORY ERROR MESSAGE: ${state.errorMessage}');
+      }
+      
+      // 이벤트 카테고리를 통합 카테고리에 추가
+      if (state.eventCategories.isNotEmpty) {
+        _updateUnifiedCategoriesWithEvents(state.eventCategories);
+      }
+    } catch (e, stackTrace) {
+      print('🚨🚨🚨 EVENT CATEGORY EXCEPTION: $e');
+      print('🚨🚨🚨 EVENT CATEGORY EXCEPTION TYPE: ${e.runtimeType}');
+      print('🚨🚨🚨 Stack trace: $stackTrace');
+    }
+  }
+
+  // 이벤트 카테고리를 통합 카테고리 리스트에 추가
+  void _updateUnifiedCategoriesWithEvents(List<EventCategoryEntity> eventCategories) {
+    setState(() {
+      // 기존 매장 카테고리만 유지 (이벤트 카테고리 제거)
+      final spaceCategories = unifiedCategories.where((cat) => cat.type == CategoryType.space).toList();
+      
+      // 이벤트 카테고리를 통합 카테고리로 변환
+      final eventUnifiedCategories = eventCategories.map((eventCat) => 
+        UnifiedCategoryEntity.fromEventCategory(eventCat)
+      ).toList();
+      
+      // 전체 버튼 + 이벤트 카테고리 + 나머지 매장 카테고리 순서로 재구성
+      unifiedCategories = [
+        spaceCategories.first, // 전체 버튼
+        ...eventUnifiedCategories, // 이벤트 카테고리들
+        ...spaceCategories.skip(1), // 나머지 매장 카테고리들
+      ];
+    });
   }
 
   // 현재 위치 초기화 (데이터 로드는 지도 준비 후)
@@ -193,7 +309,7 @@ class _MapScreenState extends State<MapScreen> {
       }
       
       // 현재 선택된 카테고리에 따라 필터링
-      _filterSpacesByCategory(selectedCategory);
+      _filterSpacesByUnifiedCategory(selectedCategory);
       
       // 데이터 로드 완료 후 바로 마커 추가 (BlocListener 대신)
       if (spaceCubit.state.submitStatus == RequestStatus.success && filteredSpaces.isNotEmpty) {
@@ -262,7 +378,10 @@ class _MapScreenState extends State<MapScreen> {
         await _loadNearbySpaces(currentLatitude, currentLongitude);
       } else {
         print('🚀 Using existing data for markers...');
-        _filterSpacesByCategory(selectedCategory);
+        // 현재 필터 상태에 따라 적절한 필터링 수행
+        print('📂 Applying unified category filter');
+        _filterSpacesByUnifiedCategory(selectedCategory);
+        
         if (!markersAdded) {
           markersAdded = true;
           await _addAllMarkers(filteredSpaces);
@@ -479,19 +598,31 @@ class _MapScreenState extends State<MapScreen> {
                         child: Container(
                           width: 100,
                           height: 100,
-                          child: space.image.isNotEmpty
+                          color: const Color(0xFF3A3A3A),
+                          child: space.image.isNotEmpty && !space.image.contains('undefined')
                               ? Image.network(
                                   space.image,
                                   fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded /
+                                                loadingProgress.expectedTotalBytes!
+                                            : null,
+                                        strokeWidth: 2,
+                                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00A3FF)),
+                                      ),
+                                    );
+                                  },
                                   errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: const Color(0xFF3A3A3A),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.image_not_supported,
-                                          color: Colors.grey[600],
-                                          size: 30,
-                                        ),
+                                    print('❌ 이미지 로드 에러: ${space.image}');
+                                    return Center(
+                                      child: Icon(
+                                        Icons.image_not_supported,
+                                        color: Colors.grey[600],
+                                        size: 30,
                                       ),
                                     );
                                   },
@@ -988,10 +1119,6 @@ class _MapScreenState extends State<MapScreen> {
         return '음악';
       case 'BAR':
         return '바';
-      case 'COWORKING':
-        return '코워킹';
-      case 'WALKERHILL':
-        return '워커힐';
       case 'ETC':
         return '기타';
       default:
@@ -1035,10 +1162,6 @@ class _MapScreenState extends State<MapScreen> {
         return const Color(0xFF9370DB);
       case 'BAR':
         return const Color(0xFFFF1493);
-      case 'COWORKING':
-        return const Color(0xFF4169E1);
-      case 'WALKERHILL':
-        return const Color(0xFFFFD700);
       default:
         return const Color(0xFF00A3FF);
     }
@@ -1057,10 +1180,6 @@ class _MapScreenState extends State<MapScreen> {
         return 'marker_MUSIC';
       case 'BAR':
         return 'marker_BAR';
-      case 'COWORKING':
-        return 'marker_COWORKING';
-      case 'WALKERHILL':
-        return 'marker_WALKERHILL';
       case 'ETC':
       default:
         return 'marker_ETC';
@@ -1205,8 +1324,8 @@ class _MapScreenState extends State<MapScreen> {
     final tappedLng = context.point.coordinates.lng.toDouble();
     await _checkMarkerNearGeoCoordinates(tappedLat, tappedLng);
     
-    // 지도 중심점 확인 및 매장 재로드
-    await _checkAndUpdateLocation();
+    // 지도 중심점 확인 및 매장 재로드는 제거 (불필요한 리로드 방지)
+    // await _checkAndUpdateLocation();
   }
 
   // 탭한 위치 근처에 마커가 있는지 확인하고 상세화면으로 이동
@@ -1387,8 +1506,6 @@ class _MapScreenState extends State<MapScreen> {
       'PUB': 'assets/icons/marker_pub.png',
       'MUSIC': 'assets/icons/marker_music.png',
       'BAR': 'assets/icons/marker_bar.png',
-      'COWORKING': 'assets/icons/marker_cafe.png', // 카페 아이콘 재사용
-      'WALKERHILL': 'assets/icons/marker_cafe.png', // 카페 아이콘 재사용
       'ETC': 'assets/icons/marker_cafe.png', // 기본 카페 아이콘 사용
     };
 
@@ -1472,8 +1589,6 @@ class _MapScreenState extends State<MapScreen> {
         'PUB': const Color(0xFF32CD32),  // 라임그린
         'MUSIC': const Color(0xFF9370DB), // 보라색
         'BAR': const Color(0xFFFF1493),  // 딥핑크
-        'COWORKING': const Color(0xFF4169E1), // 로얄블루
-        'WALKERHILL': const Color(0xFFFFD700), // 골드
         'ETC': const Color(0xFF00A3FF),  // 기본 파란색
       };
 
@@ -1729,71 +1844,86 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // 카테고리별 매장 필터링
-  void _filterSpacesByCategory(SpaceCategory category) {
-    print('🔍 Filtering spaces by category: $category');
+  // 통합 카테고리별 매장 필터링
+  void _filterSpacesByUnifiedCategory(UnifiedCategoryEntity? category) {
+    if (category == null) {
+      // 전체 표시
+      filteredSpaces = List<SpaceEntity>.from(allSpaces);
+      print('📋 No category selected - showing all spaces');
+      setState(() {});
+      return;
+    }
+
+    print('🔍 Filtering spaces by unified category: ${category.name} (type: ${category.type})');
     print('📊 Total spaces before filtering: ${allSpaces.length}');
     
-    if (category == SpaceCategory.ENTIRE) {
-      filteredSpaces = List<SpaceEntity>.from(allSpaces);
-      print('📋 ENTIRE category selected - showing all spaces');
-    } else {
+    if (category.type == CategoryType.space) {
+      // 매장 카테고리 필터링
+      if (category.spaceCategory == SpaceCategory.ENTIRE) {
+        filteredSpaces = List<SpaceEntity>.from(allSpaces);
+        print('📋 ENTIRE category selected - showing all spaces');
+      } else {
+        filteredSpaces = allSpaces.where((space) {
+          bool matches = false;
+          switch (category.spaceCategory) {
+            case SpaceCategory.CAFE:
+              matches = space.category?.toLowerCase() == 'cafe';
+              break;
+            case SpaceCategory.MEAL:
+              matches = space.category?.toLowerCase() == 'meal';
+              break;
+            case SpaceCategory.PUB:
+              matches = space.category?.toLowerCase() == 'pub';
+              break;
+            case SpaceCategory.MUSIC:
+              matches = space.category?.toLowerCase() == 'music';
+              break;
+            case SpaceCategory.ETC:
+              matches = space.category?.toLowerCase() == 'etc' || 
+                       space.category?.toLowerCase() == 'bar';
+              break;
+            default:
+              matches = true;
+          }
+          return matches;
+        }).toList();
+        print('🔍 Filtered to ${filteredSpaces.length} spaces by space category');
+      }
+    } else if (category.type == CategoryType.event && category.eventCategory != null) {
+      // 이벤트 카테고리 필터링
+      final eventCategory = category.eventCategory!;
       filteredSpaces = allSpaces.where((space) {
-        // 카테고리 값 디버깅
-        print('🔍 Checking space: ${space.name}, category: "${space.category}" (lowercase: "${space.category?.toLowerCase()}")');
-        
-        bool matches = false;
-        switch (category) {
-          case SpaceCategory.CAFE:
-            matches = space.category?.toLowerCase() == 'cafe';
-            break;
-          case SpaceCategory.MEAL:
-            matches = space.category?.toLowerCase() == 'meal';
-            break;
-          case SpaceCategory.PUB:
-            matches = space.category?.toLowerCase() == 'pub';
-            break;
-          case SpaceCategory.MUSIC:
-            matches = space.category?.toLowerCase() == 'music';
-            break;
-          case SpaceCategory.COWORKING:
-            matches = space.category?.toLowerCase() == 'coworking';
-            break;
-          case SpaceCategory.ETC:
-            matches = space.category?.toLowerCase() == 'etc' || 
-                     space.category?.toLowerCase() == 'bar';
-            break;
-          default:
-            matches = true;
-        }
-        
-        if (matches) {
-          print('✅ Match found for $category: ${space.name}');
-        }
-        
-        return matches;
+        return space.spaceEventCategories.any(
+          (spaceEventCategory) => spaceEventCategory.eventCategory.id == eventCategory.id
+        );
       }).toList();
-      print('📋 Filtered by $category category');
+      print('🎉 Filtered to ${filteredSpaces.length} spaces by event category');
     }
     
-    print('✅ Filtered result: ${filteredSpaces.length} spaces from ${allSpaces.length} total');
-    
     // 필터링 결과 검증
-    if (filteredSpaces.isEmpty && allSpaces.isNotEmpty) {
-      print('⚠️ Warning: No spaces found for category $category');
-      print('📋 Available categories in data:');
-      final categories = allSpaces.map((space) => space.category).toSet();
-      categories.forEach((cat) => print('   - "$cat" (actual value with quotes)'));
+    if (filteredSpaces.isEmpty) {
+      print('⚠️ No spaces found for category: ${category.name}');
+    } else {
+      print('✅ Found ${filteredSpaces.length} spaces');
     }
     
     setState(() {});
   }
 
-  // 카테고리 선택 시 처리
-  void _onCategorySelected(SpaceCategory category) async {
-    print('📂 Category selected: $category');
-    selectedCategory = category;
-    _filterSpacesByCategory(category);
+  // 통합 카테고리 선택 시 처리
+  void _onUnifiedCategorySelected(UnifiedCategoryEntity category) async {
+    print('📂 Unified category selected: ${category.name} (type: ${category.type})');
+    
+    // 현재 스크롤 위치 저장
+    final currentScrollOffset = _categoryScrollController.hasClients 
+        ? _categoryScrollController.offset 
+        : 0.0;
+    
+    setState(() {
+      selectedCategory = category;
+    });
+    
+    _filterSpacesByUnifiedCategory(category);
     
     // 마커 업데이트
     print('🔄 카테고리 변경으로 마커 업데이트: ${filteredSpaces.length}개 매장');
@@ -1802,6 +1932,13 @@ class _MapScreenState extends State<MapScreen> {
     // 현재 위치 마커가 사라졌을 수 있으므로 다시 추가
     print('📍 카테고리 변경 후 현재 위치 마커 재추가');
     await _updateCurrentLocationMarker(userActualLatitude, userActualLongitude);
+    
+    // 스크롤 위치 복원
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_categoryScrollController.hasClients) {
+        _categoryScrollController.jumpTo(currentScrollOffset);
+      }
+    });
   }
 
   void _moveToCurrentLocation() async {
@@ -1970,6 +2107,7 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     _stopLocationTracking();
     searchController.dispose();
+    _categoryScrollController.dispose();
     mapboxMap?.dispose();
     super.dispose();
   }
@@ -2089,141 +2227,164 @@ class _MapScreenState extends State<MapScreen> {
   // 카테고리 필터 버튼들 UI
   Widget _buildCategoryFilterButtons() {
     return Container(
-      height: 50,
-      child: Row(
-        children: [
-          // 검색 버튼
-          GestureDetector(
-            onTap: () {
-              print('🔍 검색 버튼 클릭');
+          height: 38,
+          child: Row(
+            children: [
+              // 검색 버튼
+              GestureDetector(
+                onTap: () {
+                  print('🔍 검색 버튼 클릭');
+                  
+                  // 검색 화면 표시 (현재 필터 유지)
+                  setState(() {
+                    showSearchOverlay = true;
+                  });
+                },
+                child: Container(
+                  width: 44,
+                  height: 38,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4A4A4A), // 카테고리 버튼과 같은 배경색
+                    borderRadius: BorderRadius.circular(19), // 카테고리 버튼과 같은 라운드 테두리
+                    border: Border.all(
+                      color: const Color(0xFF797979), // 카테고리 버튼과 같은 테두리 색상
+                      width: 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/icons/icon_cate_search.png',
+                      width: 20,
+                      height: 20,
+                    ),
+                  ),
+                ),
+              ),
               
-              // 검색 시작시 필터를 "전체"로 리셋
-              setState(() {
-                selectedCategory = SpaceCategory.ENTIRE;
-                showSearchOverlay = true;
-              });
-              _filterSpacesByCategory(SpaceCategory.ENTIRE);
-            },
-            child: Container(
-              width: 44,
-              height: 38,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF4A4A4A), // 카테고리 버튼과 같은 배경색
-                borderRadius: BorderRadius.circular(19), // 카테고리 버튼과 같은 라운드 테두리
-                border: Border.all(
-                  color: const Color(0xFF797979), // 카테고리 버튼과 같은 테두리 색상
-                  width: 1,
+              // 카테고리 버튼들
+              Expanded(
+                child: ListView.builder(
+                  controller: _categoryScrollController,
+                  scrollDirection: Axis.horizontal,
+                  itemCount: unifiedCategories.length,
+                  itemBuilder: (context, index) {
+                    final category = unifiedCategories[index];
+                    return _buildUnifiedCategoryButton(category);
+                  },
                 ),
               ),
-              child: Center(
-                child: Image.asset(
-                  'assets/icons/icon_cate_search.png',
-                  width: 20,
-                  height: 20,
-                ),
-              ),
-            ),
+            ],
           ),
-          
-          // 카테고리 버튼들
-          Expanded(
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                _buildCategoryButton(
-                  icon: "assets/icons/icon_cate_all.png",
-                  title: LocaleKeys.entire.tr(),
-                  category: SpaceCategory.ENTIRE,
-                ),
-                _buildCategoryButton(
-                  icon: "assets/icons/icon_cate_food.png",
-                  title: LocaleKeys.meal.tr(),
-                  category: SpaceCategory.MEAL,
-                ),
-                _buildCategoryButton(
-                  icon: "assets/icons/icon_cate_cafe.png",
-                  title: LocaleKeys.cafe.tr(),
-                  category: SpaceCategory.CAFE,
-                ),
-                _buildCategoryButton(
-                  icon: "assets/icons/icon_cate_beer.png",
-                  title: LocaleKeys.pub.tr(),
-                  category: SpaceCategory.PUB,
-                ),
-                _buildCategoryButton(
-                  icon: "assets/icons/ic_space_category_music.svg",
-                  title: LocaleKeys.music.tr(),
-                  category: SpaceCategory.MUSIC,
-                ),
-                _buildCategoryButton(
-                  icon: "assets/icons/icon_cate_etc.png",
-                  title: "기타",
-                  category: SpaceCategory.ETC,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+        );
+  }
+  
+  // 색상 코드 파싱 헬퍼 메서드
+  Color _parseColorCode(String colorCode) {
+    try {
+      if (colorCode.startsWith('#')) {
+        return Color(int.parse(colorCode.substring(1), radix: 16) + 0xFF000000);
+      }
+      return const Color(0xFF3A3A3A);
+    } catch (e) {
+      return const Color(0xFF3A3A3A);
+    }
   }
 
-  // 개별 카테고리 버튼
-  Widget _buildCategoryButton({
-    required String icon,
-    required String title,
-    required SpaceCategory category,
-  }) {
-    final isSelected = selectedCategory == category;
+  // 통합 카테고리 버튼
+  Widget _buildUnifiedCategoryButton(UnifiedCategoryEntity category) {
+    final isSelected = selectedCategory?.id == category.id;
     
     return GestureDetector(
-      onTap: () => _onCategorySelected(category),
+      onTap: () => _onUnifiedCategorySelected(category),
       child: Container(
         margin: const EdgeInsets.only(right: 8),
-        width: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         height: 38,
         decoration: BoxDecoration(
-          color: const Color(0xFF4A4A4A), // 배경색 #4A4A4A
-          borderRadius: BorderRadius.circular(19), // 라운드 테두리
+          color: const Color(0xFF3A3A3A),
+          borderRadius: BorderRadius.circular(19),
           border: Border.all(
             color: isSelected 
-                ? const Color(0xFF00A3FF) // 활성화된 버튼 테두리 (hmpBlue)
-                : const Color(0xFF797979), // 기본 테두리 #797979
-            width: 1,
+                ? const Color(0xFF00A3FF)
+                : const Color(0xFF5A5A5A),
+            width: isSelected ? 1.5 : 1,
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // SVG와 PNG 아이콘 모두 지원
-            icon.endsWith('.svg')
-                ? SvgPicture.asset(
-                    icon,
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 아이콘 처리
+              if (category.iconUrl != null) ...[
+                if (category.type == CategoryType.event && category.iconUrl!.startsWith('http')) 
+                  // 이벤트 카테고리 - 네트워크 이미지
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Opacity(
+                      opacity: isSelected ? 1.0 : 0.5,
+                      child: ColorFiltered(
+                        colorFilter: isSelected 
+                            ? const ColorFilter.mode(
+                                Colors.transparent,
+                                BlendMode.multiply,
+                              )
+                            : const ColorFilter.matrix(<double>[
+                                0.2126, 0.7152, 0.0722, 0, 0,
+                                0.2126, 0.7152, 0.0722, 0, 0,
+                                0.2126, 0.7152, 0.0722, 0, 0,
+                                0,      0,      0,      1, 0,
+                              ]),
+                        child: Image.network(
+                          category.iconUrl!,
+                          width: 16,
+                          height: 16,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ),
+                    ),
+                  )
+                else if (category.iconUrl!.endsWith('.svg'))
+                  // SVG 아이콘
+                  SvgPicture.asset(
+                    category.iconUrl!,
                     width: 16,
                     height: 16,
-                    colorFilter: const ColorFilter.mode(
-                      Color(0xFFFFFFFF), // 폰트색 #FFFFFF
+                    colorFilter: ColorFilter.mode(
+                      isSelected 
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF9A9A9A),
                       BlendMode.srcIn,
                     ),
                   )
-                : Image.asset(
-                    icon,
-                    width: 16,
-                    height: 16,
-                    // PNG 아이콘은 원본 색상 유지 (색상 필터 제거)
+                else
+                  // PNG 아이콘
+                  Opacity(
+                    opacity: isSelected ? 1.0 : 0.6,
+                    child: Image.asset(
+                      category.iconUrl!,
+                      width: 16,
+                      height: 16,
+                    ),
                   ),
-            const SizedBox(width: 4),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFFFFFFFF), // 폰트색 #FFFFFF
-                fontFamily: 'Pretendard',
+                const SizedBox(width: 6),
+              ],
+              Text(
+                category.name,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: isSelected
+                      ? Colors.white
+                      : const Color(0xFF9A9A9A),
+                  fontFamily: 'Pretendard',
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -2491,21 +2652,51 @@ class _MapScreenState extends State<MapScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start, // 상단 정렬로 변경
           children: [
-                         // 카페 아이콘
-             Container(
-               width: 40,
-               height: 40,
-               decoration: BoxDecoration(
-                 color: const Color(0xFF00A3FF),
-                 shape: BoxShape.circle,
-               ),
-               child: Image.asset(
-                 'assets/icons/icon_cate_cafe.png',
-                 width: 20,
-                 height: 20,
-                 // PNG 아이콘은 원본 색상 유지
-               ),
-             ),
+            // 카테고리 아이콘과 거리
+            Column(
+              children: [
+                Stack(
+                  children: [
+                    // 배경 이미지
+                    Image.asset(
+                      'assets/icons/bg_icon_cate.png',
+                      width: 48,
+                      height: 48,
+                    ),
+                    // 카테고리 아이콘
+                    Positioned.fill(
+                      child: Center(
+                        child: _getCategoryIcon(space.category).endsWith('.svg')
+                            ? SvgPicture.asset(
+                                _getCategoryIcon(space.category),
+                                width: 20,
+                                height: 20,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white,
+                                  BlendMode.srcIn,
+                                ),
+                              )
+                            : Image.asset(
+                                _getCategoryIcon(space.category),
+                                width: 20,
+                                height: 20,
+                                // PNG 아이콘은 원본 색상 유지
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _calculateDistance(space),
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
             
             const SizedBox(width: 16),
             
@@ -2542,24 +2733,11 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             
-            // 거리 정보
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.grey,
-                  size: 16,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _calculateDistance(space),
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
+            // 화살표 아이콘
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.grey,
+              size: 16,
             ),
           ],
         ),
@@ -2652,12 +2830,11 @@ class _MapScreenState extends State<MapScreen> {
       searchResults.clear();
     });
 
-    // 필터를 "전체"로 리셋하고 모든 마커 표시
+    // 검색 결과를 선택했으므로 필터를 전체로 리셋
     setState(() {
-      selectedCategory = SpaceCategory.ENTIRE;
+      selectedCategory = unifiedCategories.first; // 전체 카테고리
     });
-    _filterSpacesByCategory(SpaceCategory.ENTIRE);
-    _addAllMarkers(filteredSpaces); // 전체 매장 마커 표시
+    _filterSpacesByUnifiedCategory(selectedCategory);
 
     // 해당 매장으로 지도 이동
     if (mapboxMap != null && space.latitude != 0 && space.longitude != 0) {
@@ -2699,6 +2876,27 @@ class _MapScreenState extends State<MapScreen> {
       return '${(distance * 1000).toInt()}m';
     } else {
       return '${distance.toStringAsFixed(1)}km';
+    }
+  }
+
+  // 카테고리별 아이콘 가져오기
+  String _getCategoryIcon(String? category) {
+    switch (category?.toLowerCase()) {
+      case 'cafe':
+        return 'assets/icons/icon_cate_cafe.png';
+      case 'meal':
+        return 'assets/icons/icon_cate_food.png';
+      case 'pub':
+        return 'assets/icons/icon_cate_beer.png';
+      case 'music':
+        return 'assets/icons/ic_space_category_music.svg';
+      case 'coworking':
+        return 'assets/icons/icon_cate_etc.png';
+      case 'etc':
+      case 'bar':
+        return 'assets/icons/icon_cate_etc.png';
+      default:
+        return 'assets/icons/icon_cate_all.png';
     }
   }
 }
