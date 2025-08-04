@@ -21,6 +21,8 @@ import 'package:mobile/features/space/presentation/cubit/event_category_cubit.da
 import 'package:mobile/features/map/domain/entities/unified_category_entity.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
+import 'package:mobile/app/theme/theme.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -75,6 +77,9 @@ class _MapScreenState extends State<MapScreen> {
   bool _isTrackingLocation = false;
   DateTime? _lastLocationUpdate;
   
+  // 토스트 중복 방지를 위한 플래그
+  bool _isShowingZoomToast = false;
+  
   // 카테고리 스크롤 컨트롤러
   ScrollController _categoryScrollController = ScrollController();
 
@@ -84,6 +89,8 @@ class _MapScreenState extends State<MapScreen> {
     print('🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 EVENT CATEGORY: MapScreen initState START 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨');
     print('🚨🚨🚨 EVENT CATEGORY: MapScreen initState called at ${DateTime.now()}');
     MapboxOptions.setAccessToken(mapboxAccessToken);
+    // 토스트 플래그 초기화
+    _isShowingZoomToast = false;
     // 현재 위치 가져오기 및 매장 데이터 로드
     _initializeLocation();
     // 검색 기록 로드
@@ -1306,9 +1313,99 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  void _onMapTapListener(MapContentGestureContext context) async {
-    print('🗺️ Map tapped at: ${context.point}');
+  void _onMapTapListener(MapContentGestureContext gestureContext) async {
+    print('🗺️ Map tapped at: ${gestureContext.point}');
     print('📄 Current info card state before tap: showInfoCard=$showInfoCard');
+    print('🔧 mapboxMap is null: ${mapboxMap == null}');
+    print('🔧 _isShowingZoomToast: $_isShowingZoomToast');
+    
+    // 현재 줌 레벨 확인
+    if (mapboxMap != null) {
+      try {
+        final cameraState = await mapboxMap!.getCameraState();
+        final currentMapZoom = cameraState.zoom;
+        print('🔍 Current zoom level: $currentMapZoom');
+        print('🔍 Zoom < 16: ${currentMapZoom < 16}');
+        
+        // 줌 레벨이 16보다 작으면 토스트 메시지 표시
+        if (currentMapZoom < 13) {
+          print('🎯 Showing zoom toast - mounted: $mounted, _isShowingZoomToast: $_isShowingZoomToast');
+          if (mounted && !_isShowingZoomToast) {
+            _isShowingZoomToast = true;
+            print('🚀 Actually showing toast now!');
+            try {
+              // 커스텀 오버레이로 토스트 표시
+              final overlay = Overlay.of(context);
+              final overlayEntry = OverlayEntry(
+                builder: (context) => Positioned(
+                  top: MediaQuery.of(context).size.height * 0.5 - 48, // 화면 중앙
+                  left: MediaQuery.of(context).size.width * 0.5 - 160, // 320/2
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      width: 320,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF181819), // 컬러 배경
+                        border: Border.all(
+                          color: Color(0xFF23B0FF), // stroke color
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            "앗! 아직 너무 멀리있어.\n좀 더 확대해서 숨을 곳을 클릭해봐!",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500, // Pretendard Medium
+                              letterSpacing: -0.14, // -1% of 14pt
+                              height: 1.7, // 170% line height
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+              
+              overlay.insert(overlayEntry);
+              print('✨ Toast shown successfully!');
+              
+              // 2초 후 오버레이 제거
+              Future.delayed(const Duration(seconds: 2), () {
+                overlayEntry.remove();
+              });
+            } catch (e) {
+              print('❌ Error showing toast: $e');
+              _isShowingZoomToast = false;
+            }
+            // 2초 후 플래그 리셋
+            Future.delayed(const Duration(seconds: 2), () {
+              print('🔄 Resetting _isShowingZoomToast flag - mounted: $mounted');
+              if (mounted) {
+                setState(() {
+                  _isShowingZoomToast = false;
+                  print('✅ _isShowingZoomToast reset to false');
+                });
+              }
+            });
+          } else {
+            print('⚠️ Toast not shown - mounted: $mounted, _isShowingZoomToast: $_isShowingZoomToast');
+          }
+          return; // 마커 확인을 하지 않고 종료
+        }
+      } catch (e) {
+        print('❌ Error getting zoom level: $e');
+      }
+    } else {
+      print('⚠️ mapboxMap is null');
+    }
     
     // 먼저 인포카드를 닫는다
     if (showInfoCard) {
@@ -1320,8 +1417,8 @@ class _MapScreenState extends State<MapScreen> {
     }
     
     // 탭한 위치 근처에 마커가 있는지 확인 (직접 지리 좌표 사용)
-    final tappedLat = context.point.coordinates.lat.toDouble();
-    final tappedLng = context.point.coordinates.lng.toDouble();
+    final tappedLat = gestureContext.point.coordinates.lat.toDouble();
+    final tappedLng = gestureContext.point.coordinates.lng.toDouble();
     await _checkMarkerNearGeoCoordinates(tappedLat, tappedLng);
     
     // 지도 중심점 확인 및 매장 재로드는 제거 (불필요한 리로드 방지)

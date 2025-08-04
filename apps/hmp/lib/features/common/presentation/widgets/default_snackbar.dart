@@ -123,6 +123,21 @@ class DefaultSnackBar {
       toastDuration: const Duration(seconds: 3),
     );
   }
+  
+  void showCenterToastMsgWithColor(
+    BuildContext context, {
+    required String message,
+    required Color backgroundColor,
+    Duration toastDuration = const Duration(seconds: 2),
+  }) {
+    init(context.read<GlobalKey<NavigatorState>>().currentContext!);
+
+    _fToast.showToast(
+      child: _snackBarWithColor(context, message, backgroundColor: backgroundColor, textAlign: TextAlign.center),
+      gravity: ToastGravity.CENTER,
+      toastDuration: toastDuration,
+    );
+  }
 
   void showToastMsgWithIcon(
     BuildContext context, {
@@ -187,6 +202,58 @@ class DefaultSnackBar {
             child: DefaultImage(
               path: "assets/icons/ic_cancel.svg",
               color: gray900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _snackBarWithColor(
+    BuildContext context,
+    String title, {
+    required Color backgroundColor,
+    int? duration,
+    String? prefixIcon,
+    TextAlign textAlign = TextAlign.left,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (prefixIcon != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 5.0),
+              child: DefaultImage(
+                path: prefixIcon,
+                color: Colors.white,
+              ),
+            ),
+          Expanded(
+            child: Text(
+              title,
+              textAlign: textAlign,
+              style: fontR(14).copyWith(color: Colors.white),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              try {
+                _fToast.removeCustomToast();
+              } catch (e) {
+                Log.error('Error removing toast: $e');
+              }
+            },
+            child: DefaultImage(
+              path: "assets/icons/ic_cancel.svg",
+              color: Colors.white.withOpacity(0.7),
             ),
           ),
         ],
@@ -260,6 +327,14 @@ extension SnackBarExtension on BuildContext {
   //showCenterToastMsg
   void showCenterSnackBar(String message) =>
       DefaultSnackBar.instance.showCenterToastMsg(this, message: message);
+      
+  void showCenterSnackBarWithColor(String message, {required Color backgroundColor, Duration? duration}) =>
+      DefaultSnackBar.instance.showCenterToastMsgWithColor(
+        this, 
+        message: message, 
+        backgroundColor: backgroundColor,
+        toastDuration: duration ?? const Duration(seconds: 2),
+      );
 
   void showErrorSnackBar([String? message]) {
     String callerInfo = StackTrace.current.toString().split('\n')[1];
