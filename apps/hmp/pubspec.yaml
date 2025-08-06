@@ -2,7 +2,7 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 2.5.11+156
+version: 2.5.12+157
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
@@ -145,3 +145,11 @@ flutter:
           weight: 700
         - asset: assets/fonts/pretendard/Pretendard-ExtraBold.otf
           weight: 800
+    - family: LINESeedKR
+      fonts:
+        - asset: assets/fonts/LINESeedKR/LINESeedKR-Th.otf
+          weight: 100
+        - asset: assets/fonts/LINESeedKR/LINESeedKR-Rg.otf
+          weight: 400
+        - asset: assets/fonts/LINESeedKR/LINESeedKR-Bd.otf
+          weight: 700

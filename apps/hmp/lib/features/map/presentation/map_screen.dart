@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -357,6 +358,19 @@ class _MapScreenState extends State<MapScreen> {
         ),
       );
       print('📍 Initial camera position set immediately');
+      
+      // Android에서 강제 렌더링 트리거
+      if (Platform.isAndroid) {
+        // 약간의 지연 후 다시 카메라 설정하여 렌더링 강제
+        await Future.delayed(const Duration(milliseconds: 100));
+        await mapboxMap.setCamera(
+          CameraOptions(
+            center: Point(coordinates: Position(currentLongitude, currentLatitude)),
+            zoom: currentZoom,
+          ),
+        );
+        print('🤖 Android: Force render triggered');
+      }
       
       // 지도 초기화 완료 표시
       setState(() {
@@ -1847,19 +1861,21 @@ class _MapScreenState extends State<MapScreen> {
         child: Stack(
           children: [
             // Mapbox 지도
-            MapWidget(
-              key: const ValueKey("mapWidget"),
-              onMapCreated: _onMapCreated,
-              onStyleLoadedListener: _onStyleLoadedCallback,
-              onTapListener: _onMapTapListener,
-              cameraOptions: CameraOptions(
-                center: Point(coordinates: Position(currentLongitude, currentLatitude)),
-                zoom: currentZoom,
-                bearing: 0.0,
-                pitch: 0.0,
+            RepaintBoundary(
+              child: MapWidget(
+                key: const ValueKey("mapWidget"),
+                onMapCreated: _onMapCreated,
+                onStyleLoadedListener: _onStyleLoadedCallback,
+                onTapListener: _onMapTapListener,
+                cameraOptions: CameraOptions(
+                  center: Point(coordinates: Position(currentLongitude, currentLatitude)),
+                  zoom: currentZoom,
+                  bearing: 0.0,
+                  pitch: 0.0,
+                ),
+                styleUri: 'mapbox://styles/ixplorer/cmbhjhxbr00b401sn9glq0y9l', // 커스텀 스타일 적용
+                textureView: Platform.isAndroid, // Android만 textureView 사용
               ),
-              styleUri: 'mapbox://styles/ixplorer/cmbhjhxbr00b401sn9glq0y9l', // 커스텀 스타일 적용
-              textureView: true, // Android에서 지도 렌더링 개선
             ),
 
 

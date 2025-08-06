@@ -2,6 +2,7 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 // import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
@@ -150,9 +151,15 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseScaffold(
-      isFirstPage: true,
-      body: BlocListener<AuthCubit, AuthState>(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFF87CEEB),
+        body: BlocListener<AuthCubit, AuthState>(
         bloc: getIt<AuthCubit>(),
         listenWhen: (previous, current) =>
             previous.isLogInSuccessful != current.isLogInSuccessful,
@@ -195,115 +202,268 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
             context.showErrorSnackBar(state.message);
           }
         },
-        child: SafeArea(
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                CustomImageView(
-                  imagePath: "assets/images/splash2.png",
-                  width: 188,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  LocaleKeys.openTheDoorsToTheBenefitsWithNFT.tr(),
-                  textAlign: TextAlign.center,
-                  style: fontTitle05Bold(),
-                ),
-                const VerticalSpace(60),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // MySocialLoginButton(
-                    //   imagePath: "assets/social-auth-logos/ic_worldcoin.svg",
-                    //   imgHeightWidth: 45,
-                    //   onTap: () {
-                    //     if (isAgreeWithTerms) {
-                    //       getIt<AuthCubit>().onWorldIdLogin();
-                    //     } else {
-                    //       showHmpAlertDialog(
-                    //         context: context,
-                    //         title: LocaleKeys
-                    //             .requiresAgreementToTermsAndConditions
-                    //             .tr(),
-                    //         content: LocaleKeys.agreeTermDialogMessage.tr(),
-                    //         onConfirm: () {
-                    //           Navigator.pop(context);
-                    //         },
-                    //       );
-                    //     }
-                    //   },
-                    // ),
-                    // const HorizontalSpace(20),
-                    MySocialLoginButton(
-                      imagePath: "assets/social-auth-logos/google-logo.png",
-                      imgHeightWidth: 32,
-                      onTap: () {
-                        if (isAgreeWithTerms) {
-                          getIt<AuthCubit>().onGoogleLogin();
-
-                          //getIt<AuthCubit>().loginWithProvider();
-                        } else {
-                          showAgreeTermsDialogue(context);
-                        }
-                      },
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF87CEEB),
+                Color(0xFFE6F3FB),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(flex: 2),
+                  CustomImageView(
+                    imagePath: "assets/images/splash3.png",
+                    width: 120,
+                    height: 120,
+                  ),
+                  const SizedBox(height: 40),
+                  const Text(
+                    '쉽고 재밌게 즐기는',
+                    style: TextStyle(
+                      fontFamily: 'LINESeedKR',
+                      fontSize: 28,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black87,
+                      height: 1.2,
                     ),
-                    if (isIOS())
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: MySocialLoginButton(
-                          imagePath: "assets/social-auth-logos/apple-logo.png",
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    '내 주변 맛집 혜택',
+                    style: TextStyle(
+                      fontFamily: 'LINESeedKR',
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                      height: 1.2,
+                    ),
+                  ),
+                  const Spacer(flex: 2),
+                  SizedBox(
+                    width: 200,
+                    height: 56,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF87CEEB),
+                            Color(0xFFFFE4B5),
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(28),
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 1,
+                        ),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(28),
                           onTap: () {
                             if (isAgreeWithTerms) {
-                              getIt<AuthCubit>().onAppleLogin();
+                              getIt<AuthCubit>().onGoogleLogin();
                             } else {
                               showAgreeTermsDialogue(context);
                             }
                           },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ColorFiltered(
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.black,
+                                  BlendMode.srcIn,
+                                ),
+                                child: Image.asset(
+                                  "assets/social-auth-logos/google-logo.png",
+                                  width: 24,
+                                  height: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                '구글 로그인',
+                                style: TextStyle(
+                                  fontFamily: 'LINESeedKR',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                  ],
-                ),
-                const VerticalSpace(20),
-                Center(
-                  child: Column(
-                    children: [
-                      const AgreeTextWidget(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Checkbox(
-                            side: const BorderSide(color: fore3),
-                            activeColor: hmpBlue,
-                            checkColor: white,
-                            value: isAgreeWithTerms,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                isAgreeWithTerms = value ?? false;
-                              });
+                    ),
+                  ),
+                  if (isIOS()) ...[
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 200,
+                      height: 56,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFF87CEEB),
+                              Color(0xFFFFE4B5),
+                            ],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(
+                            color: Colors.black,
+                            width: 1,
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(28),
+                            onTap: () {
+                              if (isAgreeWithTerms) {
+                                getIt<AuthCubit>().onAppleLogin();
+                              } else {
+                                showAgreeTermsDialogue(context);
+                              }
                             },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ColorFiltered(
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.black,
+                                    BlendMode.srcIn,
+                                  ),
+                                  child: Image.asset(
+                                    "assets/social-auth-logos/apple-logo.png",
+                                    width: 24,
+                                    height: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  '애플 로그인',
+                                  style: TextStyle(
+                                    fontFamily: 'LINESeedKR',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          Text(
-                            LocaleKeys.iAgreeToTheAboveTermsAndConditions.tr(),
-                            style: fontCompactSm(),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text(
+                          '서비스 이용약관',
+                          style: TextStyle(
+                            fontFamily: 'LINESeedKR',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black87,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.black87,
+                            decorationThickness: 1.5,
                           ),
-                        ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text(
+                          '개인정보 취급방침',
+                          style: TextStyle(
+                            fontFamily: 'LINESeedKR',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black87,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.black87,
+                            decorationThickness: 1.5,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
-                // const VerticalSpace(20),
-                // const OpenTalkerLogsButton(),
-                // const VerticalSpace(20),
-                const Spacer(),
-              ],
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Checkbox(
+                          value: isAgreeWithTerms,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              isAgreeWithTerms = value ?? false;
+                            });
+                          },
+                          side: BorderSide(
+                            color: Colors.black.withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          activeColor: const Color(0xFF1DA1F2),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        '위 약관 내용에 동의합니다',
+                        style: TextStyle(
+                          fontFamily: 'LINESeedKR',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                ],
+              ),
             ),
           ),
         ),
+      ),
       ),
     );
   }
