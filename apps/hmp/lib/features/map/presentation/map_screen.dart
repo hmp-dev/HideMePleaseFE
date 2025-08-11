@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mobile/features/map/presentation/widgets/check_in_bottom_bar.dart'; // CheckInBottomBar import 추가
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
@@ -577,7 +578,8 @@ class _MapScreenState extends State<MapScreen> {
   // 인포카드 위젯 생성
   Widget _buildInfoCard(SpaceEntity space) {
     return Positioned(
-      bottom: 0,
+      //bottom: 0,
+      bottom: showInfoCard && selectedSpace != null ? 110 : -200, // 인포카드 선택 시 70, 아니면 -200 (숨김)
       left: 0,
       right: 0,
       child: AnimatedOpacity(
@@ -1924,7 +1926,7 @@ class _MapScreenState extends State<MapScreen> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              bottom: showInfoCard && selectedSpace != null ? 180 : 16,
+              bottom: showInfoCard && selectedSpace != null ? 280 : 16,
               right: 16,
               child: GestureDetector(
                 onTap: _moveToCurrentLocation,
@@ -1942,15 +1944,45 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
+            // 새로 추가할 '체크인' 영역
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              bottom: showInfoCard && selectedSpace != null ? 0 : -100, // 인포카드 선택 시 0, 아니면 -70 (숨김)
+              left: 0,
+              right: 0,
+              child: CheckInBottomBar(
+                onMapTap: () {
+                  print('지도 버튼 탭됨');
+                },
+                onMyTap: () {
+                  print('MY 버튼 탭됨');
+                },
+                onCheckInTap: () {
+                  print('CHECK-IN 버튼 탭됨');
+                  // 체크인 기능 구현
+                },
+              ),
+            ),
+
             // 인포카드 (선택된 매장이 있을 때만 표시)
             if (showInfoCard && selectedSpace != null)
-              _buildInfoCard(selectedSpace!),
+              AnimatedPositioned(
+                // key: ValueKey(selectedSpace!.id), // 매장 ID를 키로 사용하여 매장 변경 시 위젯 강제 재빌드
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                bottom: showInfoCard && selectedSpace != null ? 110 : -200, // 인포카드 선택 시 70, 아니면 -200 (숨김)
+                left: 0,
+                right: 0,
+                child: _buildInfoCard(selectedSpace!),
+              ),
 
             // 검색 오버레이
             if (showSearchOverlay)
               Positioned.fill(
                 child: _buildSearchOverlay(),
               ),
+
           ],
         ),
       ),
