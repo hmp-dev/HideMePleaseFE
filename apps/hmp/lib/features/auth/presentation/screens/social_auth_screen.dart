@@ -43,6 +43,12 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
     super.initState();
     checkIsShowOnBoarding();
     _checkAndRequestLocationPermission();
+    // Delay SDK initialization to avoid context issues
+    Future.delayed(Duration.zero, () {
+      if (mounted) {
+        _initWallets();
+      }
+    });
   }
 
   Future<void> _checkAndRequestLocationPermission() async {
@@ -144,9 +150,15 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
   // }
 
   void _initWallets() async {
-    // initialize the WepinSDK and Login
-    await getIt<WepinCubit>()
-        .initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
+    try {
+      '🔄 Initializing Wepin SDK from SocialAuthScreen...'.log();
+      // initialize the WepinSDK and Login
+      await getIt<WepinCubit>()
+          .initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
+      '✅ Wepin SDK initialization completed'.log();
+    } catch (e) {
+      '❌ Failed to initialize Wepin SDK: $e'.log();
+    }
   }
 
   @override
@@ -181,6 +193,14 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
             }
 
             // 온보딩 여부에 따른 화면 전환
+            // TEMP: Always show onboarding for testing - 테스트를 위해 항상 온보딩 표시
+            await Navigator.pushNamedAndRemoveUntil(
+              context,
+              Routes.onboardingScreen,
+              (route) => false,
+            );
+            
+            /* 원래 로직 - 나중에 원복 시 주석 해제
             if (isShowOnBoarding == 0 || isShowOnBoarding == null) {
               await Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -194,6 +214,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                 (route) => false,
               );
             }
+            */
             return;
           }
 

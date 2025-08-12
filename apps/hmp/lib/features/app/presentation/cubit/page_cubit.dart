@@ -10,7 +10,13 @@ class PageCubit extends BaseCubit<PageState> {
   PageCubit() : super(PageState.initial());
 
   void changePage(int index, MenuType menuType) {
-    state.pageController.jumpToPage(index);
-    emit(state.copyWith(menuType: menuType));
+    print('📄 PageCubit changePage called: index=$index, menuType=$menuType');
+    try {
+      state.pageController.jumpToPage(index);
+      emit(state.copyWith(menuType: menuType));
+      print('✅ PageCubit changePage completed successfully');
+    } catch (e) {
+      print('❌ PageCubit changePage error: $e');
+    }
   }
 }

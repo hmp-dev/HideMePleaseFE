@@ -73,8 +73,9 @@ class WalletsRepositoryImpl implements WalletsRepository {
       // If a WalletAddErrorDto occurs, return a [HMPError] from the network.
       final error = e;
       return left(HMPError.fromNetwork(
+        code: error.code,
         message: error.message,
-        error: error.code,
+        error: error.error,
       ));
     } catch (e, t) {
       // If an unknown exception occurs, return a [HMPError] from unknown.

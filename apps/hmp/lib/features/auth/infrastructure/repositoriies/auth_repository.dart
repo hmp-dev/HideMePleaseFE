@@ -91,8 +91,9 @@ class AuthRepositoryImpl implements AuthRepository {
       _localDataSource
           .setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
 
-      // save Access token in secure Storage to be used wepin login
+      // save Access token and ID token in secure Storage to be used wepin login
       _localDataSource.setGoogleAccessToken(googleAuth.accessToken ?? "");
+      _localDataSource.setGoogleIdToken(googleAuth.idToken ?? ""); // For Wepin login
       //===
 
       await FirebaseAuth.instance.signInWithCredential(credential);

@@ -85,18 +85,24 @@ class _AppViewState extends State<AppView> {
                           child: PreloadPageView.builder(
                             onPageChanged: (value) {},
                             itemBuilder: (context, index) {
+                              print('🏗️ Building page for index: $index');
                               if (index == MenuType.space.menuIndex) {
+                                print('🗺️ Returning MapScreen for index $index');
                                 return const MapScreen();
                               } else if (index == MenuType.events.menuIndex) {
+                                print('🎪 Returning HomeScreen (Events) for index $index');
                                 return const HomeScreen(); // EventsWepinScreen();
                               } else if (index == MenuType.home.menuIndex) {
+                                print('🏠 Returning HomeScreen for index $index');
                                 return const HomeScreen();
                               //} else if (index ==
                               //    MenuType.community.menuIndex) {
                               //  return const CommunityScreen();
                               } else if (index == MenuType.settings.menuIndex) {
+                                print('⚙️ Returning empty Container for Settings index $index');
                                 return Container();
                               }
+                              print('❓ Returning default Container for index $index');
                               return Container();
                             },
                             itemCount: MenuType.values.length,
@@ -110,7 +116,7 @@ class _AppViewState extends State<AppView> {
                           children: [
                             BottomBar(
                               onTap: (type) async {
-                                ('type: $type').log();
+                                ('🔄 Bottom tab tapped: $type').log();
                                 if (type == MenuType.settings) {
                                   // update EventView Active Status
                                   getIt<WalletsCubit>();
@@ -121,6 +127,7 @@ class _AppViewState extends State<AppView> {
                                   // Navigate to Settings Screen
                                   SettingsScreen.push(context);
                                 } else if (type == MenuType.space) {
+                                  ('🗺️ Map tab selected - fetching space data').log();
                                   // update EventView Active Status
                                   getIt<WalletsCubit>();
                                   //    .onIsEventViewActive(false);
@@ -170,8 +177,10 @@ class _AppViewState extends State<AppView> {
   }
 
   void _onChangeMenu(MenuType menuType) {
+    ('🔄 Changing to menu: $menuType (index: ${menuType.menuIndex})').log();
     //state.pageController.jumpToPage(menuType.menuIndex);
     getIt<PageCubit>().changePage(menuType.menuIndex, menuType);
+    ('✅ Page change completed').log();
   }
 }
 

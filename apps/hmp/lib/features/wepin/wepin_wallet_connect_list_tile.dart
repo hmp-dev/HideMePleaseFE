@@ -54,6 +54,9 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
 
   @override
   void dispose() {
+    // Stop the wallet check timer if it's running
+    getIt<WepinCubit>().stopWalletCheckTimer();
+    
     super.dispose();
 
     //getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
@@ -124,9 +127,13 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                         getIt<WepinCubit>().showLoader();
 
                         if (isFreeWelcomeNFTAvailable) {
+                          // NFT redemption flow - timer will be started in onConnectWepinWallet
+                          getIt<WepinCubit>().updateIsPerformWepinWelcomeNftRedeem(true);
                           getIt<WepinCubit>()
-                              .onConnectWepinWallet(context);
+                              .onConnectWepinWallet(context,
+                                  isFromWePinWelcomeNftRedeem: true);
                         } else {
+                          // Wallet connection flow
                           getIt<WepinCubit>().onConnectWepinWallet(
                               context,
                               isFromWePinWalletConnect: true);
@@ -156,7 +163,7 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                       } else {
                         getIt<WepinCubit>().showLoader();
                         //initializeWepin();
-
+                        
                         getIt<WepinCubit>()
                             .onConnectWepinWallet(context);
                       }
@@ -198,9 +205,13 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                           getIt<WepinCubit>().showLoader();
 
                           if (isFreeWelcomeNFTAvailable) {
+                            // NFT redemption flow
+                            getIt<WepinCubit>().updateIsPerformWepinWelcomeNftRedeem(true);
                             getIt<WepinCubit>()
-                                .onConnectWepinWallet(context);
+                                .onConnectWepinWallet(context,
+                                    isFromWePinWelcomeNftRedeem: true);
                           } else {
+                            // Wallet connection flow
                             getIt<WepinCubit>()
                                 .onConnectWepinWallet(context,
                                     isFromWePinWalletConnect: true);

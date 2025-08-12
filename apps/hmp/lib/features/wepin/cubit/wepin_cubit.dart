@@ -14,12 +14,13 @@ import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
-import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
-import 'package:mobile/features/auth/infrastructure/repositoriies/auth_repository.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/wallets/infrastructure/dtos/save_wallet_request_dto.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/values/sdk_app_info.dart';
+import 'package:flutter/services.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
@@ -33,16 +34,19 @@ class WepinCubit extends BaseCubit<WepinState> {
             wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
 
   final SecureStorage _secureStorage;
+  Timer? _walletCheckTimer;
 
   Future<void> initializeWepinSDK(
       {required String selectedLanguageCode}) async {
-    "inside initWepinSDK ==>".log();
+    "🚀 Starting Wepin SDK initialization...".log();
 
     String appId = sdkConfigs[0]['appId']!;
     String appKeyAndroid = sdkConfigs[0]['appKeyAndroid']!;
     String appKeyApple = sdkConfigs[0]['appKeyApple']!;
 
+    // Get social login tokens first
     await getSocialLoginValues();
+    "📱 Retrieved social login values".log();
 
     // Finalize any existing Wepin SDK instance
     //state.wepinWidgetSDK?.finalize();
@@ -82,11 +86,9 @@ class WepinCubit extends BaseCubit<WepinState> {
       if (wepinStatus == WepinLifeCycle.notInitialized) {
         emit(state.copyWith(error: 'WepinSDK is not initialized.'));
       } else {
-        "inside initWepinSDK ==> $wepinStatus".log();
-        //Optionally call login with Google if SDK initialization is successful
-
-        "inside initWepinSDK ==> Calling loginSocialAuthProvider".log();
-        loginSocialAuthProvider();
+        "✅ Wepin SDK initialized successfully with status: $wepinStatus".log();
+        // Don't auto-login here, let onboarding handle it when needed
+        // loginSocialAuthProvider();
       }
     } catch (error) {
       // Handle any errors during SDK initialization
@@ -120,6 +122,9 @@ class WepinCubit extends BaseCubit<WepinState> {
 
     if (isFromWePinWelcomeNftRedeem) {
       emit(state.copyWith(isPerformWepinWelcomeNftRedeem: true));
+      // Start wallet check timer for NFT redemption scenario
+      "🎁 Starting wallet check timer for NFT redemption in onConnectWepinWallet".log();
+      startWalletCheckTimer();
     }
     // get social login values
     await getSocialLoginValues();
@@ -142,16 +147,24 @@ class WepinCubit extends BaseCubit<WepinState> {
     ));
 
     // Perform actions based on lifecycle status
+    "🔍 Checking Wepin lifecycle status: $status".log();
+    
     if (status == WepinLifeCycle.initialized) {
+      "✅ Status is initialized, performing login...".log();
       // Perform login if status is 'initialized'
       await loginSocialAuthProvider();
       "Performed login to Wepin".log();
     } else if (status == WepinLifeCycle.beforeLogin ||
         status == WepinLifeCycle.loginBeforeRegister) {
+      "⚠️ Status requires registration: $status".log();
       dismissLoader();
       // Perform registration if status is 'before_login' or 'login_before_register'
       await state.wepinWidgetSDK!.register(context);
       "Performed registration to Wepin".log();
+    } else if (status == WepinLifeCycle.login) {
+      "✅ Already logged in to Wepin!".log();
+    } else {
+      "❓ Unhandled Wepin lifecycle status in onConnectWepinWallet: $status".log();
     }
 
     // Check status again after attempting login or registration
@@ -163,10 +176,14 @@ class WepinCubit extends BaseCubit<WepinState> {
     if (updatedStatus == WepinLifeCycle.login) {
       try {
         final wallets = await state.wepinWidgetSDK!.getAccounts();
-        //await
-        saveWalletsToHMPBackend(wallets);
+        await saveWalletsToHMPBackend(wallets);
 
         "Wallets successfully saved to HMP backend".log();
+        
+        // Refresh wallet list after saving
+        await getIt<WalletsCubit>().onGetAllWallets();
+        "Wallet list refreshed after saving".log();
+        
         emit(state.copyWith(
           isPerformWepinWalletSave: false,
           isLoading: false,
@@ -202,6 +219,11 @@ class WepinCubit extends BaseCubit<WepinState> {
             await saveWalletsToHMPBackend(wallets);
 
             "Wallets successfully saved to HMP backend".log();
+            
+            // Refresh wallet list after saving
+            await getIt<WalletsCubit>().onGetAllWallets();
+            "Wallet list refreshed after saving".log();
+            
             emit(state.copyWith(
               isPerformWepinWalletSave: false,
               isLoading: false,
@@ -240,6 +262,12 @@ class WepinCubit extends BaseCubit<WepinState> {
   Future<void> openWepinWidget(BuildContext context) async {
     "inside openWepinWidget".log();
     showLoader();
+    
+    // Start wallet check timer when opening widget for NFT redemption
+    if (state.isPerformWepinWelcomeNftRedeem) {
+      "🎁 Starting wallet check timer for NFT redemption in openWepinWidget".log();
+      startWalletCheckTimer();
+    }
 
     // Check if SDK is null and initialize it if needed
     // null check update by munbbok 250315
@@ -328,17 +356,77 @@ class WepinCubit extends BaseCubit<WepinState> {
     // Implement the logic to save the fetched wallets to HMP backend here
     // This could involve making an HTTP request or calling another service
 
+    "💼 ===== Starting wallet save process =====".log();
+    "💼 Total wallets found: ${wallets.length}".log();
+
     // if status is login save wallets to backend
+    bool hasWepinEvm = false;
+    bool hasKlip = false;
 
     for (var account in wallets) {
-      if (account.network.toLowerCase() == "ethereum") {
-        getIt<WalletsCubit>().onPostWallet(
+      "🔍 Found wallet - Network: ${account.network}, Address: ${account.address}".log();
+      
+      // Check for Ethereum-compatible networks
+      bool isEthereumNetwork = account.network.toLowerCase() == "ethereum" ||
+                              account.network.toLowerCase().startsWith("evm") ||
+                              account.network.toLowerCase() == "polygon" ||
+                              account.network.toLowerCase() == "avax-c-chain";
+      
+      if (isEthereumNetwork) {
+        "💾 [WEPIN_EVM] Saving Ethereum wallet to backend".log();
+        "💾 [WEPIN_EVM] Wallet address: ${account.address}".log();
+        "💾 [WEPIN_EVM] Provider type: WEPIN_EVM".log();
+        
+        await getIt<WalletsCubit>().onPostWallet(
           saveWalletRequestDto: SaveWalletRequestDto(
             publicAddress: account.address,
             provider: "WEPIN_EVM",
           ),
         );
+        hasWepinEvm = true;
+        "✅ [WEPIN_EVM] Ethereum wallet save request completed".log();
       }
+      
+      // Also save KLIP wallet for Klaytn network
+      if (account.network.toLowerCase() == "klaytn") {
+        "💾 [KLIP] Saving Klaytn wallet to backend".log();
+        "💾 [KLIP] Wallet address: ${account.address}".log();
+        "💾 [KLIP] Provider type: KLIP".log();
+        
+        await getIt<WalletsCubit>().onPostWallet(
+          saveWalletRequestDto: SaveWalletRequestDto(
+            publicAddress: account.address,
+            provider: "KLIP",
+          ),
+        );
+        hasKlip = true;
+        "✅ [KLIP] Klaytn wallet save request completed".log();
+      }
+    }
+    
+    "💼 ===== Wallet save process completed =====".log();
+    "💼 Summary: WEPIN_EVM=${hasWepinEvm}, KLIP=${hasKlip}".log();
+    
+    // Refresh wallet list after saving
+    "🔄 Refreshing wallet list after save...".log();
+    try {
+      await getIt<WalletsCubit>().onGetAllWallets();
+      final connectedWallets = getIt<WalletsCubit>().state.connectedWallets;
+      "✅ Wallet list refreshed. Total wallets: ${connectedWallets.length}".log();
+      for (var wallet in connectedWallets) {
+        "📱 Connected wallet: ${wallet.provider} - ${wallet.publicAddress}".log();
+      }
+    } catch (e) {
+      "❌ Failed to refresh wallet list: $e".log();
+    }
+    
+    // Refresh user profile to get updated information
+    "🔄 Refreshing user data after wallet save...".log();
+    try {
+      await getIt<ProfileCubit>().onGetUserProfile();
+      "✅ User profile refreshed successfully".log();
+    } catch (e) {
+      "❌ Failed to refresh user profile: $e".log();
     }
   }
 
@@ -346,6 +434,8 @@ class WepinCubit extends BaseCubit<WepinState> {
     String socialTokenIsAppleOrGoogle =
         await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle) ??
             '';
+    
+    "🔍 Getting social login values, type: $socialTokenIsAppleOrGoogle".log();
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
       // final appleIdTokenResult =
@@ -353,7 +443,8 @@ class WepinCubit extends BaseCubit<WepinState> {
 
       // final appleIdTokenResult = await FirebaseAuth.instance.currentUser?.getIdToken() ?? "";
       final appleIdTokenResult = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
-
+      
+      "🍎 Apple ID Token retrieved: ${appleIdTokenResult.isNotEmpty ? 'Success' : 'Failed'}".log();
 
       emit(state.copyWith(
         socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
@@ -362,14 +453,15 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
-      //
-      final googleAccessTokenResult =
-          await getIt<AuthCubit>().refreshGoogleAccessToken() ?? '';
+      "🔄 Getting stored Google ID Token...".log();
+      
+      final googleIdTokenResult = await _secureStorage.read(StorageValues.googleIdToken) ?? '';
+      
+      "🔑 Google ID Token retrieved: ${googleIdTokenResult.isNotEmpty ? 'Success (${googleIdTokenResult.substring(0, min(20, googleIdTokenResult.length))}...)' : 'Failed - Token is empty'}".log();
 
-      //
       emit(state.copyWith(
         socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
-        googleAccessToken: googleAccessTokenResult,
+        googleAccessToken: googleIdTokenResult, // Store ID token in googleAccessToken field for compatibility
       ));
     }
   }
@@ -412,12 +504,29 @@ class WepinCubit extends BaseCubit<WepinState> {
 
   Future<void> loginSocialAuthProvider() async {
     "loginSocialAuthProvider is called".log();
+    
+    // First get social login values
+    await getSocialLoginValues();
+    
+    "🔐 Login Type: ${state.socialTokenIsAppleOrGoogle}".log();
+    "🔑 Google Access Token: ${state.googleAccessToken.isNotEmpty ? 'Available (${state.googleAccessToken.substring(0, 20)}...)' : 'Empty'}".log();
+    "🔑 Apple ID Token: ${state.appleIdToken.isNotEmpty ? 'Available (${state.appleIdToken.substring(0, 20)}...)' : 'Empty'}".log();
 
     try {
       LoginResult? fbToken;
 
       // Determine the login type and proceed accordingly
       if (state.socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
+        if (state.googleAccessToken.isEmpty) {
+          "❌ Google Access Token is empty, cannot login to Wepin".log();
+          emit(state.copyWith(
+            isLoading: false,
+            error: 'Google Access Token not available',
+          ));
+          return;
+        }
+        
+        "🔄 Attempting Wepin login with Google Access Token...".log();
         fbToken = await state.wepinWidgetSDK!.login.loginWithAccessToken(
             provider: 'google', accessToken: state.googleAccessToken);
         /*fbToken = await state.wepinWidgetSDK!.login.loginWithIdToken(
@@ -428,7 +537,17 @@ class WepinCubit extends BaseCubit<WepinState> {
       if (state.socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
         "inside state.socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name ${state.socialTokenIsAppleOrGoogle}"
             .log();
+        
+        if (state.appleIdToken.isEmpty) {
+          "❌ Apple ID Token is empty, cannot login to Wepin".log();
+          emit(state.copyWith(
+            isLoading: false,
+            error: 'Apple ID Token not available',
+          ));
+          return;
+        }
 
+        "🔄 Attempting Wepin login with Apple ID Token...".log();
         fbToken = await state.wepinWidgetSDK!.login
             .loginWithIdToken(idToken: state.appleIdToken);
       }
@@ -470,6 +589,124 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
   }
 
+  /// Login to Wepin using Google access token (without showing login UI again)
+  Future<void> loginWepinWithGoogle(String googleAccessToken) async {
+    "🔄 [WepinCubit] loginWepinWithGoogle called with existing token".log();
+    
+    if (state.wepinWidgetSDK == null) {
+      "❌ [WepinCubit] Wepin SDK is not initialized".log();
+      return;
+    }
+
+    try {
+      emit(state.copyWith(
+        isLoading: true,
+        socialTokenIsAppleOrGoogle: SocialLoginType.GOOGLE.name,
+        googleAccessToken: googleAccessToken,
+      ));
+
+      "🔄 Attempting Wepin login with existing Google ID Token (no popup)...".log();
+      final fbToken = await state.wepinWidgetSDK!.login
+          .loginWithIdToken(idToken: googleAccessToken); // Use as ID token
+
+      if (fbToken != null) {
+        final wepinUser = await state.wepinWidgetSDK?.login.loginWepin(fbToken);
+
+        if (wepinUser?.userInfo != null) {
+          final wepinStatus = await state.wepinWidgetSDK!.getStatus();
+          "✅ [WepinCubit] Google login successful, status: $wepinStatus".log();
+          
+          emit(state.copyWith(
+            wepinLifeCycleStatus: wepinStatus,
+            isLoading: false,
+            error: null,
+          ));
+        } else {
+          "❌ [WepinCubit] Google login failed - no user info".log();
+          emit(state.copyWith(
+            isLoading: false,
+            error: 'Google login failed. No user info found.',
+          ));
+        }
+      } else {
+        "❌ [WepinCubit] Google login failed - invalid token".log();
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Google login failed. Invalid token.',
+        ));
+      }
+    } catch (e) {
+      "❌ [WepinCubit] Google login error: $e".log();
+      if (!e.toString().contains('UserCancelled')) {
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Google login failed: $e',
+        ));
+      } else {
+        emit(state.copyWith(isLoading: false));
+      }
+    }
+  }
+
+  /// Login to Wepin using Apple ID token (without showing login UI again)  
+  Future<void> loginWepinWithApple(String appleIdToken) async {
+    "🔄 [WepinCubit] loginWepinWithApple called with existing token".log();
+    
+    if (state.wepinWidgetSDK == null) {
+      "❌ [WepinCubit] Wepin SDK is not initialized".log();
+      return;
+    }
+
+    try {
+      emit(state.copyWith(
+        isLoading: true,
+        socialTokenIsAppleOrGoogle: SocialLoginType.APPLE.name,
+        appleIdToken: appleIdToken,
+      ));
+
+      "🔄 Attempting Wepin login with existing Apple ID Token (no popup)...".log();
+      final fbToken = await state.wepinWidgetSDK!.login
+          .loginWithIdToken(idToken: appleIdToken);
+
+      if (fbToken != null) {
+        final wepinUser = await state.wepinWidgetSDK?.login.loginWepin(fbToken);
+
+        if (wepinUser?.userInfo != null) {
+          final wepinStatus = await state.wepinWidgetSDK!.getStatus();
+          "✅ [WepinCubit] Apple login successful, status: $wepinStatus".log();
+          
+          emit(state.copyWith(
+            wepinLifeCycleStatus: wepinStatus,
+            isLoading: false,
+            error: null,
+          ));
+        } else {
+          "❌ [WepinCubit] Apple login failed - no user info".log();
+          emit(state.copyWith(
+            isLoading: false,
+            error: 'Apple login failed. No user info found.',
+          ));
+        }
+      } else {
+        "❌ [WepinCubit] Apple login failed - invalid token".log();
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Apple login failed. Invalid token.',
+        ));
+      }
+    } catch (e) {
+      "❌ [WepinCubit] Apple login error: $e".log();
+      if (!e.toString().contains('UserCancelled')) {
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Apple login failed: $e',
+        ));
+      } else {
+        emit(state.copyWith(isLoading: false));
+      }
+    }
+  }
+
   // Fetch accounts
   Future<void> fetchAccounts() async {
     try {
@@ -489,6 +726,9 @@ class WepinCubit extends BaseCubit<WepinState> {
   closeWePinWidget() async {
     await state.wepinWidgetSDK!.closeWidget();
     //await state.wepinWidgetSDK!.finalize();
+    
+    // Stop wallet check timer when closing widget
+    stopWalletCheckTimer();
   }
 
   updateIsWepinModelOpen(bool value) {
@@ -605,5 +845,196 @@ class WepinCubit extends BaseCubit<WepinState> {
   Future<void> onLogoutWepinSdk() async {
     await state.wepinWidgetSDK!.login.logoutWepin();
     emit(state.copyWith(wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
+  }
+
+  // Start periodic wallet checking for NFT redemption
+  void startWalletCheckTimer() {
+    "🔄 Starting wallet check timer for NFT redemption".log();
+    "🔄 Current state - isPerformWepinWelcomeNftRedeem: ${state.isPerformWepinWelcomeNftRedeem}".log();
+    
+    // Cancel any existing timer
+    stopWalletCheckTimer();
+    
+    // Reset counter and set checking flag
+    emit(state.copyWith(
+      isCheckingWallet: true,
+      walletCheckCounter: 0,
+    ));
+    
+    "✅ Timer state updated - isCheckingWallet: true".log();
+    
+    // Check every 5 seconds
+    _walletCheckTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      final counter = state.walletCheckCounter + 5;
+      emit(state.copyWith(walletCheckCounter: counter));
+      
+      "⏱️ Wallet check timer: ${counter}s / 600s".log();
+      
+      // Stop after 10 minutes (600 seconds)
+      if (counter >= 600) {
+        "⏰ Wallet check timeout after 10 minutes".log();
+        stopWalletCheckTimer();
+        dismissLoader();
+        emit(state.copyWith(
+          error: 'Wallet connection timeout. Please try again.',
+        ));
+        return;
+      }
+      
+      // Check if SDK is initialized
+      if (state.wepinWidgetSDK == null) {
+        "❌ Wepin SDK not initialized, skipping check".log();
+        return;
+      }
+      
+      try {
+        // Check Wepin status
+        final status = await state.wepinWidgetSDK!.getStatus();
+        "📊 Wepin status during check: $status".log();
+        
+        // If logged in, check for wallets
+        if (status == WepinLifeCycle.login) {
+          final wallets = await state.wepinWidgetSDK!.getAccounts();
+          "💼 Found ${wallets.length} wallets during periodic check".log();
+          
+          // Log detailed wallet information
+          for (var i = 0; i < wallets.length; i++) {
+            var account = wallets[i];
+            "📱 Wallet #${i+1}: Network=${account.network}, Address=${account.address}".log();
+          }
+          
+          if (wallets.isNotEmpty) {
+            // Check if wallet already saved
+            await getIt<WalletsCubit>().onGetAllWallets();
+            final connectedWallets = getIt<WalletsCubit>().state.connectedWallets;
+            "🔗 Currently connected wallets count: ${connectedWallets.length}".log();
+            
+            bool walletAlreadySaved = false;
+            for (var account in wallets) {
+              // Check both Ethereum-compatible and Klaytn wallets
+              bool isEthereumNetwork = account.network.toLowerCase() == "ethereum" ||
+                                      account.network.toLowerCase().startsWith("evm") ||
+                                      account.network.toLowerCase() == "polygon" ||
+                                      account.network.toLowerCase() == "avax-c-chain";
+              
+              if (isEthereumNetwork || account.network.toLowerCase() == "klaytn") {
+                walletAlreadySaved = connectedWallets.any(
+                  (w) => w.publicAddress.toLowerCase() == account.address.toLowerCase()
+                );
+                if (walletAlreadySaved) {
+                  "ℹ️ Wallet ${account.address} already saved".log();
+                  break;
+                }
+              }
+            }
+            
+            if (!walletAlreadySaved) {
+              "💾 New wallets detected, saving to backend...".log();
+              await saveWalletsToHMPBackend(wallets);
+              
+              // Wait for backend to sync - increased delay
+              "⏳ Waiting for backend synchronization (3 seconds)...".log();
+              await Future.delayed(const Duration(seconds: 3));
+              
+              // Refresh wallet list multiple times to ensure sync
+              for (int retry = 0; retry < 3; retry++) {
+                "🔄 Refreshing wallet list (attempt ${retry + 1}/3)...".log();
+                await getIt<WalletsCubit>().onGetAllWallets();
+                final updatedWallets = getIt<WalletsCubit>().state.connectedWallets;
+                
+                if (updatedWallets.isNotEmpty) {
+                  "✅ Wallets synced successfully. Found ${updatedWallets.length} wallets".log();
+                  break;
+                } else if (retry < 2) {
+                  "⏳ Wallets not yet synced, waiting 2 seconds before retry...".log();
+                  await Future.delayed(const Duration(seconds: 2));
+                }
+              }
+              
+              // After saving, check if we need to redeem NFT
+              if (state.isPerformWepinWelcomeNftRedeem) {
+                "🎁 Attempting to redeem welcome NFT after wallet save...".log();
+                
+                // Final wallet check
+                await getIt<WalletsCubit>().onGetAllWallets();
+                final finalWallets = getIt<WalletsCubit>().state.connectedWallets;
+                "📊 Final wallet check - Total wallets: ${finalWallets.length}".log();
+                
+                // Check if any wallet is connected (WEPIN_EVM or KLIP)
+                bool hasValidWallet = finalWallets.any((w) => 
+                  w.provider == "WEPIN_EVM" || w.provider == "KLIP"
+                );
+                
+                if (hasValidWallet || finalWallets.isNotEmpty) {
+                  "✅ Wallet connected, proceeding with NFT redemption".log();
+                  
+                  // Trigger NFT redemption
+                  if (getIt<NftCubit>().state.welcomeNftEntity.remainingCount > 0) {
+                    "🎁 Calling NFT redemption API...".log();
+                    getIt<NftCubit>().onGetConsumeWelcomeNft();
+                  }
+                  
+                  // Stop the timer as we've completed the process
+                  stopWalletCheckTimer();
+                  dismissLoader();
+                  emit(state.copyWith(
+                    isPerformWepinWelcomeNftRedeem: false,
+                  ));
+                } else {
+                  "⚠️ Wallet not yet marked as connected, will retry...".log();
+                }
+              } else {
+                // Just saving wallet, not redeeming NFT
+                "✅ Wallet saved successfully (non-NFT flow)".log();
+                stopWalletCheckTimer();
+                dismissLoader();
+              }
+            } else {
+              "ℹ️ All wallets already saved, checking NFT redemption status...".log();
+              
+              // If wallet is already saved and we're trying to redeem NFT
+              if (state.isPerformWepinWelcomeNftRedeem && 
+                  getIt<WalletsCubit>().state.isWepinWalletConnected) {
+                "🎁 Wallet already connected, proceeding with NFT redemption".log();
+                
+                if (getIt<NftCubit>().state.welcomeNftEntity.remainingCount > 0) {
+                  "🎁 Calling NFT redemption API (wallet already connected)...".log();
+                  getIt<NftCubit>().onGetConsumeWelcomeNft();
+                }
+                
+                stopWalletCheckTimer();
+                dismissLoader();
+                emit(state.copyWith(
+                  isPerformWepinWelcomeNftRedeem: false,
+                ));
+              }
+            }
+          } else {
+            "⚠️ No wallets found in Wepin SDK".log();
+          }
+        } else if (status == WepinLifeCycle.loginBeforeRegister) {
+          "📝 User needs to complete registration".log();
+        }
+      } catch (e) {
+        "❌ Error during wallet check: $e".log();
+      }
+    });
+  }
+  
+  // Stop the wallet check timer
+  void stopWalletCheckTimer() {
+    if (_walletCheckTimer != null) {
+      "🛑 Stopping wallet check timer".log();
+      _walletCheckTimer!.cancel();
+      _walletCheckTimer = null;
+      emit(state.copyWith(
+        isCheckingWallet: false,
+        walletCheckCounter: 0,
+      ));
+    }
+  }
+  
+  void dispose() {
+    stopWalletCheckTimer();
   }
 }

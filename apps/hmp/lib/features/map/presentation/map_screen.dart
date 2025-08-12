@@ -1828,6 +1828,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('🗺️ MapScreen build() called at ${DateTime.now()}');
     return Scaffold(
       appBar: AppBar(
         title: const Text(

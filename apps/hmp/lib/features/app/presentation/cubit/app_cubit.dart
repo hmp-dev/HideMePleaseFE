@@ -10,6 +10,8 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 part 'app_state.dart';
 
@@ -34,6 +36,9 @@ class AppCubit extends BaseCubit<AppState> {
       ),
       (authToken) async {
         emit(state.copyWith(isLoggedIn: true));
+        
+        // 자동 로그인 성공 시 Wepin SDK 초기화 및 소셜 토큰 전달
+        await _initializeWepinForAutoLogin();
       },
     );
   }
@@ -86,5 +91,48 @@ class AppCubit extends BaseCubit<AppState> {
 
   void markUnInitialized() {
     emit(state.copyWith(initialized: false));
+  }
+
+  /// 자동 로그인 시 Wepin SDK 초기화 및 소셜 토큰 전달
+  Future<void> _initializeWepinForAutoLogin() async {
+    try {
+      '🔄 [AppCubit] Auto-login detected, initializing Wepin SDK...'.log();
+      
+      // 1. Wepin SDK 초기화
+      await getIt<WepinCubit>().initializeWepinSDK(
+        selectedLanguageCode: 'ko', // 기본값 또는 사용자 설정에서 가져오기
+      );
+      
+      // 2. 저장된 소셜 토큰 확인 및 전달
+      final socialTokenType = await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle);
+      
+      if (socialTokenType != null) {
+        '🔑 [AppCubit] Found stored social token type: $socialTokenType'.log();
+        
+        if (socialTokenType == 'GOOGLE') {
+          final googleIdToken = await _secureStorage.read(StorageValues.googleIdToken);
+          if (googleIdToken != null && googleIdToken.isNotEmpty) {
+            '🔄 [AppCubit] Auto-login with stored Google ID token'.log();
+            await getIt<WepinCubit>().loginWepinWithGoogle(googleIdToken);
+          } else {
+            '❌ [AppCubit] Google token type found but ID token is empty'.log();
+          }
+        } else if (socialTokenType == 'APPLE') {
+          final appleToken = await _secureStorage.read(StorageValues.appleIdToken);
+          if (appleToken != null && appleToken.isNotEmpty) {
+            '🔄 [AppCubit] Auto-login with stored Apple token'.log();
+            await getIt<WepinCubit>().loginWepinWithApple(appleToken);
+          } else {
+            '❌ [AppCubit] Apple token type found but token is empty'.log();
+          }
+        }
+      } else {
+        '⚠️ [AppCubit] No social token type found, skipping Wepin login'.log();
+      }
+      
+      '✅ [AppCubit] Wepin auto-login initialization completed'.log();
+    } catch (e) {
+      '❌ [AppCubit] Failed to initialize Wepin for auto-login: $e'.log();
+    }
   }
 }
