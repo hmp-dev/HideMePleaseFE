@@ -18,6 +18,8 @@ UserProfileDto _$UserProfileDtoFromJson(Map<String, dynamic> json) =>
       pfpImageUrl: json['pfpImageUrl'] as String?,
       freeNftClaimed: json['freeNftClaimed'] as bool?,
       chatAppId: json['chatAppId'] as String?,
+      profilePartsString: json['profilePartsString'] as String?,
+      finalProfileImageUrl: json['finalProfileImageUrl'] as String?,
     );
 
 Map<String, dynamic> _$UserProfileDtoToJson(UserProfileDto instance) =>
@@ -32,4 +34,6 @@ Map<String, dynamic> _$UserProfileDtoToJson(UserProfileDto instance) =>
       'pfpNftId': instance.pfpNftId,
       'pfpImageUrl': instance.pfpImageUrl,
       'chatAppId': instance.chatAppId,
+      'profilePartsString': instance.profilePartsString,
+      'finalProfileImageUrl': instance.finalProfileImageUrl,
     };

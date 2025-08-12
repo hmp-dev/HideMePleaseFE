@@ -23,6 +23,8 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/gradient_button.dart';
 import 'package:mobile/features/onboarding/models/character_profile.dart';
+import 'package:mobile/features/onboarding/services/character_image_service.dart';
+import 'package:mobile/features/onboarding/services/image_upload_service.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/app/core/constants/storage.dart';
@@ -89,8 +91,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     // New onboarding screens (2 new + 2 existing)
     // Total 4 screens now
 
-    // call function to check if location is enabled
-    getIt<EnableLocationCubit>().checkLocationEnabled();
+    // call function to check if location is enabled with error handling
+    try {
+      getIt<EnableLocationCubit>().checkLocationEnabled();
+    } catch (e) {
+      '❌ Error checking location: $e'.log();
+    }
     
     // Load saved onboarding state
     _loadOnboardingState();
@@ -483,6 +489,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                 await prefs.remove(StorageValues.onboardingCurrentStep);
                                                 '✅ 온보딩 완료 - 저장된 단계 초기화'.log();
                                                 
+                                                // Start background task for image merging and S3 upload
+                                                _startImageUploadTask(selectedCharacter);
+                                                
                                                 // Navigate directly to app screen
                                                 Navigator.pushNamedAndRemoveUntil(
                                                   context,
@@ -524,5 +533,59 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
     var isShowOnBoarding = prefs.getInt(isShowOnBoardingView);
     ("isShowOnBoarding: $isShowOnBoarding").log();
+  }
+
+  /// Start background task to merge character layers and upload to S3
+  Future<void> _startImageUploadTask(CharacterProfile? character) async {
+    if (character == null) {
+      '⚠️ No character selected for image upload'.log();
+      return;
+    }
+
+    // Run in background using Future.microtask
+    Future.microtask(() async {
+      try {
+        '🎨 Starting character image merge and upload process'.log();
+        
+        // Step 1: Merge character layers
+        final imageBytes = await CharacterImageService.mergeCharacterLayers(character);
+        if (imageBytes == null) {
+          '❌ Failed to merge character layers'.log();
+          return;
+        }
+        '✅ Successfully merged character layers (${imageBytes.length} bytes)'.log();
+
+        // Step 2: Upload to S3
+        final uploadService = getIt<ImageUploadService>();
+        final fileName = CharacterImageService.generateFileName(character.id);
+        
+        final s3Url = await uploadService.uploadCharacterImageToS3(
+          imageBytes: imageBytes,
+          fileName: fileName,
+        );
+
+        if (s3Url == null) {
+          '❌ Failed to upload image to S3'.log();
+          return;
+        }
+        '✅ Successfully uploaded to S3: $s3Url'.log();
+
+        // Step 3: Update profile with final image URL
+        final profileCubit = getIt<ProfileCubit>();
+        final updateRequest = UpdateProfileRequestDto(
+          finalProfileImageUrl: s3Url,
+        );
+        
+        await profileCubit.onUpdateUserProfile(updateRequest);
+        '✅ Profile updated with final image URL'.log();
+
+        // Step 4: Refresh profile to get updated data
+        await profileCubit.onGetUserProfile();
+        '✅ Profile refreshed with new image URL'.log();
+
+      } catch (e) {
+        '❌ Error in background image upload task: $e'.log();
+      }
+    });
   }
 }
