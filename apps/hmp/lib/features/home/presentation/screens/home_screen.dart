@@ -55,7 +55,11 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
-    _initWallets();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _initWallets();
+      }
+    });
     _checkAndShowModelBannerDialog();
     initValues();
   }
@@ -81,13 +85,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _initWallets() async {
-    //await SolanaWalletProvider.initialize();
-    // initialize the w3mService
-    await getIt<WalletsCubit>().initReownAppKitSdk(
-        context: context);
-    // initialize the WepinSDK and Login
-    await getIt<WepinCubit>()
-        .initializeWepinSDK(selectedLanguageCode: context.locale.languageCode);
+    try {
+      //await SolanaWalletProvider.initialize();
+      // initialize the w3mService
+      await getIt<WalletsCubit>().initReownAppKitSdk(
+          context: context).timeout(const Duration(seconds: 10));
+      // initialize the WepinSDK and Login
+      await getIt<WepinCubit>()
+          .initializeWepinSDK(selectedLanguageCode: context.locale.languageCode)
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {
+      Log.error('Failed to initialize wallets: $e');
+      // Continue without wallet initialization
+    }
   }
 
   void _scrollListener() {
@@ -346,32 +356,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   "HomeScreen-freeNftAvailable:${nftState.welcomeNftEntity.freeNftAvailable}"
                       .log();
 
-                  return !nftState.welcomeNftEntity.freeNftAvailable &&
-                          walletsState.connectedWallets.isEmpty
-                      ? kDebugMode
-                          ? SingleChildScrollView(
-                              controller: _scrollController,
-                              child: getHomeView(HomeViewType
-                                  .beforeWalletConnectedWithNoFreeNft),
-                            )
-                          : UpgradeAlert(
-                              child: SingleChildScrollView(
-                                controller: _scrollController,
-                                child: getHomeView(HomeViewType
-                                    .beforeWalletConnectedWithNoFreeNft),
-                              ),
-                            )
-                      : kDebugMode
-                          ? SingleChildScrollView(
-                              controller: _scrollController,
-                              child: getHomeView(homeState.homeViewType),
-                            )
-                          : UpgradeAlert(
-                              child: SingleChildScrollView(
-                                controller: _scrollController,
-                                child: getHomeView(homeState.homeViewType),
-                              ),
-                            );
+                  // Use homeState to determine which view to show
+                  Widget homeContent;
+                  if (homeState.homeViewType == HomeViewType.afterWalletConnected) {
+                    homeContent = getHomeView(HomeViewType.afterWalletConnected);
+                  } else if (homeState.homeViewType == HomeViewType.beforeWalletConnectedWithNoFreeNft) {
+                    homeContent = getHomeView(HomeViewType.beforeWalletConnectedWithNoFreeNft);
+                  } else {
+                    // Default to beforeWalletConnected
+                    homeContent = getHomeView(HomeViewType.beforeWalletConnected);
+                  }
+                  
+                  return kDebugMode
+                      ? SingleChildScrollView(
+                          controller: _scrollController,
+                          child: homeContent,
+                        )
+                      : UpgradeAlert(
+                          child: SingleChildScrollView(
+                            controller: _scrollController,
+                            child: homeContent,
+                          ),
+                        );
                 },
               );
             },

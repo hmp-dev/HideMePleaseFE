@@ -21,11 +21,19 @@ import 'package:mobile/firebase_options.dart';
 import 'package:talker_bloc_logger/talker_bloc_logger.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 
 /// init Screen bool
 /// check if it is first time App is launched by user
 
 int? isShowOnBoarding;
+
+/// 온보딩 디버깅 모드 플래그
+/// true: 항상 온보딩 표시 (개발 중)
+/// false: 정상 동작 (프로덕션)
+/// TODO: 프로덕션 배포 전 반드시 false로 변경
+const bool ONBOARDING_DEBUG_MODE = true;
 
 String? _userSavedLanguageCode;
 void main() async {
@@ -97,6 +105,15 @@ Future initApp() async {
   // Initialize Firebase Crashlytics and configure error reporting
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+  
+  // 온보딩 디버깅 모드 설정
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool(StorageValues.onboardingDebugMode, ONBOARDING_DEBUG_MODE);
+  if (ONBOARDING_DEBUG_MODE) {
+    '🐛 온보딩 디버깅 모드 활성화됨 - 온보딩이 항상 표시됩니다'.log();
+  } else {
+    '✅ 온보딩 정상 모드 - 완료 후 다시 표시되지 않습니다'.log();
+  }
 
   // Configure the logger for the app
   Log.configureLogger();

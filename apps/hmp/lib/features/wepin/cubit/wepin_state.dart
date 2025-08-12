@@ -11,6 +11,8 @@ class WepinState extends BaseState {
   final bool isPerformWepinWelcomeNftRedeem;
   final bool isWepinModelOpen;
   final bool isCountDownFinished;
+  final bool isCheckingWallet;
+  final int walletCheckCounter;
 
   @override
   final bool isLoading;
@@ -45,6 +47,8 @@ class WepinState extends BaseState {
     this.isPerformWepinWelcomeNftRedeem = false,
     this.isWepinModelOpen = false,
     this.isCountDownFinished = false,
+    this.isCheckingWallet = false,
+    this.walletCheckCounter = 0,
     this.isLoading = false,
     this.error,
   });
@@ -61,6 +65,8 @@ class WepinState extends BaseState {
         isPerformWepinWelcomeNftRedeem: false,
         isCountDownFinished: false,
         isWepinModelOpen: false,
+        isCheckingWallet: false,
+        walletCheckCounter: 0,
       );
 
   @override
@@ -76,6 +82,8 @@ class WepinState extends BaseState {
         isPerformWepinWelcomeNftRedeem,
         isWepinModelOpen,
         isCountDownFinished,
+        isCheckingWallet,
+        walletCheckCounter,
         isLoading,
         error,
       ];
@@ -93,6 +101,8 @@ class WepinState extends BaseState {
     bool? isPerformWepinWelcomeNftRedeem,
     bool? isWepinModelOpen,
     bool? isCountDownFinished,
+    bool? isCheckingWallet,
+    int? walletCheckCounter,
     bool? isLoading,
     String? error,
   }) {
@@ -111,6 +121,8 @@ class WepinState extends BaseState {
           isPerformWepinWelcomeNftRedeem ?? this.isPerformWepinWelcomeNftRedeem,
       isWepinModelOpen: isWepinModelOpen ?? this.isWepinModelOpen,
       isCountDownFinished: isCountDownFinished ?? this.isCountDownFinished,
+      isCheckingWallet: isCheckingWallet ?? this.isCheckingWallet,
+      walletCheckCounter: walletCheckCounter ?? this.walletCheckCounter,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
     );

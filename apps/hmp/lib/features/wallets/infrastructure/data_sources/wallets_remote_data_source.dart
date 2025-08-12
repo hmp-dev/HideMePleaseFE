@@ -38,11 +38,12 @@ class WalletsRemoteDataSource {
     } on DioException catch (e, t) {
       if (e.response != null && e.response?.statusCode == 409) {
         final Map<String, dynamic> responseBody = e.response?.data;
-        final errorCode = responseBody['error']['code'];
-        final errorMessage = responseBody['error']['message'];
+        final errorMessage = responseBody['message'] ?? 'Wallet already exists';
+        final errorCode = responseBody['error'] ?? 'CONFLICT';
 
         // Throw a custom error if the wallet already exists
         throw WalletAddErrorDto(
+          code: 409,
           message: errorMessage,
           error: errorCode,
           trace: t.toString(),

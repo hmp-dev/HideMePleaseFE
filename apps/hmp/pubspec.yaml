@@ -130,6 +130,28 @@ flutter:
     - assets/wallet-logos/
     - assets/web3-wallet-logos/
     - assets/chain-logos/
+    - assets/character/background/basic/
+    - assets/character/background/rare/
+    - assets/character/body/basic/
+    - assets/character/body/rare/
+    - assets/character/clothes(female)/basic/
+    - assets/character/clothes(female)/rare/
+    - assets/character/clothes(unisex)/basic/
+    - assets/character/clothes(unisex)/rare/
+    - assets/character/ear_accessory/basic/
+    - assets/character/ear_accessory/rare/
+    - assets/character/eyes(female)/basic/
+    - assets/character/eyes(female)/rare/
+    - assets/character/eyes(unisex)/basic/
+    - assets/character/eyes(unisex)/rare/
+    - assets/character/hair(female)/basic/
+    - assets/character/hair(female)/rare/
+    - assets/character/hair(male)/basic/
+    - assets/character/hair(male)/rare/
+    - assets/character/hair(unisex)/basic/
+    - assets/character/hair(unisex)/rare/
+    - assets/character/nose/basic/
+    - assets/character/nose/rare/
   fonts:
     - family: Pretendard
       fonts:

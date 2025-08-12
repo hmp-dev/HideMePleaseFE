@@ -69,6 +69,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     //onUpdateIsWelcomeNftRedeemInProcess(false);
     // disconnect W3MService
     //onDisconnectW3MService();
+    "💾 [WalletsCubit] Saving wallet: ${saveWalletRequestDto.provider} - ${saveWalletRequestDto.publicAddress}".log();
 
     emit(state.copyWith(
       submitStatus: RequestStatus.loading,
@@ -80,14 +81,31 @@ class WalletsCubit extends BaseCubit<WalletsState> {
 
     response.fold(
       (err) {
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: err.message,
-        ));
-        // fetch All Wallets
+        "❌ [WalletsCubit] Failed to save wallet: ${err.message}".log();
+        
+        // Check if it's a WALLET_ALREADY_LINKED error (409)
+        bool isWalletAlreadyLinked = err.message?.contains('WALLET_ALREADY_LINKED') == true || 
+                                   err.error?.toString().contains('WALLET_ALREADY_LINKED') == true ||
+                                   err.code == 409;
+        
+        if (isWalletAlreadyLinked) {
+          "ℹ️ [WalletsCubit] Wallet already linked, treating as success".log();
+          emit(state.copyWith(
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+          ));
+        } else {
+          "❌ [WalletsCubit] Genuine error occurred: ${err.message} (code: ${err.code})".log();
+          emit(state.copyWith(
+            submitStatus: RequestStatus.failure,
+            errorMessage: err.message,
+          ));
+        }
+        // Always fetch all wallets to ensure we have the latest data
         onGetAllWallets();
       },
       (wallets) {
+        "✅ [WalletsCubit] Wallet saved successfully".log();
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,

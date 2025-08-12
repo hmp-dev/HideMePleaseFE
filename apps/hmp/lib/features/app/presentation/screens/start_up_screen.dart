@@ -15,6 +15,7 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/model_banner_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import '../../../../app/core/storage/secure_storage.dart';
@@ -91,12 +92,28 @@ class _StartUpScreenState extends State<StartUpScreen>
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.beforeWalletConnected);
 
-                // pass value to appHome with Navigator.pushNamedAndRemoveUntil to disconnect wallet
+                // Check if onboarding has been completed
+                final prefs = await SharedPreferences.getInstance();
+                final onboardingCompleted = prefs.getBool(StorageValues.onboardingCompleted) ?? false;
+                final debugMode = prefs.getBool(StorageValues.onboardingDebugMode) ?? false;
+                final savedStep = prefs.getInt(StorageValues.onboardingCurrentStep);
 
                 if (context.mounted) {
-                  const SecureStorage().write(StorageValues.wasOnWelcomeWalletConnectScreen, "true");
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      Routes.appScreen, (Route<dynamic> route) => false);
+                  // Show onboarding if:
+                  // 1. Debug mode is enabled (for development)
+                  // 2. Onboarding not completed yet
+                  // 3. There's a saved step (user left mid-onboarding)
+                  if (debugMode || !onboardingCompleted || savedStep != null) {
+                    '🚀 온보딩 화면으로 이동 - 디버그모드: $debugMode, 완료: $onboardingCompleted, 저장된 단계: $savedStep'.log();
+                    // Show onboarding screen
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        Routes.onboardingScreen, (Route<dynamic> route) => false);
+                  } else {
+                    // Returning user - go to home
+                    const SecureStorage().write(StorageValues.wasOnWelcomeWalletConnectScreen, "true");
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        Routes.appScreen, (Route<dynamic> route) => false);
+                  }
                 }
               } else {
 
