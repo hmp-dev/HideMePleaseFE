@@ -14,13 +14,7 @@ class CharacterImageService {
     try {
       // Create a picture recorder
       final recorder = ui.PictureRecorder();
-      final canvas = Canvas(
-        recorder,
-        Rect.fromPoints(
-          const Offset(0, 0),
-          Offset(imageSize.toDouble(), imageSize.toDouble()),
-        ),
-      );
+      final canvas = Canvas(recorder);
 
       // Load and draw each layer in order
       final layers = [

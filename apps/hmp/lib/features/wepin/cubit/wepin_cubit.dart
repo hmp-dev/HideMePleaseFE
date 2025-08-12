@@ -377,14 +377,27 @@ class WepinCubit extends BaseCubit<WepinState> {
         "💾 [WEPIN_EVM] Wallet address: ${account.address}".log();
         "💾 [WEPIN_EVM] Provider type: WEPIN_EVM".log();
         
-        await getIt<WalletsCubit>().onPostWallet(
-          saveWalletRequestDto: SaveWalletRequestDto(
-            publicAddress: account.address,
-            provider: "WEPIN_EVM",
-          ),
-        );
-        hasWepinEvm = true;
-        "✅ [WEPIN_EVM] Ethereum wallet save request completed".log();
+        try {
+          await getIt<WalletsCubit>().onPostWallet(
+            saveWalletRequestDto: SaveWalletRequestDto(
+              publicAddress: account.address,
+              provider: "WEPIN_EVM",
+            ),
+          );
+          hasWepinEvm = true;
+          "✅ [WEPIN_EVM] Ethereum wallet save request completed".log();
+        } catch (e) {
+          // Check if error is 409 WALLET_ALREADY_LINKED
+          if (e.toString().contains('409') || e.toString().contains('WALLET_ALREADY_LINKED')) {
+            "⚠️ [WEPIN_EVM] Wallet already linked, updating instead: ${account.address}".log();
+            // Wallet already exists, just mark as successful
+            hasWepinEvm = true;
+            "✅ [WEPIN_EVM] Using existing wallet: ${account.address}".log();
+          } else {
+            "❌ [WEPIN_EVM] Failed to save wallet: $e".log();
+            rethrow;
+          }
+        }
       }
       
       // Also save KLIP wallet for Klaytn network
@@ -393,14 +406,27 @@ class WepinCubit extends BaseCubit<WepinState> {
         "💾 [KLIP] Wallet address: ${account.address}".log();
         "💾 [KLIP] Provider type: KLIP".log();
         
-        await getIt<WalletsCubit>().onPostWallet(
-          saveWalletRequestDto: SaveWalletRequestDto(
-            publicAddress: account.address,
-            provider: "KLIP",
-          ),
-        );
-        hasKlip = true;
-        "✅ [KLIP] Klaytn wallet save request completed".log();
+        try {
+          await getIt<WalletsCubit>().onPostWallet(
+            saveWalletRequestDto: SaveWalletRequestDto(
+              publicAddress: account.address,
+              provider: "KLIP",
+            ),
+          );
+          hasKlip = true;
+          "✅ [KLIP] Klaytn wallet save request completed".log();
+        } catch (e) {
+          // Check if error is 409 WALLET_ALREADY_LINKED
+          if (e.toString().contains('409') || e.toString().contains('WALLET_ALREADY_LINKED')) {
+            "⚠️ [KLIP] Wallet already linked, updating instead: ${account.address}".log();
+            // Wallet already exists, just mark as successful
+            hasKlip = true;
+            "✅ [KLIP] Using existing wallet: ${account.address}".log();
+          } else {
+            "❌ [KLIP] Failed to save wallet: $e".log();
+            rethrow;
+          }
+        }
       }
     }
     
