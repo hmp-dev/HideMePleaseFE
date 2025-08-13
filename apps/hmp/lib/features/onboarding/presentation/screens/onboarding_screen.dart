@@ -281,9 +281,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             _isConfirming = false;
           });
           
-          // Start polling for wallet creation
-          '🔄 Starting wallet check timer before opening widget'.log();
-          wepinCubit.startWalletCheckTimer();
+          // Start polling for wallet creation with onboarding flag
+          '🔄 Starting wallet check timer for onboarding before opening widget'.log();
+          wepinCubit.startWalletCheckTimer(isFromOnboarding: true);
           
           // Open Wepin widget which will handle OAuth login and wallet creation
           await wepinCubit.state.wepinWidgetSDK!.openWidget(context);
@@ -411,11 +411,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 '⏱️ Wallet check in progress: ${wepinState.walletCheckCounter}s'.log();
               }
               
-              // Check if wallet was created (polling will set this)
-              if (!wepinState.isCheckingWallet && 
-                  wepinState.walletCheckCounter > 0 && 
-                  currentSlideIndex == 1) {
-                '✅ Wallet creation detected via polling!'.log();
+              // Check if wallet was created from onboarding
+              if (wepinState.walletCreatedFromOnboarding && currentSlideIndex == 1) {
+                '✅ Wallet creation from onboarding detected!'.log();
+                
+                // Reset the flag to prevent duplicate navigation
+                getIt<WepinCubit>().resetOnboardingWalletFlag();
                 
                 // Move to next page when wallet is created
                 Future.delayed(const Duration(milliseconds: 500), () {

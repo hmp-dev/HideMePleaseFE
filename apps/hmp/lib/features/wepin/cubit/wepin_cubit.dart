@@ -873,9 +873,13 @@ class WepinCubit extends BaseCubit<WepinState> {
     emit(state.copyWith(wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
   }
 
-  // Start periodic wallet checking for NFT redemption
-  void startWalletCheckTimer() {
-    "🔄 Starting wallet check timer for NFT redemption".log();
+  // Start periodic wallet checking for NFT redemption or onboarding
+  void startWalletCheckTimer({bool isFromOnboarding = false}) {
+    if (isFromOnboarding) {
+      "🔄 Starting wallet check timer for ONBOARDING flow".log();
+    } else {
+      "🔄 Starting wallet check timer for NFT redemption".log();
+    }
     "🔄 Current state - isPerformWepinWelcomeNftRedeem: ${state.isPerformWepinWelcomeNftRedeem}".log();
     
     // Cancel any existing timer
@@ -885,6 +889,7 @@ class WepinCubit extends BaseCubit<WepinState> {
     emit(state.copyWith(
       isCheckingWallet: true,
       walletCheckCounter: 0,
+      isOnboardingFlow: isFromOnboarding,
     ));
     
     "✅ Timer state updated - isCheckingWallet: true".log();
@@ -1012,6 +1017,16 @@ class WepinCubit extends BaseCubit<WepinState> {
               } else {
                 // Just saving wallet, not redeeming NFT
                 "✅ Wallet saved successfully (non-NFT flow)".log();
+                
+                // Check if this is from onboarding flow
+                if (state.isOnboardingFlow) {
+                  "🎯 Wallet saved from ONBOARDING - signaling completion".log();
+                  emit(state.copyWith(
+                    walletCreatedFromOnboarding: true,
+                    isOnboardingFlow: false,
+                  ));
+                }
+                
                 stopWalletCheckTimer();
                 dismissLoader();
               }
@@ -1058,6 +1073,14 @@ class WepinCubit extends BaseCubit<WepinState> {
         walletCheckCounter: 0,
       ));
     }
+  }
+  
+  // Reset onboarding wallet flag
+  void resetOnboardingWalletFlag() {
+    emit(state.copyWith(
+      walletCreatedFromOnboarding: false,
+    ));
+    "🔄 Onboarding wallet flag reset".log();
   }
   
   void dispose() {
