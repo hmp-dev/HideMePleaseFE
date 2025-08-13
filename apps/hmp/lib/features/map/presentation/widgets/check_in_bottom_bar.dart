@@ -24,14 +24,7 @@ class CheckInBottomBar extends StatelessWidget {
       child: Container(
         height: 70,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              const Color(0xFF19BAFF).withOpacity(0.2),
-              const Color(0xFF19BAFF).withOpacity(0.05),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Colors.grey[800]?.withOpacity(0.9),
           borderRadius: BorderRadius.circular(35),
           boxShadow: [
             BoxShadow(
@@ -44,17 +37,19 @@ class CheckInBottomBar extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
             // 지도 버튼
             _buildBottomBarButton(
-              svgPath: 'assets/icons/map_bottom_icon_map.svg',
+              icon: Icons.map_outlined,
+              label: '지도',
               onTap: onMapTap,
             ),
             
             // MY 버튼
             _buildBottomBarButton(
-              svgPath: 'assets/icons/map_bottom_icon_my.svg',
+              icon: Icons.person_outline,
+              label: 'MY',
               onTap: onMyTap,
               iconColor: Colors.grey[400],
             ),
@@ -69,17 +64,39 @@ class CheckInBottomBar extends StatelessWidget {
 }
 
   Widget _buildBottomBarButton({
-    required String svgPath,
+    required IconData icon,
+    required String label,
     VoidCallback? onTap,
     Color? iconColor,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: SvgPicture.asset(
-        svgPath,
-        colorFilter: iconColor != null ? ColorFilter.mode(iconColor, BlendMode.srcIn) : null,
-        width: 48,
-        height: 48,
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.grey[700]?.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: iconColor ?? Colors.white,
+              size: 20,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -87,10 +104,41 @@ class CheckInBottomBar extends StatelessWidget {
   Widget _buildCheckInButton() {
     return GestureDetector(
       onTap: onCheckInTap,
-      child: SvgPicture.asset(
-        'assets/icons/map_bottom_icon_checkin.svg', // SVG 파일 경로
-        width: 48, // 아이콘 크기
-        height: 48,
+      child: Container(
+        width: 110,
+        height: 40,
+        decoration: BoxDecoration(
+          color: const Color(0xFF4FC3F7), // 밝은 파란색
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF4FC3F7).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/icons/ic_check_in_icon.svg', // SVG 파일 경로
+              width: 18, // 아이콘 크기
+              height: 18,
+              colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn), // 아이콘 색상
+            ),
+            const SizedBox(width: 6),
+            const Text(
+              'CHECK-IN',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
