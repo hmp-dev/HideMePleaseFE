@@ -80,6 +80,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   var currentSlideIndex = 0;
   bool dontShowCheckBox = false;
   bool _isConfirming = false;
+  bool _isCheckingWallet = false; // Add wallet checking state
   String selectedProfile = '';
   CharacterProfile? selectedCharacter;
   String nickname = '';
@@ -406,9 +407,16 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           BlocListener<WepinCubit, WepinState>(
             bloc: getIt<WepinCubit>(),
             listener: (context, wepinState) {
-              // Check if wallet checking is active
-              if (wepinState.isCheckingWallet) {
-                '⏱️ Wallet check in progress: ${wepinState.walletCheckCounter}s'.log();
+              // Update wallet checking state
+              if (wepinState.isCheckingWallet != _isCheckingWallet) {
+                setState(() {
+                  _isCheckingWallet = wepinState.isCheckingWallet;
+                });
+                if (wepinState.isCheckingWallet) {
+                  '⏱️ Wallet check started - blocking UI'.log();
+                } else {
+                  '✅ Wallet check completed - unblocking UI'.log();
+                }
               }
               
               // Check if wallet was created from onboarding
@@ -524,9 +532,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                 )
                               : GradientButton(
                                   text: _getButtonText(),
-                                  onPressed: currentSlideIndex == 1 
-                                      ? _createWepinWallet 
-                                      : _goToNextPage,
+                                  onPressed: _isCheckingWallet 
+                                      ? () {} // Disable button when checking wallet
+                                      : (currentSlideIndex == 1 
+                                          ? _createWepinWallet 
+                                          : _goToNextPage),
                                 ),
                         )
                       : Padding(
@@ -597,6 +607,31 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   ),
                 ],
               ),
+              // Loading overlay when checking wallet
+              if (_isCheckingWallet)
+                Container(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  child: const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          '지갑 생성 중...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'LINESeedKR',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
       ),
