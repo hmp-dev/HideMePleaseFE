@@ -29,8 +29,8 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
     super.initState();
     // Generate 10 random characters
     characters = CharacterGenerator.generateRandomCharacters(10);
-    // Initialize with random character
-    currentProfileIndex = math.Random().nextInt(characters.length);
+    // Initialize with first character (index 0)
+    currentProfileIndex = 0;
     
     // Set initial profile after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {

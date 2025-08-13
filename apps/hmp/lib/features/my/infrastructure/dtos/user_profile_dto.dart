@@ -20,6 +20,8 @@ class UserProfileDto extends Equatable {
   final String? pfpNftId;
   final String? pfpImageUrl;
   final String? chatAppId;
+  final String? profilePartsString;
+  final String? finalProfileImageUrl;
 
   const UserProfileDto({
     this.id,
@@ -32,6 +34,8 @@ class UserProfileDto extends Equatable {
     this.pfpImageUrl,
     this.freeNftClaimed,
     this.chatAppId,
+    this.profilePartsString,
+    this.finalProfileImageUrl,
   });
 
   factory UserProfileDto.fromJson(Map<String, dynamic> json) =>
@@ -50,6 +54,8 @@ class UserProfileDto extends Equatable {
         freeNftClaimed: freeNftClaimed ?? false,
         chatAccessToken: chatAccessToken ?? "",
         chatAppId: chatAppId ?? "",
+        profilePartsString: profilePartsString ?? "",
+        finalProfileImageUrl: finalProfileImageUrl ?? "",
       );
 
 //
@@ -65,7 +71,9 @@ class UserProfileDto extends Equatable {
       pfpNftId,
       pfpImageUrl,
       freeNftClaimed,
-      chatAppId
+      chatAppId,
+      profilePartsString,
+      finalProfileImageUrl
     ];
   }
 }

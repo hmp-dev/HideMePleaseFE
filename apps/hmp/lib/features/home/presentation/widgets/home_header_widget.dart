@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/alarms_icon_button.dart';
-import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
+import 'package:mobile/features/common/presentation/widgets/profile_avatar_widget.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/linked_wallet_button.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
@@ -41,13 +41,12 @@ class HomeHeaderWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                CustomImageView(
-                  url: userProfile.pfpImageUrl,
+                ProfileAvatarWidget(
+                  profilePartsString: userProfile.profilePartsString,
+                  imageUrl: userProfile.finalProfileImageUrl ?? userProfile.pfpImageUrl,
+                  size: 54,
+                  borderRadius: 50,
                   fit: BoxFit.cover,
-                  width: 54,
-                  height: 54,
-                  radius: BorderRadius.circular(50),
-                  placeHolder: "assets/images/launcher-icon.png",
                 ),
                 const HorizontalSpace(10),
                 Expanded(

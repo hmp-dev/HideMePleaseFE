@@ -13,6 +13,8 @@ class WepinState extends BaseState {
   final bool isCountDownFinished;
   final bool isCheckingWallet;
   final int walletCheckCounter;
+  final bool isOnboardingFlow;
+  final bool walletCreatedFromOnboarding;
 
   @override
   final bool isLoading;
@@ -49,6 +51,8 @@ class WepinState extends BaseState {
     this.isCountDownFinished = false,
     this.isCheckingWallet = false,
     this.walletCheckCounter = 0,
+    this.isOnboardingFlow = false,
+    this.walletCreatedFromOnboarding = false,
     this.isLoading = false,
     this.error,
   });
@@ -67,6 +71,8 @@ class WepinState extends BaseState {
         isWepinModelOpen: false,
         isCheckingWallet: false,
         walletCheckCounter: 0,
+        isOnboardingFlow: false,
+        walletCreatedFromOnboarding: false,
       );
 
   @override
@@ -84,6 +90,8 @@ class WepinState extends BaseState {
         isCountDownFinished,
         isCheckingWallet,
         walletCheckCounter,
+        isOnboardingFlow,
+        walletCreatedFromOnboarding,
         isLoading,
         error,
       ];
@@ -103,6 +111,8 @@ class WepinState extends BaseState {
     bool? isCountDownFinished,
     bool? isCheckingWallet,
     int? walletCheckCounter,
+    bool? isOnboardingFlow,
+    bool? walletCreatedFromOnboarding,
     bool? isLoading,
     String? error,
   }) {
@@ -123,6 +133,8 @@ class WepinState extends BaseState {
       isCountDownFinished: isCountDownFinished ?? this.isCountDownFinished,
       isCheckingWallet: isCheckingWallet ?? this.isCheckingWallet,
       walletCheckCounter: walletCheckCounter ?? this.walletCheckCounter,
+      isOnboardingFlow: isOnboardingFlow ?? this.isOnboardingFlow,
+      walletCreatedFromOnboarding: walletCreatedFromOnboarding ?? this.walletCreatedFromOnboarding,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
     );
