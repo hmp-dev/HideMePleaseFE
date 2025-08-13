@@ -97,3 +97,9 @@ dependencies {
     implementation 'androidx.window:window:1.0.0'
     implementation 'androidx.window:window-java:1.0.0'   
 }
+
+// Firebase plugins are applied conditionally
+// Comment out for now to avoid build issues
+// apply plugin: 'com.google.gms.google-services'
+// apply plugin: 'com.google.firebase.crashlytics'  
+// apply plugin: 'com.google.firebase.firebase-perf'

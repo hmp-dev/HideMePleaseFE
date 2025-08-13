@@ -11,6 +11,8 @@ class UserProfileEntity extends Equatable {
   final String pfpNftId;
   final String pfpImageUrl;
   final String chatAppId;
+  final String profilePartsString;
+  final String finalProfileImageUrl;
 
   const UserProfileEntity({
     required this.id,
@@ -23,6 +25,8 @@ class UserProfileEntity extends Equatable {
     required this.pfpNftId,
     required this.pfpImageUrl,
     required this.chatAppId,
+    required this.profilePartsString,
+    required this.finalProfileImageUrl,
   });
 
   const UserProfileEntity.empty()
@@ -35,7 +39,9 @@ class UserProfileEntity extends Equatable {
         chatAccessToken = '',
         pfpNftId = '',
         pfpImageUrl = '',
-        chatAppId = '';
+        chatAppId = '',
+        profilePartsString = '',
+        finalProfileImageUrl = '';
 
   @override
   List<Object?> get props {
@@ -48,7 +54,9 @@ class UserProfileEntity extends Equatable {
       chatAccessToken,
       pfpNftId,
       pfpImageUrl,
-      chatAppId
+      chatAppId,
+      profilePartsString,
+      finalProfileImageUrl
     ];
   }
 
@@ -62,6 +70,8 @@ class UserProfileEntity extends Equatable {
     String? pfpNftId,
     String? pfpImageUrl,
     String? chatAppId,
+    String? profilePartsString,
+    String? finalProfileImageUrl,
   }) {
     return UserProfileEntity(
       id: id,
@@ -74,6 +84,8 @@ class UserProfileEntity extends Equatable {
       pfpNftId: pfpNftId ?? this.pfpNftId,
       pfpImageUrl: pfpImageUrl ?? this.pfpImageUrl,
       chatAppId: chatAppId ?? this.chatAppId,
+      profilePartsString: profilePartsString ?? this.profilePartsString,
+      finalProfileImageUrl: finalProfileImageUrl ?? this.finalProfileImageUrl,
     );
   }
 }

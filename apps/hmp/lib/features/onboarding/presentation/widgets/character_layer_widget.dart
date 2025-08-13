@@ -49,6 +49,11 @@ class CharacterLayerWidget extends StatelessWidget {
   }
 
   Widget _buildLayer(String assetPath) {
+    // Skip empty paths
+    if (assetPath.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    
     return Positioned.fill(
       child: Image.asset(
         assetPath,

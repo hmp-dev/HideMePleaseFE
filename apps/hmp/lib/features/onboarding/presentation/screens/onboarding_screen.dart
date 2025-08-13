@@ -23,6 +23,8 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/gradient_button.dart';
 import 'package:mobile/features/onboarding/models/character_profile.dart';
+import 'package:mobile/features/onboarding/services/character_image_service.dart';
+import 'package:mobile/features/onboarding/services/image_upload_service.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/app/core/constants/storage.dart';
@@ -78,6 +80,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   var currentSlideIndex = 0;
   bool dontShowCheckBox = false;
   bool _isConfirming = false;
+  bool _isCheckingWallet = false; // Add wallet checking state
   String selectedProfile = '';
   CharacterProfile? selectedCharacter;
   String nickname = '';
@@ -89,13 +92,36 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     // New onboarding screens (2 new + 2 existing)
     // Total 4 screens now
 
-    // call function to check if location is enabled
-    getIt<EnableLocationCubit>().checkLocationEnabled();
+    // Initialize Wepin SDK for wallet creation
+    _initializeWepin();
+
+    // call function to check if location is enabled with error handling
+    try {
+      getIt<EnableLocationCubit>().checkLocationEnabled();
+    } catch (e) {
+      '❌ Error checking location: $e'.log();
+    }
     
     // Load saved onboarding state
     _loadOnboardingState();
 
     super.initState();
+  }
+
+  Future<void> _initializeWepin() async {
+    try {
+      '🔧 Initializing Wepin SDK for onboarding...'.log();
+      final wepinCubit = getIt<WepinCubit>();
+      
+      // Initialize Wepin SDK with current language
+      await wepinCubit.initializeWepinSDK(
+        selectedLanguageCode: context.locale.languageCode,
+      );
+      
+      '✅ Wepin SDK initialized successfully'.log();
+    } catch (e) {
+      '❌ Failed to initialize Wepin SDK: $e'.log();
+    }
   }
   
   Future<void> _loadOnboardingState() async {
@@ -104,24 +130,24 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     // Check debug mode
     _debugMode = prefs.getBool(StorageValues.onboardingDebugMode) ?? false;
     
-    // Load saved step if not in debug mode
-    if (!_debugMode) {
-      final savedStep = prefs.getInt(StorageValues.onboardingCurrentStep) ?? 0;
-      setState(() {
-        currentSlideIndex = savedStep;
-      });
-      '📱 온보딩 상태 복원: 스텝 $savedStep'.log();
+    // Always load saved step regardless of debug mode
+    final savedStep = prefs.getInt(StorageValues.onboardingCurrentStep) ?? 0;
+    setState(() {
+      currentSlideIndex = savedStep;
+    });
+    
+    if (_debugMode) {
+      '🐛 디버그 모드 활성화 - 온보딩 표시 (저장된 단계: $savedStep)'.log();
     } else {
-      '🐛 디버그 모드 활성화 - 온보딩 처음부터 시작'.log();
+      '📱 온보딩 상태 복원: 스텝 $savedStep'.log();
     }
   }
   
   Future<void> _saveCurrentStep() async {
-    if (!_debugMode) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(StorageValues.onboardingCurrentStep, currentSlideIndex);
-      '💾 온보딩 진행 상태 저장: 스텝 $currentSlideIndex'.log();
-    }
+    // Always save current step regardless of debug mode
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(StorageValues.onboardingCurrentStep, currentSlideIndex);
+    '💾 온보딩 진행 상태 저장: 스텝 $currentSlideIndex'.log();
   }
 
   void _goToNextPage() async {
@@ -131,24 +157,27 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       // First page - check for Ethereum wallet
       bool hasWallet = await _checkEthereumWallet();
       
-      setState(() {
-        if (hasWallet) {
-          '✅ 지갑이 있음 - 두 번째 화면 스킵'.log();
-          // Skip wallet creation page, go directly to character selection
-          currentSlideIndex = 2;
-        } else {
-          '❌ 지갑이 없음 - 지갑 생성 화면으로 이동'.log();
-          // No wallet, go to wallet creation page
-          currentSlideIndex = 1;
-        }
-      });
-      await _saveCurrentStep();
+      if (hasWallet) {
+        '✅ 지갑이 있음 - 두 번째 화면 스킵'.log();
+        // Skip wallet creation page, go directly to character selection
+        _moveToPage(2);
+      } else {
+        '❌ 지갑이 없음 - 지갑 생성 화면으로 이동'.log();
+        // No wallet, go to wallet creation page
+        _moveToPage(1);
+      }
     } else if (currentSlideIndex < 4) {
-      setState(() {
-        currentSlideIndex++;
-      });
-      await _saveCurrentStep();
+      _moveToPage(currentSlideIndex + 1);
     }
+  }
+  
+  void _moveToPage(int pageIndex) {
+    setState(() {
+      currentSlideIndex = pageIndex;
+    });
+    // Save state immediately when entering new page
+    _saveCurrentStep();
+    '📍 온보딩 페이지 이동: $pageIndex'.log();
   }
   
   Future<bool> _checkEthereumWallet() async {
@@ -213,13 +242,26 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   }
   
   Future<void> _createWepinWallet() async {
+    '🎯 지갑 생성 버튼 클릭됨!'.log();
+    
     try {
       final wepinCubit = getIt<WepinCubit>();
       
       // Check if SDK is initialized
       if (wepinCubit.state.wepinWidgetSDK == null) {
         '❌ Wepin SDK not initialized for wallet creation'.log();
-        return;
+        '🔄 Attempting to initialize Wepin SDK now...'.log();
+        
+        // Try to initialize SDK if not already done
+        await wepinCubit.initializeWepinSDK(
+          selectedLanguageCode: context.locale.languageCode,
+        );
+        
+        // Check again after initialization
+        if (wepinCubit.state.wepinWidgetSDK == null) {
+          '❌ Failed to initialize Wepin SDK'.log();
+          return;
+        }
       }
       
       // Get current status
@@ -233,12 +275,32 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       
       // If only initialized, need to login first
       if (status == WepinLifeCycle.initialized) {
-        '🔄 Attempting to login to Wepin first...'.log();
-        await wepinCubit.loginSocialAuthProvider();
+        '🔄 Wepin needs login - opening Wepin widget for OAuth login...'.log();
         
-        // Check status again after login
-        status = await wepinCubit.state.wepinWidgetSDK!.getStatus();
-        '📊 Wepin status after login: $status'.log();
+        try {
+          setState(() {
+            _isConfirming = false;
+          });
+          
+          // Start polling for wallet creation with onboarding flag
+          '🔄 Starting wallet check timer for onboarding before opening widget'.log();
+          wepinCubit.startWalletCheckTimer(isFromOnboarding: true);
+          
+          // Open Wepin widget which will handle OAuth login and wallet creation
+          await wepinCubit.state.wepinWidgetSDK!.openWidget(context);
+          
+          // Widget closed, but polling will continue to check for wallet
+          '📱 Wepin widget closed - polling continues in background'.log();
+          
+          return; // Exit here as polling will handle wallet detection
+        } catch (e) {
+          '❌ Error opening Wepin widget: $e'.log();
+          wepinCubit.stopWalletCheckTimer(); // Stop polling on error
+          setState(() {
+            _isConfirming = false;
+          });
+          return;
+        }
       }
       
       // Register to create wallet
@@ -274,9 +336,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           // Wallet created successfully, move to next page
           setState(() {
             _isConfirming = false;
-            currentSlideIndex = 2; // Move to character selection
           });
-          await _saveCurrentStep();
+          _moveToPage(2); // Move to character selection
         } else {
           '❌ No Ethereum wallet created'.log();
           setState(() {
@@ -297,12 +358,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     }
   }
 
-  void _goToPreviousPage() async {
+  void _goToPreviousPage() {
     if (currentSlideIndex > 0) {
-      setState(() {
-        currentSlideIndex--;
-      });
-      await _saveCurrentStep();
+      _moveToPage(currentSlideIndex - 1);
     }
   }
 
@@ -343,9 +401,41 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       backgroundColor: const Color(0xFF87CEEB), // Sky blue background like social auth
       // convert BlocListener to BlocConsumer
 
-      body: BlocConsumer<EnableLocationCubit, EnableLocationState>(
-        bloc: getIt<EnableLocationCubit>(),
-        listener: (context, state) {
+      body: MultiBlocListener(
+        listeners: [
+          // Listen for wallet creation during polling
+          BlocListener<WepinCubit, WepinState>(
+            bloc: getIt<WepinCubit>(),
+            listener: (context, wepinState) {
+              // Update wallet checking state
+              if (wepinState.isCheckingWallet != _isCheckingWallet) {
+                setState(() {
+                  _isCheckingWallet = wepinState.isCheckingWallet;
+                });
+                if (wepinState.isCheckingWallet) {
+                  '⏱️ Wallet check started - blocking UI'.log();
+                } else {
+                  '✅ Wallet check completed - unblocking UI'.log();
+                }
+              }
+              
+              // Check if wallet was created from onboarding
+              if (wepinState.walletCreatedFromOnboarding && currentSlideIndex == 1) {
+                '✅ Wallet creation from onboarding detected!'.log();
+                
+                // Reset the flag to prevent duplicate navigation
+                getIt<WepinCubit>().resetOnboardingWalletFlag();
+                
+                // Move to next page when wallet is created
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  _moveToPage(2); // Move to character selection
+                });
+              }
+            },
+          ),
+          BlocListener<EnableLocationCubit, EnableLocationState>(
+            bloc: getIt<EnableLocationCubit>(),
+            listener: (context, state) {
           if (state.submitStatus == RequestStatus.success) {
             Navigator.pushNamedAndRemoveUntil(
               context,
@@ -362,10 +452,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               (route) => false,
             );
           }
-        },
-        builder: (context, state) {
-          return Stack(
-            children: [
+            },
+          ),
+        ],
+        child: Stack(
+          children: [
               Column(
                 children: <Widget>[
                   const SizedBox(height: 10),
@@ -433,14 +524,20 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   currentSlideIndex == 0 || currentSlideIndex == 1
                       ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 60.0),
-                          child: GradientButton(
-                            text: _getButtonText(),
-                            onPressed: _isConfirming 
-                              ? () {} 
-                              : (currentSlideIndex == 1 
-                                  ? _createWepinWallet 
-                                  : _goToNextPage),
-                          ),
+                          child: _isConfirming && currentSlideIndex == 1
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : GradientButton(
+                                  text: _getButtonText(),
+                                  onPressed: _isCheckingWallet 
+                                      ? () {} // Disable button when checking wallet
+                                      : (currentSlideIndex == 1 
+                                          ? _createWepinWallet 
+                                          : _goToNextPage),
+                                ),
                         )
                       : Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 60.0),
@@ -483,6 +580,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                 await prefs.remove(StorageValues.onboardingCurrentStep);
                                                 '✅ 온보딩 완료 - 저장된 단계 초기화'.log();
                                                 
+                                                // Start background task for image merging and S3 upload
+                                                _startImageUploadTask(selectedCharacter);
+                                                
                                                 // Navigate directly to app screen
                                                 Navigator.pushNamedAndRemoveUntil(
                                                   context,
@@ -507,9 +607,33 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   ),
                 ],
               ),
+              // Loading overlay when checking wallet
+              if (_isCheckingWallet)
+                Container(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  child: const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          '지갑 생성 중...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'LINESeedKR',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
-          );
-        },
+          ),
       ),
     );
   }
@@ -524,5 +648,59 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
     var isShowOnBoarding = prefs.getInt(isShowOnBoardingView);
     ("isShowOnBoarding: $isShowOnBoarding").log();
+  }
+
+  /// Start background task to merge character layers and upload to S3
+  Future<void> _startImageUploadTask(CharacterProfile? character) async {
+    if (character == null) {
+      '⚠️ No character selected for image upload'.log();
+      return;
+    }
+
+    // Run in background using Future.microtask
+    Future.microtask(() async {
+      try {
+        '🎨 Starting character image merge and upload process'.log();
+        
+        // Step 1: Merge character layers
+        final imageBytes = await CharacterImageService.mergeCharacterLayers(character);
+        if (imageBytes == null) {
+          '❌ Failed to merge character layers'.log();
+          return;
+        }
+        '✅ Successfully merged character layers (${imageBytes.length} bytes)'.log();
+
+        // Step 2: Upload to S3
+        final uploadService = getIt<ImageUploadService>();
+        final fileName = CharacterImageService.generateFileName(character.id);
+        
+        final s3Url = await uploadService.uploadCharacterImageToS3(
+          imageBytes: imageBytes,
+          fileName: fileName,
+        );
+
+        if (s3Url == null) {
+          '❌ Failed to upload image to S3'.log();
+          return;
+        }
+        '✅ Successfully uploaded to S3: $s3Url'.log();
+
+        // Step 3: Update profile with final image URL
+        final profileCubit = getIt<ProfileCubit>();
+        final updateRequest = UpdateProfileRequestDto(
+          finalProfileImageUrl: s3Url,
+        );
+        
+        await profileCubit.onUpdateUserProfile(updateRequest);
+        '✅ Profile updated with final image URL'.log();
+
+        // Step 4: Refresh profile to get updated data
+        await profileCubit.onGetUserProfile();
+        '✅ Profile refreshed with new image URL'.log();
+
+      } catch (e) {
+        '❌ Error in background image upload task: $e'.log();
+      }
+    });
   }
 }

@@ -118,13 +118,14 @@ class Network {
     }
 
     if (error.type == DioExceptionType.badResponse) {
-      if(error.requestOptions.uri.toString()=="https://dev-api.hidemeplease.xyz/v1/wallet"){
-        await Clipboard.setData(ClipboardData(text: error.requestOptions.data.toString()+error.response.toString()));
-        // Toast 대신 콘솔 로그로 대체 (overlay 오류 방지)
-        if(Platform.isIOS){
-          print("📋 Error message copied to clipboard");
-        }
-      }
+      // 디버깅용 클립보드 복사 코드 비활성화
+      // if(error.requestOptions.uri.toString()=="https://dev-api.hidemeplease.xyz/v1/wallet"){
+      //   await Clipboard.setData(ClipboardData(text: error.requestOptions.data.toString()+error.response.toString()));
+      //   // Toast 대신 콘솔 로그로 대체 (overlay 오류 방지)
+      //   if(Platform.isIOS){
+      //     print("📋 Error message copied to clipboard");
+      //   }
+      // }
       return handler.next(DioException(
         requestOptions: error.requestOptions,
         response: error.response,
