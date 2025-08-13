@@ -20,6 +20,8 @@ class OnboardingPageThird extends StatefulWidget {
 
 class _OnboardingPageThirdState extends State<OnboardingPageThird> {
   late int currentProfileIndex;
+  int refreshCount = 0; // Track refresh count
+  bool hasReachedLimit = false; // Track if reached 10/10
   
   // Generate random characters
   late final List<CharacterProfile> characters;
@@ -41,8 +43,17 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
   }
 
   void _changeProfile() {
+    // Don't allow change if reached limit
+    if (hasReachedLimit) return;
+    
     setState(() {
       currentProfileIndex = (currentProfileIndex + 1) % characters.length;
+      refreshCount++;
+      
+      // Check if reached the last character (10/10)
+      if (currentProfileIndex == 9) {
+        hasReachedLimit = true;
+      }
     });
     final character = characters[currentProfileIndex];
     widget.onProfileSelected(character.id);
@@ -133,23 +144,38 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
               ),
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
+          // Counter display
+          Text(
+            '(${currentProfileIndex + 1}/10)',
+            style: TextStyle(
+              fontFamily: 'LINESeedKR',
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: hasReachedLimit ? Colors.red : Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 10),
           // Profile counter button
           GestureDetector(
-            onTap: _changeProfile,
+            onTap: hasReachedLimit ? null : _changeProfile,
             child: Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 12,
               ),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: hasReachedLimit 
+                    ? Colors.grey.withValues(alpha: 0.3)
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  color: Colors.black,
+                  color: hasReachedLimit 
+                      ? Colors.grey.withValues(alpha: 0.5)
+                      : Colors.black,
                   width: 1,
                 ),
-                boxShadow: [
+                boxShadow: hasReachedLimit ? [] : [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
@@ -160,19 +186,25 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.refresh,
-                    color: Colors.black54,
+                    color: hasReachedLimit 
+                        ? Colors.grey.withValues(alpha: 0.5)
+                        : Colors.black54,
                     size: 20,
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    '다른 걸로 할래 (${currentProfileIndex + 1}/10)',
-                    style: const TextStyle(
+                    hasReachedLimit 
+                        ? '다른 걸로 할래'
+                        : '다른 걸로 할래',
+                    style: TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black,
+                      color: hasReachedLimit 
+                          ? Colors.grey.withValues(alpha: 0.5)
+                          : Colors.black,
                     ),
                   ),
                 ],
@@ -181,17 +213,29 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
           ),
           const SizedBox(height: 10),
           // Warning text
-          const Text(
-            '신중해야 해!\n이전의 캐릭터로는 다시 돌아갈 수 없어...',
-            style: TextStyle(
-              fontFamily: 'LINESeedKR',
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: Colors.black87,
-              letterSpacing: -0.3,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          hasReachedLimit 
+              ? const Text(
+                  '앗, 이제 다른 캐릭터를 선택할 수 없어.\n이 멋진 하이더로 하미플 세계를 즐겨보자!',
+                  style: TextStyle(
+                    fontFamily: 'LINESeedKR',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.red,
+                    letterSpacing: -0.3,
+                  ),
+                  textAlign: TextAlign.center,
+                )
+              : const Text(
+                  '신중해야 해!\n이전의 캐릭터로는 다시 돌아갈 수 없어...',
+                  style: TextStyle(
+                    fontFamily: 'LINESeedKR',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black87,
+                    letterSpacing: -0.3,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
           const SizedBox(height: 10),
         ],
       ),

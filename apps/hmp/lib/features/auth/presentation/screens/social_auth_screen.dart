@@ -178,7 +178,10 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
         listener: (context, state) async {
           // 로딩 상태 처리
           if (state.submitStatus == RequestStatus.loading) {
-            EasyLoading.show();
+            EasyLoading.show(
+              status: '온보딩 준비 중...',
+              maskType: EasyLoadingMaskType.black,
+            );
             return;
           }
 
@@ -191,6 +194,9 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
             if (getIt<WepinCubit>().state.wepinWidgetSDK != null) {
               "${getIt<WepinCubit>().state}".log();
             }
+
+            // 로딩 화면을 보여주기 위한 짧은 지연
+            await Future.delayed(const Duration(milliseconds: 500));
 
             // 온보딩 여부에 따른 화면 전환
             // TEMP: Always show onboarding for testing - 테스트를 위해 항상 온보딩 표시

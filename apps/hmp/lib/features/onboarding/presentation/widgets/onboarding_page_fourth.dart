@@ -22,18 +22,26 @@ class OnboardingPageFourth extends StatefulWidget {
 
 class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
   final TextEditingController _nicknameController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   String? errorMessage;
+  bool _isFocused = false;
   
   @override
   void initState() {
     super.initState();
     _nicknameController.addListener(_onNicknameChanged);
+    _focusNode.addListener(() {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+    });
   }
   
   @override
   void dispose() {
     _nicknameController.removeListener(_onNicknameChanged);
     _nicknameController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
   
@@ -73,11 +81,15 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
 
   @override
   Widget build(BuildContext context) {
+    // Get keyboard height
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardVisible = keyboardHeight > 0;
+    
     return Container(
       color: const Color(0xFF87CEEB), // Sky blue background
       child: Column(
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: isKeyboardVisible ? 5 : 10),
             // Title
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -113,7 +125,7 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 30),
               child: Text(
-                '이름이 없으면 이 친구들... 말을 안 들어...\n절대히 이상하고 막에 도는 걸로 하나 지어봐!',
+                '이름이 없으면 이 친구들... 말을 안 들어...\n적당히 이상하고 맘에 드는 걸로 하나 지어봐!',
                 style: TextStyle(
                   fontFamily: 'LINESeedKR',
                   fontSize: 15,
@@ -135,8 +147,8 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
                     children: [
                       // Character display with background
                       Container(
-                        width: 280,
-                        height: 280,
+                        width: isKeyboardVisible ? 200 : 280,
+                        height: isKeyboardVisible ? 200 : 280,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
@@ -149,7 +161,7 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
                           child: widget.selectedCharacter != null
                             ? CharacterLayerWidget(
                                 character: widget.selectedCharacter!,
-                                size: 280,
+                                size: isKeyboardVisible ? 200 : 280,
                                 fit: BoxFit.cover,
                               )
                             : Image.asset(
@@ -179,6 +191,10 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(25),
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 1,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.1),
@@ -189,6 +205,7 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
                       ),
                       child: TextField(
                         controller: _nicknameController,
+                        focusNode: _focusNode,
                         textAlign: TextAlign.center,
                         style: fontBodyMd(color: Colors.black),
                         maxLength: 15,
@@ -196,7 +213,9 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
                           LengthLimitingTextInputFormatter(15),
                         ],
                         decoration: InputDecoration(
-                          hintText: '닉네임 입력하기',
+                          hintText: _isFocused || _nicknameController.text.isNotEmpty 
+                              ? '' 
+                              : '닉네임 입력하기',
                           hintStyle: fontBodyMd(color: Colors.black54),
                           border: InputBorder.none,
                           counterText: '', // Hide the counter

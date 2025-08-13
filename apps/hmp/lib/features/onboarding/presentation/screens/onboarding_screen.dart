@@ -17,6 +17,7 @@ import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_
 import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_third.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_fourth.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_fifth.dart';
+import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_wallet_exists.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/test_onboarding_widget.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
@@ -81,6 +82,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   bool dontShowCheckBox = false;
   bool _isConfirming = false;
   bool _isCheckingWallet = false; // Add wallet checking state
+  bool _hasExistingWallet = false; // Track if user has existing wallet
   String selectedProfile = '';
   CharacterProfile? selectedCharacter;
   String nickname = '';
@@ -132,15 +134,83 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     
     // Always load saved step regardless of debug mode
     final savedStep = prefs.getInt(StorageValues.onboardingCurrentStep) ?? 0;
-    setState(() {
-      currentSlideIndex = savedStep;
-    });
+    
+    // If there's a saved step > 0, show resume popup
+    if (savedStep > 0 && mounted) {
+      '📱 저장된 온보딩 단계 발견: $savedStep'.log();
+      _showResumePopup(savedStep);
+    } else {
+      setState(() {
+        currentSlideIndex = savedStep;
+      });
+    }
     
     if (_debugMode) {
       '🐛 디버그 모드 활성화 - 온보딩 표시 (저장된 단계: $savedStep)'.log();
     } else {
       '📱 온보딩 상태 복원: 스텝 $savedStep'.log();
     }
+  }
+  
+  Future<void> _showResumePopup(int savedStep) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  '프로세스 계속 진행하기',
+                  style: TextStyle(
+                    fontFamily: 'LINESeedKR',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '이전에 진행하던 온보딩 프로세스가 있구나!\n해당 단계에서부터 다시 시작할게.',
+                  style: TextStyle(
+                    fontFamily: 'LINESeedKR',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black87,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: GradientButton(
+                    text: '확인했어!',
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      setState(() {
+                        currentSlideIndex = savedStep;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
   
   Future<void> _saveCurrentStep() async {
@@ -151,21 +221,31 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   }
 
   void _goToNextPage() async {
+    // Hide keyboard if visible
+    FocusScope.of(context).unfocus();
+    
     if (currentSlideIndex == 0) {
       '🚀 첫 번째 온보딩 화면에서 다음 버튼 클릭'.log();
       
       // First page - check for Ethereum wallet
       bool hasWallet = await _checkEthereumWallet();
       
+      setState(() {
+        _hasExistingWallet = hasWallet;
+      });
+      
       if (hasWallet) {
-        '✅ 지갑이 있음 - 두 번째 화면 스킵'.log();
-        // Skip wallet creation page, go directly to character selection
-        _moveToPage(2);
+        '✅ 지갑이 있음 - 지갑 있음 화면으로 이동'.log();
+        // Show wallet exists page
+        _moveToPage(1);
       } else {
         '❌ 지갑이 없음 - 지갑 생성 화면으로 이동'.log();
         // No wallet, go to wallet creation page
         _moveToPage(1);
       }
+    } else if (currentSlideIndex == 1 && _hasExistingWallet) {
+      // From wallet exists page, go directly to character selection
+      _moveToPage(2);
     } else if (currentSlideIndex < 4) {
       _moveToPage(currentSlideIndex + 1);
     }
@@ -369,7 +449,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       case 0:
         return '이해했어!';  // 첫 번째 화면 (하미플 세계 소개)
       case 1:
-        return '지갑을 만들게!';  // 두 번째 화면 (지갑 소개)
+        return _hasExistingWallet 
+            ? '확인했어!'  // 지갑 있음 화면
+            : '지갑을 만들게!';  // 지갑 소개
       case 2:
         return '이렇게 할게!';  // 세 번째 화면 (캐릭터 선택)
       case 3:
@@ -490,7 +572,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       index: currentSlideIndex,
                       children: <Widget>[
                         const OnboardingPageSecond(), // 1. 하미플 세계 소개
-                        const OnboardingPageFirst(),  // 2. 지갑 소개
+                        _hasExistingWallet 
+                            ? const OnboardingPageWalletExists()  // 2. 지갑 있음 화면
+                            : const OnboardingPageFirst(),        // 2. 지갑 소개
                         OnboardingPageThird(           // 3. 캐릭터 선택 (1/10 ~ 10/10 변경 가능)
                           onProfileSelected: (profile) {
                             setState(() {
@@ -534,7 +618,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                   text: _getButtonText(),
                                   onPressed: _isCheckingWallet 
                                       ? () {} // Disable button when checking wallet
-                                      : (currentSlideIndex == 1 
+                                      : (currentSlideIndex == 1 && !_hasExistingWallet
                                           ? _createWepinWallet 
                                           : _goToNextPage),
                                 ),

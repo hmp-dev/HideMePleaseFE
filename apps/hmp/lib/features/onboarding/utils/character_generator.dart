@@ -19,7 +19,10 @@ class CharacterGenerator {
     
     // Random clothes - combine female/unisex for all genders
     final allClothes = [...CharacterAssets.femaleClothes, ...CharacterAssets.unisexClothes];
-    final clothes = allClothes[_random.nextInt(allClothes.length)];
+    // Ensure we have clothes to select from
+    final clothes = allClothes.isNotEmpty 
+        ? allClothes[_random.nextInt(allClothes.length)]
+        : 'assets/images/onboarding/pfp/clothes/default_clothes.png'; // Fallback default
     
     // Random eyes - combine female/unisex for all genders
     final allEyes = [...CharacterAssets.femaleEyes, ...CharacterAssets.unisexEyes];

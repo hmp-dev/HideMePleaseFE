@@ -13,6 +13,8 @@ import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 
 /// Generates a cryptographically secure random nonce, to be included in a
 /// credential request.
@@ -36,6 +38,17 @@ class AuthCubit extends BaseCubit<AuthState> {
         state.copyWith(submitStatus: RequestStatus.failure, message: l.message),
       ),
       (idToken) async {
+        // 새로운 계정 로그인 시 온보딩 상태 리셋
+        try {
+          '🔄 [AuthCubit] Resetting onboarding state for new account login...'.log();
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove(StorageValues.onboardingCurrentStep);
+          await prefs.remove(StorageValues.onboardingCompleted);
+          '✅ [AuthCubit] Onboarding state reset completed'.log();
+        } catch (e) {
+          '❌ [AuthCubit] Failed to reset onboarding state: $e'.log();
+        }
+        
         // Google 로그인 성공 후 Wepin에 토큰 전달
         try {
           '🔄 [AuthCubit] Google login successful, setting up Wepin login...'.log();
@@ -158,6 +171,17 @@ class AuthCubit extends BaseCubit<AuthState> {
         state.copyWith(submitStatus: RequestStatus.failure, message: l.message),
       ),
       (idToken) async {
+        // 새로운 계정 로그인 시 온보딩 상태 리셋
+        try {
+          '🔄 [AuthCubit] Resetting onboarding state for new account login...'.log();
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove(StorageValues.onboardingCurrentStep);
+          await prefs.remove(StorageValues.onboardingCompleted);
+          '✅ [AuthCubit] Onboarding state reset completed'.log();
+        } catch (e) {
+          '❌ [AuthCubit] Failed to reset onboarding state: $e'.log();
+        }
+        
         // Apple 로그인 성공 후 Wepin에 토큰 전달
         try {
           '🔄 [AuthCubit] Apple login successful, setting up Wepin login...'.log();
