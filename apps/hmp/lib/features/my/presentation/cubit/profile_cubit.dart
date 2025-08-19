@@ -7,6 +7,7 @@ import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'profile_state.dart';
 
@@ -61,12 +62,24 @@ class ProfileCubit extends BaseCubit<ProfileState> {
           isProfileIncomplete: false,
         ));
       },
-      (user) {
+      (user) async {
+        var userEntity = user.toEntity();
+        
+        // Load profilePartsString from local storage if not present from server
+        if (userEntity.profilePartsString == null || userEntity.profilePartsString!.isEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          final localProfileParts = prefs.getString('profilePartsString');
+          if (localProfileParts != null && localProfileParts.isNotEmpty) {
+            print('📱 Loading profilePartsString from local storage');
+            userEntity = userEntity.copyWith(profilePartsString: localProfileParts);
+          }
+        }
+        
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,
             errorMessage: '',
-            userProfileEntity: user.toEntity(),
+            userProfileEntity: userEntity,
             isProfileIncomplete: false,
           ),
         );
@@ -78,6 +91,14 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     UpdateProfileRequestDto updateProfileRequestDto,
   ) async {
     emit(state.copyWith(submitStatus: RequestStatus.loading));
+
+    // Save profilePartsString to local storage if provided
+    if (updateProfileRequestDto.profilePartsString != null && 
+        updateProfileRequestDto.profilePartsString!.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profilePartsString', updateProfileRequestDto.profilePartsString!);
+      print('💾 Saved profilePartsString to local storage');
+    }
 
     EasyLoading.show();
 
@@ -107,5 +128,19 @@ class ProfileCubit extends BaseCubit<ProfileState> {
         onGetUserProfile();
       },
     );
+  }
+  
+  // Method to display profile with just parts string (for other users)
+  Future<void> loadProfileFromParts(String profilePartsString) async {
+    if (profilePartsString.isNotEmpty) {
+      final currentEntity = state.userProfileEntity ?? const UserProfileEntity.empty();
+      emit(
+        state.copyWith(
+          userProfileEntity: currentEntity.copyWith(
+            profilePartsString: profilePartsString,
+          ),
+        ),
+      );
+    }
   }
 }

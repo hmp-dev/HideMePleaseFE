@@ -21,10 +21,10 @@ enum MenuType {
     deactivateIconPath: "assets/icons/ic_community_disabled_jayden.svg",
     menuIndex: 3,
   ),*/
-  settings(
+  myProfile(
     activeIconPath: "assets/icons/nav_more_active.png",
     deactivateIconPath: "assets/icons/nav_more_deactive.png",
-    menuIndex: 4,
+    menuIndex: 3,
   );
 
   const MenuType({
@@ -47,8 +47,8 @@ enum MenuType {
         return "Home";
       //case MenuType.community:
       //  return "Community";
-      case MenuType.settings:
-        return "Settings";
+      case MenuType.myProfile:
+        return "My";
     }
   }
 }

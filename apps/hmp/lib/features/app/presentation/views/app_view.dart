@@ -16,6 +16,7 @@ import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/my/presentation/screens/my_profile_screen.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
@@ -86,6 +87,7 @@ class _AppViewState extends State<AppView> {
                             onPageChanged: (value) {},
                             itemBuilder: (context, index) {
                               print('🏗️ Building page for index: $index');
+                              
                               if (index == MenuType.space.menuIndex) {
                                 print('🗺️ Returning MapScreen for index $index');
                                 return const MapScreen();
@@ -98,9 +100,9 @@ class _AppViewState extends State<AppView> {
                               //} else if (index ==
                               //    MenuType.community.menuIndex) {
                               //  return const CommunityScreen();
-                              } else if (index == MenuType.settings.menuIndex) {
-                                print('⚙️ Returning empty Container for Settings index $index');
-                                return Container();
+                              } else if (index == MenuType.myProfile.menuIndex) {
+                                print('👤 Returning MyProfileScreen for index $index');
+                                return const MyProfileScreen();
                               }
                               print('❓ Returning default Container for index $index');
                               return Container();
@@ -117,15 +119,9 @@ class _AppViewState extends State<AppView> {
                             BottomBar(
                               onTap: (type) async {
                                 ('🔄 Bottom tab tapped: $type').log();
-                                if (type == MenuType.settings) {
-                                  // update EventView Active Status
-                                  getIt<WalletsCubit>();
-                                  //    .onIsEventViewActive(false);
-                                  // fetch SettingBannerInfo and AppVersionInfo
-                                  getIt<SettingsCubit>()
-                                      .onGetSettingBannerInfo();
-                                  // Navigate to Settings Screen
-                                  SettingsScreen.push(context);
+                                if (type == MenuType.myProfile) {
+                                  // Navigate to MyProfile Screen
+                                  _onChangeMenu(type);
                                 } else if (type == MenuType.space) {
                                   ('🗺️ Map tab selected - fetching space data').log();
                                   // update EventView Active Status

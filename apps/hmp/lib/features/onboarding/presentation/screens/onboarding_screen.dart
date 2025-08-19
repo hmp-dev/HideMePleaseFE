@@ -130,7 +130,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     final prefs = await SharedPreferences.getInstance();
     
     // Check debug mode
-    _debugMode = prefs.getBool(StorageValues.onboardingDebugMode) ?? false;
+    //_debugMode = prefs.getBool(StorageValues.onboardingDebugMode) ?? false;
     
     // Always load saved step regardless of debug mode
     final savedStep = prefs.getInt(StorageValues.onboardingCurrentStep) ?? 0;
@@ -662,6 +662,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                 final prefs = await SharedPreferences.getInstance();
                                                 await prefs.setBool(StorageValues.onboardingCompleted, true);
                                                 await prefs.remove(StorageValues.onboardingCurrentStep);
+                                                
+                                                // Save profile parts string locally
+                                                if (selectedCharacter != null) {
+                                                  final profilePartsJson = selectedCharacter!.toJsonString();
+                                                  await prefs.setString('profilePartsString', profilePartsJson);
+                                                  '💾 프로필 파츠 로컬 저장 완료'.log();
+                                                }
                                                 '✅ 온보딩 완료 - 저장된 단계 초기화'.log();
                                                 
                                                 // Start background task for image merging and S3 upload
