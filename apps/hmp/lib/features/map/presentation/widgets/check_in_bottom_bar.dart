@@ -26,12 +26,13 @@ class CheckInBottomBar extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              const Color(0xFF19BAFF).withOpacity(0.2),
-              const Color(0xFF19BAFF).withOpacity(0.05),
+              const Color(0xFF19BAFF).withOpacity(0.3),
+              const Color(0xFF19BAFF).withOpacity(0.15),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
+          border: Border.all(color: const Color(0xFF19BAFF).withOpacity(0.3)),
           borderRadius: BorderRadius.circular(35),
           boxShadow: [
             BoxShadow(

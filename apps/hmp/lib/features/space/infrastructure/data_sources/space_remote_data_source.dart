@@ -4,6 +4,8 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/space/infrastructure/dtos/benefit_redeem_error_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/benefits_group_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/check_in_response_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/check_in_status_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_detail_dto.dart';
@@ -197,5 +199,26 @@ class SpaceRemoteDataSource {
       {required String spaceId}) async {
     final response = await _network.get("space/space/$spaceId/benefits", {});
     return BenefitsGroupDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<CheckInResponseDto> checkIn({
+    required String spaceId,
+    required double latitude,
+    required double longitude,
+  }) async {
+    final Map<String, dynamic> data = {
+      'latitude': latitude,
+      'longitude': longitude,
+    };
+    final response =
+        await _network.post("space/$spaceId/check-in", data);
+    return CheckInResponseDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<CheckInStatusDto> getCheckInStatus(
+      {required String spaceId}) async {
+    final response = await _network.get("space/$spaceId/check-in-status", {});
+    print('✅ Raw Check-In Status Response: ${response.data}');
+    return CheckInStatusDto.fromJson(response.data as Map<String, dynamic>);
   }
 }
