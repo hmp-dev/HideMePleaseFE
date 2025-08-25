@@ -1,97 +1,169 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:flutter_svg/flutter_svg.dart'; // SvgPicture 사용을 위해 추가
 
 class CheckInBottomBar extends StatelessWidget {
   final VoidCallback? onMapTap;
   final VoidCallback? onMyTap;
   final VoidCallback? onCheckInTap;
+  final bool isMapActive;
+  final bool isMyActive;
 
   const CheckInBottomBar({
     Key? key,
     this.onMapTap,
     this.onMyTap,
     this.onCheckInTap,
+    this.isMapActive = false,
+    this.isMyActive = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-        left: 20,
-        right: 20,
-        bottom: 20,
+        bottom: 30, // 화면 하단에서 30px 띄우기
       ),
-      child: Container(
-        height: 70,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              const Color(0xFF19BAFF).withOpacity(0.2),
-              const Color(0xFF19BAFF).withOpacity(0.05),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: Center(
+        child: SizedBox(
+          width: 324, // 고정 너비 324px
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(36),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 블러 효과
+              child: CustomPaint(
+                painter: _GradientBorderPainter(),
+                child: Container(
+                  height: 72, // 높이 72로 변경
+                  decoration: BoxDecoration(
+                    color: const Color(0x4D19BAFF), // #19BAFF4D 배경색
+                    borderRadius: BorderRadius.circular(36),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                    // 왼쪽: MAP과 MY 버튼
+                    Row(
+                      children: [
+                        // MAP 버튼
+                        GestureDetector(
+                          onTap: onMapTap,
+                          child: SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/map_bottom_icon_map.svg',
+                                  colorFilter: ColorFilter.mode(
+                                    isMapActive ? Colors.white : Colors.grey[400]!,
+                                    BlendMode.srcIn,
+                                  ),
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                const SizedBox(height: 1),
+                                Text(
+                                  'MAP',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: isMapActive ? Colors.white : Colors.grey[400],
+                                    fontWeight: isMapActive ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // MY 버튼
+                        GestureDetector(
+                          onTap: onMyTap,
+                          child: SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/map_bottom_icon_my.svg',
+                                  colorFilter: ColorFilter.mode(
+                                    isMyActive ? Colors.white : Colors.grey[400]!,
+                                    BlendMode.srcIn,
+                                  ),
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                const SizedBox(height: 1),
+                                Text(
+                                  'MY',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: isMyActive ? Colors.white : Colors.grey[400],
+                                    fontWeight: isMyActive ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                        const SizedBox(width: 20),
+                        // CHECK-IN 버튼
+                    GestureDetector(
+                      onTap: onCheckInTap,
+                      child: SizedBox(
+                        width: 136,
+                        height: 46,
+                        child: SvgPicture.asset(
+                          'assets/icons/map_bottom_icon_checkin.svg',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
-          borderRadius: BorderRadius.circular(35),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-            // 지도 버튼
-            _buildBottomBarButton(
-              svgPath: 'assets/icons/map_bottom_icon_map.svg',
-              onTap: onMapTap,
-            ),
-            
-            // MY 버튼
-            _buildBottomBarButton(
-              svgPath: 'assets/icons/map_bottom_icon_my.svg',
-              onTap: onMyTap,
-              iconColor: Colors.grey[400],
-            ),
-            
-            // CHECK-IN 버튼
-            _buildCheckInButton(),
-          ],
         ),
       ),
-    ), // 이 괄호가 Container 위젯의 닫는 괄호입니다.
-  );
+    );
+  }
+
 }
 
-  Widget _buildBottomBarButton({
-    required String svgPath,
-    VoidCallback? onTap,
-    Color? iconColor,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SvgPicture.asset(
-        svgPath,
-        colorFilter: iconColor != null ? ColorFilter.mode(iconColor, BlendMode.srcIn) : null,
-        width: 48,
-        height: 48,
-      ),
-    );
+// 그라데이션 테두리를 위한 CustomPainter
+class _GradientBorderPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(36));
+    
+    final paint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          const Color(0xFFFFFFFF), // #FFFFFF
+          const Color(0xFFC2C2C2), // #C2C2C2
+          const Color(0xFFE1E1E1), // #E1E1E1
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    
+    canvas.drawRRect(rrect, paint);
   }
 
-  Widget _buildCheckInButton() {
-    return GestureDetector(
-      onTap: onCheckInTap,
-      child: SvgPicture.asset(
-        'assets/icons/map_bottom_icon_checkin.svg', // SVG 파일 경로
-        width: 48, // 아이콘 크기
-        height: 48,
-      ),
-    );
-  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

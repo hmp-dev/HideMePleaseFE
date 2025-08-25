@@ -9,7 +9,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/notifications/notification_service.dart';
 import 'package:mobile/features/map/presentation/map_screen.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
-import 'package:mobile/features/app/presentation/widgets/bottom_bar.dart';
+import 'package:mobile/features/map/presentation/widgets/check_in_bottom_bar.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 //import 'package:mobile/features/community/presentation/screens/community_screen.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
@@ -23,6 +23,7 @@ import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:mobile/app/core/services/nfc_service.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
@@ -80,85 +81,86 @@ class _AppViewState extends State<AppView> {
                   builder: (context, locState) {
                     if (locState.isSubmitLoading) return Container();
 
-                    return Column(
+                    return Stack(
                       children: [
-                        Expanded(
-                          child: PreloadPageView.builder(
-                            onPageChanged: (value) {},
-                            itemBuilder: (context, index) {
-                              print('🏗️ Building page for index: $index');
-                              
-                              if (index == MenuType.space.menuIndex) {
-                                print('🗺️ Returning MapScreen for index $index');
-                                return const MapScreen();
-                              } else if (index == MenuType.events.menuIndex) {
-                                print('🎪 Returning HomeScreen (Events) for index $index');
-                                return const HomeScreen(); // EventsWepinScreen();
-                              } else if (index == MenuType.home.menuIndex) {
-                                print('🏠 Returning HomeScreen for index $index');
-                                return const HomeScreen();
-                              //} else if (index ==
-                              //    MenuType.community.menuIndex) {
-                              //  return const CommunityScreen();
-                              } else if (index == MenuType.myProfile.menuIndex) {
-                                print('👤 Returning MyProfileScreen for index $index');
-                                return const MyProfileScreen();
-                              }
-                              print('❓ Returning default Container for index $index');
-                              return Container();
-                            },
-                            itemCount: MenuType.values.length,
-                            controller: state.pageController,
-                            physics: const NeverScrollableScrollPhysics(),
-                            preloadPagesCount: 5,
-                          ),
+                        // 화면이 전체 영역을 차지하도록 배치
+                        PreloadPageView.builder(
+                          onPageChanged: (value) {},
+                          itemBuilder: (context, index) {
+                            print('🏗️ Building page for index: $index');
+                            
+                            if (index == MenuType.space.menuIndex) {
+                              print('🗺️ Returning MapScreen for index $index');
+                              return const MapScreen();
+                            } else if (index == MenuType.events.menuIndex) {
+                              print('🎪 Returning HomeScreen (Events) for index $index');
+                              return const HomeScreen(); // EventsWepinScreen();
+                            } else if (index == MenuType.home.menuIndex) {
+                              print('🏠 Returning HomeScreen for index $index');
+                              return const HomeScreen();
+                            //} else if (index ==
+                            //    MenuType.community.menuIndex) {
+                            //  return const CommunityScreen();
+                            } else if (index == MenuType.myProfile.menuIndex) {
+                              print('👤 Returning MyProfileScreen for index $index');
+                              return const MyProfileScreen();
+                            }
+                            print('❓ Returning default Container for index $index');
+                            return Container();
+                          },
+                          itemCount: MenuType.values.length,
+                          controller: state.pageController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          preloadPagesCount: 5,
                         ),
-                        Stack(
-                          alignment: Alignment.topCenter,
-                          children: [
-                            BottomBar(
-                              onTap: (type) async {
-                                ('🔄 Bottom tab tapped: $type').log();
-                                if (type == MenuType.myProfile) {
-                                  // Navigate to MyProfile Screen
-                                  _onChangeMenu(type);
-                                } else if (type == MenuType.space) {
-                                  ('🗺️ Map tab selected - fetching space data').log();
-                                  // update EventView Active Status
-                                  getIt<WalletsCubit>();
-                                  //    .onIsEventViewActive(false);
-                                  // fetch SettingBannerInfo and AppVersionInfo
-                                  getIt<SpaceCubit>().onFetchAllSpaceViewData();
-                                  // Navigate to Settings Screen
-                                  _onChangeMenu(type);
-                                } else if (type == MenuType.events) {
-                                  // check if Wepin Wallet is connected
-                                  // Open the Wepin Widget
-                                  if (getIt<WalletsCubit>()
-                                      .state
-                                      .isWepinWalletConnected) {
-                                    getIt<WepinCubit>()
-                                        .openWepinWidget(context);
-                                  } else {
-                                    if (getIt<HomeCubit>().state.homeViewType ==
-                                        HomeViewType.afterWalletConnected) {
-                                      //
-                                      getIt<WepinCubit>().showLoader();
-                                      getIt<WepinCubit>().onConnectWepinWallet(
-                                          context,
-                                          isOpenWepinModel: true);
-                                    } else {
-                                      _onChangeMenu(MenuType.home);
-                                    }
-                                  }
-                                } else {
-                                  _onChangeMenu(type);
-                                }
+                        // 탭바를 하단에 floating으로 배치
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: CheckInBottomBar(
+                          isMapActive: state.menuType == MenuType.space,
+                          isMyActive: state.menuType == MenuType.myProfile,
+                          onMapTap: () {
+                            ('🗺️ MAP button tapped').log();
+                            // Navigate to Map Screen
+                            _onChangeMenu(MenuType.space);
+                            getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                          },
+                          onMyTap: () {
+                            ('👤 My button tapped').log();
+                            // Navigate to MyProfile Screen
+                            _onChangeMenu(MenuType.myProfile);
+                          },
+                          onCheckInTap: () {
+                            ('✅ Check-in button tapped - Starting NFC reading').log();
+                            
+                            // NFC 리딩 시작
+                            NfcService().startNfcReading(
+                              onTagRead: (tagId) {
+                                ('🎉 NFC Tag read successfully: $tagId').log();
+                                // TODO: 체크인 처리 로직 구현
+                                // 예: 서버에 tagId와 함께 체크인 요청 보내기
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('체크인 성공! Tag ID: $tagId'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
                               },
-                              selectedType: state.menuType,
-                              opacity: _opacity,
-                            ),
-                          ],
+                              onError: (error) {
+                                ('❌ NFC reading error: $error').log();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('NFC 읽기 실패: $error'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              },
+                              context: context,
+                            );
+                          },
+                        ),
                         ),
                       ],
                     );

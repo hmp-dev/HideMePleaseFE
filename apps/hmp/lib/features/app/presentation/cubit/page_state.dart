@@ -15,8 +15,8 @@ class PageState extends BaseState {
 
   factory PageState.initial() => PageState(
       submitStatus: RequestStatus.initial,
-      menuType: MenuType.home,
-      pageController: PreloadPageController(initialPage: 2));
+      menuType: MenuType.space,
+      pageController: PreloadPageController(initialPage: 0));
 
   @override
   List<Object?> get props => [pageController, menuType, submitStatus];

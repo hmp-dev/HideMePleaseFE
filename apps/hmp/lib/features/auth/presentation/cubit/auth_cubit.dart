@@ -49,9 +49,9 @@ class AuthCubit extends BaseCubit<AuthState> {
           '❌ [AuthCubit] Failed to reset onboarding state: $e'.log();
         }
         
-        // Google 로그인 성공 후 Wepin에 토큰 전달
+        // Google 로그인 성공 후 Wepin 준비
         try {
-          '🔄 [AuthCubit] Google login successful, setting up Wepin login...'.log();
+          '🔄 [AuthCubit] Google login successful, preparing Wepin...'.log();
           
           // 저장 완료를 위해 짧은 지연 후 토큰 읽기
           await Future.delayed(const Duration(milliseconds: 100));
@@ -60,7 +60,7 @@ class AuthCubit extends BaseCubit<AuthState> {
           '🔍 [AuthCubit] Retrieved Google ID token: ${googleIdToken?.isNotEmpty == true ? 'Success (${googleIdToken!.substring(0, 20)}...)' : 'Empty'}'.log();
           
           if (googleIdToken != null && googleIdToken.isNotEmpty) {
-            '🔑 [AuthCubit] Got Google ID token, logging into Wepin...'.log();
+            '🔑 [AuthCubit] Got Google ID token, marking Wepin as ready...'.log();
             await getIt<WepinCubit>().loginWepinWithGoogle(googleIdToken);
           } else {
             '❌ [AuthCubit] Google ID token is empty, retrying...'.log();
@@ -70,14 +70,14 @@ class AuthCubit extends BaseCubit<AuthState> {
             final retryToken = await _localDataSource.getGoogleIdToken();
             
             if (retryToken != null && retryToken.isNotEmpty) {
-              '🔄 [AuthCubit] Retry successful, logging into Wepin...'.log();
+              '🔄 [AuthCubit] Retry successful, marking Wepin as ready...'.log();
               await getIt<WepinCubit>().loginWepinWithGoogle(retryToken);
             } else {
               '❌ [AuthCubit] Google ID token still empty after retry'.log();
             }
           }
         } catch (e) {
-          '❌ [AuthCubit] Failed to setup Wepin login after Google auth: $e'.log();
+          '❌ [AuthCubit] Failed to prepare Wepin after Google auth: $e'.log();
         }
         
         onBackendApiLogin(firebaseIdToken: idToken);
@@ -99,13 +99,15 @@ class AuthCubit extends BaseCubit<AuthState> {
         _localDataSource
             .setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
 
-        // Save both access token and ID token for Wepin Login
-        _localDataSource.setGoogleAccessToken(googleAuth.accessToken ?? "");
-        // Wepin needs ID token, not access token
+        // Save both access token and ID token
+        final googleAccessToken = googleAuth.accessToken ?? "";
         final googleIdToken = googleAuth.idToken ?? "";
-        //===
-
-        return googleIdToken; // Return ID token for Wepin
+        
+        _localDataSource.setGoogleAccessToken(googleAccessToken);
+        _localDataSource.setGoogleIdToken(googleIdToken);
+        
+        // Return ID token for Wepin SDK
+        return googleIdToken;
         // return googleAuth.idToken;//Wepin has suggested that login with id token is recommended. Hence made this change.
       } else {
         // User is not signed in; you may need to prompt the user to sign in again
@@ -182,18 +184,18 @@ class AuthCubit extends BaseCubit<AuthState> {
           '❌ [AuthCubit] Failed to reset onboarding state: $e'.log();
         }
         
-        // Apple 로그인 성공 후 Wepin에 토큰 전달
+        // Apple 로그인 성공 후 Wepin 준비
         try {
-          '🔄 [AuthCubit] Apple login successful, setting up Wepin login...'.log();
+          '🔄 [AuthCubit] Apple login successful, preparing Wepin...'.log();
           final appleIdToken = await _localDataSource.getAppleIdToken();
           if (appleIdToken != null && appleIdToken.isNotEmpty) {
-            '🔑 [AuthCubit] Got Apple ID token, logging into Wepin...'.log();
+            '🔑 [AuthCubit] Got Apple ID token, marking Wepin as ready...'.log();
             await getIt<WepinCubit>().loginWepinWithApple(appleIdToken);
           } else {
             '❌ [AuthCubit] Apple ID token is empty'.log();
           }
         } catch (e) {
-          '❌ [AuthCubit] Failed to setup Wepin login after Apple auth: $e'.log();
+          '❌ [AuthCubit] Failed to prepare Wepin after Apple auth: $e'.log();
         }
         
         onBackendApiLogin(firebaseIdToken: idToken);

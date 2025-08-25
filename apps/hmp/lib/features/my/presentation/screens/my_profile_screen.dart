@@ -1,16 +1,27 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:palette_generator/palette_generator.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/profile_avatar_widget.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
+import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -23,10 +34,61 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
+  Color _dominantColor = const Color(0xFFA9F4B6); // 기본 민트색
+  bool _isLoadingColor = false;
+  final GlobalKey _profileKey = GlobalKey(); // 프로필 위젯 캡처용
+  
+  // 나의 아지트 데이터 배열 (TODO: 서버 데이터로 교체)
+  final List<Map<String, dynamic>> myHidingSpots = [
+    // 임시로 빈 배열로 설정
+    // {
+    //   'title': '하이드미플리즈 홍제',
+    //   'count': '7회',
+    //   'lastVisit': '1일 전 방문',
+    //   'color': const Color(0xFF76CDFF),
+    //   'icon': 'assets/images/ic_myagit01.png',
+    // },
+    // {
+    //   'title': '영동호프',
+    //   'count': '5회',
+    //   'lastVisit': '오늘 방문',
+    //   'color': Colors.transparent,
+    //   'icon': 'assets/images/ic_myagit02.png',
+    // },
+    // {
+    //   'title': '청와옥 을지로점',
+    //   'count': '3회',
+    //   'lastVisit': '13일 전 방문',
+    //   'color': Colors.transparent,
+    //   'icon': 'assets/images/ic_myagit03.png',
+    // },
+  ];
+
   @override
   void initState() {
     super.initState();
     print('🚀 MyProfileScreen initState called');
+    
+    // Google 토큰 새로고침 (WePIN 사용을 위해)
+    final authCubit = getIt<AuthCubit>();
+    authCubit.refreshGoogleAccessToken().then((token) {
+      if (token != null && token.isNotEmpty) {
+        print('✅ Google 토큰 새로고침 성공');
+      } else {
+        print('⚠️ Google 토큰 새로고침 실패 또는 비어있음');
+      }
+    });
+    
+    // WePIN SDK 초기화 확인 및 실행
+    final wepinCubit = getIt<WepinCubit>();
+    if (wepinCubit.state.wepinWidgetSDK == null) {
+      print('⚠️ WePIN SDK가 초기화되지 않음, 초기화 시도');
+      wepinCubit.initializeWepinSDK(
+        selectedLanguageCode: context.locale.languageCode,
+      );
+    } else {
+      print('✅ WePIN SDK 이미 초기화됨: ${wepinCubit.state.wepinLifeCycleStatus}');
+    }
     
     // ProfileCubit is already initialized in start_up_screen
     // Just get the current state and refresh if needed
@@ -44,23 +106,73 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       print('  - profilePartsString: NULL or EMPTY');
     }
     
-    // Always refresh profile data to get latest including profilePartsString
-    print('🔄 Refreshing profile data to get latest...');
-    profileCubit.onGetUserProfile().then((_) {
-      print('✅ Profile data refreshed');
-      final newState = profileCubit.state;
-      print('📊 After refresh:');
-      print('  - nickName: ${newState.userProfileEntity?.nickName}');
-      if (newState.userProfileEntity?.profilePartsString != null && 
-          newState.userProfileEntity!.profilePartsString!.isNotEmpty) {
-        print('  - profilePartsString length: ${newState.userProfileEntity!.profilePartsString!.length}');
-        print('  - profilePartsString preview: ${newState.userProfileEntity!.profilePartsString!.substring(0, math.min(50, newState.userProfileEntity!.profilePartsString!.length))}...');
-      } else {
-        print('  - profilePartsString: STILL NULL or EMPTY');
-      }
-    }).catchError((error) {
-      print('❌ Profile refresh error: $error');
+    // Only refresh profile data if it's missing
+    if (currentState.userProfileEntity?.profilePartsString == null || 
+        currentState.userProfileEntity!.profilePartsString!.isEmpty) {
+      print('🔄 Profile data missing, refreshing...');
+      profileCubit.onGetUserProfile().then((_) {
+        print('✅ Profile data refreshed');
+        final newState = profileCubit.state;
+        print('📊 After refresh:');
+        print('  - nickName: ${newState.userProfileEntity?.nickName}');
+        if (newState.userProfileEntity?.profilePartsString != null && 
+            newState.userProfileEntity!.profilePartsString!.isNotEmpty) {
+          print('  - profilePartsString length: ${newState.userProfileEntity!.profilePartsString!.length}');
+          print('  - profilePartsString preview: ${newState.userProfileEntity!.profilePartsString!.substring(0, math.min(50, newState.userProfileEntity!.profilePartsString!.length))}...');
+        } else {
+          print('  - profilePartsString: STILL NULL or EMPTY');
+        }
+      }).catchError((error) {
+        print('❌ Profile refresh error: $error');
+      });
+    }
+    
+    // 위젯이 빌드된 후 색상 추출
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _extractDominantColorFromWidget();
     });
+  }
+
+  Future<void> _extractDominantColorFromWidget() async {
+    setState(() => _isLoadingColor = true);
+    
+    try {
+      // 잠시 대기하여 위젯이 완전히 렌더링되도록 함
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // RenderRepaintBoundary를 사용하여 위젯을 이미지로 캡처
+      final RenderRepaintBoundary? boundary = 
+          _profileKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      
+      if (boundary != null) {
+        final ui.Image image = await boundary.toImage(pixelRatio: 1.0);
+        final ByteData? byteData = 
+            await image.toByteData(format: ui.ImageByteFormat.png);
+        
+        if (byteData != null) {
+          final Uint8List pngBytes = byteData.buffer.asUint8List();
+          
+          // 메모리 이미지에서 팔레트 생성
+          final paletteGenerator = await PaletteGenerator.fromImageProvider(
+            MemoryImage(pngBytes),
+          );
+          
+          setState(() {
+            // 주요 색상 선택 (우선순위: vibrant > dominant > 기본색)
+            _dominantColor = paletteGenerator.vibrantColor?.color ??
+                           paletteGenerator.dominantColor?.color ??
+                           const Color(0xFFA9F4B6);
+            _isLoadingColor = false;
+          });
+        }
+      }
+    } catch (e) {
+      print('색상 추출 실패: $e');
+      setState(() {
+        _dominantColor = const Color(0xFFA9F4B6);
+        _isLoadingColor = false;
+      });
+    }
   }
 
   @override
@@ -92,19 +204,27 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           }
           print('  - state.submitStatus: ${state.submitStatus}');
           
+          // 프로필 데이터 변경 시 색상 재추출
+          if (userProfile?.profilePartsString != null && !_isLoadingColor) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _extractDominantColorFromWidget();
+            });
+          }
+          
           return Stack(
             children: [
               // 그라데이션 배경
-              Container(
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 800),
                 height: 450,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      const Color(0xFFA9F4B6), // 밝은 민트색
-                      const Color(0xFFA9F4B6).withOpacity(0.5), // 중간 투명도
-                      Colors.black, // 검정색
+                      _dominantColor,
+                      _dominantColor.withOpacity(0.5),
+                      Colors.black,
                     ],
                     stops: const [0.0, 0.4, 1.0],
                   ),
@@ -227,7 +347,18 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               ),
               const SizedBox(height: 16),
               GestureDetector(
-                onTap: () {},
+                onTap: () async {
+                  print('🔘 지갑 버튼 클릭됨');
+                  
+                  try {
+                    final wepinCubit = getIt<WepinCubit>();
+                    // openWepinWidget이 모든 상태를 처리
+                    // initialized 상태에서 loginSocialAuthProvider가 토큰 새로고침을 처리
+                    await wepinCubit.openWepinWidget(context);
+                  } catch (e) {
+                    print('❌ 지갑 버튼 에러: $e');
+                  }
+                },
                 child: Container(
                   width: 30,
                   height: 30,
@@ -253,38 +384,41 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           const SizedBox(width: 20),
           
           // 프로필 이미지 - 더 크게 (버튼 2개 높이 + 간격보다 크게)
-          Container(
-            width: 160,
-            height: 160,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(32),
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF72CCFF),
-                  const Color(0xFFF9F395),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(3),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(29),
-                  color: Colors.white,
+          RepaintBoundary(
+            key: _profileKey,
+            child: Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF72CCFF),
+                    const Color(0xFFF9F395),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(27),
-                    child: ProfileAvatarWidget(
-                      profilePartsString: userProfile?.profilePartsString,
-                      imageUrl: userProfile?.finalProfileImageUrl ?? userProfile?.pfpImageUrl,
-                      size: 154,
-                      borderRadius: 0, // Already clipped by parent ClipRRect
-                      placeholderPath: 'assets/images/profile_img.png',  // Use launcher icon as default
-                      fit: BoxFit.cover,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(3),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(29),
+                    color: Colors.white,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(27),
+                      child: ProfileAvatarWidget(
+                        profilePartsString: userProfile?.profilePartsString,
+                        imageUrl: userProfile?.finalProfileImageUrl ?? userProfile?.pfpImageUrl,
+                        size: 154,
+                        borderRadius: 0, // Already clipped by parent ClipRRect
+                        placeholderPath: 'assets/images/profile_img.png',  // Use launcher icon as default
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
@@ -387,23 +521,33 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         const SizedBox(height: 8),
         
         // 소개
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              userProfile?.introduction ?? '을지로에 자주 출물하는 메뚜사',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
-                fontSize: 14,
+        GestureDetector(
+          onTap: () => _showEditIntroDialog(context, userProfile?.introduction ?? ''),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                userProfile?.introduction?.isNotEmpty == true 
+                    ? userProfile!.introduction! 
+                    : '너를 소개해봐',
+                style: TextStyle(
+                  color: userProfile?.introduction?.isNotEmpty == true
+                      ? Colors.white.withOpacity(0.8)
+                      : Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                  fontStyle: userProfile?.introduction?.isNotEmpty == true
+                      ? FontStyle.normal
+                      : FontStyle.italic,
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              Icons.edit,
-              color: Colors.white.withOpacity(0.6),
-              size: 16,
-            ),
-          ],
+              const SizedBox(width: 4),
+              Icon(
+                Icons.edit,
+                color: Colors.white.withOpacity(0.6),
+                size: 16,
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -420,19 +564,19 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('29', '프렌즈', 'assets/images/ic_myfriend.png'),
+          _buildStatItem('0', '프렌즈', 'assets/images/ic_myfriend.png'),
           Container(
             width: 1,
             height: 40,
             color: Colors.white.withOpacity(0.2),
           ),
-          _buildStatItem('31', '체크인', 'assets/images/ic_mycheckin.png'),
+          _buildStatItem('0', '체크인', 'assets/images/ic_mycheckin.png'),
           Container(
             width: 1,
             height: 40,
             color: Colors.white.withOpacity(0.2),
           ),
-          _buildStatItem('78', 'SAV', 'assets/images/ic_mysav.png'),
+          _buildStatItem('0', 'SAV', 'assets/images/ic_mysav.png'),
         ],
       ),
     );
@@ -445,7 +589,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           value,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 14,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -508,34 +652,44 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           
           const SizedBox(height: 6),
           
-          // 뱃지 리스트
-          Column(
-            children: [
-              _buildBadgeItemHorizontal(
-                '하이드미플리즈 홍제',
-                '7회',
-                '1일 전 방문',
-                const Color(0xFF76CDFF),
-                'assets/images/ic_myagit01.png',
+          // 뱃지 리스트 - 데이터 배열 기반 렌더링
+          myHidingSpots.isNotEmpty 
+            ? Column(
+                children: myHidingSpots.map((spot) => 
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildBadgeItemHorizontal(
+                      spot['title'] as String,
+                      spot['count'] as String,
+                      spot['lastVisit'] as String,
+                      spot['color'] as Color,
+                      spot['icon'] as String,
+                    ),
+                  ),
+                ).toList(),
+              )
+            : Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                child: Center(
+                  child: Column(
+                    children: [
+                      const Text(
+                        '🏠',
+                        style: TextStyle(fontSize: 40),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        '너만의 숨을 곳을 만들어봐 :)',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 12),
-              _buildBadgeItemHorizontal(
-                '영동호프',
-                '5회',
-                '오늘 방문',
-                Colors.transparent,
-                'assets/images/ic_myagit02.png',
-              ),
-              const SizedBox(height: 12),
-              _buildBadgeItemHorizontal(
-                '청와옥 을지로점',
-                '3회',
-                '13일 전 방문',
-                Colors.transparent,
-                'assets/images/ic_myagit03.png',
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -618,6 +772,22 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Widget _buildMyCalendarSection() {
+    final now = DateTime.now();
+    final DateFormat monthYearFormat = DateFormat('yyyy년 M월', 'ko');
+    
+    // 오늘 기준으로 전후 3일씩 날짜 생성 (총 7일)
+    final List<DateTime> weekDays = [];
+    for (int i = -3; i <= 3; i++) {
+      weekDays.add(now.add(Duration(days: i)));
+    }
+    
+    // 임시 체크인 데이터 (TODO: 서버 데이터로 교체)
+    final Map<int, bool> checkInData = {
+      now.subtract(const Duration(days: 3)).day: true,
+      now.subtract(const Duration(days: 2)).day: true,
+      now.subtract(const Duration(days: 1)).day: true,
+    };
+    
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -635,7 +805,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ),
               ),
               Text(
-                '2025년 8월',
+                monthYearFormat.format(now),
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
                   fontSize: 14,
@@ -650,15 +820,21 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: [
-                _buildCalendarDay('7', false, true), // 체크인 있음
-                _buildCalendarDay('8', false, true), // 체크인 있음
-                _buildCalendarDay('9', false, true), // 체크인 있음
-                _buildCalendarDay('10', false, false),
-                _buildCalendarDay('11', true, false), // 선택된 날짜
-                _buildCalendarDay('12', false, false),
-                _buildCalendarDay('13', false, false),
-              ],
+              children: weekDays.map((date) {
+                final bool isToday = date.day == now.day && 
+                                    date.month == now.month &&
+                                    date.year == now.year;
+                final bool hasCheckIn = checkInData[date.day] ?? false;
+                
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: _buildCalendarDay(
+                    date.day.toString(),
+                    isToday,  // 오늘 날짜면 선택된 것으로 표시
+                    hasCheckIn,
+                  ),
+                );
+              }).toList(),
             ),
           ),
           
@@ -683,7 +859,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     return Container(
       width: 60,
       height: 80,
-      margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         color: isSelected 
             ? Colors.transparent
@@ -756,6 +931,171 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showEditIntroDialog(BuildContext context, String currentIntro) {
+    final TextEditingController textController = TextEditingController(text: currentIntro);
+    int characterCount = currentIntro.length;
+    
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.8),
+      builder: (BuildContext context) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final dialogWidth = screenWidth * 0.9;
+        
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.symmetric(horizontal: (screenWidth - dialogWidth) / 2),
+              child: Container(
+                width: dialogWidth,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A1A),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFF23B0FF).withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 제목
+                    const Text(
+                      '자기소개',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // 입력 필드
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2A2A2A),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          TextField(
+                            controller: textController,
+                            maxLength: 20,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: '너에 대해 설명해봐!',
+                              hintStyle: TextStyle(
+                                color: Colors.white.withOpacity(0.3),
+                                fontSize: 16,
+                              ),
+                              border: InputBorder.none,
+                              counterText: '',
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                characterCount = value.length;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '$characterCount/20',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // 버튼들
+                    Row(
+                      children: [
+                        // 취소 버튼
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF878787),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '취소',
+                                  style: TextStyle(
+                                    color: Color(0xFF000000),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // 확인 버튼
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              // 프로필 업데이트
+                              getIt<ProfileCubit>().onUpdateUserProfile(
+                                UpdateProfileRequestDto(
+                                  introduction: textController.text,
+                                ),
+                              );
+                              Navigator.of(context).pop();
+                            },
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF2CB3FF),
+                                    Color(0xFF7CD0FF),
+                                  ],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '이렇게 할게!',
+                                  style: TextStyle(
+                                    color: Color(0xFF000000),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

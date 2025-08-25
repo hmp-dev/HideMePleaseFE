@@ -2,7 +2,7 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 2.5.13+159
+version: 2.5.13+160
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
@@ -91,6 +91,10 @@ dependencies:
   web: ^1.0.0
   socket_io_client: ^2.0.3+1
   mapbox_maps_flutter: ^2.8.0
+  # NFC functionality
+  nfc_manager: ^3.5.0
+  # Color extraction from images
+  palette_generator: ^0.3.3+4
 
 dev_dependencies:
   analyzer: ^5.13.0

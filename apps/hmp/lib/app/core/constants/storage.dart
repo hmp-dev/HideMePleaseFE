@@ -11,6 +11,7 @@ abstract class StorageValues {
 
   static const String socialTokenIsAppleOrGoogle = 'socialTokenIsAppleOrGoogle';
   static const String wasOnWelcomeWalletConnectScreen = 'wasOnWelcomeWalletConnectScreen';
+  static const String wepinToken = 'wepinToken';
   
   // Onboarding related constants
   static const String onboardingCurrentStep = 'onboardingCurrentStep';

@@ -318,22 +318,21 @@ class WepinCubit extends BaseCubit<WepinState> {
 
         if (wepinStatus == WepinLifeCycle.login) {
           await tryOpenWidget();
+        } else if (wepinStatus == WepinLifeCycle.initialized) {
+          // Use loginWithUI for initialized state
+          "🔐 SDK initialized, using loginWithUI...".log();
+          dismissLoader();
+          await tryOpenWidget(); // Widget will handle login internally
         } else {
           dismissLoader();
         }
         break;
 
       case WepinLifeCycle.initialized:
-        await loginSocialAuthProvider();
-        await Future.delayed(const Duration(milliseconds: 1000));
-        wepinStatus = await state.wepinWidgetSDK!.getStatus();
-        "wepinStatus after login attempt: $wepinStatus".log();
-
-        if (wepinStatus == WepinLifeCycle.login) {
-          await tryOpenWidget();
-        } else {
-          dismissLoader();
-        }
+        // For initialized state, just open the widget - it will handle login internally
+        "🔐 SDK initialized, opening widget with loginWithUI...".log();
+        dismissLoader();
+        await tryOpenWidget(); // Widget will show login UI internally
         break;
 
       default:
@@ -481,9 +480,29 @@ class WepinCubit extends BaseCubit<WepinState> {
     if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
       "🔄 Getting stored Google ID Token...".log();
       
-      final googleIdTokenResult = await _secureStorage.read(StorageValues.googleIdToken) ?? '';
+      var googleIdTokenResult = await _secureStorage.read(StorageValues.googleIdToken) ?? '';
       
-      "🔑 Google ID Token retrieved: ${googleIdTokenResult.isNotEmpty ? 'Success (${googleIdTokenResult.substring(0, min(20, googleIdTokenResult.length))}...)' : 'Failed - Token is empty'}".log();
+      // If token is empty, try to refresh it
+      if (googleIdTokenResult.isEmpty) {
+        "⚠️ Stored Google ID token is empty, attempting to refresh...".log();
+        
+        // Try to refresh the Google token through AuthCubit
+        final refreshedToken = await getIt<AuthCubit>().refreshGoogleAccessToken();
+        
+        if (refreshedToken != null && refreshedToken.isNotEmpty) {
+          googleIdTokenResult = refreshedToken;
+          // Save the refreshed token for future use
+          await _secureStorage.write(
+            StorageValues.googleIdToken,
+            googleIdTokenResult,
+          );
+          "✅ Google ID token refreshed successfully from GoogleSignIn".log();
+        } else {
+          "❌ Failed to refresh Google ID token".log();
+        }
+      }
+      
+      "🔑 Google ID Token retrieved: ${googleIdTokenResult.isNotEmpty ? 'Success (${googleIdTokenResult.substring(0, min(20, googleIdTokenResult.length))}...)' : 'Failed - Unable to recover'}".log();
 
       emit(state.copyWith(
         socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
@@ -531,93 +550,41 @@ class WepinCubit extends BaseCubit<WepinState> {
   Future<void> loginSocialAuthProvider() async {
     "loginSocialAuthProvider is called".log();
     
-    // First get social login values
-    await getSocialLoginValues();
-    
-    "🔐 Login Type: ${state.socialTokenIsAppleOrGoogle}".log();
-    "🔑 Google Access Token: ${state.googleAccessToken.isNotEmpty ? 'Available (${state.googleAccessToken.substring(0, 20)}...)' : 'Empty'}".log();
-    "🔑 Apple ID Token: ${state.appleIdToken.isNotEmpty ? 'Available (${state.appleIdToken.substring(0, 20)}...)' : 'Empty'}".log();
-
     try {
-      LoginResult? fbToken;
-
-      // Determine the login type and proceed accordingly
-      if (state.socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
-        if (state.googleAccessToken.isEmpty) {
-          "❌ Google Access Token is empty, cannot login to Wepin".log();
+      // Check if we already have saved Wepin login credentials
+      final savedWepinToken = await _secureStorage.read(StorageValues.wepinToken) ?? '';
+      
+      if (savedWepinToken.isNotEmpty) {
+        "✅ Found saved Wepin token, attempting auto-login...".log();
+        // Try to restore previous session
+        final status = await state.wepinWidgetSDK!.getStatus();
+        if (status == WepinLifeCycle.login) {
+          "✅ Already logged in to Wepin".log();
           emit(state.copyWith(
+            wepinLifeCycleStatus: status,
             isLoading: false,
-            error: 'Google Access Token not available',
           ));
           return;
         }
-        
-        "🔄 Attempting Wepin login with Google Access Token...".log();
-        fbToken = await state.wepinWidgetSDK!.login.loginWithAccessToken(
-            provider: 'google', accessToken: state.googleAccessToken);
-        /*fbToken = await state.wepinWidgetSDK!.login.loginWithIdToken(
-            idToken: state.googleAccessToken);*/
       }
-
-      // if Login Type is Apple
-      if (state.socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
-        "inside state.socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name ${state.socialTokenIsAppleOrGoogle}"
-            .log();
-        
-        if (state.appleIdToken.isEmpty) {
-          "❌ Apple ID Token is empty, cannot login to Wepin".log();
-          emit(state.copyWith(
-            isLoading: false,
-            error: 'Apple ID Token not available',
-          ));
-          return;
-        }
-
-        "🔄 Attempting Wepin login with Apple ID Token...".log();
-        fbToken = await state.wepinWidgetSDK!.login
-            .loginWithIdToken(idToken: state.appleIdToken);
-      }
-
-      if (fbToken != null) {
-        final wepinUser = await state.wepinWidgetSDK?.login.loginWepin(fbToken);
-
-        if (wepinUser?.userInfo != null) {
-          // Update user's email and status if login is successful
-          final wepinStatus = await state.wepinWidgetSDK!.getStatus();
-          "inside loginSocialAuthProvider After login ==> wepinStatus is $wepinStatus and wepinUser is ${wepinUser?.userInfo}"
-              .log();
-          emit(state.copyWith(
-            wepinLifeCycleStatus: wepinStatus,
-          ));
-        } else {
-          emit(state.copyWith(
-            isLoading: false,
-            error: 'Login Failed. No user info found.',
-          ));
-        }
-      } else {
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'Login Failed. Invalid token.',
-        ));
-      }
+      
+      "⚠️ No saved Wepin session, user will need to login when opening widget".log();
+      // Don't show login UI here - let the widget handle it when opened
+      emit(state.copyWith(
+        isLoading: false,
+      ));
     } catch (e) {
-      // Handle errors excluding user-cancelled errors
-      if (!e.toString().contains('UserCancelled')) {
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'Login Failed. (error code - $e)',
-        ));
-      } else {
-        emit(state.copyWith(
-            isLoading: false)); // Set loading to false if user cancels
-      }
+      "❌ Error in loginSocialAuthProvider: $e".log();
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
     }
   }
 
-  /// Login to Wepin using Google access token (without showing login UI again)
-  Future<void> loginWepinWithGoogle(String googleAccessToken) async {
-    "🔄 [WepinCubit] loginWepinWithGoogle called with existing token".log();
+  /// Login to Wepin - mark SDK as ready for loginWithUI
+  Future<void> loginWepinWithGoogle(String idToken) async {
+    "🔄 [WepinCubit] loginWepinWithGoogle called".log();
     
     if (state.wepinWidgetSDK == null) {
       "❌ [WepinCubit] Wepin SDK is not initialized".log();
@@ -625,58 +592,37 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
 
     try {
+      // Just check the current status
+      final wepinStatus = await state.wepinWidgetSDK!.getStatus();
+      "📊 [WepinCubit] Current Wepin status: $wepinStatus".log();
+      
+      // Save that we're using Google for future reference
+      await _secureStorage.write(StorageValues.socialTokenIsAppleOrGoogle, SocialLoginType.GOOGLE.name);
+      
       emit(state.copyWith(
-        isLoading: true,
+        wepinLifeCycleStatus: wepinStatus,
         socialTokenIsAppleOrGoogle: SocialLoginType.GOOGLE.name,
-        googleAccessToken: googleAccessToken,
+        isLoading: false,
       ));
-
-      "🔄 Attempting Wepin login with existing Google ID Token (no popup)...".log();
-      final fbToken = await state.wepinWidgetSDK!.login
-          .loginWithIdToken(idToken: googleAccessToken); // Use as ID token
-
-      if (fbToken != null) {
-        final wepinUser = await state.wepinWidgetSDK?.login.loginWepin(fbToken);
-
-        if (wepinUser?.userInfo != null) {
-          final wepinStatus = await state.wepinWidgetSDK!.getStatus();
-          "✅ [WepinCubit] Google login successful, status: $wepinStatus".log();
-          
-          emit(state.copyWith(
-            wepinLifeCycleStatus: wepinStatus,
-            isLoading: false,
-            error: null,
-          ));
-        } else {
-          "❌ [WepinCubit] Google login failed - no user info".log();
-          emit(state.copyWith(
-            isLoading: false,
-            error: 'Google login failed. No user info found.',
-          ));
-        }
+      
+      // If already logged in, great!
+      if (wepinStatus == WepinLifeCycle.login) {
+        "✅ [WepinCubit] Already logged in to Wepin".log();
       } else {
-        "❌ [WepinCubit] Google login failed - invalid token".log();
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'Google login failed. Invalid token.',
-        ));
+        "ℹ️ [WepinCubit] Wepin will show login UI when widget opens".log();
       }
     } catch (e) {
-      "❌ [WepinCubit] Google login error: $e".log();
-      if (!e.toString().contains('UserCancelled')) {
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'Google login failed: $e',
-        ));
-      } else {
-        emit(state.copyWith(isLoading: false));
-      }
+      "❌ [WepinCubit] Error: $e".log();
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
     }
   }
 
-  /// Login to Wepin using Apple ID token (without showing login UI again)  
-  Future<void> loginWepinWithApple(String appleIdToken) async {
-    "🔄 [WepinCubit] loginWepinWithApple called with existing token".log();
+  /// Login to Wepin - mark SDK as ready for loginWithUI
+  Future<void> loginWepinWithApple(String idToken) async {
+    "🔄 [WepinCubit] loginWepinWithApple called".log();
     
     if (state.wepinWidgetSDK == null) {
       "❌ [WepinCubit] Wepin SDK is not initialized".log();
@@ -684,52 +630,31 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
 
     try {
+      // Just check the current status
+      final wepinStatus = await state.wepinWidgetSDK!.getStatus();
+      "📊 [WepinCubit] Current Wepin status: $wepinStatus".log();
+      
+      // Save that we're using Apple for future reference
+      await _secureStorage.write(StorageValues.socialTokenIsAppleOrGoogle, SocialLoginType.APPLE.name);
+      
       emit(state.copyWith(
-        isLoading: true,
+        wepinLifeCycleStatus: wepinStatus,
         socialTokenIsAppleOrGoogle: SocialLoginType.APPLE.name,
-        appleIdToken: appleIdToken,
+        isLoading: false,
       ));
-
-      "🔄 Attempting Wepin login with existing Apple ID Token (no popup)...".log();
-      final fbToken = await state.wepinWidgetSDK!.login
-          .loginWithIdToken(idToken: appleIdToken);
-
-      if (fbToken != null) {
-        final wepinUser = await state.wepinWidgetSDK?.login.loginWepin(fbToken);
-
-        if (wepinUser?.userInfo != null) {
-          final wepinStatus = await state.wepinWidgetSDK!.getStatus();
-          "✅ [WepinCubit] Apple login successful, status: $wepinStatus".log();
-          
-          emit(state.copyWith(
-            wepinLifeCycleStatus: wepinStatus,
-            isLoading: false,
-            error: null,
-          ));
-        } else {
-          "❌ [WepinCubit] Apple login failed - no user info".log();
-          emit(state.copyWith(
-            isLoading: false,
-            error: 'Apple login failed. No user info found.',
-          ));
-        }
+      
+      // If already logged in, great!
+      if (wepinStatus == WepinLifeCycle.login) {
+        "✅ [WepinCubit] Already logged in to Wepin".log();
       } else {
-        "❌ [WepinCubit] Apple login failed - invalid token".log();
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'Apple login failed. Invalid token.',
-        ));
+        "ℹ️ [WepinCubit] Wepin will show login UI when widget opens".log();
       }
     } catch (e) {
-      "❌ [WepinCubit] Apple login error: $e".log();
-      if (!e.toString().contains('UserCancelled')) {
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'Apple login failed: $e',
-        ));
-      } else {
-        emit(state.copyWith(isLoading: false));
-      }
+      "❌ [WepinCubit] Error: $e".log();
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
     }
   }
 

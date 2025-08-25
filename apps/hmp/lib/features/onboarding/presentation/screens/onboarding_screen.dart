@@ -30,6 +30,9 @@ import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 
@@ -372,6 +375,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           // Widget closed, but polling will continue to check for wallet
           '📱 Wepin widget closed - polling continues in background'.log();
           
+          // After WePIN OAuth login, check user status and save tokens
+          await _checkAndSaveWepinUser();
+          await _saveWepinTokensAfterOAuth();
+          
           return; // Exit here as polling will handle wallet detection
         } catch (e) {
           '❌ Error opening Wepin widget: $e'.log();
@@ -387,6 +394,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       if (status == WepinLifeCycle.login || status == WepinLifeCycle.loginBeforeRegister) {
         '🚀 Starting Wepin registration...'.log();
         await wepinCubit.state.wepinWidgetSDK!.register(context);
+        
+        // After registration, check user status and save tokens
+        await _checkAndSaveWepinUser();
+        await _saveWepinTokensAfterOAuth();
         
         // Wait a moment for wallet creation
         await Future.delayed(const Duration(seconds: 1));
@@ -435,6 +446,139 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         _isConfirming = false;
       });
       '❌ Error creating Wepin wallet: $e'.log();
+    }
+  }
+
+  Future<void> _checkAndSaveWepinUser() async {
+    try {
+      '🔍 WePIN 사용자 상태 확인 중...'.log();
+      
+      final wepinCubit = getIt<WepinCubit>();
+      if (wepinCubit.state.wepinWidgetSDK == null) {
+        '❌ WePIN SDK not initialized'.log();
+        return;
+      }
+      
+      // 현재 WePIN 사용자 확인
+      try {
+        final currentUser = await wepinCubit.state.wepinWidgetSDK!.login.getCurrentWepinUser();
+        
+        if (currentUser != null && currentUser.userInfo != null) {
+          '✅ WePIN 사용자 로그인 확인: ${currentUser.userInfo!.email}'.log();
+          '📊 로그인 상태: ${currentUser.userStatus?.loginStatus}'.log();
+          '📊 Provider: ${currentUser.userInfo!.provider}'.log();
+          
+          // 로그인 상태를 SharedPreferences에 저장
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('wepin_logged_in', true);
+          await prefs.setString('wepin_user_email', currentUser.userInfo!.email);
+          await prefs.setString('wepin_user_provider', currentUser.userInfo!.provider ?? '');
+          
+          '✅ WePIN 로그인 상태 저장 완료'.log();
+        } else {
+          '⚠️ WePIN 사용자 정보 없음'.log();
+        }
+      } catch (e) {
+        '❌ getCurrentWepinUser 에러: $e'.log();
+      }
+    } catch (e) {
+      '❌ _checkAndSaveWepinUser 에러: $e'.log();
+    }
+  }
+
+  Future<void> _saveWepinTokensAfterOAuth() async {
+    try {
+      '🔄 Attempting to save WePIN OAuth tokens to app storage...'.log();
+      
+      // Get current Firebase user
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser == null) {
+        '❌ No Firebase user found after WePIN OAuth'.log();
+        return;
+      }
+      
+      '✅ Firebase user found: ${firebaseUser.uid}'.log();
+      
+      // Get provider data to determine login type
+      final providerData = firebaseUser.providerData;
+      String? loginType;
+      
+      for (final provider in providerData) {
+        if (provider.providerId == 'google.com') {
+          loginType = 'GOOGLE';
+          break;
+        } else if (provider.providerId == 'apple.com') {
+          loginType = 'APPLE';
+          break;
+        }
+      }
+      
+      if (loginType == null) {
+        '❌ Could not determine login type from Firebase user'.log();
+        return;
+      }
+      
+      '🔑 Login type detected: $loginType'.log();
+      
+      // Save login type
+      final secureStorage = getIt<SecureStorage>();
+      await secureStorage.write(StorageValues.socialTokenIsAppleOrGoogle, loginType);
+      
+      // Get and save tokens based on login type
+      if (loginType == 'GOOGLE') {
+        // WePIN handles OAuth internally, so we need to use Firebase ID token
+        try {
+          // First, always save Firebase ID token as it's most reliable
+          final firebaseIdToken = await firebaseUser.getIdToken();
+          if (firebaseIdToken != null) {
+            await secureStorage.write(StorageValues.googleIdToken, firebaseIdToken);
+            '✅ Firebase ID token saved for Google login'.log();
+          }
+          
+          // Also try to get Google tokens if available
+          try {
+            final googleSignIn = GoogleSignIn();
+            final googleUser = googleSignIn.currentUser ?? await googleSignIn.signInSilently();
+            
+            if (googleUser != null) {
+              final googleAuth = await googleUser.authentication;
+              
+              // Save Google access token if available
+              if (googleAuth.accessToken != null) {
+                await secureStorage.write(StorageValues.googleAccessToken, googleAuth.accessToken!);
+                '✅ Google access token also saved'.log();
+              }
+              
+              // If we get a Google ID token, update it (prefer this over Firebase token)
+              if (googleAuth.idToken != null) {
+                await secureStorage.write(StorageValues.googleIdToken, googleAuth.idToken!);
+                '✅ Google ID token updated with native token'.log();
+              }
+            } else {
+              '⚠️ GoogleSignIn session not available (normal for WePIN OAuth)'.log();
+            }
+          } catch (googleError) {
+            '⚠️ Could not get native Google tokens (expected with WePIN): $googleError'.log();
+          }
+        } catch (e) {
+          '❌ Error saving tokens: $e'.log();
+        }
+      } else if (loginType == 'APPLE') {
+        // For Apple, we mainly use Firebase ID token
+        try {
+          final firebaseIdToken = await firebaseUser.getIdToken();
+          if (firebaseIdToken != null) {
+            await secureStorage.write(StorageValues.appleIdToken, firebaseIdToken);
+            '✅ Apple ID token (Firebase) saved'.log();
+          }
+        } catch (e) {
+          '❌ Error saving Apple token: $e'.log();
+        }
+      }
+      
+      '✅ Token saving process completed'.log();
+    } catch (e) {
+      '❌ Error in _saveWepinTokensAfterOAuth: $e'.log();
     }
   }
 

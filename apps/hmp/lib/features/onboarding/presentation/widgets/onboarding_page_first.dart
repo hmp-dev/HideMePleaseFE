@@ -53,7 +53,7 @@ class OnboardingPageFirst extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                   color: Colors.black87,
                   height: 1.4,
-                  letterSpacing: -0.3,
+                  letterSpacing: -0.35,
                 ),
                 textAlign: TextAlign.center,
               ),

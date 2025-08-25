@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mobile/features/map/presentation/widgets/check_in_bottom_bar.dart'; // CheckInBottomBar import 추가
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
@@ -595,10 +594,7 @@ class _MapScreenState extends State<MapScreen> {
           child: Container(
             decoration: BoxDecoration(
               color: const Color(0xFF0C0C0E).withOpacity(0.5), // #0C0C0E 50% 투명도
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
+              borderRadius: BorderRadius.circular(20), // 모든 모서리 라운드 처리
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
@@ -728,7 +724,7 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                             const SizedBox(height: 8),
                             // 운영 상태
-                            _buildBusinessHoursStatusCompact(space),
+                            _buildBusinessHoursStatus(space),
                             // 혜택 정보가 있을 때만 구분선과 혜택 표시
                             if (space.benefitDescription.isNotEmpty) ...[
                               const SizedBox(height: 10),
@@ -858,7 +854,7 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
                 Text(
-                  ' • ${todayHours.breakStartTime} 휴게시간',
+                  ' • ${todayHours.breakStartTime} 브레이크타임',
                   style: TextStyle(
                     color: Colors.orange[300],
                     fontSize: 14,
@@ -972,7 +968,7 @@ class _MapScreenState extends State<MapScreen> {
           return Row(
             children: [
               Text(
-                '휴게시간',
+                '브레이크타임',
                 style: TextStyle(
                   color: Colors.orange[300],
                   fontSize: 14,
@@ -980,7 +976,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
               Text(
-                ' • ${todayHours.breakEndTime} 재오픈',
+                ' • ${todayHours.breakEndTime} 까지',
                 style: TextStyle(
                   color: Colors.blue[300],
                   fontSize: 14,
@@ -1923,17 +1919,25 @@ class _MapScreenState extends State<MapScreen> {
             // 매장 목록 바텀뷰 숨김 (지도 전용 화면)
             // DraggableScrollableSheet 제거됨
             
-            // 지도 컨트롤 버튼들 (우측하단)
+            // 지도 컨트롤 버튼들 (우측하단 - 탭바 위)
             AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              bottom: showInfoCard && selectedSpace != null ? 280 : 16,
+              bottom: showInfoCard && selectedSpace != null ? 320 : 120, // 인포카드 있을 때는 위로, 없을 때는 탭바 위
               right: 16,
               child: GestureDetector(
                 onTap: _moveToCurrentLocation,
                 child: Container(
                   width: 48,
                   height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0x3319BAFF), // #19BAFF33 배경색
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFF797979),
+                      width: 1,
+                    ),
+                  ),
                   child: Center(
                     child: SvgPicture.asset(
                       'assets/icons/mlocation.svg',
@@ -1945,26 +1949,6 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
-            // 새로 추가할 '체크인' 영역
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              bottom: showInfoCard && selectedSpace != null ? 0 : -100, // 인포카드 선택 시 0, 아니면 -70 (숨김)
-              left: 0,
-              right: 0,
-              child: CheckInBottomBar(
-                onMapTap: () {
-                  print('지도 버튼 탭됨');
-                },
-                onMyTap: () {
-                  print('MY 버튼 탭됨');
-                },
-                onCheckInTap: () {
-                  print('CHECK-IN 버튼 탭됨');
-                  // 체크인 기능 구현
-                },
-              ),
-            ),
 
             // 인포카드 (선택된 매장이 있을 때만 표시)
             if (showInfoCard && selectedSpace != null)
@@ -1972,9 +1956,9 @@ class _MapScreenState extends State<MapScreen> {
                 // key: ValueKey(selectedSpace!.id), // 매장 ID를 키로 사용하여 매장 변경 시 위젯 강제 재빌드
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                bottom: showInfoCard && selectedSpace != null ? 110 : -200, // 인포카드 선택 시 70, 아니면 -200 (숨김)
-                left: 0,
-                right: 0,
+                bottom: showInfoCard && selectedSpace != null ? 110 : -200, // 탭바 위에 표시
+                left: 20,
+                right: 20,
                 child: _buildInfoCard(selectedSpace!),
               ),
 
@@ -2391,7 +2375,7 @@ class _MapScreenState extends State<MapScreen> {
                   height: 38,
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4A4A4A), // 카테고리 버튼과 같은 배경색
+                    color: const Color(0x3319BAFF), // #19BAFF33 배경색
                     borderRadius: BorderRadius.circular(19), // 카테고리 버튼과 같은 라운드 테두리
                     border: Border.all(
                       color: const Color(0xFF797979), // 카테고리 버튼과 같은 테두리 색상
@@ -2448,7 +2432,7 @@ class _MapScreenState extends State<MapScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         height: 38,
         decoration: BoxDecoration(
-          color: const Color(0xFF3A3A3A),
+          color: const Color(0x3319BAFF), // #19BAFF33 배경색
           borderRadius: BorderRadius.circular(19),
           border: Border.all(
             color: isSelected 
@@ -2862,7 +2846,7 @@ class _MapScreenState extends State<MapScreen> {
                     overflow: TextOverflow.ellipsis, // 넘치면 ... 표시
                   ),
                   const SizedBox(height: 4),
-                  _buildBusinessHoursStatusCompact(space),
+                  _buildBusinessHoursStatus(space),
                   if (space.benefitDescription.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
