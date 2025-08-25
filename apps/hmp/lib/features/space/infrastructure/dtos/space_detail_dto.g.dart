@@ -19,8 +19,12 @@ SpaceDetailDto _$SpaceDetailDtoFromJson(Map<String, dynamic> json) =>
       introduction: json['introduction'] as String?,
       locationDescription: json['locationDescription'] as String?,
       image: json['image'] as String?,
-      hidingCount: (json['hidingCount'] as num?)?.toInt(),
+      checkInCount: (json['checkInCount'] as num?)?.toInt(),
       spaceOpen: json['spaceOpen'] as bool?,
+      checkedInUsers: (json['checkedInUsers'] as List<dynamic>?)
+          ?.map((e) => CheckedInUserDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      currentGroupProgress: json['currentGroupProgress'] as String?,
     );
 
 Map<String, dynamic> _$SpaceDetailDtoToJson(SpaceDetailDto instance) =>
@@ -36,6 +40,8 @@ Map<String, dynamic> _$SpaceDetailDtoToJson(SpaceDetailDto instance) =>
       'introduction': instance.introduction,
       'locationDescription': instance.locationDescription,
       'image': instance.image,
-      'hidingCount': instance.hidingCount,
+      'checkInCount': instance.checkInCount,
       'spaceOpen': instance.spaceOpen,
+      'checkedInUsers': instance.checkedInUsers,
+      'currentGroupProgress': instance.currentGroupProgress,
     };

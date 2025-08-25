@@ -579,8 +579,8 @@ class _MapScreenState extends State<MapScreen> {
     return Positioned(
       //bottom: 0,
       bottom: showInfoCard && selectedSpace != null ? 110 : -200, // 인포카드 선택 시 70, 아니면 -200 (숨김)
-      left: 0,
-      right: 0,
+      left: 18,
+      right: 18,
       child: AnimatedOpacity(
         opacity: showInfoCard ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 300),
@@ -594,7 +594,14 @@ class _MapScreenState extends State<MapScreen> {
           child: Container(
             decoration: BoxDecoration(
               color: const Color(0xFF0C0C0E).withOpacity(0.5), // #0C0C0E 50% 투명도
-              borderRadius: BorderRadius.circular(20), // 모든 모서리 라운드 처리
+              border: Border.all(color: const Color(0xFF19BAFF), width: 1),
+              /*
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              */
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
@@ -1059,7 +1066,8 @@ class _MapScreenState extends State<MapScreen> {
             width: 6,
             height: 6,
             decoration: const BoxDecoration(
-              color: Color(0xFF00A3FF),
+              //color: Color(0xFF00A3FF),
+              color: Color(0xFFFFFFFF),
               shape: BoxShape.circle,
             ),
           ),
@@ -1067,7 +1075,8 @@ class _MapScreenState extends State<MapScreen> {
           Text(
             '영업 중 • ${todayHours.closeTime ?? ""}까지',
             style: const TextStyle(
-              color: Color(0xFF00A3FF),
+              //color: Color(0xFF00A3FF),
+              color: Color(0xFFFFFFFF),
               fontSize: 12,
               fontFamily: 'Pretendard',
             ),
