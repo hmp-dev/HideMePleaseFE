@@ -3,10 +3,12 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/features/space/domain/entities/check_in_status_entity.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
 import 'package:mobile/features/space/infrastructure/dtos/benefit_redeem_error_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/benefits_group_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/check_in_response_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_detail_dto.dart';
@@ -230,6 +232,55 @@ class SpaceRepositoryImpl extends SpaceRepository {
         spaceId: spaceId,
       );
       return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, CheckInResponseDto>> checkIn({
+    required String spaceId,
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final response = await _spaceRemoteDataSource.checkIn(
+        spaceId: spaceId,
+        latitude: latitude,
+        longitude: longitude,
+      );
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, CheckInStatusEntity>> getCheckInStatus(
+      {required String spaceId}) async {
+    try {
+      final response = await _spaceRemoteDataSource.getCheckInStatus(
+        spaceId: spaceId,
+      );
+      return right(response.toEntity());
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(
         message: e.message,

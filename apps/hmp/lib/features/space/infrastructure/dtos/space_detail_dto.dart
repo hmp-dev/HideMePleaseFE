@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
+import 'package:mobile/features/space/infrastructure/dtos/checked_in_user_dto.dart';
 
 part 'space_detail_dto.g.dart';
 
@@ -28,9 +29,13 @@ class SpaceDetailDto extends Equatable {
   final String? locationDescription;
   @JsonKey(name: "image")
   final String? image;
-  @JsonKey(name: "hidingCount")
-  final int? hidingCount;
+  @JsonKey(name: "checkInCount")
+  final int? checkInCount;
   final bool? spaceOpen;
+  @JsonKey(name: "checkedInUsers")
+  final List<CheckedInUserDto>? checkedInUsers;
+  @JsonKey(name: "currentGroupProgress")
+  final String? currentGroupProgress;
 
   const SpaceDetailDto({
     this.id,
@@ -44,8 +49,10 @@ class SpaceDetailDto extends Equatable {
     this.introduction,
     this.locationDescription,
     this.image,
-    this.hidingCount,
+    this.checkInCount,
     this.spaceOpen,
+    this.checkedInUsers,
+    this.currentGroupProgress,
   });
 
   factory SpaceDetailDto.fromJson(Map<String, dynamic> json) =>
@@ -67,8 +74,10 @@ class SpaceDetailDto extends Equatable {
       introduction,
       locationDescription,
       image,
-      hidingCount,
+      checkInCount,
       spaceOpen,
+      checkedInUsers,
+      currentGroupProgress,
     ];
   }
 
@@ -84,7 +93,10 @@ class SpaceDetailDto extends Equatable {
         introduction: introduction ?? "",
         locationDescription: locationDescription ?? "",
         image: image ?? "",
-        hidingCount: hidingCount ?? 0,
+        checkInCount: checkInCount ?? 0,
         spaceOpen: spaceOpen ?? false,
+        checkedInUsers:
+            checkedInUsers?.map((e) => e.toEntity()).toList() ?? [],
+        currentGroupProgress: currentGroupProgress ?? "",
       );
 }

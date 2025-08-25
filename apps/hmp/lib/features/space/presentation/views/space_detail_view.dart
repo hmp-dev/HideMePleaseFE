@@ -1,8 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/app/core/helpers/map_utils.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -10,9 +13,14 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/space/domain/entities/business_hours_entity.dart';
+import 'package:mobile/features/space/domain/entities/check_in_status_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/presentation/widgets/build_hiding_count_widget.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/features/space/domain/repositories/space_repository.dart';
+import 'package:mobile/features/space/presentation/widgets/checkin_fail_dialog.dart';
 import 'package:mobile/features/space/presentation/widgets/space_benefit_list_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -27,9 +35,11 @@ class SpaceDetailView extends StatefulWidget {
 }
 
 class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
+  late final SpaceRepository _spaceRepository;
   List<Marker> allMarkers = [];
   late GoogleMapController _controller;
   String? _distanceInKm;
+  CheckInStatusEntity? _checkInStatus;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.5518911, 126.9917937),
@@ -39,7 +49,27 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   @override
   void initState() {
     super.initState();
+    _spaceRepository = getIt<SpaceRepository>();
     _calculateDistance();
+    _fetchCheckInStatus();
+  }
+
+  Future<void> _fetchCheckInStatus() async {
+    final result =
+        await _spaceRepository.getCheckInStatus(spaceId: widget.space.id);
+    result.fold(
+      (error) {
+        // TODO: Handle error
+        print('Error fetching check-in status: $error');
+      },
+      (status) {
+        if (mounted) {
+          setState(() {
+            _checkInStatus = status;
+          });
+        }
+      },
+    );
   }
 
   Future<void> _calculateDistance() async {
@@ -150,8 +180,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                     fit: BoxFit.cover,
                   ),
             buildBackArrowIconButton(context),
-            if (widget.space.hidingCount > 0)
-              BuildHidingCountWidget(hidingCount: widget.space.hidingCount),
+            if (widget.space.checkInCount > 0)
+              BuildHidingCountWidget(hidingCount: widget.space.checkInCount),
           ],
         ),
         // // 새로 추가된 타이틀 영역 (주석 처리)
@@ -195,6 +225,63 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: const Divider(
+            thickness: 1,
+            color: Color(0x3319BAFF),
+          ),
+        ),
+
+        // 체크인영역
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "체크인 및 매칭 혜택",
+                    style: fontTitle06(),
+                  ),
+                  Row(
+                    children: [
+                      DefaultImage(
+                        path: "assets/icons/icon_detail_matching.svg",
+                        width: 16,
+                        height: 16,
+                      ),
+                      const HorizontalSpace(4),
+                      Text(
+                        "매칭이란",
+                        style: fontBodySm(color: Colors.white.withOpacity(0.5)),
+                      ),
+                      const HorizontalSpace(4),
+                      DefaultImage(
+                        path: "assets/icons/icon_question.svg",
+                        width: 16,
+                        height: 16,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const VerticalSpace(20),
+              if (_checkInStatus != null)
+                HidingBanner(
+                  checkInStatus: _checkInStatus,
+                  onCheckIn: _handleCheckIn,
+                ),
+              HidingStatusBanner(
+                currentGroupProgress: _checkInStatus?.groupProgress ??
+                    widget.space.currentGroupProgress,
+              ),
+            ],
+          ),
+        ),
+
         //const VerticalSpace(10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -211,58 +298,156 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
             height: 250,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12.0),
-              child: GoogleMap(
-                initialCameraPosition: _kGooglePlex,
-                markers: Set.from(allMarkers),
-                onMapCreated: (GoogleMapController controller) async {
-                  setState(() {
-                    _controller = controller;
-                  });
+              child: Stack(
+                children: [
+                  GoogleMap(
+                    initialCameraPosition: _kGooglePlex,
+                    markers: Set.from(allMarkers),
+                    onMapCreated: (GoogleMapController controller) async {
+                      setState(() {
+                        _controller = controller;
+                      });
 
-                  final latLong =
-                      LatLng(widget.space.latitude, widget.space.longitude);
-                  await moveAnimateToAddress(latLong);
-                  await addMarker(latLong);
-                },
-                mapType: MapType.normal,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                zoomGesturesEnabled: false,
-                scrollGesturesEnabled: false,
-                tiltGesturesEnabled: false,
-                rotateGesturesEnabled: false,
-                indoorViewEnabled: true,
-                onTap: (argument) {
-                  MapUtils.openMap(widget.space.latitude, widget.space.longitude);
-                },
+                      final latLong =
+                          LatLng(widget.space.latitude, widget.space.longitude);
+                      await moveAnimateToAddress(latLong);
+                      await addMarker(latLong);
+                    },
+                    mapType: MapType.normal,
+                    myLocationEnabled: false,
+                    myLocationButtonEnabled: false,
+                    zoomControlsEnabled: false,
+                    zoomGesturesEnabled: false,
+                    scrollGesturesEnabled: false,
+                    tiltGesturesEnabled: false,
+                    rotateGesturesEnabled: false,
+                    mapToolbarEnabled: false,
+                    compassEnabled: false,
+                    indoorViewEnabled: false,
+                  ),
+                  // This container will absorb gestures on the map
+                  Container(
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          MapUtils.openMapWithNavigation(
+                              widget.space.latitude, widget.space.longitude);
+                        },
+                        child: DefaultImage(
+                          path: "assets/icons/map_navi.png",
+                          width: 135,
+                          height: 45,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
 
+        // 위치, 시간
         Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    LocaleKeys.location.tr(),
-                    style: fontCompactSm(),
-                  ),
-                  const HorizontalSpace(10),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    child: Text(
-                      widget.space.address,
-                      style: fontCompactSmBold(),
+          child: Builder(builder: (context) {
+            final now = DateTime.now();
+            final currentDay = _getDayOfWeekFromDateTime(now);
+            BusinessHoursEntity? todayHours;
+
+            if (widget.spaceEntity != null &&
+                widget.spaceEntity!.businessHours.isNotEmpty) {
+              try {
+                todayHours = widget.spaceEntity!.businessHours.firstWhere(
+                  (hours) => hours.dayOfWeek == currentDay,
+                );
+              } catch (e) {
+                todayHours = null; // Not found
+              }
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    DefaultImage(
+                      path: "assets/icons/icon_location.svg",
+                      width: 16,
+                      height: 16,
                     ),
+                    const HorizontalSpace(10),
+                    Expanded(
+                      child: Text(
+                        widget.space.address,
+                        style: fontCompactSmBold(),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const HorizontalSpace(10),
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                                ClipboardData(text: widget.space.address))
+                            .then((_) {
+                          Fluttertoast.showToast(
+                            msg: "주소가 복사되었습니다.",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.grey[800],
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
+                        });
+                      },
+                      child: DefaultImage(
+                        path: "assets/icons/icon_copy.svg",
+                        width: 16,
+                        height: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                if (todayHours != null && !todayHours.isClosed) ...[
+                  const VerticalSpace(10),
+                  Row(
+                    children: [
+                      DefaultImage(
+                        path: "assets/icons/icon_time.svg",
+                        width: 16,
+                        height: 16,
+                      ),
+                      const HorizontalSpace(10),
+                      Text(
+                        '${todayHours.openTime ?? ''} ~ ${todayHours.closeTime ?? ''}',
+                        style: fontCompactSmBold(),
+                      ),
+                    ],
                   ),
+                  if (todayHours.breakStartTime != null &&
+                      todayHours.breakStartTime!.isNotEmpty &&
+                      todayHours.breakEndTime != null &&
+                      todayHours.breakEndTime!.isNotEmpty) ...[
+                    const VerticalSpace(10),
+                    Row(
+                      children: [
+                        const SizedBox(width: 26), // Indent for alignment
+                        Text(
+                          '${todayHours.breakStartTime!} ~ ${todayHours.breakEndTime!} 브레이크타임',
+                          style:
+                              fontCompactSm(color: Colors.white.withOpacity(0.5)),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
-              ),
-            ],
-          ),
+              ],
+            );
+          }),
         ),
 
         Padding(
@@ -278,6 +463,94 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         ),
       ],
     );
+  }
+
+  Future<void> _handleCheckIn() async {
+    try {
+      final position = await Geolocator.getCurrentPosition();
+      final result = await _spaceRepository.checkIn(
+        spaceId: widget.space.id,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
+      result.fold(
+        (error) {
+          // DioError가 아닌 다른 에러 (네트워크 등)
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const CheckinFailDialog();
+            },
+          );
+        },
+        (response) {
+          if (response.success == true) {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('성공'),
+                content: const Text('체크인에 성공했습니다.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('확인'),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            // API는 성공했으나, 비즈니스 로직상 실패 (e.g. success: false)
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return const CheckinFailDialog();
+              },
+            );
+          }
+        },
+      );
+    } on DioException catch (e) {
+      // HTTP 에러 처리
+      if (e.response?.statusCode == 400 || e.response?.statusCode == 404) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const CheckinFailDialog();
+          },
+        );
+      } else {
+        // 그 외 다른 HTTP 에러
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('오류'),
+            content: Text(e.message ?? '알 수 없는 오류가 발생했습니다.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('확인'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      // 위치 정보 가져오기 실패 등 그 외 모든 에러
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('오류'),
+          content: const Text('체크인 중 알 수 없는 오류가 발생했습니다.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   /// Builds a row that displays the category icon, business status, and distance.
@@ -403,7 +676,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
       }
 
       // Combine the texts
-      final combinedText = hoursText.isNotEmpty ? '$statusText • $hoursText' : statusText;
+      final combinedText =
+          hoursText.isNotEmpty ? '$statusText • $hoursText' : statusText;
 
       return (text: combinedText, color: color);
     }
@@ -731,6 +1005,395 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class HidingBanner extends StatelessWidget {
+  const HidingBanner({super.key, this.checkInStatus, this.onCheckIn});
+  final CheckInStatusEntity? checkInStatus;
+  final VoidCallback? onCheckIn;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isCheckedIn = checkInStatus?.isCheckedIn ?? false;
+
+    // SVG의 그라데이션 정의
+    const gradient = LinearGradient(
+      colors: [Color(0xFF72CCFF), Color(0xFFF9F395)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
+
+    return Container(
+      height: 168,
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        border: Border.all(color: Colors.transparent, width: 0.5), // Stroke
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // 상단 반투명 흰색 박스
+            Positioned(
+              top: 15,
+              left: 16,
+              right: 16,
+              child: Container(
+                height: 74,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      isCheckedIn ? "체크인 완료!" : "체크인하고 하이딩하면",
+                      style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const VerticalSpace(4),
+                    Text(
+                      isCheckedIn ? "5명 매칭 성공하면 +10SAV 획득!" : "다양한 혜택이 와르르!",
+                      style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // 하단 버튼
+            Positioned(
+              bottom: 15,
+              child: isCheckedIn
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            // TODO: Implement siren action
+                          },
+                          child: Container(
+                            width: 150,
+                            height: 45,
+                            child: Center(
+                              child: SvgPicture.asset(
+                                'assets/icons/icon_siren.svg',
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const HorizontalSpace(10),
+                        GestureDetector(
+                          onTap: () {
+                            // TODO: Implement share action
+                          },
+                          child: Container(
+                            width: 150,
+                            height: 45,
+                            child: Center(
+                              child: SvgPicture.asset(
+                                'assets/icons/icon_share.svg',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : GestureDetector(
+                      onTap: onCheckIn,
+                      child: Container(
+                        width: 135,
+                        height: 45,
+                        child: Center(
+                          child: SvgPicture.asset(
+                            'assets/icons/map_bottom_icon_checkin.svg',
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class HidingStatusBanner extends StatelessWidget {
+  const HidingStatusBanner({super.key, required this.currentGroupProgress});
+
+  final String currentGroupProgress;
+
+  @override
+  Widget build(BuildContext context) {
+    final parts = currentGroupProgress.split('/');
+    final int progress = parts.length == 2 ? int.tryParse(parts[0]) ?? 0 : 0;
+    final int total = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
+
+    return Container(
+      height: 326,
+      padding: const EdgeInsets.fromLTRB(1, 0, 1, 1), // Border width, no top border
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF72CCFF), Color(0xFFF9F395)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(15, 16, 15, 9), // Adjust for border
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "매칭 중인 하이더",
+              style: TextStyle(
+                  color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const VerticalSpace(10),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player1.png',
+                  name: 'You',
+                  isActive: true,
+                ),
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player2.png',
+                  name: 'Player 2',
+                ),
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player3.png',
+                  name: 'Player 3',
+                ),
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player4.png',
+                  name: 'Player 4',
+                ),
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player5.png',
+                  name: 'Player 5',
+                ),
+              ],
+            ),
+            const Spacer(),
+            // Simplified progress bar
+            SizedBox(
+              height: 27,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Progress Bar Body
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(13.5),
+                    child: Row(
+                      children: List.generate(total, (index) {
+                        Color? segmentColor;
+                        Gradient? segmentGradient;
+
+                        // Case 1: Progress is 0, all segments are dark.
+                        if (progress == 0) {
+                          segmentColor =
+                              const Color(0xFF020F18).withOpacity(0.8);
+                        }
+                        // Case 2: Progress is full, all segments are solid blue.
+                        else if (progress >= total) {
+                          segmentColor = const Color(0xFF19BAFF);
+                        }
+                        // Case 3: Progress is partial (1 to total-1).
+                        else {
+                          if (index < progress - 1) {
+                            // Filled segments are solid blue.
+                            segmentColor = const Color(0xFF19BAFF);
+                          } else if (index == progress - 1) {
+                            // The last filled segment has a gradient.
+                            segmentGradient = const LinearGradient(
+                              colors: [
+                                Color(0xFF19BAFF),
+                                Color(0xBF19BAFF),
+                                Color(0x8019BAFF),
+                                Color(0x4019BAFF),
+                                Color(0x0019BAFF),
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            );
+                          } else {
+                            // Unfilled segments are dark.
+                            segmentColor =
+                                const Color(0xFF020F18).withOpacity(0.8);
+                          }
+                        }
+                        return Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: segmentColor,
+                              gradient: segmentGradient,
+                              border: index < total - 1
+                                  ? Border(
+                                      right: BorderSide(
+                                        color: Colors.white.withOpacity(0.0),
+                                        width: 1,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  // Border
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(13.5),
+                      border: Border.all(color: const Color(0xFF19BAFF)),
+                    ),
+                  ),
+                  // Text
+                  Center(
+                    child: Text(
+                      "${total - progress}명만 더 모이면 SAV 획득!",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            const VerticalSpace(10),
+            const Text(
+              "매칭 완료된 하이더",
+              style: TextStyle(
+                  color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const VerticalSpace(10),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player1.png',
+                  name: 'You',
+                  isActive: true,
+                ),
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player2.png',
+                  name: 'Player 2',
+                ),
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player3.png',
+                  name: 'Player 3',
+                ),
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player4.png',
+                  name: 'Player 4',
+                ),
+                _PlayerAvatar(
+                  imagePath: 'assets/images/player5.png',
+                  name: 'Player 5',
+                ),
+              ],
+            ),
+            const VerticalSpace(20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlayerAvatar extends StatelessWidget {
+  final String imagePath;
+  final String name;
+  final bool isActive;
+
+  const _PlayerAvatar({
+    required this.imagePath,
+    required this.name,
+    this.isActive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: isActive
+                ? Border.all(color: const Color(0xFF00A3FF), width: 1)
+                : null,
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF00A3FF).withOpacity(0.6),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                    ),
+                  ]
+                : [],
+          ),
+          child: CircleAvatar(
+            radius: 25,
+            // backgroundImage: AssetImage(imagePath), // TODO: 실제 이미지 사용 시 주석 해제
+            backgroundColor: Colors.grey, // Placeholder
+          ),
+        ),
+        const VerticalSpace(8),
+        Text(
+          name,
+          style: const TextStyle(color: Colors.white, fontSize: 12),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StatRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+                color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }

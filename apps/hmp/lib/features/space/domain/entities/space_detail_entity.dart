@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:mobile/features/space/domain/entities/checked_in_user_entity.dart';
 
 class SpaceDetailEntity extends Equatable {
   final String id;
@@ -12,8 +13,10 @@ class SpaceDetailEntity extends Equatable {
   final String introduction;
   final String locationDescription;
   final String image;
-  final int hidingCount;
+  final int checkInCount;
   final bool spaceOpen;
+  final List<CheckedInUserEntity> checkedInUsers;
+  final String currentGroupProgress;
 
   const SpaceDetailEntity({
     required this.id,
@@ -27,8 +30,10 @@ class SpaceDetailEntity extends Equatable {
     required this.introduction,
     required this.locationDescription,
     required this.image,
-    required this.hidingCount,
+    required this.checkInCount,
     required this.spaceOpen,
+    this.checkedInUsers = const [],
+    this.currentGroupProgress = '',
   });
 
   @override
@@ -45,8 +50,10 @@ class SpaceDetailEntity extends Equatable {
       introduction,
       locationDescription,
       image,
-      hidingCount,
+      checkInCount,
       spaceOpen,
+      checkedInUsers,
+      currentGroupProgress,
     ];
   }
 
@@ -62,8 +69,10 @@ class SpaceDetailEntity extends Equatable {
     String? introduction,
     String? locationDescription,
     String? image,
-    int? hidingCount,
+    int? checkInCount,
     bool? spaceOpen,
+    List<CheckedInUserEntity>? checkedInUsers,
+    String? currentGroupProgress,
   }) {
     return SpaceDetailEntity(
       id: id ?? this.id,
@@ -77,8 +86,10 @@ class SpaceDetailEntity extends Equatable {
       introduction: introduction ?? this.introduction,
       locationDescription: locationDescription ?? this.locationDescription,
       image: image ?? this.image,
-      hidingCount: hidingCount ?? this.hidingCount,
+      checkInCount: checkInCount ?? this.checkInCount,
       spaceOpen: spaceOpen ?? this.spaceOpen,
+      checkedInUsers: checkedInUsers ?? this.checkedInUsers,
+      currentGroupProgress: currentGroupProgress ?? this.currentGroupProgress,
     );
   }
 
@@ -94,6 +105,8 @@ class SpaceDetailEntity extends Equatable {
         introduction = '',
         locationDescription = '',
         image = '',
-        hidingCount = 0,
-        spaceOpen = false;
+        checkInCount = 0,
+        spaceOpen = false,
+        checkedInUsers = const [],
+        currentGroupProgress = '';
 }
