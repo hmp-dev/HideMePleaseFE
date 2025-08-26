@@ -273,6 +273,15 @@ abstract class  LocaleKeys {
   static const already_checked_in = 'already_checked_in';
   static const invalid_space = 'invalid_space';
   static const space_out_of_range = 'space_out_of_range';
+  static const business_open = 'business_open';
+  static const business_closed = 'business_closed';
+  static const opens_at = 'opens_at';
+  static const closes_at = 'closes_at';
+  static const hiding_status = 'hiding_status';
+  static const my_hideout = 'my_hideout';
+  static const total_visits = 'total_visits';
+  static const my_calendar = 'my_calendar';
+  static const create_your_hideout = 'create_your_hideout';
   static const onboarding_new_title1_line1 = 'onboarding_new_title1_line1';
   static const onboarding_new_title1_line2 = 'onboarding_new_title1_line2';
   static const onboarding_new_desc1 = 'onboarding_new_desc1';
@@ -281,5 +290,8 @@ abstract class  LocaleKeys {
   static const onboarding_new_desc2 = 'onboarding_new_desc2';
   static const change_selection = 'change_selection';
   static const enter_nickname = 'enter_nickname';
+  static const search_placeholder = 'search_placeholder';
+  static const describe_yourself_placeholder = 'describe_yourself_placeholder';
+  static const confirm_intro_button = 'confirm_intro_button';
 
 }

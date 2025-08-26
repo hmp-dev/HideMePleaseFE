@@ -270,6 +270,15 @@
     "already_checked_in": "Already checked in.",
     "invalid_space": "Invalid space.",
     "space_out_of_range": "You are not within the check-in range.",
+    "business_open": "Open",
+    "business_closed": "Closed",
+    "opens_at": "Opens at",
+    "closes_at": "Closes at",
+    "hiding_status": "Hiding",
+    "my_hideout": "My Hideout",
+    "total_visits": "Total Visits",
+    "my_calendar": "My Calendar",
+    "create_your_hideout": "Create Your Own Hideout",
     "onboarding_new_title1_line1": "To enjoy this world,",
     "onboarding_new_title1_line2": "You need a pass!",
     "onboarding_new_desc1": "It's a wallet.\nIt's essential for checking and using hidden benefits.\nNo personal info needed, just login to create one!",
@@ -277,5 +286,8 @@
     "onboarding_new_title2_line2": "the Hidemeplease world!",
     "onboarding_new_desc2": "This is a small world where Hiders live.\nNo complex reviews or coupons needed. Hiders can\nreceive various rewards just by visiting :)",
     "change_selection": "Choose another",
-    "enter_nickname": "Enter nickname"
+    "enter_nickname": "Enter nickname",
+    "search_placeholder": "Search for restaurants",
+    "describe_yourself_placeholder": "Describe yourself!",
+    "confirm_intro_button": "Confirm!"
 }

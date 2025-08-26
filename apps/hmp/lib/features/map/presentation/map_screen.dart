@@ -26,7 +26,14 @@ import 'package:mobile/features/common/presentation/widgets/default_snackbar.dar
 import 'package:mobile/app/theme/theme.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({Key? key}) : super(key: key);
+  final VoidCallback? onShowBottomBar;
+  final VoidCallback? onHideBottomBar;
+  
+  const MapScreen({
+    Key? key, 
+    this.onShowBottomBar,
+    this.onHideBottomBar,
+  }) : super(key: key);
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -884,7 +891,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             Text(
-              ' • ${todayHours.closeTime} 마감',
+              ' • ${todayHours.closeTime} ${LocaleKeys.closes_at.tr()}',
               style: TextStyle(
                 color: Colors.grey[400],
                 fontSize: 14,
@@ -895,7 +902,7 @@ class _MapScreenState extends State<MapScreen> {
         );
       } else {
         return Text(
-          '영업 중',
+          LocaleKeys.business_open.tr(),
           style: TextStyle(
             color: Colors.green[400],
             fontSize: 14,
@@ -951,7 +958,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
               Text(
-                ' • ${todayHours.openTime} 오픈',
+                ' • ${todayHours.openTime} ${LocaleKeys.opens_at.tr()}',
                 style: TextStyle(
                   color: Colors.blue[300],
                   fontSize: 14,
@@ -1259,8 +1266,8 @@ class _MapScreenState extends State<MapScreen> {
       // 현재 위치 표시 설정
       await _setupLocationDisplay();
       
-      // 한국어 설정
-      _setMapLanguageToKorean();
+      // 현재 앱 언어에 따른 지도 언어 설정
+      _setMapLanguage();
       
       // 데이터 로드 (지연 없이 즉시 시작)
       _completeMapInitialization();
@@ -1276,36 +1283,40 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // 지도 언어를 한국어로 설정
-  void _setMapLanguageToKorean() async {
+  // 현재 앱 언어에 따라 지도 언어 설정
+  void _setMapLanguage() async {
     if (mapboxMap == null) return;
     
+    // 현재 앱 언어 확인
+    final currentLocale = context.locale.languageCode;
+    final localeCode = currentLocale == 'ko' ? 'ko' : 'en';
+    
     try {
-      // 한국어 로케일 설정
+      // 동적 로케일 설정
       await mapboxMap!.style.setStyleImportConfigProperty(
         'basemap',
         'locale',
-        'ko',
+        localeCode,
       );
-      print('✅ Map language set to Korean');
+      print('✅ Map language set to $localeCode');
     } catch (e) {
-      print('❌ Error setting map language to Korean: $e');
+      print('❌ Error setting map language to $localeCode: $e');
       // 대안 방법: 스타일 레이어의 텍스트 필드 설정
       try {
         // 라벨 레이어들의 언어 설정 시도
-        await _updateTextLayersForKorean();
+        await _updateTextLayers(localeCode);
       } catch (e2) {
         print('❌ Alternative language setting also failed: $e2');
       }
     }
   }
 
-  // 텍스트 레이어들을 한국어로 업데이트
-  Future<void> _updateTextLayersForKorean() async {
+  // 텍스트 레이어들을 지정된 언어로 업데이트
+  Future<void> _updateTextLayers(String localeCode) async {
     if (mapboxMap == null) return;
     
     try {
-      // 일반적인 라벨 레이어들에 대해 한국어 텍스트 필드 설정
+      // 일반적인 라벨 레이어들
       final commonLabelLayers = [
         'country-label',
         'state-label', 
@@ -1315,12 +1326,22 @@ class _MapScreenState extends State<MapScreen> {
         'road-label',
       ];
       
+      // 언어별 텍스트 필드 설정
+      List<dynamic> nameFields;
+      if (localeCode == 'ko') {
+        // 한국어: name_ko, name_kr, name 순서로 우선순위
+        nameFields = ['coalesce', ['get', 'name_ko'], ['get', 'name_kr'], ['get', 'name']];
+      } else {
+        // 영어: name_en, name 순서로 우선순위
+        nameFields = ['coalesce', ['get', 'name_en'], ['get', 'name']];
+      }
+      
       for (final layerId in commonLabelLayers) {
         try {
           await mapboxMap!.style.setStyleLayerProperty(
             layerId,
             'text-field',
-            ['coalesce', ['get', 'name_ko'], ['get', 'name_kr'], ['get', 'name']],
+            nameFields,
           );
         } catch (e) {
           // 레이어가 존재하지 않을 수 있으므로 무시
@@ -1328,7 +1349,7 @@ class _MapScreenState extends State<MapScreen> {
         }
       }
       
-      print('✅ Updated text layers for Korean language');
+      print('✅ Updated text layers for $localeCode language');
     } catch (e) {
       print('❌ Error updating text layers: $e');
     }
@@ -1932,7 +1953,7 @@ class _MapScreenState extends State<MapScreen> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              bottom: showInfoCard && selectedSpace != null ? 320 : 120, // 인포카드 있을 때는 위로, 없을 때는 탭바 위
+              bottom: showInfoCard && selectedSpace != null ? 260 : 120, // 인포카드 바로 위에 위치
               right: 16,
               child: GestureDetector(
                 onTap: _moveToCurrentLocation,
@@ -2378,6 +2399,8 @@ class _MapScreenState extends State<MapScreen> {
                   setState(() {
                     showSearchOverlay = true;
                   });
+                  // Hide bottom bar when showing search
+                  widget.onHideBottomBar?.call();
                 },
                 child: Container(
                   width: 44,
@@ -2558,7 +2581,7 @@ class _MapScreenState extends State<MapScreen> {
                     fontSize: 16,
                   ),
                   decoration: InputDecoration(
-                    hintText: '맛집을 검색해봐',
+                    hintText: LocaleKeys.search_placeholder.tr(),
                     hintStyle: TextStyle(
                       color: Colors.grey[400],
                       fontSize: 16,
@@ -2576,6 +2599,8 @@ class _MapScreenState extends State<MapScreen> {
                           searchController.clear();
                           searchResults.clear();
                         });
+                        // Show bottom bar when hiding search
+                        widget.onShowBottomBar?.call();
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -2972,6 +2997,8 @@ class _MapScreenState extends State<MapScreen> {
       searchController.clear();
       searchResults.clear();
     });
+    // Show bottom bar when hiding search
+    widget.onShowBottomBar?.call();
 
     // 검색 결과를 선택했으므로 필터를 전체로 리셋
     setState(() {

@@ -18,6 +18,7 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
@@ -303,9 +304,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               ),
             ),
             const SizedBox(width: 6),
-            const Text(
-              '하이딩 중',
-              style: TextStyle(
+            Text(
+              LocaleKeys.hiding_status.tr(),
+              style: const TextStyle(
                 color: Color(0xFF333333),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -636,18 +637,18 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  '나의 아지트',
-                  style: TextStyle(
+                Text(
+                  LocaleKeys.my_hideout.tr(),
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 TextButton(
                   onPressed: () {},
                   child: Text(
-                    '누적 방문횟수',
+                    LocaleKeys.total_visits.tr(),
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.5),
                       fontSize: 10,
@@ -682,7 +683,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   child: Column(
                     children: [
                       Text(
-                        '너만의 숨을 곳을 만들어봐 :)',
+                        '${LocaleKeys.create_your_hideout.tr()} :)',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
                           fontSize: 16,
@@ -776,7 +777,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   Widget _buildMyCalendarSection() {
     final now = DateTime.now();
-    final DateFormat monthYearFormat = DateFormat('yyyy년 M월', 'ko');
+    // 현재 언어에 따른 날짜 포맷
+    final currentLocale = context.locale.languageCode;
+    final DateFormat monthYearFormat = currentLocale == 'ko' 
+        ? DateFormat('yyyy년 M월', 'ko')
+        : DateFormat('MMMM yyyy', 'en');
     
     // 오늘 기준으로 전후 3일씩 날짜 생성 (총 7일)
     final List<DateTime> weekDays = [];
@@ -799,9 +804,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                '나의 캘린더',
-                style: TextStyle(
+              Text(
+                LocaleKeys.my_calendar.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -968,9 +973,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // 제목
-                    const Text(
-                      '자기소개',
-                      style: TextStyle(
+                    Text(
+                      LocaleKeys.self_introduction.tr(),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -996,7 +1001,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                               fontSize: 16,
                             ),
                             decoration: InputDecoration(
-                              hintText: '너에 대해 설명해봐!',
+                              hintText: LocaleKeys.describe_yourself_placeholder.tr(),
                               hintStyle: TextStyle(
                                 color: Colors.white.withOpacity(0.3),
                                 fontSize: 16,
@@ -1038,10 +1043,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                 color: const Color(0xFF878787),
                                 borderRadius: BorderRadius.circular(25),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Text(
-                                  '취소',
-                                  style: TextStyle(
+                                  LocaleKeys.cancel.tr(),
+                                  style: const TextStyle(
                                     color: Color(0xFF000000),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -1077,10 +1082,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                 ),
                                 borderRadius: BorderRadius.circular(25),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Text(
-                                  '이렇게 할게!',
-                                  style: TextStyle(
+                                  LocaleKeys.confirm_intro_button.tr(),
+                                  style: const TextStyle(
                                     color: Color(0xFF000000),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,

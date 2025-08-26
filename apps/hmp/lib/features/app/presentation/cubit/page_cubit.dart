@@ -19,4 +19,12 @@ class PageCubit extends BaseCubit<PageState> {
       print('❌ PageCubit changePage error: $e');
     }
   }
+
+  void hideBottomBar() {
+    emit(state.copyWith(showBottomBar: false));
+  }
+
+  void showBottomBar() {
+    emit(state.copyWith(showBottomBar: true));
+  }
 }

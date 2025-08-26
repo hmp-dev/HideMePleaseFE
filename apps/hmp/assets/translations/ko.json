@@ -271,6 +271,15 @@
     "already_checked_in": "이미 체크인되었습니다.",
     "invalid_space": "유효하지 않은 스페이스입니다.",
     "space_out_of_range": "체크인 할 수 없는 위치입니다.",
+    "business_open": "영업중",
+    "business_closed": "마감",
+    "opens_at": "오픈",
+    "closes_at": "마감",
+    "hiding_status": "하이딩 중",
+    "my_hideout": "나의 아지트",
+    "total_visits": "누적 방문횟수",
+    "my_calendar": "나의 캘린더",
+    "create_your_hideout": "너만의 숨을곳을 만들어봐",
     "onboarding_new_title1_line1": "이 세계를 즐기려면,",
     "onboarding_new_title1_line2": "출입증이 하나 필요해!",
     "onboarding_new_desc1": "그건 바로 지갑이야.\n숨은 혜택을 확인하고 사용하기 위해서 꼭 필요하거든.\n개인 정보 제공 없이, 로그인만 하면 바로 만들 수 있어!",
@@ -278,5 +287,8 @@
     "onboarding_new_title2_line2": "환영해!",
     "onboarding_new_desc2": "여긴 하이더들이 살아가는 작은 세계야.\n복잡한 리뷰도, 쿠폰도 필요 없어. 하이더들은 그냥\n방문만 해도 다양한 보상을 받을 수 있어 :)",
     "change_selection": "다른 걸로 할래",
-    "enter_nickname": "닉네임 입력하기"
+    "enter_nickname": "닉네임 입력하기",
+    "search_placeholder": "맛집을 검색해봐",
+    "describe_yourself_placeholder": "너에 대해 설명해봐!",
+    "confirm_intro_button": "이렇게 할게!"
 }

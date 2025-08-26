@@ -97,7 +97,10 @@ class _AppViewState extends State<AppView> {
                             
                             if (index == MenuType.space.menuIndex) {
                               print('🗺️ Returning MapScreen for index $index');
-                              return const MapScreen();
+                              return MapScreen(
+                                onShowBottomBar: () => getIt<PageCubit>().showBottomBar(),
+                                onHideBottomBar: () => getIt<PageCubit>().hideBottomBar(),
+                              );
                             } else if (index == MenuType.events.menuIndex) {
                               print('🎪 Returning HomeScreen (Events) for index $index');
                               return const HomeScreen(); // EventsWepinScreen();
@@ -119,12 +122,13 @@ class _AppViewState extends State<AppView> {
                           physics: const NeverScrollableScrollPhysics(),
                           preloadPagesCount: 5,
                         ),
-                        // 탭바를 하단에 floating으로 배치
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: CheckInBottomBar(
+                        // 탭바를 하단에 floating으로 배치 (showBottomBar가 true일 때만)
+                        if (state.showBottomBar)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: CheckInBottomBar(
                           isMapActive: state.menuType == MenuType.space,
                           isMyActive: state.menuType == MenuType.myProfile,
                           onMapTap: () {
@@ -275,7 +279,7 @@ class _AppViewState extends State<AppView> {
                             );
                           },
                         ),
-                        ),
+                          ),
                       ],
                     );
                   },

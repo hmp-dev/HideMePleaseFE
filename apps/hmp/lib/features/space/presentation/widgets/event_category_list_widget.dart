@@ -53,6 +53,7 @@ class EventCategoryListWidget extends StatelessWidget {
                 child: _buildEventCategoryButton(
                   category: category,
                   isSelected: isSelected,
+                  context: context,
                   onTap: () {
                     context.read<EventCategoryCubit>().selectEventCategory(
                           isSelected ? null : category,
@@ -71,6 +72,7 @@ class EventCategoryListWidget extends StatelessWidget {
   Widget _buildEventCategoryButton({
     required EventCategoryEntity category,
     required bool isSelected,
+    required BuildContext context,
     required VoidCallback onTap,
   }) {
     final backgroundColor = category.colorCode != null
