@@ -21,6 +21,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/features/space/presentation/widgets/checkin_fail_dialog.dart';
+import 'package:mobile/features/space/presentation/widgets/matching_help.dart';
 import 'package:mobile/features/space/presentation/widgets/space_benefit_list_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -246,34 +247,43 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                     "체크인 및 매칭 혜택",
                     style: fontTitle06(),
                   ),
-                  Row(
-                    children: [
-                      DefaultImage(
-                        path: "assets/icons/icon_detail_matching.svg",
-                        width: 16,
-                        height: 16,
-                      ),
-                      const HorizontalSpace(4),
-                      Text(
-                        "매칭이란",
-                        style: fontBodySm(color: Colors.white.withOpacity(0.5)),
-                      ),
-                      const HorizontalSpace(4),
-                      DefaultImage(
-                        path: "assets/icons/icon_question.svg",
-                        width: 16,
-                        height: 16,
-                      ),
-                    ],
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return const MatchingHelpDialog();
+                        },
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        DefaultImage(
+                          path: "assets/icons/icon_detail_matching.svg",
+                          width: 16,
+                          height: 16,
+                        ),
+                        const HorizontalSpace(4),
+                        Text(
+                          "매칭이란",
+                          style: fontBodySm(color: Colors.white.withOpacity(0.5)),
+                        ),
+                        const HorizontalSpace(4),
+                        DefaultImage(
+                          path: "assets/icons/icon_question.svg",
+                          width: 16,
+                          height: 16,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
               const VerticalSpace(20),
-              if (_checkInStatus != null)
-                HidingBanner(
-                  checkInStatus: _checkInStatus,
-                  onCheckIn: _handleCheckIn,
-                ),
+              HidingBanner(
+                checkInStatus: _checkInStatus,
+                onCheckIn: _handleCheckIn,
+              ),
               HidingStatusBanner(
                 currentGroupProgress: _checkInStatus?.groupProgress ??
                     widget.space.currentGroupProgress,
@@ -1017,6 +1027,7 @@ class HidingBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLoading = checkInStatus == null;
     final bool isCheckedIn = checkInStatus?.isCheckedIn ?? false;
 
     // SVG의 그라데이션 정의
@@ -1049,79 +1060,94 @@ class HidingBanner extends StatelessWidget {
                   color: Colors.white.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      isCheckedIn ? "체크인 완료!" : "체크인하고 하이딩하면",
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    const VerticalSpace(4),
-                    Text(
-                      isCheckedIn ? "5명 매칭 성공하면 +10SAV 획득!" : "다양한 혜택이 와르르!",
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
+                child: isLoading
+                    ? const Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.black),
+                          ),
+                        ),
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            isCheckedIn ? "체크인 완료!" : "체크인하고 하이딩하면",
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          const VerticalSpace(4),
+                          Text(
+                            isCheckedIn
+                                ? "5명 매칭 성공하면 +10SAV 획득!"
+                                : "다양한 혜택이 와르르!",
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
               ),
             ),
             // 하단 버튼
             Positioned(
               bottom: 15,
-              child: isCheckedIn
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            // TODO: Implement siren action
-                          },
+              child: isLoading
+                  ? const SizedBox(height: 45) // 로딩 중일 때 버튼 공간 확보
+                  : isCheckedIn
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                // TODO: Implement siren action
+                              },
+                              child: Container(
+                                width: 150,
+                                height: 45,
+                                child: Center(
+                                  child: SvgPicture.asset(
+                                    'assets/icons/icon_siren.svg',
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const HorizontalSpace(10),
+                            GestureDetector(
+                              onTap: () {
+                                // TODO: Implement share action
+                              },
+                              child: Container(
+                                width: 150,
+                                height: 45,
+                                child: Center(
+                                  child: SvgPicture.asset(
+                                    'assets/icons/icon_share.svg',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : GestureDetector(
+                          onTap: onCheckIn,
                           child: Container(
-                            width: 150,
+                            width: 135,
                             height: 45,
                             child: Center(
                               child: SvgPicture.asset(
-                                'assets/icons/icon_siren.svg',
+                                'assets/icons/map_bottom_icon_checkin.svg',
                               ),
                             ),
                           ),
                         ),
-
-                        const HorizontalSpace(10),
-                        GestureDetector(
-                          onTap: () {
-                            // TODO: Implement share action
-                          },
-                          child: Container(
-                            width: 150,
-                            height: 45,
-                            child: Center(
-                              child: SvgPicture.asset(
-                                'assets/icons/icon_share.svg',
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : GestureDetector(
-                      onTap: onCheckIn,
-                      child: Container(
-                        width: 135,
-                        height: 45,
-                        child: Center(
-                          child: SvgPicture.asset(
-                            'assets/icons/map_bottom_icon_checkin.svg',
-                          ),
-                        ),
-                      ),
-                    ),
             ),
           ],
         ),
