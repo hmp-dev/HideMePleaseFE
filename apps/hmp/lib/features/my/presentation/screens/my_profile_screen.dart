@@ -36,6 +36,7 @@ class MyProfileScreen extends StatefulWidget {
 class _MyProfileScreenState extends State<MyProfileScreen> {
   Color _dominantColor = const Color(0xFFA9F4B6); // 기본 민트색
   bool _isLoadingColor = false;
+  bool _colorExtracted = false; // 색상 추출 완료 여부
   final GlobalKey _profileKey = GlobalKey(); // 프로필 위젯 캡처용
   
   // 나의 아지트 데이터 배열 (TODO: 서버 데이터로 교체)
@@ -127,13 +128,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       });
     }
     
-    // 위젯이 빌드된 후 색상 추출
+    // 위젯이 빌드된 후 색상 추출 (한 번만 실행)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _extractDominantColorFromWidget();
+      if (!_colorExtracted) {
+        _extractDominantColorFromWidget();
+      }
     });
   }
 
   Future<void> _extractDominantColorFromWidget() async {
+    if (_colorExtracted) return; // 이미 추출했다면 종료
+    
     setState(() => _isLoadingColor = true);
     
     try {
@@ -163,6 +168,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                            paletteGenerator.dominantColor?.color ??
                            const Color(0xFFA9F4B6);
             _isLoadingColor = false;
+            _colorExtracted = true; // 색상 추출 완료 표시
           });
         }
       }
@@ -171,6 +177,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       setState(() {
         _dominantColor = const Color(0xFFA9F4B6);
         _isLoadingColor = false;
+        _colorExtracted = true; // 실패해도 재시도 방지
       });
     }
   }
@@ -673,11 +680,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 child: Center(
                   child: Column(
                     children: [
-                      const Text(
-                        '🏠',
-                        style: TextStyle(fontSize: 40),
-                      ),
-                      const SizedBox(height: 16),
                       Text(
                         '너만의 숨을 곳을 만들어봐 :)',
                         style: TextStyle(

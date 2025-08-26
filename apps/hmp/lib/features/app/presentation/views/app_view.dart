@@ -24,6 +24,8 @@ import 'package:mobile/features/space/presentation/screens/space_screen.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/app/core/services/nfc_service.dart';
+import 'package:mobile/app/core/services/simple_nfc_test.dart';
+import 'package:mobile/app/core/services/safe_nfc_service.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
@@ -132,8 +134,32 @@ class _AppViewState extends State<AppView> {
                             // Navigate to MyProfile Screen
                             _onChangeMenu(MenuType.myProfile);
                           },
-                          onCheckInTap: () {
+                          onCheckInTap: () async {
                             ('✅ Check-in button tapped - Starting NFC reading').log();
+                            
+                            // 안전한 NFC 서비스 사용
+                            await SafeNfcService.startReading(
+                              context: context,
+                              onSuccess: (tagId) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('체크인 성공!\nTag ID: $tagId'),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
+                              },
+                              onError: (error) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(error),
+                                    backgroundColor: Colors.red,
+                                    duration: Duration(seconds: 4),
+                                  ),
+                                );
+                              },
+                            );
+                            return;
                             
                             // NFC 리딩 시작
                             NfcService().startNfcReading(
@@ -150,10 +176,34 @@ class _AppViewState extends State<AppView> {
                               },
                               onError: (error) {
                                 ('❌ NFC reading error: $error').log();
+                                
+                                // 에러 메시지 파싱 및 사용자 친화적 메시지 표시
+                                String userMessage = 'NFC 읽기 실패';
+                                
+                                if (error.contains('NFC를 사용할 수 없습니다')) {
+                                  userMessage = 'NFC가 비활성화되어 있습니다.\n설정 > 일반 > NFC를 켜주세요.';
+                                } else if (error.contains('권한')) {
+                                  userMessage = 'NFC 권한이 필요합니다.\n앱을 삭제 후 다시 설치해주세요.';
+                                } else if (error.contains('지원하지 않습니다')) {
+                                  userMessage = '이 기기는 NFC를 지원하지 않습니다.';
+                                } else if (error.contains('사용 중')) {
+                                  userMessage = 'NFC가 다른 앱에서 사용 중입니다.\n잠시 후 다시 시도해주세요.';
+                                } else if (error.contains('취소')) {
+                                  userMessage = 'NFC 읽기가 취소되었습니다.';
+                                } else if (error.contains('시간 초과')) {
+                                  userMessage = 'NFC 읽기 시간이 초과되었습니다.\n다시 시도해주세요.';
+                                } else if (error.contains('알 수 없는 오류')) {
+                                  userMessage = 'NFC 태그를 읽을 수 없습니다.\n태그를 천천히 대주세요.';
+                                } else {
+                                  // 기타 에러의 경우 원본 메시지 일부 표시
+                                  userMessage = 'NFC 오류: ${error.length > 50 ? error.substring(0, 50) + "..." : error}';
+                                }
+                                
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('NFC 읽기 실패: $error'),
+                                    content: Text(userMessage),
                                     backgroundColor: Colors.red,
+                                    duration: const Duration(seconds: 4),
                                   ),
                                 );
                               },
