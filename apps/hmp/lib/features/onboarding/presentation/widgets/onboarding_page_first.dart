@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class OnboardingPageFirst extends StatelessWidget {
   const OnboardingPageFirst({super.key});
@@ -17,7 +19,7 @@ class OnboardingPageFirst extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    '이 세계를 즐기려면,',
+                    LocaleKeys.onboarding_new_title1_line1.tr(),
                     style: TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 28,
@@ -28,7 +30,7 @@ class OnboardingPageFirst extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   Text(
-                    '출입증이 하나 필요해!',
+                    LocaleKeys.onboarding_new_title1_line2.tr(),
                     style: TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 28,
@@ -46,7 +48,7 @@ class OnboardingPageFirst extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Text(
-                '그건 바로 지갑이야.\n숨은 혜택을 확인하고 사용하기 위해서 꼭 필요하거든.\n개인 정보 제공 없이, 로그인만 하면 바로 만들 수 있어!',
+                LocaleKeys.onboarding_new_desc1.tr(),
                 style: TextStyle(
                   fontFamily: 'LINESeedKR',
                   fontSize: 16,

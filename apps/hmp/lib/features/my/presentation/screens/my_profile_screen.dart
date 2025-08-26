@@ -22,6 +22,7 @@ import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -345,9 +346,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                '찜',
-                style: TextStyle(
+              Text(
+                LocaleKeys.favorite.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                 ),
@@ -378,9 +379,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                '지갑',
-                style: TextStyle(
+              Text(
+                LocaleKeys.wallet.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                 ),
@@ -472,9 +473,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ],
               ),
               const SizedBox(height: 8),
-              const Text(
-                '알림',
-                style: TextStyle(
+              Text(
+                LocaleKeys.notification.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                 ),
@@ -498,9 +499,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                '설정',
-                style: TextStyle(
+              Text(
+                LocaleKeys.settings_label.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                 ),
@@ -571,13 +572,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('0', '프렌즈', 'assets/images/ic_myfriend.png'),
+          _buildStatItem('0', LocaleKeys.friends.tr(), 'assets/images/ic_myfriend.png'),
           Container(
             width: 1,
             height: 40,
             color: Colors.white.withOpacity(0.2),
           ),
-          _buildStatItem('0', '체크인', 'assets/images/ic_mycheckin.png'),
+          _buildStatItem('0', LocaleKeys.check_in.tr(), 'assets/images/ic_mycheckin.png'),
           Container(
             width: 1,
             height: 40,
@@ -844,9 +845,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           
           TextButton(
             onPressed: () {},
-            child: const Text(
-              '전체보기',
-              style: TextStyle(
+            child: Text(
+              LocaleKeys.view_all.tr(),
+              style: const TextStyle(
                 color: Color(0xFF19BAFF),
                 fontSize: 14,
               ),

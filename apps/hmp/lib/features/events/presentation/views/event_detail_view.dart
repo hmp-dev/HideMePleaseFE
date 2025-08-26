@@ -12,6 +12,8 @@ import 'package:mobile/features/common/presentation/widgets/vertical_space.dart'
 import 'package:mobile/features/events/presentation/widgets/dot_indicator.dart';
 import 'package:mobile/features/events/presentation/widgets/event_member_item_widget.dart';
 import 'package:mobile/features/events/presentation/widgets/only_badge_item.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class EventDetailView extends StatefulWidget {
   const EventDetailView({
@@ -310,7 +312,7 @@ class _EventDetailViewState extends State<EventDetailView> {
               valueText: "03/07(목) 11:50까지",
             ),
             const EventFeatureValueWidget(
-              keyText: "장소",
+              keyText: LocaleKeys.place.tr(),
               valueText: "하이드미 플리즈 을지로점 3층",
             ),
             const EventFeatureValueWidget(
@@ -318,7 +320,7 @@ class _EventDetailViewState extends State<EventDetailView> {
               valueText: "DADAZ only",
             ),
             const EventFeatureValueWidget(
-              keyText: "혜택",
+              keyText: LocaleKeys.benefit.tr(),
               valueText: "커피 한잔, 디저트 1개",
             ),
             const EventFeatureValueWidget(

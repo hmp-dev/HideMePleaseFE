@@ -243,7 +243,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "체크인 및 매칭 혜택",
+                    LocaleKeys.checkin_and_matching_benefits.tr(),
                     style: fontTitle06(),
                   ),
                   Row(
@@ -255,7 +255,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                       ),
                       const HorizontalSpace(4),
                       Text(
-                        "매칭이란",
+                        LocaleKeys.what_is_matching.tr(),
                         style: fontBodySm(color: Colors.white.withOpacity(0.5)),
                       ),
                       const HorizontalSpace(4),
@@ -489,12 +489,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('성공'),
+                title: Text(LocaleKeys.success.tr()),
                 content: const Text('체크인에 성공했습니다.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('확인'),
+                    child: Text(LocaleKeys.confirm.tr()),
                   ),
                 ],
               ),
@@ -524,12 +524,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('오류'),
+            title: Text(LocaleKeys.error.tr()),
             content: Text(e.message ?? '알 수 없는 오류가 발생했습니다.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('확인'),
+                child: Text(LocaleKeys.confirm.tr()),
               ),
             ],
           ),
@@ -540,12 +540,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('오류'),
+          title: Text(LocaleKeys.error.tr()),
           content: const Text('체크인 중 알 수 없는 오류가 발생했습니다.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('확인'),
+              child: Text(LocaleKeys.confirm.tr()),
             ),
           ],
         ),
@@ -646,7 +646,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
             if (currentMinutes >= breakStartMinutes &&
                 currentMinutes < breakEndMinutes) {
-              statusText = '휴게시간';
+              statusText = LocaleKeys.rest_time.tr();
               hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} 재오픈';
             } else {
               hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
@@ -843,7 +843,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
           if (currentMinutes >= breakStartMinutes &&
               currentMinutes < breakEndMinutes) {
-            statusText = '휴게시간';
+            statusText = LocaleKeys.rest_time.tr();
             hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} 재오픈';
           } else {
             hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
@@ -1053,7 +1053,7 @@ class HidingBanner extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      isCheckedIn ? "체크인 완료!" : "체크인하고 하이딩하면",
+                      isCheckedIn ? LocaleKeys.checkin_complete.tr() : LocaleKeys.if_you_checkin_and_hide.tr(),
                       style: const TextStyle(
                           color: Colors.black,
                           fontSize: 16,

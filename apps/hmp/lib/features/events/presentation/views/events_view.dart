@@ -5,6 +5,8 @@ import 'package:mobile/features/common/presentation/widgets/vertical_space.dart'
 import 'package:mobile/features/events/presentation/screens/event_detail_screen.dart';
 import 'package:mobile/features/events/presentation/widgets/event_widget.dart';
 import 'package:mobile/features/my/presentation/widgets/rounded_select_button.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class EventsView extends StatefulWidget {
   const EventsView({
@@ -157,22 +159,22 @@ class _EventsViewState extends State<EventsView> {
       child: Row(
         children: [
           RoundedSelectButton(
-            title: "전체",
+            title: LocaleKeys.all_events.tr(),
             isSelected: true,
             onTap: () {},
           ),
           RoundedSelectButton(
-            title: "참여 가능한",
+            title: LocaleKeys.available_events.tr(),
             isSelected: false,
             onTap: () {},
           ),
           RoundedSelectButton(
-            title: "신청한",
+            title: LocaleKeys.applied_events.tr(),
             isSelected: false,
             onTap: () {},
           ),
           RoundedSelectButton(
-            title: "참여한",
+            title: LocaleKeys.participated_events.tr(),
             isSelected: false,
             onTap: () {},
           ),

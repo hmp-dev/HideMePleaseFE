@@ -697,7 +697,7 @@ class _MapScreenState extends State<MapScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      '상세보기',
+                                      LocaleKeys.view_details.tr(),
                                       style: TextStyle(
                                         color: Colors.grey[500],
                                         fontSize: 13,
@@ -750,7 +750,7 @@ class _MapScreenState extends State<MapScreen> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    '혜택',
+                                    LocaleKeys.benefit.tr(),
                                     style: const TextStyle(
                                       color: Color(0xFF00A3FF),
                                       fontSize: 12,
@@ -861,7 +861,7 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
                 Text(
-                  ' • ${todayHours.breakStartTime} 브레이크타임',
+                  ' • ${todayHours.breakStartTime} ${LocaleKeys.break_time.tr()}',
                   style: TextStyle(
                     color: Colors.orange[300],
                     fontSize: 14,
@@ -911,7 +911,7 @@ class _MapScreenState extends State<MapScreen> {
       if (todayHours.isClosed) {
         if (nextOpenTime != null) {
           return Text(
-            '휴무일 • 다음 영업 시작',
+            '${LocaleKeys.closed_day.tr()} • 다음 영업 시작',
             style: TextStyle(
               color: Colors.grey[400],
               fontSize: 14,
@@ -920,7 +920,7 @@ class _MapScreenState extends State<MapScreen> {
           );
         } else {
           return Text(
-            '휴무일',
+            LocaleKeys.closed_day.tr(),
             style: TextStyle(
               color: Colors.grey[400],
               fontSize: 14,
@@ -975,7 +975,7 @@ class _MapScreenState extends State<MapScreen> {
           return Row(
             children: [
               Text(
-                '브레이크타임',
+                LocaleKeys.break_time.tr(),
                 style: TextStyle(
                   color: Colors.orange[300],
                   fontSize: 14,
@@ -1097,9 +1097,9 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             const SizedBox(width: 4),
-            const Text(
-              '휴무일',
-              style: TextStyle(
+            Text(
+              LocaleKeys.closed_day.tr(),
+              style: const TextStyle(
                 color: Color(0xFF999999),
                 fontSize: 12,
                 fontFamily: 'Pretendard',
@@ -1138,17 +1138,17 @@ class _MapScreenState extends State<MapScreen> {
   String _getCategoryDisplayName(String category) {
     switch (category.toUpperCase()) {
       case 'CAFE':
-        return '카페';
+        return LocaleKeys.category_cafe.tr();
       case 'MEAL':
-        return '식당';
+        return LocaleKeys.category_restaurant.tr();
       case 'PUB':
-        return '주점';
+        return LocaleKeys.category_pub.tr();
       case 'MUSIC':
-        return '음악';
+        return LocaleKeys.category_music.tr();
       case 'BAR':
-        return '바';
+        return LocaleKeys.category_bar.tr();
       case 'ETC':
-        return '기타';
+        return LocaleKeys.category_etc.tr();
       default:
         return category;
     }
@@ -2512,7 +2512,11 @@ class _MapScreenState extends State<MapScreen> {
                 const SizedBox(width: 6),
               ],
               Text(
-                category.name,
+                category.type == CategoryType.event && category.eventCategory != null
+                    ? (context.locale.languageCode == 'ko'
+                        ? category.eventCategory!.name
+                        : (category.eventCategory!.nameEn ?? category.eventCategory!.name))
+                    : category.name,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,

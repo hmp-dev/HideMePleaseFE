@@ -26,6 +26,10 @@ import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/app/core/services/nfc_service.dart';
 import 'package:mobile/app/core/services/simple_nfc_test.dart';
 import 'package:mobile/app/core/services/safe_nfc_service.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:mobile/app/core/error/error.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
@@ -140,14 +144,124 @@ class _AppViewState extends State<AppView> {
                             // 안전한 NFC 서비스 사용
                             await SafeNfcService.startReading(
                               context: context,
-                              onSuccess: (tagId) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('체크인 성공!\nTag ID: $tagId'),
-                                    backgroundColor: Colors.green,
-                                    duration: Duration(seconds: 3),
-                                  ),
+                              onSuccess: (spaceId) async {
+                                ('📍 NFC UUID read: $spaceId').log();
+                                
+                                // UUID 형식 검증
+                                final uuidRegex = RegExp(
+                                  r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$',
+                                  caseSensitive: false,
                                 );
+                                
+                                if (!uuidRegex.hasMatch(spaceId.trim())) {
+                                  ('⚠️ Invalid UUID format: $spaceId').log();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(LocaleKeys.nfc_tag_unreadable.tr()),
+                                      backgroundColor: Colors.orange,
+                                      duration: Duration(seconds: 3),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                
+                                try {
+                                  // 위치 권한 확인 및 현재 위치 가져오기
+                                  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+                                  if (!serviceEnabled) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(LocaleKeys.locationAlertMessage.tr()),
+                                        backgroundColor: Colors.orange,
+                                        duration: Duration(seconds: 4),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  
+                                  LocationPermission permission = await Geolocator.checkPermission();
+                                  if (permission == LocationPermission.denied) {
+                                    permission = await Geolocator.requestPermission();
+                                    if (permission == LocationPermission.denied) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(LocaleKeys.locationAlertMessage.tr()),
+                                          backgroundColor: Colors.orange,
+                                          duration: Duration(seconds: 4),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                  }
+                                  
+                                  // 현재 위치 가져오기
+                                  final position = await Geolocator.getCurrentPosition(
+                                    desiredAccuracy: LocationAccuracy.high,
+                                  );
+                                  
+                                  ('📍 Current location: ${position.latitude}, ${position.longitude}').log();
+                                  
+                                  // Space 체크인 API 호출
+                                  await getIt<SpaceCubit>().onCheckInWithNfc(
+                                    spaceId: spaceId.trim(),
+                                    latitude: position.latitude,
+                                    longitude: position.longitude,
+                                  );
+                                  
+                                  // 성공 메시지 표시
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(LocaleKeys.checkin_success.tr()),
+                                      backgroundColor: Colors.green,
+                                      duration: Duration(seconds: 3),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ('❌ Check-in error: $e').log();
+                                  ('❌ Error type: ${e.runtimeType}').log();
+                                  
+                                  // 향상된 에러 메시지 파싱
+                                  String errorMessage = LocaleKeys.benefitRedeemErrorMsg.tr();
+                                  
+                                  if (e is HMPError) {
+                                    ('❌ HMPError details - message: ${e.message}, error: ${e.error}').log();
+                                    
+                                    // HMPError의 error 필드에서 체크
+                                    if (e.error?.contains('SPACE_OUT_OF_RANGE') == true) {
+                                      errorMessage = LocaleKeys.space_out_of_range.tr();
+                                    } else if (e.error?.contains('ALREADY_CHECKED_IN') == true) {
+                                      errorMessage = LocaleKeys.already_checked_in.tr();
+                                    } else if (e.error?.contains('INVALID_SPACE') == true) {
+                                      errorMessage = LocaleKeys.invalid_space.tr();
+                                    }
+                                    // message 필드에서도 체크
+                                    else if (e.message.contains('SPACE_OUT_OF_RANGE')) {
+                                      errorMessage = LocaleKeys.space_out_of_range.tr();
+                                    } else if (e.message.contains('ALREADY_CHECKED_IN')) {
+                                      errorMessage = LocaleKeys.already_checked_in.tr();
+                                    } else if (e.message.contains('INVALID_SPACE')) {
+                                      errorMessage = LocaleKeys.invalid_space.tr();
+                                    }
+                                  } 
+                                  // HMPError가 아닌 경우 toString()으로 체크 (기존 로직 유지)
+                                  else if (e.toString().contains('SPACE_OUT_OF_RANGE')) {
+                                    errorMessage = LocaleKeys.space_out_of_range.tr();
+                                  } else if (e.toString().contains('ALREADY_CHECKED_IN')) {
+                                    errorMessage = LocaleKeys.already_checked_in.tr();
+                                  } else if (e.toString().contains('INVALID_SPACE')) {
+                                    errorMessage = LocaleKeys.invalid_space.tr();
+                                  }
+                                  
+                                  ('📋 Final error message: $errorMessage').log();
+                                  
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(errorMessage),
+                                      backgroundColor: Colors.orange,
+                                      duration: Duration(seconds: 4),
+                                    ),
+                                  );
+                                }
                               },
                               onError: (error) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -158,56 +272,6 @@ class _AppViewState extends State<AppView> {
                                   ),
                                 );
                               },
-                            );
-                            return;
-                            
-                            // NFC 리딩 시작
-                            NfcService().startNfcReading(
-                              onTagRead: (tagId) {
-                                ('🎉 NFC Tag read successfully: $tagId').log();
-                                // TODO: 체크인 처리 로직 구현
-                                // 예: 서버에 tagId와 함께 체크인 요청 보내기
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('체크인 성공! Tag ID: $tagId'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              },
-                              onError: (error) {
-                                ('❌ NFC reading error: $error').log();
-                                
-                                // 에러 메시지 파싱 및 사용자 친화적 메시지 표시
-                                String userMessage = 'NFC 읽기 실패';
-                                
-                                if (error.contains('NFC를 사용할 수 없습니다')) {
-                                  userMessage = 'NFC가 비활성화되어 있습니다.\n설정 > 일반 > NFC를 켜주세요.';
-                                } else if (error.contains('권한')) {
-                                  userMessage = 'NFC 권한이 필요합니다.\n앱을 삭제 후 다시 설치해주세요.';
-                                } else if (error.contains('지원하지 않습니다')) {
-                                  userMessage = '이 기기는 NFC를 지원하지 않습니다.';
-                                } else if (error.contains('사용 중')) {
-                                  userMessage = 'NFC가 다른 앱에서 사용 중입니다.\n잠시 후 다시 시도해주세요.';
-                                } else if (error.contains('취소')) {
-                                  userMessage = 'NFC 읽기가 취소되었습니다.';
-                                } else if (error.contains('시간 초과')) {
-                                  userMessage = 'NFC 읽기 시간이 초과되었습니다.\n다시 시도해주세요.';
-                                } else if (error.contains('알 수 없는 오류')) {
-                                  userMessage = 'NFC 태그를 읽을 수 없습니다.\n태그를 천천히 대주세요.';
-                                } else {
-                                  // 기타 에러의 경우 원본 메시지 일부 표시
-                                  userMessage = 'NFC 오류: ${error.length > 50 ? error.substring(0, 50) + "..." : error}';
-                                }
-                                
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(userMessage),
-                                    backgroundColor: Colors.red,
-                                    duration: const Duration(seconds: 4),
-                                  ),
-                                );
-                              },
-                              context: context,
                             );
                           },
                         ),

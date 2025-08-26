@@ -4,6 +4,7 @@ import 'package:mobile/features/space/domain/entities/event_category_entity.dart
 import 'package:mobile/features/space/presentation/cubit/event_category_cubit.dart';
 import 'package:mobile/features/space/presentation/cubit/event_category_state.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class EventCategoryListWidget extends StatelessWidget {
   final Function(EventCategoryEntity?) onCategorySelected;
@@ -109,7 +110,9 @@ class EventCategoryListWidget extends StatelessWidget {
               const SizedBox(width: 6),
             ],
             Text(
-              category.name,
+              EasyLocalization.of(context)!.locale.languageCode == 'ko'
+                  ? category.name
+                  : (category.nameEn ?? category.name),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,

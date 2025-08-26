@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'dart:io' show Platform;
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class NfcService {
   static final NfcService _instance = NfcService._internal();
@@ -99,53 +101,96 @@ class NfcService {
           
           // iOS에서는 반드시 alertMessage가 필요
           await NfcManager.instance.startSession(
-            alertMessage: 'NFC 태그를 가까이 대주세요',
+            alertMessage: LocaleKeys.nfc_tag_nearby.tr(),
             invalidateAfterFirstRead: false,  // 여러 태그 읽기 허용
             onDiscovered: (NfcTag tag) async {
             try {
               ('✅ NFC Tag discovered!').log();
               ('📱 Tag data: ${tag.data}').log();
               
-              // NFC 태그 ID 추출
-              String tagId = '';
+              // 먼저 NDEF 메시지에서 UUID 추출 시도
+              String tagData = '';
               
-              // iOS의 경우 - 다양한 태그 타입 처리
-              if (tag.data.containsKey('mifare')) {
-                final mifare = tag.data['mifare'];
-                if (mifare != null && mifare['identifier'] != null) {
-                  final identifier = mifare['identifier'] as List<int>;
-                  tagId = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+              // NDEF 메시지 읽기 시도
+              try {
+                final ndef = Ndef.from(tag);
+                if (ndef != null && ndef.cachedMessage != null) {
+                  ('📝 NDEF message found with ${ndef.cachedMessage!.records.length} records').log();
+                  
+                  for (final record in ndef.cachedMessage!.records) {
+                    ('📋 Record type: ${record.typeNameFormat}').log();
+                    
+                    // Text 레코드 처리
+                    if (record.typeNameFormat == NdefTypeNameFormat.nfcWellknown) {
+                      final payload = record.payload;
+                      if (payload.isNotEmpty) {
+                        // NDEF Text 레코드는 첫 바이트가 언어 코드 길이
+                        // 그 다음이 언어 코드, 그 다음부터가 실제 텍스트
+                        int languageCodeLength = payload[0] & 0x3F;
+                        if (payload.length > languageCodeLength + 1) {
+                          final text = String.fromCharCodes(
+                            payload.sublist(languageCodeLength + 1)
+                          );
+                          ('📖 Text record found: $text').log();
+                          
+                          // UUID 패턴 확인 (예: aa490f44-e6af-45e1-8908-5b6a76386c28)
+                          final uuidRegex = RegExp(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$', caseSensitive: false);
+                          if (uuidRegex.hasMatch(text.trim())) {
+                            tagData = text.trim();
+                            ('✅ UUID found: $tagData').log();
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
-              } else if (tag.data.containsKey('iso7816')) {
-                final iso7816 = tag.data['iso7816'];
-                if (iso7816 != null && iso7816['identifier'] != null) {
-                  final identifier = iso7816['identifier'] as List<int>;
-                  tagId = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
-                }
-              } else if (tag.data.containsKey('iso15693')) {
-                final iso15693 = tag.data['iso15693'];
-                if (iso15693 != null && iso15693['identifier'] != null) {
-                  final identifier = iso15693['identifier'] as List<int>;
-                  tagId = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
-                }
-              } else if (tag.data.containsKey('feliCa')) {
-                final feliCa = tag.data['feliCa'];
-                if (feliCa != null && feliCa['identifier'] != null) {
-                  final identifier = feliCa['identifier'] as List<int>;
-                  tagId = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+              } catch (e) {
+                ('⚠️ Error reading NDEF: $e').log();
+              }
+              
+              // NDEF에서 UUID를 찾지 못한 경우, 기존 방식으로 태그 ID 추출
+              if (tagData.isEmpty) {
+                ('⚠️ No UUID in NDEF, falling back to tag ID').log();
+                
+                // iOS의 경우 - 다양한 태그 타입 처리
+                if (tag.data.containsKey('mifare')) {
+                  final mifare = tag.data['mifare'];
+                  if (mifare != null && mifare['identifier'] != null) {
+                    final identifier = mifare['identifier'] as List<int>;
+                    tagData = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+                  }
+                } else if (tag.data.containsKey('iso7816')) {
+                  final iso7816 = tag.data['iso7816'];
+                  if (iso7816 != null && iso7816['identifier'] != null) {
+                    final identifier = iso7816['identifier'] as List<int>;
+                    tagData = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+                  }
+                } else if (tag.data.containsKey('iso15693')) {
+                  final iso15693 = tag.data['iso15693'];
+                  if (iso15693 != null && iso15693['identifier'] != null) {
+                    final identifier = iso15693['identifier'] as List<int>;
+                    tagData = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+                  }
+                } else if (tag.data.containsKey('feliCa')) {
+                  final feliCa = tag.data['feliCa'];
+                  if (feliCa != null && feliCa['identifier'] != null) {
+                    final identifier = feliCa['identifier'] as List<int>;
+                    tagData = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+                  }
                 }
               }
 
-              if (tagId.isNotEmpty) {
-                ('🏷️ Tag ID: $tagId').log();
-                onTagRead(tagId);
+              if (tagData.isNotEmpty) {
+                ('🏷️ Tag data: $tagData').log();
+                onTagRead(tagData);
               } else {
-                ('⚠️ Unable to extract tag ID').log();
-                onError('태그 ID를 읽을 수 없습니다.');
+                ('⚠️ Unable to extract tag data').log();
+                onError('태그 데이터를 읽을 수 없습니다.');
               }
 
               // 세션 종료 (성공 메시지와 함께)
-              await NfcManager.instance.stopSession(alertMessage: '체크인 완료!');
+              await NfcManager.instance.stopSession(alertMessage: LocaleKeys.checkin_success.tr());
               _isSessionActive = false;
             } catch (e) {
               ('❌ Error processing NFC tag: $e').log();
@@ -234,35 +279,78 @@ class NfcService {
               ('✅ NFC Tag discovered!').log();
               ('📱 Tag data: ${tag.data}').log();
               
-              // NFC 태그 ID 추출
-              String tagId = '';
+              // 먼저 NDEF 메시지에서 UUID 추출 시도
+              String tagData = '';
               
-              // Android의 경우
-              if (tag.data.containsKey('nfca')) {
-                final nfca = tag.data['nfca'];
-                if (nfca != null && nfca['identifier'] != null) {
-                  final identifier = nfca['identifier'] as List<int>;
-                  tagId = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+              // NDEF 메시지 읽기 시도
+              try {
+                final ndef = Ndef.from(tag);
+                if (ndef != null && ndef.cachedMessage != null) {
+                  ('📝 NDEF message found with ${ndef.cachedMessage!.records.length} records').log();
+                  
+                  for (final record in ndef.cachedMessage!.records) {
+                    ('📋 Record type: ${record.typeNameFormat}').log();
+                    
+                    // Text 레코드 처리
+                    if (record.typeNameFormat == NdefTypeNameFormat.nfcWellknown) {
+                      final payload = record.payload;
+                      if (payload.isNotEmpty) {
+                        // NDEF Text 레코드는 첫 바이트가 언어 코드 길이
+                        // 그 다음이 언어 코드, 그 다음부터가 실제 텍스트
+                        int languageCodeLength = payload[0] & 0x3F;
+                        if (payload.length > languageCodeLength + 1) {
+                          final text = String.fromCharCodes(
+                            payload.sublist(languageCodeLength + 1)
+                          );
+                          ('📖 Text record found: $text').log();
+                          
+                          // UUID 패턴 확인 (예: aa490f44-e6af-45e1-8908-5b6a76386c28)
+                          final uuidRegex = RegExp(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$', caseSensitive: false);
+                          if (uuidRegex.hasMatch(text.trim())) {
+                            tagData = text.trim();
+                            ('✅ UUID found: $tagData').log();
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
-              } else if (tag.data.containsKey('ndef')) {
-                final ndef = tag.data['ndef'];
-                if (ndef != null && ndef['identifier'] != null) {
-                  final identifier = ndef['identifier'] as List<int>;
-                  tagId = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+              } catch (e) {
+                ('⚠️ Error reading NDEF: $e').log();
+              }
+              
+              // NDEF에서 UUID를 찾지 못한 경우, 기존 방식으로 태그 ID 추출
+              if (tagData.isEmpty) {
+                ('⚠️ No UUID in NDEF, falling back to tag ID').log();
+                
+                // Android의 경우
+                if (tag.data.containsKey('nfca')) {
+                  final nfca = tag.data['nfca'];
+                  if (nfca != null && nfca['identifier'] != null) {
+                    final identifier = nfca['identifier'] as List<int>;
+                    tagData = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+                  }
+                } else if (tag.data.containsKey('ndef')) {
+                  final ndef = tag.data['ndef'];
+                  if (ndef != null && ndef['identifier'] != null) {
+                    final identifier = ndef['identifier'] as List<int>;
+                    tagData = identifier.map((e) => e.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+                  }
                 }
               }
 
-              if (tagId.isNotEmpty) {
-                ('🏷️ Tag ID: $tagId').log();
+              if (tagData.isNotEmpty) {
+                ('🏷️ Tag data: $tagData').log();
                 
                 // 안드로이드 다이얼로그 닫기
                 if (context != null) {
                   Navigator.of(context).pop();
                 }
                 
-                onTagRead(tagId);
+                onTagRead(tagData);
               } else {
-                ('⚠️ Unable to extract tag ID').log();
+                ('⚠️ Unable to extract tag data').log();
                 
                 // 안드로이드 다이얼로그 닫기
                 if (context != null) {
@@ -426,7 +514,7 @@ class NfcService {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'NFC 태그를 기기 뒷면에 가까이 대주세요',
+                  LocaleKeys.nfc_tag_back_device.tr(),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 14,
