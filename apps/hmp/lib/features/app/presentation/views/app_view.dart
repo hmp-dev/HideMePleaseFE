@@ -21,6 +21,7 @@ import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart'
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
+import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/app/core/services/nfc_service.dart';
@@ -28,6 +29,8 @@ import 'package:mobile/app/core/services/simple_nfc_test.dart';
 import 'package:mobile/app/core/services/safe_nfc_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/features/space/presentation/widgets/checkin_fail_dialog.dart';
+import 'package:mobile/features/space/presentation/widgets/checkin_success_dialog.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mobile/app/core/error/error.dart';
 
@@ -151,6 +154,17 @@ class _AppViewState extends State<AppView> {
                               onSuccess: (spaceId) async {
                                 ('📍 NFC UUID read: $spaceId').log();
                                 
+                                // 빈 값 체크
+                                if (spaceId.trim().isEmpty) {
+                                  ('⚠️ Empty NFC tag value detected').log();
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => const CheckinFailDialog(),
+                                  );
+                                  return;
+                                }
+                                
                                 // UUID 형식 검증
                                 final uuidRegex = RegExp(
                                   r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$',
@@ -159,12 +173,10 @@ class _AppViewState extends State<AppView> {
                                 
                                 if (!uuidRegex.hasMatch(spaceId.trim())) {
                                   ('⚠️ Invalid UUID format: $spaceId').log();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(LocaleKeys.nfc_tag_unreadable.tr()),
-                                      backgroundColor: Colors.orange,
-                                      duration: Duration(seconds: 3),
-                                    ),
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => const CheckinFailDialog(),
                                   );
                                   return;
                                 }
@@ -212,14 +224,50 @@ class _AppViewState extends State<AppView> {
                                     longitude: position.longitude,
                                   );
                                   
-                                  // 성공 메시지 표시
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(LocaleKeys.checkin_success.tr()),
-                                      backgroundColor: Colors.green,
-                                      duration: Duration(seconds: 3),
-                                    ),
+                                  // Space 상세 정보 가져오기
+                                  await getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(
+                                    spaceId: spaceId.trim(),
                                   );
+                                  
+                                  // Space 정보 가져오기
+                                  final spaceState = getIt<SpaceCubit>().state;
+                                  final spaceDetail = spaceState.spaceDetailEntity;
+                                  
+                                  // spaceList에서 추가 정보 가져오기
+                                  final spaceEntity = spaceState.spaceList.firstWhere(
+                                    (s) => s.id == spaceId.trim(),
+                                    orElse: () => const SpaceEntity.empty(),
+                                  );
+                                  
+                                  if (spaceDetail.id.isNotEmpty) {
+                                    // 성공 다이얼로그 표시
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => CheckinSuccessDialog(
+                                        spaceName: spaceDetail.name,
+                                        benefit: spaceEntity.benefitDescription.isNotEmpty 
+                                            ? spaceEntity.benefitDescription 
+                                            : spaceDetail.introduction,
+                                        onCancel: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        onConfirm: () {
+                                          Navigator.of(context).pop();
+                                          // TODO: 직원 확인 로직 추가
+                                        },
+                                      ),
+                                    );
+                                  } else {
+                                    // Space 정보가 없으면 기본 성공 메시지
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(LocaleKeys.checkin_success.tr()),
+                                        backgroundColor: Colors.green,
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
                                 } catch (e) {
                                   ('❌ Check-in error: $e').log();
                                   ('❌ Error type: ${e.runtimeType}').log();
@@ -258,22 +306,20 @@ class _AppViewState extends State<AppView> {
                                   
                                   ('📋 Final error message: $errorMessage').log();
                                   
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(errorMessage),
-                                      backgroundColor: Colors.orange,
-                                      duration: Duration(seconds: 4),
-                                    ),
+                                  // 에러 다이얼로그 표시
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => const CheckinFailDialog(),
                                   );
                                 }
                               },
                               onError: (error) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(error),
-                                    backgroundColor: Colors.red,
-                                    duration: Duration(seconds: 4),
-                                  ),
+                                ('❌ NFC error: $error').log();
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const CheckinFailDialog(),
                                 );
                               },
                             );

@@ -13,6 +13,7 @@ import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'app_state.dart';
 
@@ -57,6 +58,14 @@ class AppCubit extends BaseCubit<AppState> {
         _secureStorage.delete(StorageValues.appleIdToken);
         _secureStorage.delete(StorageValues.googleAccessToken);
         _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
+
+        // Set flag to show onboarding after logout and clear onboarding data
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(StorageValues.showOnboardingAfterLogout, true);
+        await prefs.remove(StorageValues.onboardingCompleted);
+        await prefs.remove(StorageValues.onboardingCurrentStep);
+        
+        ("온보딩 플래그 설정 완료 - 다음 로그인 시 온보딩 표시").log();
 
         // logout from wepin
         await getIt<WepinCubit>().onLogoutWepinSdk();

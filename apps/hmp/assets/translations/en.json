@@ -289,5 +289,12 @@
     "enter_nickname": "Enter nickname",
     "search_placeholder": "Search for restaurants",
     "describe_yourself_placeholder": "Describe yourself!",
-    "confirm_intro_button": "Confirm!"
+    "confirm_intro_button": "Confirm!",
+    "nfc_checkin_error_title": "No check-in available stores nearby.",
+    "nfc_checkin_error_subtitle": "Move to a nearby store!",
+    "got_it_button": "Got it!",
+    "hidemeplease_benefit": "Hidemeplease Benefit",
+    "checkin_success_note1": "*Benefits can be used once per day at each partner location.",
+    "checkin_success_note2": "*Show this screen to the staff and have them press the confirmation button.",
+    "employee_confirmation": "Staff Confirmation"
 }

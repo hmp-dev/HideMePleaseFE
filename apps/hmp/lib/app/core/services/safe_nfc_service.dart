@@ -194,9 +194,9 @@ class SafeNfcService {
         // Android 처리
         ('🟦 Android detected - using Android NFC session').log();
         
-        // 안드로이드에서는 커스텀 다이얼로그 표시
+        // 안드로이드에서는 커스텀 바텀시트 표시
         _showAndroidNfcDialog(context, () {
-          // 다이얼로그 취소 시 호출
+          // 바텀시트 취소 시 호출
           NfcManager.instance.stopSession();
           onError('NFC 읽기가 취소되었습니다.');
         });
@@ -284,7 +284,7 @@ class SafeNfcService {
             
             ('📍 Final tag data to return: $tagId').log();
             
-            // 안드로이드 다이얼로그 닫기
+            // 안드로이드 바텀시트 닫기
             Navigator.of(context).pop();
             
             await NfcManager.instance.stopSession();
@@ -293,11 +293,11 @@ class SafeNfcService {
           onError: (error) async {
             ('🔴 Android NFC Error: $error').log();
             
-            // 다이얼로그 닫기
+            // 바텀시트 닫기
             try {
               Navigator.of(context).pop();
             } catch (_) {
-              // 다이얼로그가 이미 닫혔을 수 있음
+              // 바텀시트가 이미 닫혔을 수 있음
             }
             
             onError('NFC 읽기 중 오류가 발생했습니다: $error');
@@ -307,12 +307,12 @@ class SafeNfcService {
     } catch (e) {
       print('🔴 Unexpected error: $e');
       
-      // 안드로이드에서 다이얼로그 닫기 (Platform.isAndroid일 경우에만)
+      // 안드로이드에서 바텀시트 닫기 (Platform.isAndroid일 경우에만)
       if (Platform.isAndroid) {
         try {
           Navigator.of(context).pop();
         } catch (_) {
-          // 다이얼로그가 이미 닫혔을 수 있음
+          // 바텀시트가 이미 닫혔을 수 있음
         }
       }
       
@@ -321,29 +321,46 @@ class SafeNfcService {
   }
 
   static void _showAndroidNfcDialog(BuildContext context, VoidCallback onCancel) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            width: 320,
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2C2C2E),
-              borderRadius: BorderRadius.circular(28),
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext bottomSheetContext) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(bottomSheetContext).size.height * 0.75,
+          ),
+          decoration: const BoxDecoration(
+            color: Color(0xFF2C2C2E),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
             ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(32, 20, 32, 32),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // 드래그 핸들 인디케이터
+                Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2.5),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
                 // 닫기 버튼
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(dialogContext).pop();
+                        Navigator.of(bottomSheetContext).pop();
                         onCancel();
                       },
                       child: Container(
@@ -362,19 +379,19 @@ class SafeNfcService {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 8),
                 
                 // 제목
                 const Text(
                   'Ready to Scan',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 32,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 
                 // 설명 텍스트
                 Text(
@@ -385,33 +402,33 @@ class SafeNfcService {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
                 
                 // 휴대폰 아이콘
                 Container(
-                  width: 120,
-                  height: 120,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: const Color(0xFF007AFF),
-                      width: 4,
+                      width: 3,
                     ),
                   ),
                   child: Container(
-                    margin: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: const Color(0xFF007AFF),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.smartphone,
                       color: Colors.white,
-                      size: 48,
+                      size: 40,
                     ),
                   ),
                 ),
-                const SizedBox(height: 64),
+                const SizedBox(height: 40),
                 
                 // 취소 버튼
                 SizedBox(
@@ -419,7 +436,7 @@ class SafeNfcService {
                   height: 56,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(dialogContext).pop();
+                      Navigator.of(bottomSheetContext).pop();
                       onCancel();
                     },
                     style: ElevatedButton.styleFrom(

@@ -293,5 +293,12 @@ abstract class  LocaleKeys {
   static const search_placeholder = 'search_placeholder';
   static const describe_yourself_placeholder = 'describe_yourself_placeholder';
   static const confirm_intro_button = 'confirm_intro_button';
+  static const nfc_checkin_error_title = 'nfc_checkin_error_title';
+  static const nfc_checkin_error_subtitle = 'nfc_checkin_error_subtitle';
+  static const got_it_button = 'got_it_button';
+  static const hidemeplease_benefit = 'hidemeplease_benefit';
+  static const checkin_success_note1 = 'checkin_success_note1';
+  static const checkin_success_note2 = 'checkin_success_note2';
+  static const employee_confirmation = 'employee_confirmation';
 
 }
