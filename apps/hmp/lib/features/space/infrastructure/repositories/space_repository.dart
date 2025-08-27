@@ -14,6 +14,8 @@ import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_d
 import 'package:mobile/features/space/infrastructure/dtos/space_detail_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/spaces_response_dto.dart';
+import 'package:mobile/features/space/domain/entities/check_in_users_response_entity.dart';
+import 'package:mobile/features/space/domain/entities/current_group_entity.dart';
 import 'package:mobile/features/space/infrastructure/dtos/top_used_nft_dto.dart';
 
 @LazySingleton(as: SpaceRepository)
@@ -289,6 +291,50 @@ class SpaceRepositoryImpl extends SpaceRepository {
       {required String spaceId}) async {
     try {
       final response = await _spaceRemoteDataSource.getCheckInStatus(
+        spaceId: spaceId,
+      );
+      return right(response.toEntity());
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, CheckInUsersResponseEntity>> getCheckInUsers(
+      {required String spaceId}) async {
+    try {
+      final response = await _spaceRemoteDataSource.getCheckInUsers(
+        spaceId: spaceId,
+      );
+      return right(response.toEntity());
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, CurrentGroupEntity>> getCurrentGroup(
+      {required String spaceId}) async {
+    try {
+      final response = await _spaceRemoteDataSource.getCurrentGroup(
         spaceId: spaceId,
       );
       return right(response.toEntity());

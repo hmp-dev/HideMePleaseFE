@@ -15,6 +15,9 @@ import 'package:mobile/features/common/presentation/widgets/horizontal_space.dar
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
 import 'package:mobile/features/space/domain/entities/business_hours_entity.dart';
 import 'package:mobile/features/space/domain/entities/check_in_status_entity.dart';
+import 'package:mobile/features/space/domain/entities/check_in_user_entity.dart';
+import 'package:mobile/features/space/domain/entities/check_in_users_response_entity.dart';
+import 'package:mobile/features/space/domain/entities/current_group_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/presentation/widgets/build_hiding_count_widget.dart';
@@ -44,6 +47,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   late GoogleMapController _controller;
   String? _distanceInKm;
   CheckInStatusEntity? _checkInStatus;
+  CheckInUsersResponseEntity? _checkInUsersResponse;
+  CurrentGroupEntity? _currentGroup;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.5518911, 126.9917937),
@@ -57,6 +62,44 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
     _liveActivityService = getIt<LiveActivityService>();
     _calculateDistance();
     _fetchCheckInStatus();
+    _fetchCheckInUsers();
+    _fetchCurrentGroup();
+  }
+
+  Future<void> _fetchCurrentGroup() async {
+    final result =
+        await _spaceRepository.getCurrentGroup(spaceId: widget.space.id);
+    result.fold(
+      (error) {
+        print('Error fetching current group: $error');
+      },
+      (response) {
+        print('Successfully fetched current group: $response');
+        if (mounted) {
+          setState(() {
+            _currentGroup = response;
+          });
+        }
+      },
+    );
+  }
+
+  Future<void> _fetchCheckInUsers() async {
+    final result =
+        await _spaceRepository.getCheckInUsers(spaceId: widget.space.id);
+    result.fold(
+      (error) {
+        print('Error fetching check-in users: $error');
+      },
+      (response) {
+        print('Successfully fetched check-in users: $response');
+        if (mounted) {
+          setState(() {
+            _checkInUsersResponse = response;
+          });
+        }
+      },
+    );
   }
 
   Future<void> _fetchCheckInStatus() async {
@@ -291,6 +334,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
               HidingStatusBanner(
                 currentGroupProgress: _checkInStatus?.groupProgress ??
                     widget.space.currentGroupProgress,
+                checkInUsersResponse: _checkInUsersResponse,
+                currentGroup: _currentGroup,
               ),
             ],
           ),
@@ -1182,12 +1227,16 @@ class HidingBanner extends StatelessWidget {
   }
 }
 
-
-
 class HidingStatusBanner extends StatelessWidget {
-  const HidingStatusBanner({super.key, required this.currentGroupProgress});
+  const HidingStatusBanner(
+      {super.key,
+      required this.currentGroupProgress,
+      this.checkInUsersResponse,
+      this.currentGroup});
 
   final String currentGroupProgress;
+  final CheckInUsersResponseEntity? checkInUsersResponse;
+  final CurrentGroupEntity? currentGroup;
 
   @override
   Widget build(BuildContext context) {
@@ -1196,10 +1245,10 @@ class HidingStatusBanner extends StatelessWidget {
     final int total = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
 
     return Container(
-      height: 326,
       padding: const EdgeInsets.fromLTRB(1, 0, 1, 1), // Border width, no top border
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+        borderRadius:
+            const BorderRadius.vertical(bottom: Radius.circular(16)),
         gradient: const LinearGradient(
           colors: [Color(0xFF72CCFF), Color(0xFFF9F395)],
           begin: Alignment.topLeft,
@@ -1207,10 +1256,12 @@ class HidingStatusBanner extends StatelessWidget {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(15, 16, 15, 9), // Adjust for border
+        padding:
+            const EdgeInsets.fromLTRB(15, 16, 15, 9), // Adjust for border
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(15)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1218,36 +1269,13 @@ class HidingStatusBanner extends StatelessWidget {
             const Text(
               "매칭 중인 하이더",
               style: TextStyle(
-                  color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             const VerticalSpace(10),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player1.png',
-                  name: 'You',
-                  isActive: true,
-                ),
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player2.png',
-                  name: 'Player 2',
-                ),
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player3.png',
-                  name: 'Player 3',
-                ),
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player4.png',
-                  name: 'Player 4',
-                ),
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player5.png',
-                  name: 'Player 5',
-                ),
-              ],
-            ),
-            const Spacer(),
+            _buildPlayerAvatars(checkInUsersResponse?.users ?? []),
+            const VerticalSpace(20),
             // Simplified progress bar
             SizedBox(
               height: 27,
@@ -1303,7 +1331,8 @@ class HidingStatusBanner extends StatelessWidget {
                               border: index < total - 1
                                   ? Border(
                                       right: BorderSide(
-                                        color: Colors.white.withOpacity(0.0),
+                                        color:
+                                            Colors.white.withOpacity(0.0),
                                         width: 1,
                                       ),
                                     )
@@ -1334,45 +1363,80 @@ class HidingStatusBanner extends StatelessWidget {
                 ],
               ),
             ),
-            const Spacer(),
-            const VerticalSpace(10),
+            const VerticalSpace(20),
             const Text(
               "매칭 완료된 하이더",
               style: TextStyle(
-                  color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             const VerticalSpace(10),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player1.png',
-                  name: 'You',
-                  isActive: true,
-                ),
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player2.png',
-                  name: 'Player 2',
-                ),
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player3.png',
-                  name: 'Player 3',
-                ),
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player4.png',
-                  name: 'Player 4',
-                ),
-                _PlayerAvatar(
-                  imagePath: 'assets/images/player5.png',
-                  name: 'Player 5',
-                ),
-              ],
-            ),
+            _buildPlayerAvatars(currentGroup?.members ?? []),
             const VerticalSpace(20),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildPlayerAvatars(List<CheckInUserEntity> members) {
+    const int itemsPerRow = 5;
+    List<Widget> rows = [];
+
+    for (int i = 0; i < members.length; i += itemsPerRow) {
+      List<Widget> rowItems = [];
+      int end = (i + itemsPerRow > members.length) ? members.length : (i + itemsPerRow);
+      List<CheckInUserEntity> sublist = members.sublist(i, end);
+
+      // Add avatars for actual members in the current row
+      for (var member in sublist) {
+        rowItems.add(
+          _PlayerAvatar(
+            imagePath: member.profileImageUrl ?? 'assets/images/profile_img.png',
+            name: member.nickName,
+            isActive: true, // TODO: Check if this is the current user
+          ),
+        );
+      }
+
+      // Add empty placeholder avatars to fill the remaining slots in the current row
+      while (rowItems.length < itemsPerRow) {
+        rowItems.add(
+          const _PlayerAvatar(
+            imagePath: '', // Empty path for placeholder
+            name: '',
+          ),
+        );
+      }
+      
+      rows.add(Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: rowItems,
+        ),
+      ));
+    }
+
+    // If there are no members, show one row of empty placeholders
+    if (rows.isEmpty) {
+      List<Widget> emptyRow = [];
+      for (int i = 0; i < itemsPerRow; i++) {
+        emptyRow.add(
+          const _PlayerAvatar(
+            imagePath: '',
+            name: '',
+          ),
+        );
+      }
+      rows.add(Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: emptyRow,
+      ));
+    }
+
+    return Column(children: rows);
   }
 }
 
@@ -1409,8 +1473,10 @@ class _PlayerAvatar extends StatelessWidget {
           ),
           child: CircleAvatar(
             radius: 25,
-            // backgroundImage: AssetImage(imagePath), // TODO: 실제 이미지 사용 시 주석 해제
-            backgroundColor: Colors.grey, // Placeholder
+            backgroundImage:
+                imagePath.isNotEmpty ? AssetImage(imagePath) : null,
+            backgroundColor:
+                name.isNotEmpty ? Colors.grey : Colors.transparent,
           ),
         ),
         const VerticalSpace(8),

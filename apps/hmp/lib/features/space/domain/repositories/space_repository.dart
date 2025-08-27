@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:mobile/app/core/error/error.dart';
+import 'package:mobile/features/space/domain/entities/check_in_users_response_entity.dart';
+import 'package:mobile/features/space/domain/entities/current_group_entity.dart';
 import 'package:mobile/features/space/infrastructure/dtos/benefits_group_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/check_in_response_dto.dart';
 import 'package:mobile/features/space/domain/entities/check_in_status_entity.dart';
@@ -59,4 +61,11 @@ abstract class SpaceRepository {
   Future<Either<HMPError, CheckInStatusEntity>> getCheckInStatus({
     required String spaceId,
   });
+
+  Future<Either<HMPError, CheckInUsersResponseEntity>> getCheckInUsers({
+    required String spaceId,
+  });
+
+  Future<Either<HMPError, CurrentGroupEntity>> getCurrentGroup(
+      {required String spaceId});
 }
