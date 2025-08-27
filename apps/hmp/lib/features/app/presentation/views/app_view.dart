@@ -21,9 +21,18 @@ import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart'
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
+import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/app/core/services/nfc_service.dart';
+import 'package:mobile/app/core/services/simple_nfc_test.dart';
+import 'package:mobile/app/core/services/safe_nfc_service.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/features/space/presentation/widgets/checkin_fail_dialog.dart';
+import 'package:mobile/features/space/presentation/widgets/checkin_success_dialog.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:mobile/app/core/error/error.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
@@ -91,7 +100,10 @@ class _AppViewState extends State<AppView> {
                             
                             if (index == MenuType.space.menuIndex) {
                               print('🗺️ Returning MapScreen for index $index');
-                              return const MapScreen();
+                              return MapScreen(
+                                onShowBottomBar: () => getIt<PageCubit>().showBottomBar(),
+                                onHideBottomBar: () => getIt<PageCubit>().hideBottomBar(),
+                              );
                             } else if (index == MenuType.events.menuIndex) {
                               print('🎪 Returning HomeScreen (Events) for index $index');
                               return const HomeScreen(); // EventsWepinScreen();
@@ -113,12 +125,13 @@ class _AppViewState extends State<AppView> {
                           physics: const NeverScrollableScrollPhysics(),
                           preloadPagesCount: 5,
                         ),
-                        // 탭바를 하단에 floating으로 배치
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: CheckInBottomBar(
+                        // 탭바를 하단에 floating으로 배치 (showBottomBar가 true일 때만)
+                        if (state.showBottomBar)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: CheckInBottomBar(
                           isMapActive: state.menuType == MenuType.space,
                           isMyActive: state.menuType == MenuType.myProfile,
                           onMapTap: () {
@@ -132,36 +145,187 @@ class _AppViewState extends State<AppView> {
                             // Navigate to MyProfile Screen
                             _onChangeMenu(MenuType.myProfile);
                           },
-                          onCheckInTap: () {
+                          onCheckInTap: () async {
                             ('✅ Check-in button tapped - Starting NFC reading').log();
                             
-                            // NFC 리딩 시작
-                            NfcService().startNfcReading(
-                              onTagRead: (tagId) {
-                                ('🎉 NFC Tag read successfully: $tagId').log();
-                                // TODO: 체크인 처리 로직 구현
-                                // 예: 서버에 tagId와 함께 체크인 요청 보내기
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('체크인 성공! Tag ID: $tagId'),
-                                    backgroundColor: Colors.green,
-                                  ),
+                            // 안전한 NFC 서비스 사용
+                            await SafeNfcService.startReading(
+                              context: context,
+                              onSuccess: (spaceId) async {
+                                ('📍 NFC UUID read: $spaceId').log();
+                                
+                                // 빈 값 체크
+                                if (spaceId.trim().isEmpty) {
+                                  ('⚠️ Empty NFC tag value detected').log();
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => const CheckinFailDialog(),
+                                  );
+                                  return;
+                                }
+                                
+                                // UUID 형식 검증
+                                final uuidRegex = RegExp(
+                                  r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$',
+                                  caseSensitive: false,
                                 );
+                                
+                                if (!uuidRegex.hasMatch(spaceId.trim())) {
+                                  ('⚠️ Invalid UUID format: $spaceId').log();
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => const CheckinFailDialog(),
+                                  );
+                                  return;
+                                }
+                                
+                                try {
+                                  // 위치 권한 확인 및 현재 위치 가져오기
+                                  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+                                  if (!serviceEnabled) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(LocaleKeys.locationAlertMessage.tr()),
+                                        backgroundColor: Colors.orange,
+                                        duration: Duration(seconds: 4),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  
+                                  LocationPermission permission = await Geolocator.checkPermission();
+                                  if (permission == LocationPermission.denied) {
+                                    permission = await Geolocator.requestPermission();
+                                    if (permission == LocationPermission.denied) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(LocaleKeys.locationAlertMessage.tr()),
+                                          backgroundColor: Colors.orange,
+                                          duration: Duration(seconds: 4),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                  }
+                                  
+                                  // 현재 위치 가져오기
+                                  final position = await Geolocator.getCurrentPosition(
+                                    desiredAccuracy: LocationAccuracy.high,
+                                  );
+                                  
+                                  ('📍 Current location: ${position.latitude}, ${position.longitude}').log();
+                                  
+                                  // Space 체크인 API 호출
+                                  await getIt<SpaceCubit>().onCheckInWithNfc(
+                                    spaceId: spaceId.trim(),
+                                    latitude: position.latitude,
+                                    longitude: position.longitude,
+                                  );
+                                  
+                                  // Space 상세 정보 가져오기
+                                  await getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(
+                                    spaceId: spaceId.trim(),
+                                  );
+                                  
+                                  // Space 정보 가져오기
+                                  final spaceState = getIt<SpaceCubit>().state;
+                                  final spaceDetail = spaceState.spaceDetailEntity;
+                                  
+                                  // spaceList에서 추가 정보 가져오기
+                                  final spaceEntity = spaceState.spaceList.firstWhere(
+                                    (s) => s.id == spaceId.trim(),
+                                    orElse: () => const SpaceEntity.empty(),
+                                  );
+                                  
+                                  if (spaceDetail.id.isNotEmpty) {
+                                    // 성공 다이얼로그 표시
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => CheckinSuccessDialog(
+                                        spaceName: spaceDetail.name,
+                                        benefit: spaceEntity.benefitDescription.isNotEmpty 
+                                            ? spaceEntity.benefitDescription 
+                                            : spaceDetail.introduction,
+                                        onCancel: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        onConfirm: () {
+                                          Navigator.of(context).pop();
+                                          // TODO: 직원 확인 로직 추가
+                                        },
+                                      ),
+                                    );
+                                  } else {
+                                    // Space 정보가 없으면 기본 성공 메시지
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(LocaleKeys.checkin_success.tr()),
+                                        backgroundColor: Colors.green,
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  ('❌ Check-in error: $e').log();
+                                  ('❌ Error type: ${e.runtimeType}').log();
+                                  
+                                  // 향상된 에러 메시지 파싱
+                                  String errorMessage = LocaleKeys.benefitRedeemErrorMsg.tr();
+                                  
+                                  if (e is HMPError) {
+                                    ('❌ HMPError details - message: ${e.message}, error: ${e.error}').log();
+                                    
+                                    // HMPError의 error 필드에서 체크
+                                    if (e.error?.contains('SPACE_OUT_OF_RANGE') == true) {
+                                      errorMessage = LocaleKeys.space_out_of_range.tr();
+                                    } else if (e.error?.contains('ALREADY_CHECKED_IN') == true) {
+                                      errorMessage = LocaleKeys.already_checked_in.tr();
+                                    } else if (e.error?.contains('INVALID_SPACE') == true) {
+                                      errorMessage = LocaleKeys.invalid_space.tr();
+                                    }
+                                    // message 필드에서도 체크
+                                    else if (e.message.contains('SPACE_OUT_OF_RANGE')) {
+                                      errorMessage = LocaleKeys.space_out_of_range.tr();
+                                    } else if (e.message.contains('ALREADY_CHECKED_IN')) {
+                                      errorMessage = LocaleKeys.already_checked_in.tr();
+                                    } else if (e.message.contains('INVALID_SPACE')) {
+                                      errorMessage = LocaleKeys.invalid_space.tr();
+                                    }
+                                  } 
+                                  // HMPError가 아닌 경우 toString()으로 체크 (기존 로직 유지)
+                                  else if (e.toString().contains('SPACE_OUT_OF_RANGE')) {
+                                    errorMessage = LocaleKeys.space_out_of_range.tr();
+                                  } else if (e.toString().contains('ALREADY_CHECKED_IN')) {
+                                    errorMessage = LocaleKeys.already_checked_in.tr();
+                                  } else if (e.toString().contains('INVALID_SPACE')) {
+                                    errorMessage = LocaleKeys.invalid_space.tr();
+                                  }
+                                  
+                                  ('📋 Final error message: $errorMessage').log();
+                                  
+                                  // 에러 다이얼로그 표시
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => const CheckinFailDialog(),
+                                  );
+                                }
                               },
                               onError: (error) {
-                                ('❌ NFC reading error: $error').log();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('NFC 읽기 실패: $error'),
-                                    backgroundColor: Colors.red,
-                                  ),
+                                ('❌ NFC error: $error').log();
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const CheckinFailDialog(),
                                 );
                               },
-                              context: context,
                             );
                           },
                         ),
-                        ),
+                          ),
                       ],
                     );
                   },

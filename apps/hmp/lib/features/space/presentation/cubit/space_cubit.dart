@@ -338,6 +338,43 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     }
   }
 
+  Future<void> onCheckInWithNfc({
+    required String spaceId,
+    required double latitude,
+    required double longitude,
+  }) async {
+    EasyLoading.show(dismissOnTap: true);
+    
+    ('🏁 Starting check-in for space: $spaceId').log();
+    
+    final response = await _spaceRepository.checkIn(
+      spaceId: spaceId,
+      latitude: latitude,
+      longitude: longitude,
+    );
+    
+    EasyLoading.dismiss();
+    
+    return response.fold(
+      (err) {
+        ('❌ Check-in failed: $err').log();
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: err.message ?? LocaleKeys.somethingError.tr(),
+        ));
+        throw err;
+      },
+      (result) {
+        ('✅ Check-in successful!').log();
+        emit(state.copyWith(
+          submitStatus: RequestStatus.success,
+          errorMessage: '',
+        ));
+        return result;
+      },
+    );
+  }
+
   Future<void> onGetAllSpacesForMap({
     required double latitude,
     required double longitude,

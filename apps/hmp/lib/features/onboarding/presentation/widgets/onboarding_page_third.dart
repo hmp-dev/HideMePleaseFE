@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import '../../utils/character_generator.dart';
 import '../../models/character_profile.dart';
 import 'character_layer_widget.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class OnboardingPageThird extends StatefulWidget {
   final Function(String) onProfileSelected;
@@ -195,9 +197,7 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    hasReachedLimit 
-                        ? '다른 걸로 할래'
-                        : '다른 걸로 할래',
+                    LocaleKeys.change_selection.tr(),
                     style: TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 16,

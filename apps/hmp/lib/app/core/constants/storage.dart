@@ -15,6 +15,6 @@ abstract class StorageValues {
   
   // Onboarding related constants
   static const String onboardingCurrentStep = 'onboardingCurrentStep';
-  static const String onboardingDebugMode = 'onboardingDebugMode';
   static const String onboardingCompleted = 'onboardingCompleted';
+  static const String showOnboardingAfterLogout = 'showOnboardingAfterLogout';
 }

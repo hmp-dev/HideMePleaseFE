@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class OnboardingPageSecond extends StatelessWidget {
   const OnboardingPageSecond({super.key});
@@ -17,7 +19,7 @@ class OnboardingPageSecond extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    '하미플 세계에 온 걸',
+                    LocaleKeys.onboarding_new_title2_line1.tr(),
                     style: TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 28,
@@ -28,7 +30,7 @@ class OnboardingPageSecond extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   Text(
-                    '환영해!',
+                    LocaleKeys.onboarding_new_title2_line2.tr(),
                     style: TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 28,
@@ -46,7 +48,7 @@ class OnboardingPageSecond extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Text(
-                '여긴 하이더들이 살아가는 작은 세계야.\n복잡한 리뷰도, 쿠폰도 필요 없어. 하이더들은 그냥\n방문만 해도 다양한 보상을 받을 수 있어 :)',
+                LocaleKeys.onboarding_new_desc2.tr(),
                 style: TextStyle(
                   fontFamily: 'LINESeedKR',
                   fontSize: 16,

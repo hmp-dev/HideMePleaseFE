@@ -1,7 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class CheckinFailDialog extends StatelessWidget {
   const CheckinFailDialog({super.key});
@@ -37,9 +38,9 @@ class CheckinFailDialog extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 5),
-                  const Text(
-                    '아직 체크인 할 수 있는 매장이 주변에 없어.',
-                    style: TextStyle(
+                  Text(
+                    LocaleKeys.nfc_checkin_error_title.tr(),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -48,9 +49,9 @@ class CheckinFailDialog extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              const Text(
-                '근처의 매장으로 이동해봐!',
-                style: TextStyle(
+              Text(
+                LocaleKeys.nfc_checkin_error_subtitle.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 13,
                 ),
@@ -67,9 +68,9 @@ class CheckinFailDialog extends StatelessWidget {
                   ),
                   minimumSize: const Size(179, 38),
                 ),
-                child: const Text(
-                  '알겠어!',
-                  style: TextStyle(
+                child: Text(
+                  LocaleKeys.got_it_button.tr(),
+                  style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),

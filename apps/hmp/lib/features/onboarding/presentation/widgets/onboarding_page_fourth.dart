@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:mobile/app/theme/theme.dart';
 import '../../models/character_profile.dart';
 import 'character_layer_widget.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class OnboardingPageFourth extends StatefulWidget {
   final String selectedProfile;
@@ -215,7 +217,7 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
                         decoration: InputDecoration(
                           hintText: _isFocused || _nicknameController.text.isNotEmpty 
                               ? '' 
-                              : '닉네임 입력하기',
+                              : LocaleKeys.enter_nickname.tr(),
                           hintStyle: fontBodyMd(color: Colors.black54),
                           border: InputBorder.none,
                           counterText: '', // Hide the counter
