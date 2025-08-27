@@ -1450,7 +1450,7 @@ class _PlayerAvatar extends StatelessWidget {
             backgroundImage:
                 imagePath.isNotEmpty ? AssetImage(imagePath) : null,
             backgroundColor:
-                imagePath.isNotEmpty ? Colors.grey : Colors.grey.withOpacity(0.3),
+                name.isNotEmpty ? Colors.grey : Colors.transparent,
           ),
         ),
         const VerticalSpace(8),
