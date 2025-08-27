@@ -7,6 +7,7 @@ import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/app/core/helpers/map_utils.dart';
+import 'package:mobile/app/core/services/live_activity_service.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -22,6 +23,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
 import 'package:mobile/features/space/presentation/widgets/checkin_fail_dialog.dart';
 import 'package:mobile/features/space/presentation/widgets/matching_help.dart';
+import 'package:mobile/features/space/presentation/widgets/checkin_success_dialog.dart';
 import 'package:mobile/features/space/presentation/widgets/space_benefit_list_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
@@ -37,6 +39,7 @@ class SpaceDetailView extends StatefulWidget {
 
 class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   late final SpaceRepository _spaceRepository;
+  late final LiveActivityService _liveActivityService;
   List<Marker> allMarkers = [];
   late GoogleMapController _controller;
   String? _distanceInKm;
@@ -51,6 +54,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   void initState() {
     super.initState();
     _spaceRepository = getIt<SpaceRepository>();
+    _liveActivityService = getIt<LiveActivityService>();
     _calculateDistance();
     _fetchCheckInStatus();
   }
@@ -476,6 +480,18 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   }
 
   Future<void> _handleCheckIn() async {
+    // DEBUG: Start Live Activity immediately for testing
+    const benefit = 'SAV 리워드'; // SpaceDetailEntity doesn't have benefits field
+    await _liveActivityService.startCheckInActivity(
+      spaceName: widget.space.name,
+      benefit: benefit,
+    );
+    
+    // Auto-end after 5 minutes for debug
+    Future.delayed(const Duration(minutes: 5), () {
+      _liveActivityService.endCheckInActivity();
+    });
+    
     try {
       final position = await Geolocator.getCurrentPosition();
       final result = await _spaceRepository.checkIn(
@@ -496,17 +512,27 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         },
         (response) {
           if (response.success == true) {
+            // PRODUCTION CODE (현재 주석처리)
+            // Start Live Activity for check-in
+            // final benefit = widget.space.benefits?.firstOrNull?.name ?? 'SAV 리워드';
+            // _liveActivityService.startCheckInActivity(
+            //   spaceName: widget.space.name,
+            //   benefit: benefit,
+            // );
+            
             showDialog(
               context: context,
-              builder: (context) => AlertDialog(
-                title: Text(LocaleKeys.success.tr()),
-                content: const Text('체크인에 성공했습니다.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(LocaleKeys.confirm.tr()),
-                  ),
-                ],
+              builder: (context) => CheckinSuccessDialog(
+                spaceName: widget.space.name,
+                benefit: benefit,
+                onCancel: () {
+                  Navigator.pop(context);
+                  // _liveActivityService.endCheckInActivity(); // PRODUCTION CODE
+                },
+                onConfirm: () {
+                  Navigator.pop(context);
+                  _liveActivityService.updateCheckInActivity(isConfirmed: true);
+                },
               ),
             );
           } else {

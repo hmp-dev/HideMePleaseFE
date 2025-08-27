@@ -719,7 +719,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_bcrypt:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_bcrypt
       sha256: "47dd6d864732ec0e19f950ba7e67b5b245bcdbe8bada288689de4b6c405c2d37"
