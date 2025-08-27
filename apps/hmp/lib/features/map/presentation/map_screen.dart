@@ -24,6 +24,7 @@ import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
 
 class MapScreen extends StatefulWidget {
   final VoidCallback? onShowBottomBar;
@@ -78,6 +79,7 @@ class _MapScreenState extends State<MapScreen> {
       'pk.eyJ1IjoiaXhwbG9yZXIiLCJhIjoiY21hbmRkN24xMHJoNDJscHI2cHg0MndteiJ9.UsGyNkHONIeWgivVmAgGbw';
 
   PointAnnotationManager? _pointAnnotationManager; // 전역 매니저 선언
+  PointAnnotationManager? _checkInDotsManager; // 체크인 점 전용 매니저
   
   // 실시간 위치 추적 관련
   StreamSubscription<geo.Position>? _positionSubscription;
@@ -90,6 +92,10 @@ class _MapScreenState extends State<MapScreen> {
   
   // 카테고리 스크롤 컨트롤러
   ScrollController _categoryScrollController = ScrollController();
+  
+  // 체크인 정보 캐시 (spaceId -> 체크인 인원수)
+  final Map<String, int> _checkInCache = {};
+  DateTime? _lastCheckInCacheUpdate;
 
   @override
   void initState() {
@@ -298,7 +304,7 @@ class _MapScreenState extends State<MapScreen> {
       allSpaces = List<SpaceEntity>.from(spaceCubit.state.spaceList);
       
       // 영업시간 데이터 확인 (디버그)
-      print('🏪 영업시간 데이터 확인:');
+      /*print('🏪 영업시간 데이터 확인:');
       for (int i = 0; i < math.min(3, allSpaces.length); i++) {
         final space = allSpaces[i];
         print('  📍 ${space.name}:');
@@ -309,19 +315,7 @@ class _MapScreenState extends State<MapScreen> {
             print('     - ${hours.dayOfWeek}: ${hours.openTime} ~ ${hours.closeTime}');
           }
         }
-      }
-      
-      // 하이드미플리즈 홍제 찾기
-      final hongjeSpace = allSpaces.firstWhere(
-        (space) => space.name.contains('홍제'),
-        orElse: () => SpaceEntity.empty(),
-      );
-      if (hongjeSpace.id.isNotEmpty) {
-        print('🎯 하이드미플리즈 홍제 찾음:');
-        print('   - 이름: ${hongjeSpace.name}');
-        print('   - 영업시간 수: ${hongjeSpace.businessHours.length}개');
-        print('   - 임시 휴무: ${hongjeSpace.isTemporarilyClosed}');
-      }
+      }*/
       
       // 현재 선택된 카테고리에 따라 필터링
       _filterSpacesByUnifiedCategory(selectedCategory);
@@ -335,15 +329,6 @@ class _MapScreenState extends State<MapScreen> {
         // 초기 현재 위치 마커 추가
         print('📍 초기 현재 위치 마커 추가 시도: $userActualLatitude, $userActualLongitude');
         await _updateCurrentLocationMarker(userActualLatitude, userActualLongitude);
-      }
-      
-      // 처음 5개 매장의 정보 확인
-      for (int i = 0; i < math.min(5, spaceCubit.state.spaceList.length); i++) {
-        final space = spaceCubit.state.spaceList[i];
-        print('🏪 매장 ${i + 1}: ${space.name}');
-        print('   📍 위치: lat=${space.latitude}, lng=${space.longitude}');
-        print('   🏷️ 카테고리: ${space.category}');
-        print('   🔥 핫: ${space.hot}');
       }
       
     } catch (e) {
@@ -472,37 +457,123 @@ class _MapScreenState extends State<MapScreen> {
     _pointAnnotationManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
     await _pointAnnotationManager!.deleteAll();
     _currentLocationAnnotation = null; // 현재 위치 마커 참조 초기화
+    
+    // 체크인 점 매니저 생성/초기화
+    _checkInDotsManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
+    await _checkInDotsManager!.deleteAll();
+    
     print('✅ 기존 마커 모두 삭제 완료');
 
     // 매장 마커 이미지 먼저 등록
     await _addMarkerImage();
 
-    // 매장 마커들
+    // 매장 마커들과 체크인 점들
     List<PointAnnotationOptions> markers = [];
+    List<PointAnnotationOptions> checkInDots = [];
     markerSpaceMap.clear();
+    
+    // 등록된 체크인 점 이미지 ID 추적
+    Set<String> registeredCheckInDots = {};
     
     int validSpaceCount = 0;
     int invalidSpaceCount = 0;
+    
+    // 현재 카메라 상태 확인 (체크인 표시 여부 및 화면 경계 확인)
+    final cameraState = await mapboxMap!.getCameraState();
+    final currentZoom = cameraState.zoom;
+    final showCheckInStatus = currentZoom >= 13; // 줌 13 이상일 때 체크인 상태 표시 (더 축소된 상태)
+    
+    // 화면에 보이는 영역 계산
+    final bounds = await mapboxMap!.coordinateBoundsForCamera(
+      CameraOptions(
+        center: cameraState.center,
+        zoom: cameraState.zoom,
+        bearing: cameraState.bearing,
+        pitch: cameraState.pitch,
+      ),
+    );
+    
+    final neLat = bounds.northeast.coordinates.lat;
+    final neLng = bounds.northeast.coordinates.lng;
+    final swLat = bounds.southwest.coordinates.lat;
+    final swLng = bounds.southwest.coordinates.lng;
+    
+    print('🗺️ 현재 화면 경계: NE($neLat, $neLng), SW($swLat, $swLng)');
+    print('🔍 체크인 표시 여부: $showCheckInStatus (줌: $currentZoom)');
     
     for (final space in spaces) {
       if (space.latitude != 0 && space.longitude != 0) {
         validSpaceCount++;
         final markerId = '${space.id}_${space.latitude}_${space.longitude}';
         
-        // 카테고리에 따른 마커 아이콘 선택
-        final markerIcon = _getMarkerIconForCategory(space.category);
+        // 매장이 화면에 보이는지 확인
+        final isVisible = space.latitude >= swLat &&
+                         space.latitude <= neLat &&
+                         space.longitude >= swLng &&
+                         space.longitude <= neLng;
         
+        // 1. 기본 마커 추가 (항상)
         markers.add(
           PointAnnotationOptions(
             geometry: Point(coordinates: Position(space.longitude, space.latitude)),
-            iconImage: markerIcon,
-            iconSize: 0.6, // 1.1의 70% = 0.77
+            iconImage: _getMarkerIconForCategory(space.category),
+            iconSize: 0.6,
           ),
         );
         markerSpaceMap[markerId] = space;
         
+        // 2. 체크인 점 추가 (줌 13 이상, 화면에 보이는 매장만)
+        if (showCheckInStatus && isVisible) {
+          // 테스트용 랜덤 체크인 수 (0-5)
+          final randomUsers = (validSpaceCount + space.name.length) % 6;
+          final currentUsers = randomUsers;
+          
+          print('🔍 체크인 점 표시: ${space.name} - ${currentUsers}명');
+          
+          // 체크인 점 이미지 ID
+          final checkInDotsId = 'checkin_dots_$currentUsers';
+          
+          // 이미지가 아직 등록되지 않은 경우 생성
+          if (!registeredCheckInDots.contains(checkInDotsId)) {
+            print('🎨 체크인 점 생성 중: $checkInDotsId');
+            final dotsImageData = await _createCheckInDotsOnly(
+              currentUsers: currentUsers,
+            );
+            
+            final mbxImage = MbxImage(
+              data: dotsImageData,
+              width: 32,
+              height: 8,
+            );
+            
+            await mapboxMap!.style.addStyleImage(
+              checkInDotsId,
+              1.0,
+              mbxImage,
+              false,
+              [],
+              [],
+              null,
+            );
+            
+            registeredCheckInDots.add(checkInDotsId);
+            print('✅ 체크인 점 등록: $checkInDotsId');
+          }
+          
+          // 체크인 점 어노테이션 추가 (마커 위에 표시)
+          checkInDots.add(
+            PointAnnotationOptions(
+              geometry: Point(coordinates: Position(space.longitude, space.latitude)),
+              iconImage: checkInDotsId,
+              iconSize: 1.0,
+              iconAnchor: IconAnchor.BOTTOM, // 점을 아래쪽 기준으로 정렬
+              iconOffset: [0.0, -25.0], // 마커 위로 25px 이동
+            ),
+          );
+        }
+        
         if (validSpaceCount <= 5) {
-          print('✅ 마커 추가: ${space.name} (${space.category}) - ${markerIcon}');
+          print('✅ 마커 추가: ${space.name} (${space.category})');
           print('   📍 위치: (${space.latitude}, ${space.longitude})');
         }
       } else {
@@ -517,13 +588,21 @@ class _MapScreenState extends State<MapScreen> {
     print('   ✅ 유효한 위치 정보 매장: ${validSpaceCount}개');
     print('   ❌ 위치 정보 없는 매장: ${invalidSpaceCount}개');
     print('   🗺️ 실제 생성할 마커 수: ${markers.length}개');
+    print('   🔵 체크인 점 수: ${checkInDots.length}개');
     
+    // 기본 마커 추가
     if (markers.isNotEmpty) {
       await _pointAnnotationManager!.createMulti(markers);
       print('🎉 지도에 ${markers.length}개 매장 마커 추가 완료!');
       print('📍 마커 매핑 정보: ${markerSpaceMap.length}개 저장');
     } else {
       print('❌ 추가할 매장 마커 없음 - 유효한 위치 정보가 있는 매장이 없습니다');
+    }
+    
+    // 체크인 점 추가 (줌 레벨이 충분할 때만)
+    if (checkInDots.isNotEmpty) {
+      await _checkInDotsManager!.createMulti(checkInDots);
+      print('🔵 ${checkInDots.length}개 체크인 점 추가 완료!');
     }
 
     // 현재 위치 마커 이미지 등록
@@ -583,11 +662,8 @@ class _MapScreenState extends State<MapScreen> {
 
   // 인포카드 위젯 생성
   Widget _buildInfoCard(SpaceEntity space) {
-    return Positioned(
-      //bottom: 0,
-      bottom: showInfoCard && selectedSpace != null ? 110 : -200, // 인포카드 선택 시 70, 아니면 -200 (숨김)
-      left: 18,
-      right: 18,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20), // 내부 여백으로 조정
       child: AnimatedOpacity(
         opacity: showInfoCard ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 300),
@@ -1355,6 +1431,139 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  // 체크인 점만 업데이트하는 함수 (기본 마커는 유지)
+  Future<void> _updateCheckInDotsOnly(List<SpaceEntity> spaces) async {
+    if (mapboxMap == null) return;
+    if (_checkInDotsManager == null) return;
+    
+    // 체크인 점만 삭제
+    await _checkInDotsManager!.deleteAll();
+    
+    // 현재 카메라 상태 확인
+    final cameraState = await mapboxMap!.getCameraState();
+    final currentZoom = cameraState.zoom;
+    
+    if (currentZoom < 13) {
+      print('ℹ️ 줌 레벨 부족 - 체크인 점 표시 안 함 (줌: ${currentZoom.toStringAsFixed(1)})');
+      return;
+    }
+    
+    // 화면에 보이는 영역 계산
+    final bounds = await mapboxMap!.coordinateBoundsForCamera(
+      CameraOptions(
+        center: cameraState.center,
+        zoom: cameraState.zoom,
+        bearing: cameraState.bearing,
+        pitch: cameraState.pitch,
+      ),
+    );
+    
+    final neLat = bounds.northeast.coordinates.lat;
+    final neLng = bounds.northeast.coordinates.lng;
+    final swLat = bounds.southwest.coordinates.lat;
+    final swLng = bounds.southwest.coordinates.lng;
+    
+    List<PointAnnotationOptions> checkInDots = [];
+    Set<String> registeredCheckInDots = {};
+    int visibleCount = 0;
+    
+    for (final space in spaces) {
+      if (space.latitude != 0 && space.longitude != 0) {
+        // 화면에 보이는 매장만 처리
+        final isVisible = space.latitude >= swLat &&
+                         space.latitude <= neLat &&
+                         space.longitude >= swLng &&
+                         space.longitude <= neLng;
+        
+        if (isVisible) {
+          visibleCount++;
+          // 테스트용 랜덤 체크인 수
+          final randomUsers = (visibleCount + space.name.length) % 6;
+          final currentUsers = randomUsers;
+          
+          // 체크인 점 이미지 ID
+          final checkInDotsId = 'checkin_dots_$currentUsers';
+          
+          // 이미지가 아직 등록되지 않은 경우 생성
+          if (!registeredCheckInDots.contains(checkInDotsId)) {
+            final dotsImageData = await _createCheckInDotsOnly(
+              currentUsers: currentUsers,
+            );
+            
+            final mbxImage = MbxImage(
+              data: dotsImageData,
+              width: 32,
+              height: 8,
+            );
+            
+            await mapboxMap!.style.addStyleImage(
+              checkInDotsId,
+              1.0,
+              mbxImage,
+              false,
+              [],
+              [],
+              null,
+            );
+            
+            registeredCheckInDots.add(checkInDotsId);
+          }
+          
+          // 체크인 점 추가
+          checkInDots.add(
+            PointAnnotationOptions(
+              geometry: Point(coordinates: Position(space.longitude, space.latitude)),
+              iconImage: checkInDotsId,
+              iconSize: 1.0,
+              iconAnchor: IconAnchor.BOTTOM,
+              iconOffset: [0.0, -25.0],
+            ),
+          );
+        }
+      }
+    }
+    
+    // 체크인 점 추가
+    if (checkInDots.isNotEmpty) {
+      await _checkInDotsManager!.createMulti(checkInDots);
+      print('🔵 화면에 보이는 ${checkInDots.length}개 체크인 점 업데이트');
+    }
+  }
+  
+  // 지도 스크롤 리스너
+  void _onMapScrollListener(MapContentGestureContext context) {
+    // 스크롤 중에는 처리하지 않음 (성능 최적화)
+  }
+  
+  // 지도 유휴 상태 리스너 (스크롤/줌 완료 후)
+  void _onMapIdleListener(MapIdleEventData eventData) async {
+    if (mapboxMap == null) return;
+    
+    try {
+      final cameraState = await mapboxMap!.getCameraState();
+      final newZoom = cameraState.zoom;
+      final oldZoom = currentZoom;
+      currentZoom = newZoom;
+      
+      // 줌 레벨이 크게 변경되었을 때만 전체 마커 업데이트 (깜빡임 방지)
+      if ((oldZoom < 13 && newZoom >= 13) || (oldZoom >= 13 && newZoom < 13)) {
+        print('🔄 줌 레벨 임계값 변경 - 전체 마커 업데이트 필요');
+        if (filteredSpaces.isNotEmpty) {
+          await _addAllMarkers(filteredSpaces);
+        }
+      } 
+      // 줌 13 이상에서는 체크인 점만 업데이트
+      else if (newZoom >= 13) {
+        print('🔵 체크인 점만 업데이트 (줌: ${newZoom.toStringAsFixed(1)})');
+        if (filteredSpaces.isNotEmpty) {
+          await _updateCheckInDotsOnly(filteredSpaces);
+        }
+      }
+    } catch (e) {
+      print('❌ Error in onMapIdleListener: $e');
+    }
+  }
+
   void _onMapTapListener(MapContentGestureContext gestureContext) async {
     print('🗺️ Map tapped at: ${gestureContext.point}');
     print('📄 Current info card state before tap: showInfoCard=$showInfoCard');
@@ -1717,6 +1926,175 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  // 체크인 점만 그리는 함수 (투명 배경)
+  Future<Uint8List> _createCheckInDotsOnly({required int currentUsers}) async {
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+    
+    // 캔버스 크기 (점들만 표시)
+    const dotSize = 4.0;
+    const dotSpacing = 2.0;
+    const totalDotsWidth = (dotSize * 5) + (dotSpacing * 4);
+    const canvasWidth = totalDotsWidth + 4; // 약간의 여백
+    const canvasHeight = dotSize + 4; // 약간의 여백
+    
+    // 체크인 상태 점 그리기
+    const startX = 2.0; // 왼쪽 여백
+    const startY = 2.0; // 상단 여백
+    
+    for (int i = 0; i < 5; i++) {
+      final paint = Paint()
+        ..color = i < currentUsers 
+          ? const Color(0xFFFF9500) // 주황색 (체크인한 인원)
+          : const Color(0xFF666666) // 회색 (빈 자리)
+        ..style = PaintingStyle.fill;
+      
+      // 점에 테두리 추가 (더 선명하게)
+      final borderPaint = Paint()
+        ..color = Colors.white.withOpacity(0.8)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.5;
+      
+      final center = Offset(
+        startX + (i * (dotSize + dotSpacing)) + (dotSize / 2),
+        startY + (dotSize / 2),
+      );
+      
+      // 테두리 그리기
+      canvas.drawCircle(center, dotSize / 2, borderPaint);
+      // 점 그리기
+      canvas.drawCircle(center, dotSize / 2, paint);
+    }
+    
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(
+      canvasWidth.toInt(),
+      canvasHeight.toInt(),
+    );
+    final byteData = await image.toByteData(format: ImageByteFormat.png);
+    
+    return byteData!.buffer.asUint8List();
+  }
+  
+  // 체크인 정보 가져오기 (캐시 우선)
+  Future<int> _getCheckInUsersCount(String spaceId) async {
+    try {
+      // 캐시가 유효한지 확인 (5분 이내)
+      if (_lastCheckInCacheUpdate != null &&
+          DateTime.now().difference(_lastCheckInCacheUpdate!).inMinutes < 5 &&
+          _checkInCache.containsKey(spaceId)) {
+        return _checkInCache[spaceId]!;
+      }
+      
+      // API 호출하여 체크인 정보 가져오기
+      final spaceRemoteDataSource = getIt<SpaceRemoteDataSource>();
+      final response = await spaceRemoteDataSource.getCheckInUsers(
+        spaceId: spaceId,
+      );
+      
+      final currentUsers = response.currentGroup?.members?.length ?? 0;
+      
+      // 캐시 업데이트
+      _checkInCache[spaceId] = currentUsers;
+      _lastCheckInCacheUpdate = DateTime.now();
+      
+      return currentUsers;
+    } catch (e) {
+      print('⚠️ 체크인 정보 가져오기 실패 (spaceId: $spaceId): $e');
+      return _checkInCache[spaceId] ?? 0; // 캐시된 값이 있으면 반환, 없으면 0
+    }
+  }
+  
+  // 체크인 상태가 포함된 마커 이미지 생성
+  Future<Uint8List> _createMarkerWithCheckInStatus({
+    required String category,
+    required int currentUsers, // 0-5
+  }) async {
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+    
+    // 전체 캔버스 크기 (마커 + 상단 체크인 표시)
+    const markerSize = 32.0;
+    const dotsHeight = 8.0; // 점들이 차지할 높이
+    const totalHeight = markerSize + dotsHeight + 4; // 마커 + 점 높이 + 간격
+    const totalWidth = markerSize;
+    
+    // 카테고리별 색상
+    final categoryColors = {
+      'CAFE': const Color(0xFF8B4513), // 갈색
+      'MEAL': const Color(0xFFFF6347), // 토마토색
+      'PUB': const Color(0xFF32CD32),  // 라임그린
+      'MUSIC': const Color(0xFF9370DB), // 보라색
+      'BAR': const Color(0xFFFF1493),  // 딥핑크
+      'ETC': const Color(0xFF00A3FF),  // 기본 파란색
+    };
+    
+    final markerColor = categoryColors[category] ?? const Color(0xFF00A3FF);
+    
+    // 1. 체크인 상태 점 그리기 (상단)
+    if (currentUsers > 0 || true) { // 항상 표시 (0명일 때도 회색 점 표시)
+      const dotSize = 4.0;
+      const dotSpacing = 2.0;
+      const totalDotsWidth = (dotSize * 5) + (dotSpacing * 4);
+      const startX = (totalWidth - totalDotsWidth) / 2;
+      
+      for (int i = 0; i < 5; i++) {
+        final paint = Paint()
+          ..color = i < currentUsers 
+            ? const Color(0xFFFF9500) // 주황색 (체크인한 인원)
+            : const Color(0xFF666666) // 회색 (빈 자리)
+          ..style = PaintingStyle.fill;
+        
+        canvas.drawCircle(
+          Offset(startX + (i * (dotSize + dotSpacing)) + (dotSize / 2), dotSize / 2),
+          dotSize / 2,
+          paint,
+        );
+      }
+    }
+    
+    // 2. 마커 그리기 (아래쪽)
+    final markerPaint = Paint()
+      ..color = markerColor
+      ..style = PaintingStyle.fill;
+    
+    // 원형 마커 본체
+    canvas.drawCircle(
+      Offset(totalWidth / 2, dotsHeight + 4 + (markerSize / 2)),
+      markerSize / 2,
+      markerPaint,
+    );
+    
+    // 마커 테두리
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+    
+    canvas.drawCircle(
+      Offset(totalWidth / 2, dotsHeight + 4 + (markerSize / 2)),
+      markerSize / 2,
+      borderPaint,
+    );
+    
+    // 중앙 점
+    final centerPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+    
+    canvas.drawCircle(
+      Offset(totalWidth / 2, dotsHeight + 4 + (markerSize / 2)),
+      4.0,
+      centerPaint,
+    );
+    
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(totalWidth.toInt(), totalHeight.toInt());
+    final byteData = await image.toByteData(format: ImageByteFormat.png);
+    
+    return byteData!.buffer.asUint8List();
+  }
+
   // 폴백 마커 생성 (카테고리별 색상)
   Future<void> _addFallbackMarkerForCategory(String category) async {
     try {
@@ -1896,6 +2274,8 @@ class _MapScreenState extends State<MapScreen> {
                 onMapCreated: _onMapCreated,
                 onStyleLoadedListener: _onStyleLoadedCallback,
                 onTapListener: _onMapTapListener,
+                onMapIdleListener: _onMapIdleListener,
+                onScrollListener: _onMapScrollListener,
                 cameraOptions: CameraOptions(
                   center: Point(coordinates: Position(currentLongitude, currentLatitude)),
                   zoom: currentZoom,
@@ -1950,11 +2330,42 @@ class _MapScreenState extends State<MapScreen> {
             // DraggableScrollableSheet 제거됨
             
             // 지도 컨트롤 버튼들 (우측하단 - 탭바 위)
+            // 알림 버튼 (현재 위치 버튼 위)
             AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              bottom: showInfoCard && selectedSpace != null ? 260 : 120, // 인포카드 바로 위에 위치
-              right: 16,
+              bottom: showInfoCard && selectedSpace != null ? 360 : 168, // 현재 위치 버튼보다 58px 위 (48px 버튼 + 10px 간격)
+              right: 30, // 더 안쪽으로 이동
+              child: GestureDetector(
+                onTap: _showNotificationComingSoonDialog,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0x3319BAFF), // #19BAFF33 배경색
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFF797979),
+                      width: 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/icons/mnoti.svg',
+                      width: 24, // 아이콘 크기 축소
+                      height: 24, // 아이콘 크기 축소
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            
+            // 현재 위치 버튼 (인포카드 바로 위)
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              bottom: showInfoCard && selectedSpace != null ? 300 : 110, // 인포카드 바로 위에 위치
+              right: 30, // 더 안쪽으로 이동
               child: GestureDetector(
                 onTap: _moveToCurrentLocation,
                 child: Container(
@@ -1971,8 +2382,8 @@ class _MapScreenState extends State<MapScreen> {
                   child: Center(
                     child: SvgPicture.asset(
                       'assets/icons/mlocation.svg',
-                      width: 40,
-                      height: 40,
+                      width: 32, // 아이콘 크기 통일
+                      height: 32, // 아이콘 크기 통일
                     ),
                   ),
                 ),
@@ -1986,9 +2397,9 @@ class _MapScreenState extends State<MapScreen> {
                 // key: ValueKey(selectedSpace!.id), // 매장 ID를 키로 사용하여 매장 변경 시 위젯 강제 재빌드
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                bottom: showInfoCard && selectedSpace != null ? 110 : -200, // 탭바 위에 표시
-                left: 20,
-                right: 20,
+                bottom: showInfoCard && selectedSpace != null ? 110 : -200, // 바텀바 위에서 시작
+                left: 0,  // 전체 너비 사용
+                right: 0, // 전체 너비 사용
                 child: _buildInfoCard(selectedSpace!),
               ),
 
@@ -2099,6 +2510,69 @@ class _MapScreenState extends State<MapScreen> {
         _categoryScrollController.jumpTo(currentScrollOffset);
       }
     });
+  }
+
+  void _showNotificationComingSoonDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  '준비중입니다',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '알림 기능은 곧 제공될 예정입니다.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF19BAFF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '확인',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _moveToCurrentLocation() async {
