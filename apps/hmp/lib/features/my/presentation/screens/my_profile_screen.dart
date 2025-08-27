@@ -139,6 +139,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Future<void> _extractDominantColorFromWidget() async {
+    if (!mounted) return;
     if (_colorExtracted) return; // 이미 추출했다면 종료
     
     setState(() => _isLoadingColor = true);
@@ -146,6 +147,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     try {
       // 잠시 대기하여 위젯이 완전히 렌더링되도록 함
       await Future.delayed(const Duration(milliseconds: 500));
+      if (!mounted) return;
       
       // RenderRepaintBoundary를 사용하여 위젯을 이미지로 캡처
       final RenderRepaintBoundary? boundary = 
@@ -164,62 +166,52 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             MemoryImage(pngBytes),
           );
           
-          setState(() {
-            // 주요 색상 선택 (우선순위: vibrant > dominant > 기본색)
-            _dominantColor = paletteGenerator.vibrantColor?.color ??
-                           paletteGenerator.dominantColor?.color ??
-                           const Color(0xFFA9F4B6);
-            _isLoadingColor = false;
-            _colorExtracted = true; // 색상 추출 완료 표시
-          });
+          if (mounted) {
+            setState(() {
+              // 주요 색상 선택 (우선순위: vibrant > dominant > 기본색)
+              _dominantColor = paletteGenerator.vibrantColor?.color ??
+                             paletteGenerator.dominantColor?.color ??
+                             const Color(0xFFA9F4B6);
+              _isLoadingColor = false;
+            });
+          }
         }
       }
     } catch (e) {
       print('색상 추출 실패: $e');
-      setState(() {
-        _dominantColor = const Color(0xFFA9F4B6);
-        _isLoadingColor = false;
-        _colorExtracted = true; // 실패해도 재시도 방지
-      });
+
+      if (mounted) {
+        setState(() {
+          _dominantColor = const Color(0xFFA9F4B6);
+          _isLoadingColor = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    print('🏗️ MyProfileScreen build() called');
+    // print('🏗️ MyProfileScreen build() called');
     
     return Scaffold(
       backgroundColor: Colors.black,
-      body: BlocBuilder<ProfileCubit, ProfileState>(
+      body: BlocConsumer<ProfileCubit, ProfileState>(
         bloc: getIt<ProfileCubit>(),
+        listenWhen: (previous, current) {
+          // Listen only when profilePartsString changes
+          return previous.userProfileEntity?.profilePartsString !=
+              current.userProfileEntity?.profilePartsString;
+        },
+        listener: (context, state) {
+          // Call color extraction logic only when the state changes in a relevant way
+          if (state.userProfileEntity?.profilePartsString != null &&
+              !_isLoadingColor) {
+            _extractDominantColorFromWidget();
+          }
+        },
         builder: (context, state) {
-          print('🔨 BlocBuilder builder called');
           final userProfile = state.userProfileEntity;
-          
-          // 디버깅용 로그
-          print('🔍 MyProfile Widget Build:');
-          if (userProfile != null) {
-            print('  - nickName: ${userProfile.nickName}');
-            if (userProfile.profilePartsString != null && userProfile.profilePartsString!.isNotEmpty) {
-              print('  - profilePartsString length: ${userProfile.profilePartsString!.length}');
-              print('  - profilePartsString preview: ${userProfile.profilePartsString!.substring(0, math.min(100, userProfile.profilePartsString!.length))}...');
-            } else {
-              print('  - profilePartsString: NULL or EMPTY');
-            }
-            print('  - finalProfileImageUrl: ${userProfile.finalProfileImageUrl ?? "NULL"}');
-            print('  - pfpImageUrl: ${userProfile.pfpImageUrl ?? "NULL"}');
-          } else {
-            print('  - userProfile is NULL');
-          }
-          print('  - state.submitStatus: ${state.submitStatus}');
-          
-          // 프로필 데이터 변경 시 색상 재추출
-          if (userProfile?.profilePartsString != null && !_isLoadingColor) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _extractDominantColorFromWidget();
-            });
-          }
-          
+
           return Stack(
             children: [
               // 그라데이션 배경
@@ -239,39 +231,39 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   ),
                 ),
               ),
-              
+
               SafeArea(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
                       const SizedBox(height: 20),
-                      
+
                       // 하이딩 중 태그 (프로필 위 중앙)
                       _buildHidingStatus(),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // 프로필 섹션 (좌우 버튼 포함)
                       _buildProfileWithButtons(userProfile),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // 이름과 소개
                       _buildNameAndIntro(userProfile),
-                      
+
                       const SizedBox(height: 30),
-                      
+
                       // 통계 섹션
                       _buildStatsSection(),
-                      
+
                       const SizedBox(height: 30),
-                      
+
                       // 나의 아지트 섹션
                       _buildMyHidingSpotsSection(),
-                      
+
                       // 나의 캘린더 섹션
                       _buildMyCalendarSection(),
-                      
+
                       const SizedBox(height: 100), // 바텀바 공간
                     ],
                   ),
