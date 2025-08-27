@@ -3,7 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
-import 'package:mobile/app/core/get_it/get_it.dart';
+import 'package:mobile/app/core/injection/injection.dart';
 
 @lazySingleton
 class LiveActivityService {
