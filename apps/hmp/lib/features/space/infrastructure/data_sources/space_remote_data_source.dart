@@ -11,6 +11,8 @@ import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_d
 import 'package:mobile/features/space/infrastructure/dtos/space_detail_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/spaces_response_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/check_in_users_response_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/current_group_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/top_used_nft_dto.dart';
 
 @lazySingleton
@@ -149,7 +151,8 @@ class SpaceRemoteDataSource {
       }
       
       // 모든 매장 순회하면서 홍제점 찾기
-      for (int i = 0; i < responseList.length; i++) {
+      for (int i = 0; i < responseList.length;
+ i++) {
         final spaceData = responseList[i];
         final name = spaceData['name']?.toString() ?? '';
         
@@ -220,5 +223,20 @@ class SpaceRemoteDataSource {
     final response = await _network.get("space/$spaceId/check-in-status", {});
     print('✅ Raw Check-In Status Response: ${response.data}');
     return CheckInStatusDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<CheckInUsersResponseDto> getCheckInUsers(
+      {required String spaceId}) async {
+    print('📡 Calling getCheckInUsers for spaceId: $spaceId');
+    final response = await _network.get("space/$spaceId/check-in-users", {});
+    print('✅ Raw getCheckInUsers Response: ${response.data}');
+    return CheckInUsersResponseDto.fromJson(
+        response.data as Map<String, dynamic>);
+  }
+
+  Future<CurrentGroupDto> getCurrentGroup({required String spaceId}) async {
+    final response =
+        await _network.get("space/$spaceId/current-group", {});
+    return CurrentGroupDto.fromJson(response.data as Map<String, dynamic>);
   }
 }
