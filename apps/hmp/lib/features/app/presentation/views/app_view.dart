@@ -150,19 +150,19 @@ class _AppViewState extends State<AppView> {
                             ('✅ Check-in button tapped - Starting NFC reading').log();
                             
                             // DEBUG: Live Activity 즉시 시작 (NFC 없이)
-                            print('🎯 [DEBUG] Starting Live Activity immediately for testing');
-                            final liveActivityService = getIt<LiveActivityService>();
-                            await liveActivityService.startCheckInActivity(
-                              spaceName: '영동호프',  // 테스트 공간 이름
-                              currentUsers: 2,      // 현재 2명 체크인 (2개 점 파란색)
-                              remainingUsers: 1,    // 매칭까지 1명 남음
-                            );
+                            // print('🎯 [DEBUG] Starting Live Activity immediately for testing');
+                            // final liveActivityService = getIt<LiveActivityService>();
+                            // await liveActivityService.startCheckInActivity(
+                            //   spaceName: '영동호프',  // 테스트 공간 이름
+                            //   currentUsers: 2,      // 현재 2명 체크인 (2개 점 파란색)
+                            //   remainingUsers: 1,    // 매칭까지 1명 남음
+                            // );
                             
-                            // 디버그: 120초 후 자동 종료
-                            Future.delayed(const Duration(seconds: 120), () {
-                              print('🎯 [DEBUG] Auto-ending Live Activity after 30 seconds');
-                              liveActivityService.endCheckInActivity();
-                            });
+                            // // 디버그: 120초 후 자동 종료
+                            // Future.delayed(const Duration(seconds: 120), () {
+                            //   print('🎯 [DEBUG] Auto-ending Live Activity after 30 seconds');
+                            //   liveActivityService.endCheckInActivity();
+                            // });
                             
                             // 안전한 NFC 서비스 사용
                             await SafeNfcService.startReading(
@@ -256,6 +256,15 @@ class _AppViewState extends State<AppView> {
                                   );
                                   
                                   if (spaceDetail.id.isNotEmpty) {
+                                    // Live Activity 시작 (실제 공간 정보 사용)
+                                    final liveActivityService = getIt<LiveActivityService>();
+                                    await liveActivityService.startCheckInActivity(
+                                      spaceName: spaceDetail.name,
+                                      currentUsers: 2,  // TODO: 실제 체크인 수 API에서 받기
+                                      remainingUsers: 3,  // TODO: 실제 남은 인원 API에서 받기
+                                      spaceId: spaceId.trim(),  // 폴링을 위한 spaceId 전달
+                                    );
+                                    
                                     // 성공 다이얼로그 표시
                                     showDialog(
                                       context: context,
@@ -267,6 +276,8 @@ class _AppViewState extends State<AppView> {
                                             : spaceDetail.introduction,
                                         onCancel: () {
                                           Navigator.of(context).pop();
+                                          // Live Activity 종료
+                                          liveActivityService.endCheckInActivity();
                                         },
                                         onConfirm: () {
                                           Navigator.of(context).pop();

@@ -17,17 +17,88 @@ struct CheckInWidgetLiveActivity: Widget {
                 .activityBackgroundTint(Color.black)
                 .activitySystemActionForegroundColor(Color.white)
         } dynamicIsland: { context in
-            // Dynamic Island는 지원하지 않음 - 최소한의 뷰만 반환
             DynamicIsland {
+                // Expanded View - Dynamic Island를 길게 눌렀을 때
                 DynamicIslandExpandedRegion(.leading) {
+                    HStack(spacing: 8) {
+                        Image("ico_logolive")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 20, height: 20)
+                        
+                        Text("하이드미플리즈")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.leading, 8)
+                }
+                
+                DynamicIslandExpandedRegion(.trailing) {
+                    Text("\(context.state.currentUsers)/5")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.trailing, 8)
+                }
+                
+                DynamicIslandExpandedRegion(.center) {
                     EmptyView()
                 }
+                
+                DynamicIslandExpandedRegion(.bottom) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        // 공간 이름
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundColor(.white)
+                                .font(.system(size: 14))
+                            
+                            Text(context.attributes.spaceName)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white)
+                        }
+                        
+                        // 매칭 상태
+                        HStack(spacing: 4) {
+                            Text("매칭까지")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                            
+                            Text("\(context.state.remainingUsers)명")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(Color(red: 0.17, green: 0.70, blue: 1.0))
+                            
+                            Text("남음")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 8)
+                }
+                
             } compactLeading: {
-                EmptyView()
+                // Compact Leading - 왼쪽 작은 영역
+                HStack(spacing: 4) {
+                    Image("ico_logolive")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 16, height: 16)
+                    
+                    Text("하이드미플리즈")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                }
             } compactTrailing: {
-                EmptyView()
+                // Compact Trailing - 오른쪽 작은 영역
+                Text("\(context.state.currentUsers)/5")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.white)
             } minimal: {
-                EmptyView()
+                // Minimal - 가장 작은 상태
+                Image("ico_logolive")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 16, height: 16)
             }
         }
     }

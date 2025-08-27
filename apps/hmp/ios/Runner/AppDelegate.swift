@@ -56,6 +56,25 @@ import ActivityKit
           print("📱 [Flutter Channel] Update called - handled by timer")
           result(true)
           
+        case "updateCheckInNumbers":
+          print("📱 [Flutter Channel] Processing updateCheckInNumbers")
+          guard let args = call.arguments as? [String: Any],
+                let currentUsers = args["currentUsers"] as? Int,
+                let remainingUsers = args["remainingUsers"] as? Int else {
+            print("❌ [Flutter Channel] Invalid arguments for update")
+            result(FlutterError(code: "INVALID_ARGUMENTS",
+                                 message: "Missing required arguments",
+                                 details: nil))
+            return
+          }
+          
+          print("📱 [Flutter Channel] Updating Live Activity - Current: \(currentUsers), Remaining: \(remainingUsers)")
+          CheckInLiveActivityManager.shared.updateLiveActivity(
+            currentUsers: currentUsers,
+            remainingUsers: remainingUsers
+          )
+          result(true)
+          
         case "endCheckInActivity":
           CheckInLiveActivityManager.shared.endLiveActivity()
           result(true)
