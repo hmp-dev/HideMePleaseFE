@@ -95,16 +95,22 @@ class _StartUpScreenState extends State<StartUpScreen>
                 // Check if onboarding has been completed
                 final prefs = await SharedPreferences.getInstance();
                 final onboardingCompleted = prefs.getBool(StorageValues.onboardingCompleted) ?? false;
-                final debugMode = prefs.getBool(StorageValues.onboardingDebugMode) ?? false;
+                final showOnboardingAfterLogout = prefs.getBool(StorageValues.showOnboardingAfterLogout) ?? false;
                 final savedStep = prefs.getInt(StorageValues.onboardingCurrentStep);
 
                 if (context.mounted) {
                   // Show onboarding if:
-                  // 1. Debug mode is enabled (for development)
+                  // 1. User logged out and logged back in (showOnboardingAfterLogout flag)
                   // 2. Onboarding not completed yet
                   // 3. There's a saved step (user left mid-onboarding) and onboarding not completed
-                  if (debugMode || !onboardingCompleted || (savedStep != null && !onboardingCompleted)) {
-                    '🚀 온보딩 화면으로 이동 - 디버그모드: $debugMode, 완료: $onboardingCompleted, 저장된 단계: $savedStep'.log();
+                  if (showOnboardingAfterLogout || !onboardingCompleted || (savedStep != null && !onboardingCompleted)) {
+                    '🚀 온보딩 화면으로 이동 - 로그아웃 후: $showOnboardingAfterLogout, 완료: $onboardingCompleted, 저장된 단계: $savedStep'.log();
+                    
+                    // Clear the flag if it was set
+                    if (showOnboardingAfterLogout) {
+                      await prefs.setBool(StorageValues.showOnboardingAfterLogout, false);
+                    }
+                    
                     // Show onboarding screen
                     Navigator.of(context).pushNamedAndRemoveUntil(
                         Routes.onboardingScreen, (Route<dynamic> route) => false);

@@ -287,7 +287,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "체크인 및 매칭 혜택",
+                    LocaleKeys.checkin_and_matching_benefits.tr(),
                     style: fontTitle06(),
                   ),
                   GestureDetector(
@@ -544,12 +544,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('성공'),
+                title: Text(LocaleKeys.success.tr()),
                 content: const Text('체크인에 성공했습니다.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('확인'),
+                    child: Text(LocaleKeys.confirm.tr()),
                   ),
                 ],
               ),
@@ -579,12 +579,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('오류'),
+            title: Text(LocaleKeys.error.tr()),
             content: Text(e.message ?? '알 수 없는 오류가 발생했습니다.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('확인'),
+                child: Text(LocaleKeys.confirm.tr()),
               ),
             ],
           ),
@@ -595,12 +595,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('오류'),
+          title: Text(LocaleKeys.error.tr()),
           content: const Text('체크인 중 알 수 없는 오류가 발생했습니다.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('확인'),
+              child: Text(LocaleKeys.confirm.tr()),
             ),
           ],
         ),
@@ -701,7 +701,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
             if (currentMinutes >= breakStartMinutes &&
                 currentMinutes < breakEndMinutes) {
-              statusText = '휴게시간';
+              statusText = LocaleKeys.rest_time.tr();
               hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} 재오픈';
             } else {
               hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
@@ -898,7 +898,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
           if (currentMinutes >= breakStartMinutes &&
               currentMinutes < breakEndMinutes) {
-            statusText = '휴게시간';
+            statusText = LocaleKeys.rest_time.tr();
             hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} 재오픈';
           } else {
             hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';

@@ -262,8 +262,19 @@ class SpaceRepositoryImpl extends SpaceRepository {
       );
       return right(response);
     } on DioException catch (e, t) {
+      // 서버 응답에서 실제 에러 메시지 추출
+      String? serverMessage;
+      try {
+        if (e.response?.data is Map<String, dynamic>) {
+          final responseData = e.response!.data as Map<String, dynamic>;
+          serverMessage = responseData['message'] ?? e.message;
+        }
+      } catch (_) {
+        // 파싱 실패 시 기본 메시지 사용
+      }
+      
       return left(HMPError.fromNetwork(
-        message: e.message,
+        message: serverMessage ?? e.message,
         error: e,
         trace: t,
       ));
