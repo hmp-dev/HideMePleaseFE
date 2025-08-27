@@ -14,65 +14,21 @@ struct CheckInWidgetLiveActivity: Widget {
         ActivityConfiguration(for: CheckInActivityAttributes.self) { context in
             // Lock screen/banner UI
             CheckInLiveActivityView(context: context)
+                .activityBackgroundTint(Color.black)
+                .activitySystemActionForegroundColor(Color.white)
         } dynamicIsland: { context in
+            // Dynamic Island는 지원하지 않음 - 최소한의 뷰만 반환
             DynamicIsland {
-                // Expanded UI
                 DynamicIslandExpandedRegion(.leading) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(.white)
-                            .font(.system(size: 12))
-                        
-                        Text(context.attributes.spaceName)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.white)
-                    }
-                }
-                
-                DynamicIslandExpandedRegion(.trailing) {
-                    Text(timeString(from: context.state.remainingTime))
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color(red: 1.0, green: 0.42, blue: 0.18))
-                }
-                
-                DynamicIslandExpandedRegion(.bottom) {
-                    HStack {
-                        Text("매칭 성공까지 1명 남음")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white)
-                        
-                        Spacer()
-                        
-                        Text(context.attributes.benefit)
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray)
-                    }
+                    EmptyView()
                 }
             } compactLeading: {
-                Image(systemName: "checkmark.seal.fill")
-                    .foregroundColor(.white)
-                    .font(.system(size: 12))
+                EmptyView()
             } compactTrailing: {
-                Text(timeString(from: context.state.remainingTime))
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(Color(red: 1.0, green: 0.42, blue: 0.18))
+                EmptyView()
             } minimal: {
-                Image(systemName: "checkmark.seal.fill")
-                    .foregroundColor(.white)
+                EmptyView()
             }
-        }
-    }
-    
-    private func timeString(from seconds: Int) -> String {
-        let hours = seconds / 3600
-        let minutes = (seconds % 3600) / 60
-        
-        if hours > 0 {
-            return "\(hours)시간"
-        } else if minutes > 0 {
-            return "\(minutes)분"
-        } else {
-            return "\(seconds)초"
         }
     }
 }
@@ -81,69 +37,104 @@ struct CheckInLiveActivityView: View {
     let context: ActivityViewContext<CheckInActivityAttributes>
     
     var body: some View {
-        HStack(spacing: 0) {
-            // Left side content
-            VStack(alignment: .leading, spacing: 8) {
-                // HideMePlease logo and space name
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundColor(.white)
-                        .font(.system(size: 14))
-                    
-                    Text("영동호프")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-                
-                // Main text
-                HStack(spacing: 4) {
-                    Text("매칭 성공까지")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                    
-                    Text("1명 남음")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(Color(red: 0.17, green: 0.70, blue: 1.0))
-                }
-                
-                // SAV Reward text
-                Text("SAV 리워드")
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
-            }
-            .padding(.leading, 20)
+        ZStack {
+            // 검정 배경
+            Color.black
             
-            Spacer()
-            
-            // Right side timer
-            VStack(spacing: 4) {
-                Image(systemName: "clock.fill")
-                    .foregroundColor(Color(red: 1.0, green: 0.42, blue: 0.18))
-                    .font(.system(size: 24))
+            VStack(spacing: 0) {
+                // 상단: 로고 + 하이드미플리즈 + 점 표시
+                HStack {
+                    // 왼쪽: 로고 + 텍스트
+                    HStack(spacing: 8) {
+                        Image("ico_logolive")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 24, height: 24)
+                        
+                        Text("하이드미플리즈")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                    
+                    Spacer()
+                    
+                    // 오른쪽: 5개 점 표시
+                    HStack(spacing: 6) {
+                        ForEach(0..<5) { index in
+                            Circle()
+                                .fill(index < context.state.currentUsers ? 
+                                      Color(red: 0.17, green: 0.70, blue: 1.0) : // 파란색
+                                      Color.white.opacity(0.3)) // 회색
+                                .frame(width: 8, height: 8)
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20) // 상단 여백 20pt
                 
-                Text(timeString(from: context.state.remainingTime))
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(Color(red: 1.0, green: 0.42, blue: 0.18))
+                Spacer()
+                
+                // 중앙 및 하단 콘텐츠
+                HStack(alignment: .bottom, spacing: 0) {
+                    // 왼쪽 영역
+                    VStack(alignment: .leading, spacing: 8) {
+                        // 공간 이름
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundColor(.white)
+                                .font(.system(size: 16))
+                            
+                            Text(context.attributes.spaceName)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                        }
+                        
+                        // 매칭 상태
+                        HStack(spacing: 4) {
+                            Text("매칭 성공까지")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(.white)
+                            
+                            Text("\(context.state.remainingUsers)명")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(Color(red: 0.17, green: 0.70, blue: 1.0)) // 파란색
+                            
+                            Text("남음")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .padding(.leading, 20)
+                    
+                    Spacer()
+                    
+                    // 오른쪽 영역: SAV 리워드 + 아이콘과 숫자
+                    VStack(alignment: .trailing, spacing: 4) {
+                        // SAV 리워드
+                        Text("SAV 리워드")
+                            .font(.system(size: 12))
+                            .foregroundColor(.white.opacity(0.7))
+                        
+                        // 아이콘과 큰 숫자
+                        HStack(spacing: 8) {
+                            Image("ico_savlive")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 32, height: 32)
+                            
+                            Text("3")
+                                .font(.system(size: 48, weight: .bold))
+                                .foregroundColor(Color(red: 1.0, green: 0.42, blue: 0.18)) // 주황색
+                        }
+                    }
+                    .padding(.trailing, 20)
+                }
+                .padding(.bottom, 20) // 하단 여백 20pt
             }
-            .padding(.trailing, 20)
         }
-        .padding(.vertical, 16)
-        .background(Color.black)
-        .activityBackgroundTint(Color.black)
-    }
-    
-    private func timeString(from seconds: Int) -> String {
-        let hours = seconds / 3600
-        let minutes = (seconds % 3600) / 60
-        let secs = seconds % 60
-        
-        if hours > 0 {
-            return String(format: "%d:%02d:%02d", hours, minutes, secs)
-        } else {
-            return String(format: "%d:%02d", minutes, secs)
-        }
+        .frame(height: 140) // Live Activity 높이 설정
     }
 }
 
-// Preview is only available in iOS 17+
-// To test Live Activities, use the actual app instead of previews
+// Preview는 iOS 17+ 에서만 가능
+// 실제 앱에서 테스트 필요

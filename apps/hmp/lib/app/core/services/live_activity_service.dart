@@ -14,18 +14,31 @@ class LiveActivityService {
   
   Future<bool> startCheckInActivity({
     required String spaceName,
-    required String benefit,
+    required int currentUsers,
+    required int remainingUsers,
   }) async {
-    if (!Platform.isIOS) return false;
+    print('🔵 [Flutter] Starting Live Activity...');
+    print('🔵 [Flutter] Space Name: $spaceName');
+    print('🔵 [Flutter] Current Users: $currentUsers');
+    print('🔵 [Flutter] Remaining Users: $remainingUsers');
+    
+    if (!Platform.isIOS) {
+      print('⚠️ [Flutter] Not iOS platform, skipping');
+      return false;
+    }
     
     try {
+      print('🔵 [Flutter] Invoking native method: startCheckInActivity');
       final result = await _channel.invokeMethod('startCheckInActivity', {
         'spaceName': spaceName,
-        'benefit': benefit,
+        'currentUsers': currentUsers,
+        'remainingUsers': remainingUsers,
       });
+      print('✅ [Flutter] Native method returned: $result');
       return result == true;
     } catch (e) {
-      print('Error starting Live Activity: $e');
+      print('❌ [Flutter] Error starting Live Activity: $e');
+      print('❌ [Flutter] Stack trace: ${StackTrace.current}');
       return false;
     }
   }
@@ -59,18 +72,19 @@ class LiveActivityService {
   }
   
   Future<void> _handleMethodCall(MethodCall call) async {
+    print('📲 [Flutter Callback] Received from native: ${call.method}');
     switch (call.method) {
       case 'liveActivityStarted':
-        print('Live Activity started with ID: ${call.arguments}');
+        print('✅ [Flutter Callback] Live Activity started with ID: ${call.arguments}');
         break;
       case 'liveActivityError':
-        print('Live Activity error: ${call.arguments}');
+        print('❌ [Flutter Callback] Live Activity error: ${call.arguments}');
         break;
       case 'liveActivityExpired':
-        print('Live Activity expired');
+        print('⏰ [Flutter Callback] Live Activity expired');
         break;
       default:
-        print('Unknown method: ${call.method}');
+        print('❓ [Flutter Callback] Unknown method: ${call.method}');
     }
   }
 }

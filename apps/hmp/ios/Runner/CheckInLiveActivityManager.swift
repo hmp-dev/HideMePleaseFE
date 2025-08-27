@@ -10,22 +10,36 @@ class CheckInLiveActivityManager: NSObject {
     private var currentActivity: Activity<CheckInActivityAttributes>?
     private var updateTimer: Timer?
     
-    func startLiveActivity(spaceName: String, benefit: String, channel: FlutterMethodChannel) {
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+    func startLiveActivity(spaceName: String, currentUsers: Int, remainingUsers: Int, channel: FlutterMethodChannel) {
+        print("🔵 [LiveActivity] Starting Live Activity...")
+        print("🔵 [LiveActivity] Space Name: \(spaceName)")
+        print("🔵 [LiveActivity] Current Users: \(currentUsers)")
+        print("🔵 [LiveActivity] Remaining Users: \(remainingUsers)")
+        
+        // 권한 체크 (디버그를 위해 일시적으로 경고만 표시)
+        let authInfo = ActivityAuthorizationInfo()
+        print("🔵 [LiveActivity] Activities Enabled: \(authInfo.areActivitiesEnabled)")
+        if #available(iOS 16.2, *) {
+            print("🔵 [LiveActivity] Frequent Push Enabled: \(authInfo.frequentPushesEnabled)")
+        }
+        
+        if !authInfo.areActivitiesEnabled {
+            print("⚠️ [LiveActivity] Live Activities are not enabled in settings!")
             channel.invokeMethod("liveActivityError", arguments: "Live Activities are not enabled")
-            return
+            // 디버그를 위해 계속 진행
+            // return
         }
         
         let attributes = CheckInActivityAttributes(
-            spaceName: spaceName,
-            benefit: benefit,
-            checkInTime: Date()
+            spaceName: spaceName
         )
         
         let initialState = CheckInActivityAttributes.ContentState(
-            remainingTime: 300, // DEBUG: 5 minutes (300초), PRODUCTION: 10800 (3시간)
-            isConfirmed: false
+            currentUsers: currentUsers,
+            remainingUsers: remainingUsers
         )
+        
+        print("🔵 [LiveActivity] Attributes created, requesting activity...")
         
         do {
             currentActivity = try Activity.request(
@@ -34,69 +48,67 @@ class CheckInLiveActivityManager: NSObject {
                 pushType: nil
             )
             
-            startTimer(channel: channel)
+            print("✅ [LiveActivity] Activity created successfully!")
+            print("✅ [LiveActivity] Activity ID: \(currentActivity?.id ?? "nil")")
             
             channel.invokeMethod("liveActivityStarted", arguments: currentActivity?.id)
+            
+            // 1분 후 업데이트
+            updateTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: false) { _ in
+                print("🔵 [LiveActivity] 1분 경과 - Live Activity 업데이트 중...")
+                self.updateLiveActivity(currentUsers: currentUsers + 1, remainingUsers: max(0, remainingUsers - 1))
+            }
+            
+            // 3분 후 자동 종료
+            Timer.scheduledTimer(withTimeInterval: 180.0, repeats: false) { _ in
+                print("🔵 [LiveActivity] 3분 경과 - Live Activity 자동 종료")
+                self.endLiveActivity()
+            }
         } catch {
+            print("❌ [LiveActivity] Failed to create activity: \(error)")
+            print("❌ [LiveActivity] Error details: \(error.localizedDescription)")
             channel.invokeMethod("liveActivityError", arguments: error.localizedDescription)
         }
     }
     
-    func updateLiveActivity(isConfirmed: Bool) {
-        guard let activity = currentActivity else { return }
+    func updateLiveActivity(currentUsers: Int, remainingUsers: Int) {
+        guard let activity = currentActivity else { 
+            print("⚠️ [LiveActivity] No current activity to update")
+            return 
+        }
+        
+        print("🔵 [LiveActivity] Updating Live Activity...")
+        print("🔵 [LiveActivity] New Current Users: \(currentUsers)")
+        print("🔵 [LiveActivity] New Remaining Users: \(remainingUsers)")
+        
+        let updatedState = CheckInActivityAttributes.ContentState(
+            currentUsers: currentUsers,
+            remainingUsers: remainingUsers
+        )
         
         Task {
-            let updatedState = CheckInActivityAttributes.ContentState(
-                remainingTime: getRemainingTime(),
-                isConfirmed: isConfirmed
-            )
-            
             await activity.update(using: updatedState)
+            print("✅ [LiveActivity] Activity updated successfully!")
         }
     }
     
     func endLiveActivity() {
-        guard let activity = currentActivity else { return }
+        print("🔵 [LiveActivity] Ending Live Activity...")
+        guard let activity = currentActivity else { 
+            print("⚠️ [LiveActivity] No current activity to end")
+            return 
+        }
         
         updateTimer?.invalidate()
         updateTimer = nil
         
         Task {
             await activity.end(dismissalPolicy: .immediate)
+            print("✅ [LiveActivity] Activity ended")
         }
         
         currentActivity = nil
     }
     
-    private func startTimer(channel: FlutterMethodChannel) {
-        updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self = self,
-                  let activity = self.currentActivity else { return }
-            
-            let remainingTime = self.getRemainingTime()
-            
-            if remainingTime <= 0 {
-                self.endLiveActivity()
-                channel.invokeMethod("liveActivityExpired", arguments: nil)
-            } else {
-                Task {
-                    let updatedState = CheckInActivityAttributes.ContentState(
-                        remainingTime: remainingTime,
-                        isConfirmed: activity.contentState.isConfirmed
-                    )
-                    
-                    await activity.update(using: updatedState)
-                }
-            }
-        }
-    }
-    
-    private func getRemainingTime() -> Int {
-        guard let activity = currentActivity else { return 0 }
-        
-        let elapsed = Date().timeIntervalSince(activity.attributes.checkInTime)
-        let remaining = max(0, 300 - Int(elapsed)) // DEBUG: 300초 (5분), PRODUCTION: 10800 (3시간)
-        
-        return remaining
-    }
+    // 타이머 관련 메서드 제거됨 - Live Activity는 정적 표시만 지원
 }

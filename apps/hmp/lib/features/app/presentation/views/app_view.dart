@@ -6,6 +6,7 @@ import 'package:mobile/app/core/enum/menu_type.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/preload_page_view/preload_page_view.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/services/live_activity_service.dart';
 import 'package:mobile/app/core/notifications/notification_service.dart';
 import 'package:mobile/features/map/presentation/map_screen.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
@@ -147,6 +148,21 @@ class _AppViewState extends State<AppView> {
                           },
                           onCheckInTap: () async {
                             ('✅ Check-in button tapped - Starting NFC reading').log();
+                            
+                            // DEBUG: Live Activity 즉시 시작 (NFC 없이)
+                            print('🎯 [DEBUG] Starting Live Activity immediately for testing');
+                            final liveActivityService = getIt<LiveActivityService>();
+                            await liveActivityService.startCheckInActivity(
+                              spaceName: '영동호프',  // 테스트 공간 이름
+                              currentUsers: 2,      // 현재 2명 체크인 (2개 점 파란색)
+                              remainingUsers: 1,    // 매칭까지 1명 남음
+                            );
+                            
+                            // 디버그: 120초 후 자동 종료
+                            Future.delayed(const Duration(seconds: 120), () {
+                              print('🎯 [DEBUG] Auto-ending Live Activity after 30 seconds');
+                              liveActivityService.endCheckInActivity();
+                            });
                             
                             // 안전한 NFC 서비스 사용
                             await SafeNfcService.startReading(

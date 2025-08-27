@@ -525,15 +525,21 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   }
 
   Future<void> _handleCheckIn() async {
+    print('🎯 [Flutter] _handleCheckIn called!');
     // DEBUG: Start Live Activity immediately for testing
-    const benefit = 'SAV 리워드'; // SpaceDetailEntity doesn't have benefits field
-    await _liveActivityService.startCheckInActivity(
+    print('🎯 [Flutter] Starting Live Activity for: ${widget.space.name}');
+    
+    final success = await _liveActivityService.startCheckInActivity(
       spaceName: widget.space.name,
-      benefit: benefit,
+      currentUsers: 2,      // 테스트: 현재 2명 체크인
+      remainingUsers: 1,    // 테스트: 매칭까지 1명 남음
     );
     
-    // Auto-end after 5 minutes for debug
-    Future.delayed(const Duration(minutes: 5), () {
+    print('🎯 [Flutter] Live Activity start result: $success');
+    
+    // Auto-end after 30 seconds for debug
+    Future.delayed(const Duration(seconds: 30), () {
+      print('🎯 [Flutter] Auto-ending Live Activity after 30 seconds');
       _liveActivityService.endCheckInActivity();
     });
     
@@ -560,6 +566,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
             // PRODUCTION CODE (현재 주석처리)
             // Start Live Activity for check-in
             // final benefit = widget.space.benefits?.firstOrNull?.name ?? 'SAV 리워드';
+            final benefit = 'SAV 리워드'; // 임시 하드코딩
             // _liveActivityService.startCheckInActivity(
             //   spaceName: widget.space.name,
             //   benefit: benefit,
