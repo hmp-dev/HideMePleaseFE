@@ -124,8 +124,69 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       );
       
       '✅ Wepin SDK initialized successfully'.log();
+      
+      // Check for existing WePIN wallet
+      await _checkExistingWepinWallet();
     } catch (e) {
       '❌ Failed to initialize Wepin SDK: $e'.log();
+    }
+  }
+  
+  Future<void> _checkExistingWepinWallet() async {
+    try {
+      '🔍 Checking for existing WePIN wallet...'.log();
+      
+      final wepinCubit = getIt<WepinCubit>();
+      if (wepinCubit.state.wepinWidgetSDK == null) {
+        '⚠️ WePIN SDK not initialized for wallet check'.log();
+        return;
+      }
+      
+      // Check if user is registered with WePIN
+      bool isRegistered = false;
+      try {
+        // Try to get current user to check if registered
+        final currentUser = await wepinCubit.state.wepinWidgetSDK!.login.getCurrentWepinUser();
+        isRegistered = (currentUser != null && currentUser.userInfo != null);
+        '🔍 WePIN user check in initState: ${isRegistered ? "Existing user found" : "No user found"}'.log();
+        if (isRegistered && currentUser!.userInfo != null) {
+          '📧 Existing user email: ${currentUser.userInfo!.email}'.log();
+        }
+      } catch (e) {
+        '⚠️ Error checking WePIN user in initState: $e'.log();
+      }
+      
+      if (isRegistered) {
+        '✅ Existing WePIN user detected during initialization'.log();
+        
+        // Try to get the current status
+        final status = await wepinCubit.state.wepinWidgetSDK!.getStatus();
+        '📊 Current WePIN status: $status'.log();
+        
+        // If user is registered but not logged in, they can login later
+        // Mark that wallet exists so we show appropriate UI
+        setState(() {
+          _hasExistingWallet = true;
+        });
+        
+        // Optionally try to login silently
+        if (status == WepinLifeCycle.initialized) {
+          try {
+            '🔐 Attempting silent login for existing user...'.log();
+            // This would need to be implemented based on stored credentials
+            // For now, just mark that wallet exists
+          } catch (e) {
+            '⚠️ Silent login failed: $e'.log();
+          }
+        }
+      } else {
+        '🆕 New WePIN user - will need to create wallet'.log();
+        setState(() {
+          _hasExistingWallet = false;
+        });
+      }
+    } catch (e) {
+      '❌ Error checking existing WePIN wallet: $e'.log();
     }
   }
   
@@ -355,6 +416,20 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       setState(() {
         _isConfirming = true;
       });
+      
+      // Check if user is already registered with WePIN
+      bool isRegistered = false;
+      try {
+        // Try to get current user to check if registered
+        final currentUser = await wepinCubit.state.wepinWidgetSDK!.login.getCurrentWepinUser();
+        isRegistered = (currentUser != null && currentUser.userInfo != null);
+        '🔍 WePIN user check: ${isRegistered ? "Existing user found" : "No user found"}'.log();
+        if (isRegistered && currentUser!.userInfo != null) {
+          '📧 Existing user email: ${currentUser.userInfo!.email}'.log();
+        }
+      } catch (e) {
+        '⚠️ Error checking WePIN user: $e'.log();
+      }
       
       // If only initialized, need to login first
       if (status == WepinLifeCycle.initialized) {

@@ -49,7 +49,14 @@ class WepinCubit extends BaseCubit<WepinState> {
     "📱 Retrieved social login values".log();
 
     // Finalize any existing Wepin SDK instance
-    //state.wepinWidgetSDK?.finalize();
+    if (state.wepinWidgetSDK != null) {
+      try {
+        await state.wepinWidgetSDK!.finalize();
+        "✅ Previous WePIN SDK instance finalized".log();
+      } catch (e) {
+        "⚠️ Error finalizing previous WePIN SDK: $e".log();
+      }
+    }
 
     try {
       if (Platform.isAndroid) {
@@ -87,8 +94,12 @@ class WepinCubit extends BaseCubit<WepinState> {
         emit(state.copyWith(error: 'WepinSDK is not initialized.'));
       } else {
         "✅ Wepin SDK initialized successfully with status: $wepinStatus".log();
-        // Don't auto-login here, let onboarding handle it when needed
-        // loginSocialAuthProvider();
+        
+        // Auto-login when SDK status is initialized (matching existing HomeScreen pattern)
+        if (wepinStatus == WepinLifeCycle.initialized) {
+          "🔐 SDK status is initialized, performing auto-login for existing users...".log();
+          await loginSocialAuthProvider();
+        }
       }
     } catch (error) {
       // Handle any errors during SDK initialization
@@ -150,10 +161,14 @@ class WepinCubit extends BaseCubit<WepinState> {
     "🔍 Checking Wepin lifecycle status: $status".log();
     
     if (status == WepinLifeCycle.initialized) {
-      "✅ Status is initialized, performing login...".log();
-      // Perform login if status is 'initialized'
-      await loginSocialAuthProvider();
-      "Performed login to Wepin".log();
+      // Login should already be attempted during SDK initialization
+      "ℹ️ Status is initialized, checking if login was successful...".log();
+      final currentStatus = await state.wepinWidgetSDK!.getStatus();
+      if (currentStatus != WepinLifeCycle.login) {
+        // If not logged in, try again
+        "🔐 Attempting login again...".log();
+        await loginSocialAuthProvider();
+      }
     } else if (status == WepinLifeCycle.beforeLogin ||
         status == WepinLifeCycle.loginBeforeRegister) {
       "⚠️ Status requires registration: $status".log();
@@ -551,28 +566,47 @@ class WepinCubit extends BaseCubit<WepinState> {
     "loginSocialAuthProvider is called".log();
     
     try {
-      // Check if we already have saved Wepin login credentials
-      final savedWepinToken = await _secureStorage.read(StorageValues.wepinToken) ?? '';
-      
-      if (savedWepinToken.isNotEmpty) {
-        "✅ Found saved Wepin token, attempting auto-login...".log();
-        // Try to restore previous session
-        final status = await state.wepinWidgetSDK!.getStatus();
-        if (status == WepinLifeCycle.login) {
-          "✅ Already logged in to Wepin".log();
-          emit(state.copyWith(
-            wepinLifeCycleStatus: status,
-            isLoading: false,
-          ));
-          return;
-        }
+      // Check current status first
+      final currentStatus = await state.wepinWidgetSDK!.getStatus();
+      if (currentStatus == WepinLifeCycle.login) {
+        "✅ Already logged in to Wepin".log();
+        emit(state.copyWith(
+          wepinLifeCycleStatus: currentStatus,
+          isLoading: false,
+        ));
+        return;
       }
       
-      "⚠️ No saved Wepin session, user will need to login when opening widget".log();
-      // Don't show login UI here - let the widget handle it when opened
-      emit(state.copyWith(
-        isLoading: false,
-      ));
+      // Get social login type and token
+      final socialType = state.socialTokenIsAppleOrGoogle;
+      "🔐 Social login type: $socialType".log();
+      
+      // Check if we have an existing WePIN user
+      try {
+        final currentUser = await state.wepinWidgetSDK!.login.getCurrentWepinUser();
+        if (currentUser != null && currentUser.userInfo != null) {
+          "✅ Found existing WePIN user: ${currentUser.userInfo?.email}".log();
+          
+          // Update status - user exists but needs to login through widget
+          final newStatus = await state.wepinWidgetSDK!.getStatus();
+          emit(state.copyWith(
+            wepinLifeCycleStatus: newStatus,
+            isLoading: false,
+          ));
+          
+          "ℹ️ Existing user detected, will auto-login when widget opens".log();
+        } else {
+          "⚠️ No existing WePIN user found".log();
+          emit(state.copyWith(
+            isLoading: false,
+          ));
+        }
+      } catch (e) {
+        "⚠️ Error checking for existing user: $e".log();
+        emit(state.copyWith(
+          isLoading: false,
+        ));
+      }
     } catch (e) {
       "❌ Error in loginSocialAuthProvider: $e".log();
       emit(state.copyWith(
@@ -676,7 +710,13 @@ class WepinCubit extends BaseCubit<WepinState> {
 
   closeWePinWidget() async {
     await state.wepinWidgetSDK!.closeWidget();
-    //await state.wepinWidgetSDK!.finalize();
+    // Finalize SDK after closing widget
+    try {
+      await state.wepinWidgetSDK!.finalize();
+      "✅ WePIN SDK finalized after closing widget".log();
+    } catch (e) {
+      "⚠️ Error finalizing WePIN SDK: $e".log();
+    }
     
     // Stop wallet check timer when closing widget
     stopWalletCheckTimer();
@@ -705,7 +745,13 @@ class WepinCubit extends BaseCubit<WepinState> {
       ));
     } catch (e) {
       await state.wepinWidgetSDK!.closeWidget();
-      //await state.wepinWidgetSDK!.finalize();
+      // Finalize SDK on error
+      try {
+        await state.wepinWidgetSDK!.finalize();
+        "✅ WePIN SDK finalized after error".log();
+      } catch (finalizeError) {
+        "⚠️ Error finalizing WePIN SDK: $finalizeError".log();
+      }
       emit(state.copyWith(
           isLoading: false, isWepinModelOpen: false, error: e.toString()));
     }
@@ -958,8 +1004,18 @@ class WepinCubit extends BaseCubit<WepinState> {
             } else {
               "ℹ️ All wallets already saved, checking NFT redemption status...".log();
               
+              // Check if this is from onboarding flow (wallet already exists)
+              if (state.isOnboardingFlow) {
+                "🎯 Wallet already exists from ONBOARDING - signaling completion".log();
+                emit(state.copyWith(
+                  walletCreatedFromOnboarding: true,
+                  isOnboardingFlow: false,
+                ));
+                stopWalletCheckTimer();
+                dismissLoader();
+              }
               // If wallet is already saved and we're trying to redeem NFT
-              if (state.isPerformWepinWelcomeNftRedeem && 
+              else if (state.isPerformWepinWelcomeNftRedeem && 
                   getIt<WalletsCubit>().state.isWepinWalletConnected) {
                 "🎁 Wallet already connected, proceeding with NFT redemption".log();
                 

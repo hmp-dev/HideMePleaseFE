@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart' as geo;
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/enum/space_category.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
@@ -25,6 +26,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/common/presentation/widgets/default_snackbar.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobile/features/onboarding/models/character_profile.dart';
+import 'dart:convert';
 
 class MapScreen extends StatefulWidget {
   final VoidCallback? onShowBottomBar;
@@ -78,14 +83,23 @@ class _MapScreenState extends State<MapScreen> {
   static const String mapboxAccessToken = 
       'pk.eyJ1IjoiaXhwbG9yZXIiLCJhIjoiY21hbmRkN24xMHJoNDJscHI2cHg0MndteiJ9.UsGyNkHONIeWgivVmAgGbw';
 
-  PointAnnotationManager? _pointAnnotationManager; // 전역 매니저 선언
+  PointAnnotationManager? _pointAnnotationManager; // 매장 마커 매니저
   PointAnnotationManager? _checkInDotsManager; // 체크인 점 전용 매니저
+  PointAnnotationManager? _headingAnnotationManager; // GPS heading 매니저 (최하위 레이어)
+  PointAnnotationManager? _currentLocationAnnotationManager; // 현재 위치 프로필 매니저 (최상위 레이어)
   
   // 실시간 위치 추적 관련
   StreamSubscription<geo.Position>? _positionSubscription;
+  StreamSubscription<CompassEvent>? _compassSubscription; // 나침반 이벤트 구독
   PointAnnotation? _currentLocationAnnotation; // 현재 위치 마커 참조
+  PointAnnotation? _headingAnnotation; // GPS heading 표시 마커
   bool _isTrackingLocation = false;
   DateTime? _lastLocationUpdate;
+  DateTime? _lastMovementTime; // 마지막 이동 시간
+  bool _isUsingProfileImage = false; // 프로필 이미지 사용 여부 추적
+  double? _currentHeading; // 현재 방향 (0-360도)
+  double? _compassHeading; // 나침반 방향
+  bool _isMoving = false; // 이동 중 여부
   
   // 토스트 중복 방지를 위한 플래그
   bool _isShowingZoomToast = false;
@@ -115,6 +129,8 @@ class _MapScreenState extends State<MapScreen> {
     print('🚨🚨🚨 EVENT CATEGORY: About to call _loadEventCategories()');
     _loadEventCategories();
     print('🚨🚨🚨 EVENT CATEGORY: _loadEventCategories() call completed');
+    // 나침반 추적 시작
+    _startCompassTracking();
     // 실시간 위치 추적은 지도 초기화 후 시작
     print('🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨 EVENT CATEGORY: MapScreen initState END 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨');
   }
@@ -453,16 +469,22 @@ class _MapScreenState extends State<MapScreen> {
 
     print('🔍 _addAllMarkers 시작 - 총 ${spaces.length}개 매장 데이터 받음');
 
-    // 매니저가 없으면 생성, 있으면 기존 마커 모두 삭제
-    _pointAnnotationManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
-    await _pointAnnotationManager!.deleteAll();
-    _currentLocationAnnotation = null; // 현재 위치 마커 참조 초기화
+    // 매니저들을 레이어 순서대로 생성 (먼저 생성된 것이 아래층)
+    // 1. Heading 매니저 (최하위 레이어)
+    _headingAnnotationManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
     
-    // 체크인 점 매니저 생성/초기화
+    // 2. 매장 마커 매니저 (중간 레이어)
+    _pointAnnotationManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
+    await _pointAnnotationManager!.deleteAll(); // 매장 마커만 삭제
+    
+    // 3. 체크인 점 매니저
     _checkInDotsManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
     await _checkInDotsManager!.deleteAll();
     
-    print('✅ 기존 마커 모두 삭제 완료');
+    // 4. 현재 위치 프로필 매니저 (최상위 레이어)
+    _currentLocationAnnotationManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
+    
+    print('✅ 매니저 설정 완료 (레이어 순서 적용)');
 
     // 매장 마커 이미지 먼저 등록
     await _addMarkerImage();
@@ -524,11 +546,10 @@ class _MapScreenState extends State<MapScreen> {
         
         // 2. 체크인 점 추가 (줌 13 이상, 화면에 보이는 매장만)
         if (showCheckInStatus && isVisible) {
-          // 테스트용 랜덤 체크인 수 (0-5)
-          final randomUsers = (validSpaceCount + space.name.length) % 6;
-          final currentUsers = randomUsers;
+          // 실제 API에서 체크인 정보 가져오기
+          final currentUsers = await _getCheckInUsersCount(space.id);
           
-          print('🔍 체크인 점 표시: ${space.name} - ${currentUsers}명');
+          print('🔍 체크인 점 표시: ${space.name} - ${currentUsers}명 (실제 데이터)');
           
           // 체크인 점 이미지 ID
           final checkInDotsId = 'checkin_dots_$currentUsers';
@@ -607,9 +628,13 @@ class _MapScreenState extends State<MapScreen> {
 
     // 현재 위치 마커 이미지 등록
     await _addCurrentLocationMarkerImage();
-    // 현재 위치 마커 추가 (실시간 추적 시스템 사용)
+    // Heading 마커 이미지 등록
+    await _addHeadingMarkerImage();
+    // Heading과 현재 위치 마커 업데이트 (매니저가 분리되어 레이어 순서 보장)
+    await _updateHeadingMarker(userActualLatitude, userActualLongitude);
     await _updateCurrentLocationMarker(userActualLatitude, userActualLongitude);
-    print('📍 Added initial current location marker at $userActualLatitude, $userActualLongitude');
+    print('🧭 Added initial heading marker (bottom layer)');
+    print('📍 Added initial current location marker at $userActualLatitude, $userActualLongitude (top layer)');
   }
 
   // 마커 이미지 생성 (제공된 SVG 디자인 기반)
@@ -1477,9 +1502,8 @@ class _MapScreenState extends State<MapScreen> {
         
         if (isVisible) {
           visibleCount++;
-          // 테스트용 랜덤 체크인 수
-          final randomUsers = (visibleCount + space.name.length) % 6;
-          final currentUsers = randomUsers;
+          // 실제 API에서 체크인 정보 가져오기
+          final currentUsers = await _getCheckInUsersCount(space.id);
           
           // 체크인 점 이미지 ID
           final checkInDotsId = 'checkin_dots_$currentUsers';
@@ -1932,8 +1956,8 @@ class _MapScreenState extends State<MapScreen> {
     final canvas = Canvas(recorder);
     
     // 캔버스 크기 (점들만 표시)
-    const dotSize = 4.0;
-    const dotSpacing = 2.0;
+    const dotSize = 5.0; // 크기 1픽셀 증가
+    const dotSpacing = 3.0; // 간격도 비례하여 증가
     const totalDotsWidth = (dotSize * 5) + (dotSpacing * 4);
     const canvasWidth = totalDotsWidth + 4; // 약간의 여백
     const canvasHeight = dotSize + 4; // 약간의 여백
@@ -1945,7 +1969,7 @@ class _MapScreenState extends State<MapScreen> {
     for (int i = 0; i < 5; i++) {
       final paint = Paint()
         ..color = i < currentUsers 
-          ? const Color(0xFFFF9500) // 주황색 (체크인한 인원)
+          ? const Color(0xFF19BAFF) // 파란색 (#19BAFF)으로 변경
           : const Color(0xFF666666) // 회색 (빈 자리)
         ..style = PaintingStyle.fill;
       
@@ -2501,7 +2525,10 @@ class _MapScreenState extends State<MapScreen> {
     await _addAllMarkers(filteredSpaces);
     
     // 현재 위치 마커가 사라졌을 수 있으므로 다시 추가
-    print('📍 카테고리 변경 후 현재 위치 마커 재추가');
+    print('📍 카테고리 변경 후 마커 재추가');
+    // Heading 마커를 먼저 추가 (프로필 뒤에 표시되도록)
+    await _updateHeadingMarker(userActualLatitude, userActualLongitude);
+    // 현재 위치 마커를 나중에 추가 (Heading 위에 표시되도록)
     await _updateCurrentLocationMarker(userActualLatitude, userActualLongitude);
     
     // 스크롤 위치 복원
@@ -2603,12 +2630,48 @@ class _MapScreenState extends State<MapScreen> {
         await _startLocationTracking();
       }
       
-      // 현재 위치 마커 업데이트 (혹시 사라졌을 경우를 대비)
+      // 마커 업데이트 (혹시 사라졌을 경우를 대비)
+      // Heading 마커를 먼저 업데이트 (프로필 뒤에 표시되도록)
+      await _updateHeadingMarker(userActualLatitude, userActualLongitude);
+      // 현재 위치 마커를 나중에 업데이트 (Heading 위에 표시되도록)
       await _updateCurrentLocationMarker(userActualLatitude, userActualLongitude);
       
       print('✅ Moved to current location successfully');
     } catch (e) {
       print('❌ Error moving to current location: $e');
+    }
+  }
+
+  // 나침반 추적 시작
+  Future<void> _startCompassTracking() async {
+    try {
+      print('🧭 Starting compass tracking...');
+      
+      // 나침반 이벤트 스트림 구독
+      _compassSubscription = FlutterCompass.events?.listen((CompassEvent event) async {
+        // heading이 null이면 나침반을 사용할 수 없는 기기
+        if (event.heading == null) {
+          print('⚠️ Compass is not available on this device');
+          return;
+        }
+        
+        _compassHeading = event.heading;
+        
+        // 정지 상태일 때만 나침반 값 사용
+        if (!_isMoving || 
+            (_lastMovementTime != null && 
+             DateTime.now().difference(_lastMovementTime!).inSeconds > 3)) {
+          _currentHeading = _compassHeading;
+          // 헤딩 마커 업데이트 (setState 밖에서 비동기로 처리)
+          if (userActualLatitude != 0 && userActualLongitude != 0) {
+            await _updateHeadingMarker(userActualLatitude, userActualLongitude);
+          }
+        }
+      });
+      
+      print('✅ Compass tracking started successfully');
+    } catch (e) {
+      print('❌ Error starting compass tracking: $e');
     }
   }
 
@@ -2677,12 +2740,35 @@ class _MapScreenState extends State<MapScreen> {
       
       print('📍 Location updated: ${position.latitude}, ${position.longitude}');
       print('📏 Accuracy: ${position.accuracy}m, Speed: ${position.speed}m/s');
+      print('🧭 GPS Heading: ${position.heading}°, Compass Heading: $_compassHeading°');
       
       // 사용자의 실제 위치 업데이트
       userActualLatitude = position.latitude;
       userActualLongitude = position.longitude;
       
-      // 현재 위치 마커 업데이트
+      // 이동 감지 (속도 기반)
+      if (position.speed != null && position.speed! > 0.5) { // 0.5 m/s 이상이면 이동 중
+        _isMoving = true;
+        _lastMovementTime = DateTime.now();
+        
+        // 이동 중일 때는 GPS heading 사용
+        if (position.heading != null && position.heading! >= 0) {
+          _currentHeading = position.heading;
+          print('🚶 Moving: Using GPS heading: $_currentHeading°');
+        }
+      } else {
+        _isMoving = false;
+        // 정지 상태에서는 나침반 heading 사용
+        if (_compassHeading != null) {
+          _currentHeading = _compassHeading;
+          print('🧍 Stationary: Using compass heading: $_currentHeading°');
+        }
+      }
+      
+      // Heading 마커를 먼저 업데이트 (프로필 뒤에 표시되도록)
+      await _updateHeadingMarker(position.latitude, position.longitude);
+      
+      // 현재 위치 마커를 나중에 업데이트 (Heading 위에 표시되도록)
       await _updateCurrentLocationMarker(position.latitude, position.longitude);
       
     } catch (e) {
@@ -2690,9 +2776,72 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
   
+  // Heading 마커 실시간 업데이트
+  Future<void> _updateHeadingMarker(double lat, double lng) async {
+    if (_headingAnnotationManager == null || mapboxMap == null) return;
+    
+    // heading 정보가 없으면 기본값 0 사용 (북쪽)
+    if (_currentHeading == null) {
+      print('⚠️ Heading 정보가 없음 - 기본값 0도(북쪽) 사용');
+      _currentHeading = 0;
+    }
+    
+    print('🧭 _updateHeadingMarker 호출됨 - lat: $lat, lng: $lng, heading: $_currentHeading°');
+    
+    // 위치가 유효하지 않으면 리턴
+    if (lat == 0 || lng == 0) {
+      print('⚠️ 위치가 유효하지 않음 (0,0) - Heading 마커 업데이트 건너뜀');
+      return;
+    }
+    
+    try {
+      // 기존 heading 마커가 있으면 삭제
+      if (_headingAnnotation != null && _headingAnnotationManager != null) {
+        print('🗑️ 기존 Heading 마커 삭제 시작 - ID: ${_headingAnnotation?.id}');
+        try {
+          await _headingAnnotationManager!.delete(_headingAnnotation!);
+          print('✅ Heading 마커 삭제 완료');
+        } catch (deleteError) {
+          print('❌ Heading 마커 삭제 실패: $deleteError');
+        }
+        _headingAnnotation = null;
+      }
+      
+      // heading 각도를 라디안으로 변환
+      final radians = (_currentHeading ?? 0) * (math.pi / 180);
+      
+      // 프로필 원 테두리까지의 거리 (픽셀)
+      final radius = 25.0; // 프로필 원 반지름 (40px 마커의 절반 = 20px + 여유 5px)
+      
+      // heading 방향으로 오프셋 계산
+      // sin과 cos를 사용하여 원 테두리 위치 계산
+      final xOffset = math.sin(radians) * radius;
+      final yOffset = -math.cos(radians) * radius; // y축은 반대 (위가 음수)
+      
+      // 새로운 heading 마커 생성 (프로필 원 테두리에 표시)
+      final double headingSize = 0.5; // 크기 조정
+      
+      final headingMarker = PointAnnotationOptions(
+        geometry: Point(coordinates: Position(lng, lat)),
+        iconImage: 'heading_marker',
+        iconSize: headingSize,
+        iconRotate: _currentHeading ?? 0, // heading 각도로 회전
+        iconOffset: [xOffset, yOffset], // 원 테두리 위치로 이동
+        iconAnchor: IconAnchor.BOTTOM, // 하단 기준으로 정렬 (화살표 끝이 방향을 가리킴)
+      );
+      
+      _headingAnnotation = await _headingAnnotationManager!.create(headingMarker);
+      
+      print('🧭 Heading 마커 업데이트 완료 - 방향: $_currentHeading°');
+      print('✅ Heading 마커 ID: ${_headingAnnotation?.id}');
+    } catch (e) {
+      print('❌ Error updating heading marker: $e');
+    }
+  }
+
   // 현재 위치 마커 실시간 업데이트
   Future<void> _updateCurrentLocationMarker(double lat, double lng) async {
-    if (_pointAnnotationManager == null || mapboxMap == null) return;
+    if (_currentLocationAnnotationManager == null || mapboxMap == null) return;
     
     print('🔍 _updateCurrentLocationMarker 호출됨 - lat: $lat, lng: $lng');
     
@@ -2706,18 +2855,21 @@ class _MapScreenState extends State<MapScreen> {
       // 기존 현재 위치 마커가 있으면 삭제
       if (_currentLocationAnnotation != null) {
         print('🗑️ 기존 현재 위치 마커 삭제');
-        await _pointAnnotationManager!.delete(_currentLocationAnnotation!);
+        await _currentLocationAnnotationManager!.delete(_currentLocationAnnotation!);
         _currentLocationAnnotation = null;
       }
       
-      // 새로운 현재 위치 마커 생성
+      // 새로운 현재 위치 마커 생성 - 마커 타입에 따라 iconSize 조정
+      final double markerIconSize = _isUsingProfileImage ? 1.0 : 0.45;
+      print('🎯 마커 iconSize 설정: ${_isUsingProfileImage ? "프로필 이미지" : "기본 마커"} - $markerIconSize');
+      
       final currentLocationMarker = PointAnnotationOptions(
         geometry: Point(coordinates: Position(lng, lat)),
         iconImage: 'current_location_marker',
-        iconSize: 0.45,
+        iconSize: markerIconSize,
       );
       
-      _currentLocationAnnotation = await _pointAnnotationManager!.create(currentLocationMarker);
+      _currentLocationAnnotation = await _currentLocationAnnotationManager!.create(currentLocationMarker);
       
       print('📍 Current location marker updated to: $lat, $lng');
       print('✅ 현재 위치 마커 ID: ${_currentLocationAnnotation?.id}');
@@ -2740,10 +2892,48 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void dispose() {
     _stopLocationTracking();
+    _compassSubscription?.cancel(); // 나침반 구독 해제
     searchController.dispose();
     _categoryScrollController.dispose();
     mapboxMap?.dispose();
     super.dispose();
+  }
+
+  // Heading 마커 이미지를 지도에 등록
+  Future<void> _addHeadingMarkerImage() async {
+    try {
+      print('🧭 Heading 마커 이미지 로드 시작...');
+      
+      // ico_heading.png 이미지 로드
+      final ByteData imageData = await rootBundle.load('assets/icons/ico_heading.png');
+      final Uint8List bytes = imageData.buffer.asUint8List();
+      
+      // 이미지 크기 확인을 위해 디코딩
+      final ui.Codec codec = await ui.instantiateImageCodec(bytes);
+      final ui.FrameInfo frameInfo = await codec.getNextFrame();
+      final ui.Image image = frameInfo.image;
+      
+      // 이미지를 맵박스에 등록
+      await mapboxMap?.style.addStyleImage(
+        'heading_marker',
+        1.0, // scale
+        MbxImage(
+          data: bytes,
+          width: image.width,
+          height: image.height,
+        ),
+        false, // sdf
+        [], // stretchX
+        [], // stretchY
+        null, // content
+      );
+      
+      image.dispose();
+      
+      print('✅ Heading 마커 이미지 등록 완료 (${image.width}x${image.height})');
+    } catch (e) {
+      print('❌ Heading 마커 이미지 로드 실패: $e');
+    }
   }
 
   // 현재 위치 마커 이미지를 지도에 등록
@@ -2751,7 +2941,106 @@ class _MapScreenState extends State<MapScreen> {
     try {
       print('📍 현재 위치 마커 이미지 로드 시작...');
       
-      // PNG 파일에서 현재 위치 마커 이미지 로드 - Android 호환성 개선
+      // 먼저 프로필 이미지를 시도
+      try {
+        final profileCubit = getIt<ProfileCubit>();
+        print('🔍 ProfileCubit 상태 확인...');
+        print('📊 ProfileCubit state: ${profileCubit.state}');
+        print('👤 User profile: ${profileCubit.state.userProfileEntity}');
+        
+        // ProfileCubit이 초기화되지 않았으면 초기화 시도
+        if (profileCubit.state.userProfileEntity.id.isEmpty) {
+          print('⚠️ ProfileCubit이 아직 초기화되지 않음, init() 호출 시도...');
+          await profileCubit.init();
+          await Future.delayed(const Duration(milliseconds: 500)); // 초기화 대기
+        }
+        
+        // 먼저 profilePartsString을 확인 (우선순위 1)
+        final profilePartsString = profileCubit.state.userProfileEntity.profilePartsString;
+        print('🎨 Profile parts string: ${profilePartsString.isNotEmpty ? "있음" : "없음"}');
+        
+        if (profilePartsString.isNotEmpty) {
+          print('🧩 프로필 파츠 발견, 캐릭터 렌더링 시도...');
+          final characterMarkerBytes = await _renderCharacterPartsAsImage(profilePartsString);
+          
+          if (characterMarkerBytes != null) {
+            // 이미지 크기 확인
+            final ui.Codec codec = await ui.instantiateImageCodec(characterMarkerBytes);
+            final ui.FrameInfo frameInfo = await codec.getNextFrame();
+            final ui.Image image = frameInfo.image;
+            
+            print('📏 캐릭터 마커 크기: ${image.width}x${image.height}');
+            
+            final mbxImage = MbxImage(
+              data: characterMarkerBytes,
+              width: image.width,
+              height: image.height,
+            );
+            
+            await mapboxMap!.style.addStyleImage(
+              'current_location_marker',
+              1.0,
+              mbxImage,
+              false,
+              [],
+              [],
+              null,
+            );
+            
+            image.dispose();
+            print('✅ 캐릭터 프로필 마커 성공적으로 추가됨');
+            _isUsingProfileImage = true; // 프로필 이미지 사용 플래그 설정
+            return; // 성공적으로 캐릭터 이미지를 추가했으므로 종료
+          }
+        }
+        
+        // profilePartsString이 없으면 URL 기반 이미지 시도 (우선순위 2)
+        final profileImageUrl = profileCubit.state.userProfileEntity.finalProfileImageUrl;
+        print('🖼️ Profile image URL: ${profileImageUrl.isNotEmpty ? profileImageUrl : "URL이 비어있음"}');
+        
+        if (profileImageUrl.isNotEmpty) {
+          print('👤 프로필 이미지 URL 발견: $profileImageUrl');
+          final profileImageBytes = await _loadProfileImageFromUrl(profileImageUrl);
+          
+          if (profileImageBytes != null) {
+            // 프로필 이미지를 원형 마커로 변환
+            final circularMarkerBytes = await _createCircularProfileMarker(profileImageBytes);
+            
+            // 이미지 크기 확인
+            final ui.Codec codec = await ui.instantiateImageCodec(circularMarkerBytes);
+            final ui.FrameInfo frameInfo = await codec.getNextFrame();
+            final ui.Image image = frameInfo.image;
+            
+            print('📏 프로필 마커 크기: ${image.width}x${image.height}');
+            
+            final mbxImage = MbxImage(
+              data: circularMarkerBytes,
+              width: image.width,
+              height: image.height,
+            );
+            
+            await mapboxMap!.style.addStyleImage(
+              'current_location_marker',
+              1.0,
+              mbxImage,
+              false,
+              [],
+              [],
+              null,
+            );
+            
+            image.dispose();
+            print('✅ 프로필 이미지 마커 성공적으로 추가됨');
+            _isUsingProfileImage = true; // 프로필 이미지 사용 플래그 설정
+            return; // 성공적으로 프로필 이미지를 추가했으므로 종료
+          }
+        }
+      } catch (e) {
+        print('⚠️ 프로필 이미지 로드 실패, 기본 마커 사용: $e');
+      }
+      
+      // 프로필 이미지가 없거나 실패한 경우 기본 마커 사용
+      _isUsingProfileImage = false; // 기본 마커 사용 플래그 설정
       final ByteData? imageData = await rootBundle.load('assets/icons/clocation.png').catchError((error) {
         print('❌ 현재 위치 PNG 파일 로드 실패: $error');
         return null;
@@ -2856,6 +3145,213 @@ class _MapScreenState extends State<MapScreen> {
     final byteData = await image.toByteData(format: ImageByteFormat.png);
     
     return byteData!.buffer.asUint8List();
+  }
+
+  // 프로필 이미지를 URL에서 로드하여 Uint8List로 변환
+  Future<Uint8List?> _loadProfileImageFromUrl(String imageUrl) async {
+    try {
+      if (imageUrl.isEmpty) {
+        print('⚠️ Profile image URL is empty');
+        return null;
+      }
+
+      print('📥 Loading profile image from: $imageUrl');
+      final response = await http.get(Uri.parse(imageUrl));
+      
+      if (response.statusCode == 200) {
+        print('✅ Profile image loaded successfully');
+        return response.bodyBytes;
+      } else {
+        print('❌ Failed to load profile image: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('❌ Error loading profile image: $e');
+      return null;
+    }
+  }
+
+  // 현재 위치 마커를 프로필 이미지로 업데이트
+  Future<void> refreshCurrentLocationMarker() async {
+    try {
+      print('🔄 현재 위치 마커 새로고침 중...');
+      
+      // 플래그 초기화
+      _isUsingProfileImage = false;
+      
+      // 기존 마커 이미지 제거
+      await mapboxMap?.style.removeStyleImage('current_location_marker');
+      
+      // 새로운 마커 이미지 추가
+      await _addCurrentLocationMarkerImage();
+      
+      // 현재 위치 마커 다시 그리기
+      if (_currentLocationAnnotation != null && _currentLocationAnnotationManager != null) {
+        await _currentLocationAnnotationManager!.delete(_currentLocationAnnotation!);
+        _currentLocationAnnotation = null;
+        await _updateCurrentLocationMarker(userActualLatitude, userActualLongitude);
+      }
+      
+      print('✅ 현재 위치 마커 새로고침 완료');
+    } catch (e) {
+      print('❌ 현재 위치 마커 새로고침 실패: $e');
+    }
+  }
+
+  // 캐릭터 파츠를 조합하여 이미지로 렌더링
+  Future<Uint8List?> _renderCharacterPartsAsImage(String profilePartsString) async {
+    try {
+      print('🎨 캐릭터 파츠 렌더링 시작...');
+      
+      // profilePartsString을 파싱
+      final characterData = jsonDecode(profilePartsString);
+      final character = CharacterProfile.fromJson(characterData);
+      
+      print('📊 Character parts: background=${character.background}, body=${character.body}');
+      
+      // 캔버스 크기 설정 (40x40 마커용)
+      final size = 40.0;
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      
+      // 흰색 원형 배경
+      final backgroundPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(size/2, size/2), size/2, backgroundPaint);
+      
+      // 클리핑 영역 설정 (원형)
+      canvas.save();
+      final path = Path()
+        ..addOval(Rect.fromLTWH(2, 2, size - 4, size - 4));
+      canvas.clipPath(path);
+      
+      // 각 레이어를 순서대로 그리기
+      final layerPaths = [
+        character.background,
+        character.body,
+        character.clothes,
+        character.hair,
+        if (character.earAccessory != null) character.earAccessory!,
+        character.eyes,
+        character.nose,
+      ];
+      
+      for (final assetPath in layerPaths) {
+        if (assetPath.isEmpty) continue;
+        
+        try {
+          // 에셋 이미지 로드
+          final ByteData? imageData = await rootBundle.load(assetPath);
+          if (imageData != null) {
+            final Uint8List bytes = imageData.buffer.asUint8List();
+            final ui.Codec codec = await ui.instantiateImageCodec(bytes);
+            final ui.FrameInfo frameInfo = await codec.getNextFrame();
+            final ui.Image layerImage = frameInfo.image;
+            
+            // 이미지를 원형 영역에 맞게 그리기
+            final srcRect = Rect.fromLTWH(
+              0, 
+              0, 
+              layerImage.width.toDouble(), 
+              layerImage.height.toDouble()
+            );
+            final dstRect = Rect.fromLTWH(2, 2, size - 4, size - 4);
+            
+            canvas.drawImageRect(layerImage, srcRect, dstRect, Paint());
+            layerImage.dispose();
+          }
+        } catch (e) {
+          print('⚠️ 레이어 로드 실패: $assetPath - $e');
+        }
+      }
+      
+      // 클리핑 해제
+      canvas.restore();
+      
+      // 파란색 테두리 추가
+      final borderPaint = Paint()
+        ..color = const Color(0xFF00A3FF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+      canvas.drawCircle(Offset(size/2, size/2), size/2 - 1, borderPaint);
+      
+      // 이미지 생성
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(size.toInt(), size.toInt());
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      
+      image.dispose();
+      
+      print('✅ 캐릭터 파츠 렌더링 완료');
+      return byteData!.buffer.asUint8List();
+    } catch (e) {
+      print('❌ 캐릭터 파츠 렌더링 실패: $e');
+      return null;
+    }
+  }
+
+  // 프로필 이미지를 원형으로 마스킹하고 테두리 추가
+  Future<Uint8List> _createCircularProfileMarker(Uint8List imageBytes) async {
+    try {
+      // 원본 이미지 디코딩
+      final ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
+      final ui.FrameInfo frameInfo = await codec.getNextFrame();
+      final ui.Image originalImage = frameInfo.image;
+
+      // 마커 크기 설정 - 기본 마커와 동일한 크기로 조정
+      final size = 40.0; // 60에서 40으로 변경
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      // 흰색 배경 원 그리기
+      final backgroundPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(size/2, size/2), size/2, backgroundPaint);
+
+      // 클리핑 영역 설정 (원형)
+      final path = Path()
+        ..addOval(Rect.fromLTWH(2, 2, size - 4, size - 4));
+      canvas.clipPath(path);
+
+      // 프로필 이미지를 원형 영역에 맞게 그리기
+      final srcRect = Rect.fromLTWH(
+        0, 
+        0, 
+        originalImage.width.toDouble(), 
+        originalImage.height.toDouble()
+      );
+      final dstRect = Rect.fromLTWH(2, 2, size - 4, size - 4);
+      
+      canvas.drawImageRect(originalImage, srcRect, dstRect, Paint());
+
+      // 클리핑 해제
+      canvas.restore();
+      canvas.save();
+
+      // 테두리 그리기
+      final borderPaint = Paint()
+        ..color = const Color(0xFF00A3FF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0; // 3.0에서 2.0으로 변경
+      canvas.drawCircle(Offset(size/2, size/2), size/2 - 1, borderPaint);
+
+      // 이미지 생성
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(size.toInt(), size.toInt());
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      
+      // 메모리 정리
+      originalImage.dispose();
+      image.dispose();
+      
+      return byteData!.buffer.asUint8List();
+    } catch (e) {
+      print('❌ Error creating circular profile marker: $e');
+      // 오류 발생 시 기본 마커 반환
+      return await _createCurrentLocationMarker();
+    }
   }
 
   // 카테고리 필터 버튼들 UI
