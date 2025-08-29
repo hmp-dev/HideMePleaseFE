@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/app.dart';
 import 'package:mobile/app/core/env/app_env.dart';
@@ -32,6 +34,16 @@ int? isShowOnBoarding;
 String? _userSavedLanguageCode;
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  
+  // Ensure the Google Maps Android implementation is using the correct renderer.
+  // This is needed to avoid texture flickering issues on some devices.
+  // This should be called before any other Google Maps related code.
+  // See: https://github.com/flutter/flutter/issues/105124
+  // And: https://github.com/flutter/flutter/issues/102646
+  final GoogleMapsFlutterPlatform platform = GoogleMapsFlutterPlatform.instance;
+  if (platform is GoogleMapsFlutterAndroid) {
+    platform.useAndroidViewSurface = true;
+  }
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 

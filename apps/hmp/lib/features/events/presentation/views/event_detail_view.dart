@@ -122,29 +122,32 @@ class _EventDetailViewState extends State<EventDetailView> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               height: 250,
-              child: GoogleMap(
-                initialCameraPosition: _kGooglePlex,
-                markers: Set.from(allMarkers),
-                onMapCreated: (GoogleMapController controller) async {
-                  setState(() {
-                    _controller = controller;
-                  });
+              child: IgnorePointer(
+                ignoring: false, // onTap을 위해 false로 설정, 필요시 true로 변경
+                child: GoogleMap(
+                  initialCameraPosition: _kGooglePlex,
+                  markers: Set.from(allMarkers),
+                  onMapCreated: (GoogleMapController controller) async {
+                    setState(() {
+                      _controller = controller;
+                    });
 
-                  const latLong = LatLng(37.567947, 126.9907);
-                  await moveAnimateToAddress(latLong);
-                  await addMarker(latLong);
-                },
-                mapType: MapType.normal,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                zoomGesturesEnabled: false,
-                scrollGesturesEnabled: false,
-                tiltGesturesEnabled: false,
-                rotateGesturesEnabled: false,
-                indoorViewEnabled: true,
-                onTap: (argument) {
-                  MapUtils.openMap(37.567947, 126.9907);
-                },
+                    const latLong = LatLng(37.567947, 126.9907);
+                    await moveAnimateToAddress(latLong);
+                    await addMarker(latLong);
+                  },
+                  mapType: MapType.normal,
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  zoomGesturesEnabled: false,
+                  scrollGesturesEnabled: false,
+                  tiltGesturesEnabled: false,
+                  rotateGesturesEnabled: false,
+                  indoorViewEnabled: true,
+                  onTap: (argument) {
+                    MapUtils.openMap(37.567947, 126.9907);
+                  },
+                ),
               ),
             ),
           ),
