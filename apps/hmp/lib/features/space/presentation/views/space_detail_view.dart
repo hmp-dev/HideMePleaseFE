@@ -1,13 +1,18 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mobile/app/core/env/app_env.dart';
+import 'package:mobile/app/core/error/error.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/app/core/helpers/map_utils.dart';
 import 'package:mobile/app/core/services/live_activity_service.dart';
+import 'package:mobile/app/core/services/safe_nfc_service.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -24,6 +29,10 @@ import 'package:mobile/features/space/presentation/widgets/build_hiding_count_wi
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/widgets/checkin_employ_dialog.dart';
 import 'package:mobile/features/space/presentation/widgets/checkin_fail_dialog.dart';
 import 'package:mobile/features/space/presentation/widgets/matching_help.dart';
 import 'package:mobile/features/space/presentation/widgets/checkin_success_dialog.dart';
@@ -260,7 +269,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.space.introduction,
+                widget.space.introduction.length > 90
+                    ? '${widget.space.introduction.substring(0, 90)}...'
+                    : widget.space.introduction,
                 style: fontTitle05(),
               ),
               /*
@@ -291,7 +302,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    LocaleKeys.checkin_and_matching_benefits.tr(),
+                    "체크인 및 매칭 혜택",
                     style: fontTitle06(),
                   ),
                   GestureDetector(
@@ -327,13 +338,18 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 ],
               ),
               const VerticalSpace(20),
-              HidingBanner(
-                checkInStatus: _checkInStatus,
-                onCheckIn: _handleCheckIn,
+              BlocBuilder<SpaceCubit, SpaceState>(
+                bloc: getIt<SpaceCubit>(),
+                builder: (context, state) {
+                  return HidingBanner(
+                    checkInStatus: _checkInStatus,
+                    onCheckIn: _handleCheckIn,
+                    benefits: state.benefitsGroupEntity.benefits,
+                  );
+                },
               ),
               HidingStatusBanner(
-                currentGroupProgress: _checkInStatus?.groupProgress ??
-                    widget.space.currentGroupProgress,
+                currentGroupProgress: widget.space.currentGroupProgress,
                 checkInUsersResponse: _checkInUsersResponse,
                 currentGroup: _currentGroup,
               ),
@@ -515,7 +531,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const VerticalSpace(30),
-              SpaceBenefitListWidget(spaceDetailEntity: widget.space),
+              // SpaceBenefitListWidget(spaceDetailEntity: widget.space),
               const VerticalSpace(30),
             ],
           ),
@@ -524,121 +540,171 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
     );
   }
 
-  Future<void> _handleCheckIn() async {
-    print('🎯 [Flutter] _handleCheckIn called!');
-    // DEBUG: Start Live Activity immediately for testing
-    print('🎯 [Flutter] Starting Live Activity for: ${widget.space.name}');
-    
-    final success = await _liveActivityService.startCheckInActivity(
-      spaceName: widget.space.name,
-      currentUsers: 2,      // 테스트: 현재 2명 체크인
-      remainingUsers: 1,    // 테스트: 매칭까지 1명 남음
+  void _showNfcScanDialog(BuildContext context, {required Function onCancel}) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext bottomSheetContext) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(bottomSheetContext).size.height * 0.75,
+          ),
+          decoration: const BoxDecoration(
+            color: Color(0xFF2C2C2E),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(32, 20, 32, 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2.5),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () => onCancel(),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Ready to Scan',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  LocaleKeys.nfc_tag_nearby.tr(),
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFF007AFF),
+                      width: 3,
+                    ),
+                  ),
+                  child: Container(
+                    margin: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF007AFF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.smartphone,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () => onCancel(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF007AFF),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                    ),
+                    child: Text(
+                      LocaleKeys.cancel.tr(),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
-    
-    print('🎯 [Flutter] Live Activity start result: $success');
-    
-    // Auto-end after 30 seconds for debug
-    Future.delayed(const Duration(seconds: 30), () {
-      print('🎯 [Flutter] Auto-ending Live Activity after 30 seconds');
-      _liveActivityService.endCheckInActivity();
-    });
-    
-    try {
-      final position = await Geolocator.getCurrentPosition();
-      final result = await _spaceRepository.checkIn(
-        spaceId: widget.space.id,
-        latitude: position.latitude,
-        longitude: position.longitude,
-      );
+  }
 
-      result.fold(
-        (error) {
-          // DioError가 아닌 다른 에러 (네트워크 등)
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return const CheckinFailDialog();
-            },
-          );
-        },
-        (response) {
-          if (response.success == true) {
-            // PRODUCTION CODE (현재 주석처리)
-            // Start Live Activity for check-in
-            // final benefit = widget.space.benefits?.firstOrNull?.name ?? 'SAV 리워드';
-            final benefit = 'SAV 리워드'; // 임시 하드코딩
-            // _liveActivityService.startCheckInActivity(
-            //   spaceName: widget.space.name,
-            //   benefit: benefit,
-            // );
-            
-            showDialog(
-              context: context,
-              builder: (context) => CheckinSuccessDialog(
-                spaceName: widget.space.name,
-                benefit: benefit,
-                onCancel: () {
-                  Navigator.pop(context);
-                  // _liveActivityService.endCheckInActivity(); // PRODUCTION CODE
-                },
-                onConfirm: () {
-                  Navigator.pop(context);
-                  _liveActivityService.updateCheckInActivity(isConfirmed: true);
-                },
-              ),
-            );
-          } else {
-            // API는 성공했으나, 비즈니스 로직상 실패 (e.g. success: false)
+  Future<void> _handleCheckIn() async {
+    ('✅ Check-in button tapped - Simulating NFC scan...').log();
+    Timer? debugTimer;
+    
+    // 다이얼로그를 닫기 위한 Completer 생성
+    final dialogCompleter = Completer<void>();
+
+    _showNfcScanDialog(context, onCancel: () {
+      ('🟧 NFC Scan Canceled by user.').log();
+      debugTimer?.cancel();
+      // 다이얼로그가 아직 열려있으면 닫음
+      if (!dialogCompleter.isCompleted) {
+        Navigator.of(context).pop();
+        dialogCompleter.complete();
+      }
+    });
+
+    debugTimer = Timer(const Duration(seconds: 5), () {
+      ('✅ NFC simulation successful after 5 seconds.').log();
+      
+      // 다이얼로그가 아직 열려있으면 닫음
+      if (!dialogCompleter.isCompleted && mounted) {
+        Navigator.of(context).pop();
+        dialogCompleter.complete();
+
+        // 잠시 후 직원 확인 다이얼로그 띄우기
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted) {
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return const CheckinFailDialog();
+                return const CheckinEmployDialog();
               },
             );
           }
-        },
-      );
-    } on DioException catch (e) {
-      // HTTP 에러 처리
-      if (e.response?.statusCode == 400 || e.response?.statusCode == 404) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return const CheckinFailDialog();
-          },
-        );
-      } else {
-        // 그 외 다른 HTTP 에러
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text(LocaleKeys.error.tr()),
-            content: Text(e.message ?? '알 수 없는 오류가 발생했습니다.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(LocaleKeys.confirm.tr()),
-              ),
-            ],
-          ),
-        );
+        });
       }
-    } catch (e) {
-      // 위치 정보 가져오기 실패 등 그 외 모든 에러
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(LocaleKeys.error.tr()),
-          content: const Text('체크인 중 알 수 없는 오류가 발생했습니다.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(LocaleKeys.confirm.tr()),
-            ),
-          ],
-        ),
-      );
-    }
+    });
   }
 
   /// Builds a row that displays the category icon, business status, and distance.
@@ -734,7 +800,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
             if (currentMinutes >= breakStartMinutes &&
                 currentMinutes < breakEndMinutes) {
-              statusText = LocaleKeys.rest_time.tr();
+              statusText = '휴게시간';
               hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} 재오픈';
             } else {
               hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
@@ -931,7 +997,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
           if (currentMinutes >= breakStartMinutes &&
               currentMinutes < breakEndMinutes) {
-            statusText = LocaleKeys.rest_time.tr();
+            statusText = '휴게시간';
             hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} 재오픈';
           } else {
             hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
@@ -1099,9 +1165,11 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 }
 
 class HidingBanner extends StatelessWidget {
-  const HidingBanner({super.key, this.checkInStatus, this.onCheckIn});
+  const HidingBanner(
+      {super.key, this.checkInStatus, this.onCheckIn, this.benefits = const []});
   final CheckInStatusEntity? checkInStatus;
   final VoidCallback? onCheckIn;
+  final List<BenefitEntity> benefits;
 
   @override
   Widget build(BuildContext context) {
@@ -1153,23 +1221,43 @@ class HidingBanner extends StatelessWidget {
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            isCheckedIn ? "체크인 완료!" : "체크인하고 하이딩하면",
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const VerticalSpace(4),
-                          Text(
-                            isCheckedIn
-                                ? "5명 매칭 성공하면 +10SAV 획득!"
-                                : "다양한 혜택이 와르르!",
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold),
-                          ),
+                          if (isCheckedIn) ...[
+                            const Text(
+                              "체크인 완료!",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const VerticalSpace(4),
+                            const Text(
+                              "5명 매칭 성공하면 +10SAV 획득!",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ] else ...[
+                            Text(
+                              benefits.isNotEmpty
+                                  ? benefits.first.description
+                                  : "체크인하고 하이딩하면",
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            if (benefits.isEmpty) ...[
+                              const VerticalSpace(4),
+                              const Text(
+                                "다양한 혜택이 와르르!",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ]
+                          ]
                         ],
                       ),
               ),
@@ -1251,6 +1339,12 @@ class HidingStatusBanner extends StatelessWidget {
     final int progress = parts.length == 2 ? int.tryParse(parts[0]) ?? 0 : 0;
     final int total = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
 
+    final memberIds =
+        currentGroup?.members.map((e) => e.userId).toSet() ?? {};
+    final completedHiders = (checkInUsersResponse?.users ?? [])
+        .where((user) => !memberIds.contains(user.userId))
+        .toList();
+
     return Container(
       padding: const EdgeInsets.fromLTRB(1, 0, 1, 1), // Border width, no top border
       decoration: BoxDecoration(
@@ -1281,7 +1375,8 @@ class HidingStatusBanner extends StatelessWidget {
                   fontWeight: FontWeight.bold),
             ),
             const VerticalSpace(10),
-            _buildPlayerAvatars(checkInUsersResponse?.users ?? []),
+            _buildPlayerAvatars(
+                (checkInUsersResponse?.users ?? []).take(5).toList()),
             const VerticalSpace(20),
             // Simplified progress bar
             SizedBox(
@@ -1379,7 +1474,8 @@ class HidingStatusBanner extends StatelessWidget {
                   fontWeight: FontWeight.bold),
             ),
             const VerticalSpace(10),
-            _buildPlayerAvatars(currentGroup?.members ?? []),
+            _buildPlayerAvatars(completedHiders,
+                useTransparentForEmpty: true),
             const VerticalSpace(20),
           ],
         ),
@@ -1387,20 +1483,22 @@ class HidingStatusBanner extends StatelessWidget {
     );
   }
 
-  Widget _buildPlayerAvatars(List<CheckInUserEntity> members) {
+  Widget _buildPlayerAvatars(List<CheckInUserEntity> members,
+      {bool useTransparentForEmpty = false}) {
     const int itemsPerRow = 5;
     List<Widget> rows = [];
 
     for (int i = 0; i < members.length; i += itemsPerRow) {
       List<Widget> rowItems = [];
-      int end = (i + itemsPerRow > members.length) ? members.length : (i + itemsPerRow);
+      int end =
+          (i + itemsPerRow > members.length) ? members.length : (i + itemsPerRow);
       List<CheckInUserEntity> sublist = members.sublist(i, end);
 
       // Add avatars for actual members in the current row
       for (var member in sublist) {
         rowItems.add(
           _PlayerAvatar(
-            imagePath: member.profileImageUrl ?? 'assets/images/profile_img.png',
+            imagePath: '${appEnv.apiUrl}public/nft/user/${member.userId}/image',
             name: member.nickName,
             isActive: true, // TODO: Check if this is the current user
           ),
@@ -1410,13 +1508,14 @@ class HidingStatusBanner extends StatelessWidget {
       // Add empty placeholder avatars to fill the remaining slots in the current row
       while (rowItems.length < itemsPerRow) {
         rowItems.add(
-          const _PlayerAvatar(
+          _PlayerAvatar(
             imagePath: '', // Empty path for placeholder
             name: '',
+            showTransparentOnEmpty: useTransparentForEmpty,
           ),
         );
       }
-      
+
       rows.add(Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: Row(
@@ -1431,9 +1530,10 @@ class HidingStatusBanner extends StatelessWidget {
       List<Widget> emptyRow = [];
       for (int i = 0; i < itemsPerRow; i++) {
         emptyRow.add(
-          const _PlayerAvatar(
+          _PlayerAvatar(
             imagePath: '',
             name: '',
+            showTransparentOnEmpty: useTransparentForEmpty,
           ),
         );
       }
@@ -1451,11 +1551,13 @@ class _PlayerAvatar extends StatelessWidget {
   final String imagePath;
   final String name;
   final bool isActive;
+  final bool showTransparentOnEmpty;
 
   const _PlayerAvatar({
     required this.imagePath,
     required this.name,
     this.isActive = false,
+    this.showTransparentOnEmpty = false,
   });
 
   @override
@@ -1478,13 +1580,24 @@ class _PlayerAvatar extends StatelessWidget {
                   ]
                 : [],
           ),
-          child: CircleAvatar(
-            radius: 25,
-            backgroundImage:
-                imagePath.isNotEmpty ? AssetImage(imagePath) : null,
-            backgroundColor:
-                name.isNotEmpty ? Colors.grey : Colors.transparent,
-          ),
+          child: name.isNotEmpty
+              ? CircleAvatar(
+                  radius: 25,
+                  backgroundImage: imagePath.startsWith('http')
+                      ? NetworkImage(imagePath)
+                      : AssetImage(imagePath) as ImageProvider,
+                  backgroundColor: Colors.grey,
+                )
+              : showTransparentOnEmpty
+                  ? const CircleAvatar(
+                      radius: 25,
+                      backgroundColor: Colors.transparent,
+                    )
+                  : SvgPicture.asset(
+                      'assets/images/player_none.svg',
+                      width: 50,
+                      height: 50,
+                    ),
         ),
         const VerticalSpace(8),
         Text(
@@ -1519,6 +1632,45 @@ class _StatRow extends StatelessWidget {
                 color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ProgressBar extends StatelessWidget {
+  final int progress;
+  final int total;
+
+  const _ProgressBar({required this.progress, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 27,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(13.5),
+        border: Border.all(color: const Color(0xFF19BAFF)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(13.5),
+        child: Stack(
+          children: [
+            LinearProgressIndicator(
+              value: progress / total,
+              backgroundColor: const Color(0xFF020F18).withOpacity(0.8),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF19BAFF)),
+            ),
+            Center(
+              child: Text(
+                "${total - progress}명만 더 모이면 SAV 획득!",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

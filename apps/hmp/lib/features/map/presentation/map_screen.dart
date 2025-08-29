@@ -111,6 +111,9 @@ class _MapScreenState extends State<MapScreen> {
   final Map<String, int> _checkInCache = {};
   DateTime? _lastCheckInCacheUpdate;
 
+  // 체크인 점 이미지 캐시
+  final Map<String, Uint8List> _checkInDotImageCache = {};
+
   @override
   void initState() {
     super.initState();
@@ -1508,27 +1511,31 @@ class _MapScreenState extends State<MapScreen> {
           // 체크인 점 이미지 ID
           final checkInDotsId = 'checkin_dots_$currentUsers';
           
-          // 이미지가 아직 등록되지 않은 경우 생성
+          // 이미지가 아직 등록되지 않은 경우 생성 (캐시 확인)
           if (!registeredCheckInDots.contains(checkInDotsId)) {
-            final dotsImageData = await _createCheckInDotsOnly(
-              currentUsers: currentUsers,
-            );
-            
-            final mbxImage = MbxImage(
-              data: dotsImageData,
-              width: 32,
-              height: 8,
-            );
-            
-            await mapboxMap!.style.addStyleImage(
-              checkInDotsId,
-              1.0,
-              mbxImage,
-              false,
-              [],
-              [],
-              null,
-            );
+            // 캐시 확인
+            if (!_checkInDotImageCache.containsKey(checkInDotsId)) {
+              final dotsImageData = await _createCheckInDotsOnly(
+                currentUsers: currentUsers,
+              );
+              _checkInDotImageCache[checkInDotsId] = dotsImageData; // 캐시에 저장
+              
+              final mbxImage = MbxImage(
+                data: dotsImageData,
+                width: 32,
+                height: 8,
+              );
+              
+              await mapboxMap!.style.addStyleImage(
+                checkInDotsId,
+                1.0,
+                mbxImage,
+                false,
+                [],
+                [],
+                null,
+              );
+            }
             
             registeredCheckInDots.add(checkInDotsId);
           }
@@ -1550,7 +1557,7 @@ class _MapScreenState extends State<MapScreen> {
     // 체크인 점 추가
     if (checkInDots.isNotEmpty) {
       await _checkInDotsManager!.createMulti(checkInDots);
-      print('🔵 화면에 보이는 ${checkInDots.length}개 체크인 점 업데이트');
+      // print('🔵 화면에 보이는 ${checkInDots.length}개 체크인 점 업데이트');
     }
   }
   
@@ -1578,7 +1585,7 @@ class _MapScreenState extends State<MapScreen> {
       } 
       // 줌 13 이상에서는 체크인 점만 업데이트
       else if (newZoom >= 13) {
-        print('🔵 체크인 점만 업데이트 (줌: ${newZoom.toStringAsFixed(1)})');
+        // print('🔵 체크인 점만 업데이트 (줌: ${newZoom.toStringAsFixed(1)})');
         if (filteredSpaces.isNotEmpty) {
           await _updateCheckInDotsOnly(filteredSpaces);
         }
