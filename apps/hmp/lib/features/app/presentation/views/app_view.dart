@@ -362,6 +362,7 @@ class _AppViewState extends State<AppView> {
                             benefitDescription: benefitDescription,
                           ),
                         );
+                        spaceCubit.onFetchAllSpaceViewData();
                       }
                     } catch (e) {
                       ('❌ Check-in error: $e').log();
