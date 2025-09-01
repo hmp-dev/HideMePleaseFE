@@ -184,7 +184,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
       UnifiedCategoryEntity.fromSpaceCategory(
         SpaceCategory.ETC,
-        "기타",
+        LocaleKeys.other_category.tr(),
         "assets/icons/icon_cate_etc.png",
       ),
     ];
@@ -691,7 +691,7 @@ class _MapScreenState extends State<MapScreen> {
   // 인포카드 위젯 생성
   Widget _buildInfoCard(SpaceEntity space) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20), // 내부 여백으로 조정
+      margin: const EdgeInsets.symmetric(horizontal: 30), // 내부 여백으로 조정
       child: AnimatedOpacity(
         opacity: showInfoCard ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 300),
@@ -913,7 +913,7 @@ class _MapScreenState extends State<MapScreen> {
     // 임시 휴무 체크
     if (space.isTemporarilyClosed) {
       return Text(
-        '임시 휴무',
+        LocaleKeys.temporarily_closed.tr(),
         style: TextStyle(
           color: Colors.red[300],
           fontSize: 14,
@@ -925,7 +925,7 @@ class _MapScreenState extends State<MapScreen> {
     // 영업시간 데이터가 없는 경우
     if (space.businessHours.isEmpty) {
       return Text(
-        '영업시간 정보 없음',
+        LocaleKeys.business_hours_info_not_available.tr(),
         style: TextStyle(
           color: Colors.grey[400],
           fontSize: 14,
@@ -964,7 +964,7 @@ class _MapScreenState extends State<MapScreen> {
             return Row(
               children: [
                 Text(
-                  '영업 중',
+                  LocaleKeys.business_open.tr(),
                   style: TextStyle(
                     color: Colors.green[400],
                     fontSize: 14,
@@ -987,7 +987,7 @@ class _MapScreenState extends State<MapScreen> {
         return Row(
           children: [
             Text(
-              '영업 중',
+              LocaleKeys.business_open.tr(),
               style: TextStyle(
                 color: Colors.green[400],
                 fontSize: 14,
@@ -1054,7 +1054,7 @@ class _MapScreenState extends State<MapScreen> {
           return Row(
             children: [
               Text(
-                '영업 전',
+                LocaleKeys.business_before_open.tr(),
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 14,
@@ -1107,7 +1107,7 @@ class _MapScreenState extends State<MapScreen> {
       }
       
       return Text(
-        '영업 종료',
+        LocaleKeys.business_end.tr(),
         style: TextStyle(
           color: Colors.grey[400],
           fontSize: 14,
@@ -1132,8 +1132,8 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
           const SizedBox(width: 4),
-          const Text(
-            '임시 휴무',
+          Text(
+            LocaleKeys.temporarily_closed.tr(),
             style: TextStyle(
               color: Color(0xFFFF4444),
               fontSize: 12,
@@ -1146,8 +1146,8 @@ class _MapScreenState extends State<MapScreen> {
 
     // 영업시간 데이터가 없는 경우
     if (space.businessHours.isEmpty) {
-      return const Text(
-        '영업시간 정보 없음',
+      return Text(
+        LocaleKeys.business_hours_info_not_available.tr(),
         style: TextStyle(
           color: Color(0xFF999999),
           fontSize: 12,
@@ -1184,7 +1184,7 @@ class _MapScreenState extends State<MapScreen> {
           ),
           const SizedBox(width: 4),
           Text(
-            '영업 중 • ${todayHours.closeTime ?? ""}까지',
+            LocaleKeys.business_open_until.tr(namedArgs: {'time': todayHours.closeTime ?? ""}),
             style: const TextStyle(
               //color: Color(0xFF00A3FF),
               color: Color(0xFFFFFFFF),
@@ -1232,8 +1232,8 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
           const SizedBox(width: 4),
-          const Text(
-            '영업 종료',
+          Text(
+            LocaleKeys.business_end.tr(),
             style: TextStyle(
               color: Color(0xFF999999),
               fontSize: 12,
@@ -2340,14 +2340,14 @@ class _MapScreenState extends State<MapScreen> {
                     color: Colors.black.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(color: Colors.white),
-                      SizedBox(width: 16),
+                      const CircularProgressIndicator(color: Colors.white),
+                      const SizedBox(width: 16),
                       Text(
-                        '매장 위치 정보를 불러오는 중...',
-                        style: TextStyle(
+                        LocaleKeys.loading_store_locations.tr(),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontFamily: 'Pretendard',
                         ),
@@ -2428,7 +2428,7 @@ class _MapScreenState extends State<MapScreen> {
                 // key: ValueKey(selectedSpace!.id), // 매장 ID를 키로 사용하여 매장 변경 시 위젯 강제 재빌드
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                bottom: showInfoCard && selectedSpace != null ? 110 : -200, // 바텀바 위에서 시작
+                bottom: showInfoCard && selectedSpace != null ? 120 : -200, // 바텀바 위에서 시작
                 left: 0,  // 전체 너비 사용
                 right: 0, // 전체 너비 사용
                 child: _buildInfoCard(selectedSpace!),
@@ -2564,18 +2564,18 @@ class _MapScreenState extends State<MapScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  '준비중입니다',
-                  style: TextStyle(
+                Text(
+                  LocaleKeys.coming_soon.tr(),
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  '알림 기능은 곧 제공될 예정입니다.',
-                  style: TextStyle(
+                Text(
+                  LocaleKeys.notification_coming_soon.tr(),
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
                   ),

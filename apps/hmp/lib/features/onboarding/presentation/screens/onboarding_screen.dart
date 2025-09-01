@@ -431,32 +431,79 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         '⚠️ Error checking WePIN user: $e'.log();
       }
       
-      // If only initialized, need to login first
+      // If only initialized, need to login first using the new flow
       if (status == WepinLifeCycle.initialized) {
-        '🔄 Wepin needs login - opening Wepin widget for OAuth login...'.log();
+        '🔄 Wepin SDK initialized, performing login flow...'.log();
         
         try {
-          setState(() {
-            _isConfirming = false;
-          });
+          // Get stored social login tokens
+          await wepinCubit.getSocialLoginValues();
           
-          // Start polling for wallet creation with onboarding flag
-          '🔄 Starting wallet check timer for onboarding before opening widget'.log();
-          wepinCubit.startWalletCheckTimer(isFromOnboarding: true);
+          // Check if we have tokens for login
+          final socialType = wepinCubit.state.socialTokenIsAppleOrGoogle;
+          String? idToken;
           
-          // Open Wepin widget which will handle OAuth login and wallet creation
-          await wepinCubit.state.wepinWidgetSDK!.openWidget(context);
+          if (socialType == 'GOOGLE') {
+            idToken = wepinCubit.state.googleAccessToken;
+            '🔑 Using Google ID token for Wepin login'.log();
+          } else if (socialType == 'APPLE') {
+            idToken = wepinCubit.state.appleIdToken;
+            '🔑 Using Apple ID token for Wepin login'.log();
+          }
           
-          // Widget closed, but polling will continue to check for wallet
-          '📱 Wepin widget closed - polling continues in background'.log();
+          if (idToken == null || idToken.isEmpty) {
+            '❌ No ID token available for Wepin login'.log();
+            
+            // Fallback: Open widget for OAuth login
+            '📱 Opening Wepin widget for OAuth login...'.log();
+            setState(() {
+              _isConfirming = false;
+            });
+            
+            // Start polling for wallet creation with onboarding flag
+            wepinCubit.startWalletCheckTimer(isFromOnboarding: true);
+            
+            // Open widget which will show login UI
+            await wepinCubit.openWepinWidget(context);
+            
+            '📱 Wepin widget closed - polling continues in background'.log();
+            
+            // After WePIN OAuth login, check user status and save tokens
+            await _checkAndSaveWepinUser();
+            await _saveWepinTokensAfterOAuth();
+            
+            return; // Exit here as polling will handle wallet detection
+          }
           
-          // After WePIN OAuth login, check user status and save tokens
-          await _checkAndSaveWepinUser();
-          await _saveWepinTokensAfterOAuth();
+          // Perform login with ID token using the new flow
+          '📍 Performing Wepin login with ID token...'.log();
+          await wepinCubit.loginSocialAuthProvider();
           
-          return; // Exit here as polling will handle wallet detection
+          // Check if login was successful
+          status = await wepinCubit.state.wepinWidgetSDK!.getStatus();
+          '📊 Wepin status after login: $status'.log();
+          
+          if (status != WepinLifeCycle.login) {
+            '❌ Login failed, opening widget for manual login'.log();
+            
+            setState(() {
+              _isConfirming = false;
+            });
+            
+            // Start polling and open widget
+            wepinCubit.startWalletCheckTimer(isFromOnboarding: true);
+            await wepinCubit.openWepinWidget(context);
+            
+            await _checkAndSaveWepinUser();
+            await _saveWepinTokensAfterOAuth();
+            
+            return;
+          }
+          
+          '✅ Login successful, proceeding to wallet creation'.log();
+          // Continue to registration/wallet creation below
         } catch (e) {
-          '❌ Error opening Wepin widget: $e'.log();
+          '❌ Error during login flow: $e'.log();
           wepinCubit.stopWalletCheckTimer(); // Stop polling on error
           setState(() {
             _isConfirming = false;

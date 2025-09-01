@@ -275,6 +275,15 @@ abstract class  LocaleKeys {
   static const space_out_of_range = 'space_out_of_range';
   static const business_open = 'business_open';
   static const business_closed = 'business_closed';
+  static const temporarily_closed = 'temporarily_closed';
+  static const business_hours_info_not_available = 'business_hours_info_not_available';
+  static const business_open_until = 'business_open_until';
+  static const business_before_open = 'business_before_open';
+  static const business_end = 'business_end';
+  static const other_category = 'other_category';
+  static const coming_soon = 'coming_soon';
+  static const notification_coming_soon = 'notification_coming_soon';
+  static const loading_store_locations = 'loading_store_locations';
   static const opens_at = 'opens_at';
   static const closes_at = 'closes_at';
   static const hiding_status = 'hiding_status';
