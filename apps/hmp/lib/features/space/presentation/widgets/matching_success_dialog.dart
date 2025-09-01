@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 
-class CheckinSuccessDialog extends StatelessWidget {
+class MatchingSuccessDialog extends StatelessWidget {
   final String benefitDescription;
   final String spaceName;
 
-  const CheckinSuccessDialog({
+  const MatchingSuccessDialog({
     super.key,
     required this.benefitDescription,
     required this.spaceName,
@@ -61,7 +61,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         const Text(
-                          '체크인 성공!',
+                          '매칭 성공!',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -72,7 +72,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      '블루체크 매장에 체크인하고 혜택받은 걸 축하해!',
+                      '오래 기다렸지!? 매칭 성공을 축하해!',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -80,15 +80,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '보상으로 1 Savory를 증정할게!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '이제 자동으로 매칭에 참여하게 됐어 :)',
+                      '보상으로 3 Savory를 증정할게!',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -143,7 +135,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 5),
                                 const Text(
-                                  '1',
+                                  '3',
                                   style: TextStyle(
                                     color: Color(0xFFEA5211),
                                     fontSize: 16,

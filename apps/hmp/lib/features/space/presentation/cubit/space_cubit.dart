@@ -23,8 +23,8 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   final SpaceRepository _spaceRepository;
 
   SpaceCubit(
-    this._spaceRepository,
-  ) : super(SpaceState.initial());
+      this._spaceRepository,
+      ) : super(SpaceState.initial());
 
   Future<void> onGetBackdoorToken({
     required String spaceId,
@@ -33,13 +33,13 @@ class SpaceCubit extends BaseCubit<SpaceState> {
       spaceId: spaceId,
     );
     response.fold(
-      (err) {
+          (err) {
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
-      (token) {
+          (token) {
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,
@@ -58,13 +58,13 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   Future<void> onGetTopUsedNfts() async {
     final response = await _spaceRepository.getTopUsedNfts();
     response.fold(
-      (err) {
+          (err) {
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
-      (result) {
+          (result) {
         emit(
           state.copyWith(
             topUsedNfts: result.map((e) => e.toEntity()).toList(),
@@ -77,13 +77,13 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   Future<void> onGetNewSpaceList() async {
     final response = await _spaceRepository.getNewsSpaceList();
     response.fold(
-      (err) {
+          (err) {
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
-      (result) {
+          (result) {
         emit(
           state.copyWith(
             newSpaceList: result.map((e) => e.toEntity()).toList(),
@@ -96,13 +96,13 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   Future<void> onGetRecommendSpaceList() async {
     final response = await _spaceRepository.getRecommendedSpaces();
     response.fold(
-      (err) {
+          (err) {
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
-      (result) {
+          (result) {
         emit(
           state.copyWith(
             recommendationSpaceList: result.map((e) => e.toEntity()).toList(),
@@ -121,18 +121,18 @@ class SpaceCubit extends BaseCubit<SpaceState> {
       longitude: longitude,
     );
     response.fold(
-      (err) {
+          (err) {
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
-      (result) {
+          (result) {
         emit(
           state.copyWith(
             spaceList: result.map((e) => e.toEntity()).toList(),
             allSpacesLoaded:
-                result.isEmpty || result.length < 10 ? true : false,
+            result.isEmpty || result.length < 10 ? true : false,
             spacesPage: 1,
           ),
         );
@@ -158,13 +158,13 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     EasyLoading.dismiss();
 
     response.fold(
-      (err) {
+          (err) {
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
-      (result) {
+          (result) {
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,
@@ -202,8 +202,8 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     );
 
     spacesRes.fold(
-      (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
-      (data) => emit(state.copyWith(
+          (l) => emit(state.copyWith(loadingMoreStatus: RequestStatus.failure)),
+          (data) => emit(state.copyWith(
         allSpacesLoaded: data.isEmpty,
         spaceList: List.from(state.spaceList)
           ..addAll(data.map((e) => e.toEntity()).toList()),
@@ -258,13 +258,13 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     EasyLoading.dismiss();
 
     response.fold(
-      (err) {
+          (err) {
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
-      (result) {
+          (result) {
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,
@@ -293,13 +293,13 @@ class SpaceCubit extends BaseCubit<SpaceState> {
       EasyLoading.dismiss();
 
       response.fold(
-        (err) {
+            (err) {
           emit(state.copyWith(
             submitStatus: RequestStatus.failure,
             errorMessage: LocaleKeys.somethingError.tr(),
           ));
         },
-        (result) {
+            (result) {
           emit(
             state.copyWith(
               submitStatus: RequestStatus.success,
@@ -319,13 +319,13 @@ class SpaceCubit extends BaseCubit<SpaceState> {
       EasyLoading.dismiss();
 
       response.fold(
-        (err) {
+            (err) {
           emit(state.copyWith(
             submitStatus: RequestStatus.failure,
             errorMessage: LocaleKeys.somethingError.tr(),
           ));
         },
-        (result) {
+            (result) {
           emit(
             state.copyWith(
               submitStatus: RequestStatus.success,
@@ -344,19 +344,19 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     required double longitude,
   }) async {
     EasyLoading.show(dismissOnTap: true);
-    
+
     ('🏁 Starting check-in for space: $spaceId').log();
-    
+
     final response = await _spaceRepository.checkIn(
       spaceId: spaceId,
       latitude: latitude,
       longitude: longitude,
     );
-    
+
     EasyLoading.dismiss();
-    
+
     return response.fold(
-      (err) {
+          (err) {
         ('❌ Check-in failed: $err').log();
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
@@ -364,7 +364,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
         ));
         throw err;
       },
-      (result) {
+          (result) {
         ('✅ Check-in successful!').log();
         emit(state.copyWith(
           submitStatus: RequestStatus.success,
@@ -381,11 +381,11 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   }) async {
     print('🎯 onGetAllSpacesForMap 함수 진입!');
     print('🎯 파라미터: lat=$latitude, lng=$longitude');
-    
+
     try {
       print('🌍 지도용 전체 매장 로드 시작...');
       print('📍 요청 위치: lat=$latitude, lng=$longitude');
-      
+
       // page=999로 전체 매장 데이터 요청 (백엔드에서 page=999일 때 전체 데이터 반환)
       final response = await _spaceRepository.getSpaceList(
         category: null, // 전체 카테고리 조회
@@ -395,22 +395,22 @@ class SpaceCubit extends BaseCubit<SpaceState> {
       );
 
       await response.fold(
-        (err) async {
+            (err) async {
           print('❌ 지도용 매장 로드 실패: $err');
           emit(state.copyWith(
             submitStatus: RequestStatus.failure,
             errorMessage: LocaleKeys.somethingError.tr(),
           ));
         },
-        (spaces) async {
+            (spaces) async {
           print('🎉 Raw API 응답 개수: ${spaces.length}개');
-          
+
           final allSpaces = spaces.map((e) => e.toEntity()).toList();
-          
+
           // 위치 정보가 있는 매장과 없는 매장 개수 확인
           int validLocationCount = 0;
           int invalidLocationCount = 0;
-          
+
           for (final space in allSpaces) {
             if (space.latitude != 0 && space.longitude != 0) {
               validLocationCount++;
@@ -418,19 +418,19 @@ class SpaceCubit extends BaseCubit<SpaceState> {
               invalidLocationCount++;
             }
           }
-          
+
           print('📊 매장 위치 정보 분석:');
           print('   ✅ 위치 정보 있음: ${validLocationCount}개');
           print('   ❌ 위치 정보 없음: ${invalidLocationCount}개');
           print('   📍 총 매장 수: ${allSpaces.length}개');
-          
+
           emit(state.copyWith(
             submitStatus: RequestStatus.success,
             spaceList: allSpaces,
             allSpacesLoaded: true,
             errorMessage: '',
           ));
-          
+
           // 처음 5개 매장의 상세 정보 확인
           for (int i = 0; i < math.min(5, allSpaces.length); i++) {
             final space = allSpaces[i];
@@ -441,7 +441,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
           }
         },
       );
-      
+
     } catch (e) {
       print('❌ Error in onGetAllSpacesForMap: $e');
       emit(state.copyWith(
@@ -449,5 +449,10 @@ class SpaceCubit extends BaseCubit<SpaceState> {
         errorMessage: LocaleKeys.somethingError.tr(),
       ));
     }
+  }
+
+  /// Sets or clears the currently selected space.
+  void selectSpace(SpaceEntity? space) {
+    emit(state.copyWith(selectedSpace: space, clearSelectedSpace: space == null));
   }
 }

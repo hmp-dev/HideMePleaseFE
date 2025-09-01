@@ -1695,6 +1695,7 @@ class _MapScreenState extends State<MapScreen> {
       setState(() {
         showInfoCard = false;
         selectedSpace = null;
+        getIt<SpaceCubit>().selectSpace(null);
       });
     }
     
@@ -1746,10 +1747,12 @@ class _MapScreenState extends State<MapScreen> {
         setState(() {
           selectedSpace = tappedSpace;
           showInfoCard = true;
+          getIt<SpaceCubit>().selectSpace(tappedSpace);
         });
         print('✅ Info card shown for ${tappedSpace.name}');
       } else {
         print('❌ No marker found near tap location - info card remains closed');
+        getIt<SpaceCubit>().selectSpace(null);
       }
     } catch (e) {
       print('Error checking marker near tap: $e');
@@ -2009,6 +2012,9 @@ class _MapScreenState extends State<MapScreen> {
   
   // 체크인 정보 가져오기 (캐시 우선)
   Future<int> _getCheckInUsersCount(String spaceId) async {
+    // 임시로 API 호출을 막고 항상 0을 반환합니다.
+    return 0;
+    /*
     try {
       // 캐시가 유효한지 확인 (5분 이내)
       if (_lastCheckInCacheUpdate != null &&
@@ -2034,6 +2040,7 @@ class _MapScreenState extends State<MapScreen> {
       print('⚠️ 체크인 정보 가져오기 실패 (spaceId: $spaceId): $e');
       return _checkInCache[spaceId] ?? 0; // 캐시된 값이 있으면 반환, 없으면 0
     }
+    */
   }
   
   // 체크인 상태가 포함된 마커 이미지 생성
@@ -2789,27 +2796,27 @@ class _MapScreenState extends State<MapScreen> {
     
     // heading 정보가 없으면 기본값 0 사용 (북쪽)
     if (_currentHeading == null) {
-      print('⚠️ Heading 정보가 없음 - 기본값 0도(북쪽) 사용');
+      // print('⚠️ Heading 정보가 없음 - 기본값 0도(북쪽) 사용');
       _currentHeading = 0;
     }
     
-    print('🧭 _updateHeadingMarker 호출됨 - lat: $lat, lng: $lng, heading: $_currentHeading°');
+    // print('🧭 _updateHeadingMarker 호출됨 - lat: $lat, lng: $lng, heading: $_currentHeading°');
     
     // 위치가 유효하지 않으면 리턴
     if (lat == 0 || lng == 0) {
-      print('⚠️ 위치가 유효하지 않음 (0,0) - Heading 마커 업데이트 건너뜀');
+      // print('⚠️ 위치가 유효하지 않음 (0,0) - Heading 마커 업데이트 건너뜀');
       return;
     }
     
     try {
       // 기존 heading 마커가 있으면 삭제
       if (_headingAnnotation != null && _headingAnnotationManager != null) {
-        print('🗑️ 기존 Heading 마커 삭제 시작 - ID: ${_headingAnnotation?.id}');
+        // print('🗑️ 기존 Heading 마커 삭제 시작 - ID: ${_headingAnnotation?.id}');
         try {
           await _headingAnnotationManager!.delete(_headingAnnotation!);
-          print('✅ Heading 마커 삭제 완료');
+          // print('✅ Heading 마커 삭제 완료');
         } catch (deleteError) {
-          print('❌ Heading 마커 삭제 실패: $deleteError');
+          // print('❌ Heading 마커 삭제 실패: $deleteError');
         }
         _headingAnnotation = null;
       }
@@ -2839,10 +2846,10 @@ class _MapScreenState extends State<MapScreen> {
       
       _headingAnnotation = await _headingAnnotationManager!.create(headingMarker);
       
-      print('🧭 Heading 마커 업데이트 완료 - 방향: $_currentHeading°');
-      print('✅ Heading 마커 ID: ${_headingAnnotation?.id}');
+      // print('🧭 Heading 마커 업데이트 완료 - 방향: $_currentHeading°');
+      // print('✅ Heading 마커 ID: ${_headingAnnotation?.id}');
     } catch (e) {
-      print('❌ Error updating heading marker: $e');
+      // print('❌ Error updating heading marker: $e');
     }
   }
 

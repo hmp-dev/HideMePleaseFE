@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
 import 'package:mobile/app/core/enum/menu_type.dart';
@@ -24,6 +26,7 @@ import 'package:mobile/features/settings/presentation/screens/settings_screen.da
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
+import 'package:mobile/features/space/presentation/widgets/checkin_employ_dialog.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/app/core/services/nfc_service.dart';
@@ -45,9 +48,6 @@ class AppView extends StatefulWidget {
 
 class _AppViewState extends State<AppView> {
   final double _opacity = 1.0;
-
-  // final PreloadPageController _pageController =
-  //     PreloadPageController(initialPage: 2);
 
   @override
   void initState() {
@@ -94,7 +94,6 @@ class _AppViewState extends State<AppView> {
 
                     return Stack(
                       children: [
-                        // 화면이 전체 영역을 차지하도록 배치
                         PreloadPageView.builder(
                           onPageChanged: (value) {},
                           itemBuilder: (context, index) {
@@ -112,6 +111,7 @@ class _AppViewState extends State<AppView> {
                             } else if (index == MenuType.events.menuIndex) {
                               print('🎪 Returning HomeScreen (Events) for index $index');
                               return const HomeScreen(); // EventsWepinScreen();
+
                             //} else if (index ==
                             //    MenuType.community.menuIndex) {
                             //  return const CommunityScreen();
@@ -127,7 +127,6 @@ class _AppViewState extends State<AppView> {
                           physics: const NeverScrollableScrollPhysics(),
                           preloadPagesCount: 5,
                         ),
-                        // 탭바를 하단에 floating으로 배치 (showBottomBar가 true일 때만)
                         if (state.showBottomBar)
                           Positioned(
                             left: 0,
@@ -143,10 +142,10 @@ class _AppViewState extends State<AppView> {
                           },
                           onMapTap: () {
                             ('🗺️ MAP button tapped').log();
-                            // Navigate to Map Screen
                             _onChangeMenu(MenuType.space);
                             getIt<SpaceCubit>().onFetchAllSpaceViewData();
                           },
+
                           onCheckInTap: () async {
                             ('✅ Check-in button tapped - Starting NFC reading').log();
                             
@@ -368,74 +367,263 @@ class _AppViewState extends State<AppView> {
 
   void _onChangeMenu(MenuType menuType) {
     ('🔄 Changing to menu: $menuType (index: ${menuType.menuIndex})').log();
-    //state.pageController.jumpToPage(menuType.menuIndex);
     getIt<PageCubit>().changePage(menuType.menuIndex, menuType);
     ('✅ Page change completed').log();
   }
+
+  void _showNfcScanDialog(BuildContext context, {required Function onCancel}) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext bottomSheetContext) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(bottomSheetContext).size.height * 0.75,
+          ),
+          decoration: const BoxDecoration(
+            color: Color(0xFF2C2C2E),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(32, 20, 32, 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2.5),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () => onCancel(),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Ready to Scan',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  LocaleKeys.nfc_tag_nearby.tr(),
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFF007AFF),
+                      width: 3,
+                    ),
+                  ),
+                  child: Container(
+                    margin: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF007AFF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.smartphone,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () => onCancel(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF007AFF),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                    ),
+                    child: Text(
+                      LocaleKeys.cancel.tr(),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _handleCheckIn() async {
+    final spaceCubit = getIt<SpaceCubit>();
+    final selectedSpace = spaceCubit.state.selectedSpace;
+
+    if (selectedSpace == null) {
+      ('⚠️ Check-in attempt without a selected space.').log();
+      showDialog(
+        context: context,
+        builder: (context) => const CheckinFailDialog(),
+      );
+      return;
+    }
+
+    ('✅ Check-in button tapped for ${selectedSpace.name} - Simulating NFC scan...').log();
+    Timer? debugTimer;
+
+    final dialogCompleter = Completer<void>();
+
+    _showNfcScanDialog(context, onCancel: () {
+      ('🟧 NFC Scan Canceled by user.').log();
+      debugTimer?.cancel();
+      if (!dialogCompleter.isCompleted) {
+        Navigator.of(context).pop();
+        dialogCompleter.complete();
+      }
+    });
+
+    debugTimer = Timer(const Duration(seconds: 5), () {
+      ('✅ NFC simulation successful after 5 seconds.').log();
+
+      if (!dialogCompleter.isCompleted && mounted) {
+        Navigator.of(context).pop();
+        dialogCompleter.complete();
+
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted) {
+            final spaceToUse = selectedSpace;
+            final benefitDescription = spaceToUse.benefitDescription.isNotEmpty
+                ? spaceToUse.benefitDescription
+                : '등록된 혜택이 없습니다.';
+
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CheckinEmployDialog(
+                  benefitDescription: benefitDescription,
+                  spaceName: spaceToUse.name,
+                  onConfirm: () async {
+                    try {
+                      final position = await Geolocator.getCurrentPosition(
+                        desiredAccuracy: LocationAccuracy.high,
+                      );
+                      ('📍 Current location for check-in: ${position.latitude}, ${position.longitude}')
+                          .log();
+
+                      print('📡 Calling check-in API with parameters:');
+                      print('   spaceId: ${spaceToUse.id}');
+                      print('   latitude: ${position.latitude}');
+                      print('   longitude: ${position.longitude}');
+
+                      await spaceCubit.onCheckInWithNfc(
+                        spaceId: spaceToUse.id,
+                        latitude: position.latitude,
+                        longitude: position.longitude,
+                      );
+
+                      if (mounted) {
+                        Navigator.of(context).pop();
+                        await showDialog(
+                          context: context,
+                          builder: (context) => CheckinSuccessDialog(
+                            spaceName: spaceToUse.name,
+                            benefitDescription: benefitDescription,
+                          ),
+                        );
+                        spaceCubit.onFetchAllSpaceViewData();
+                      }
+                    } catch (e) {
+                      ('❌ Check-in error: $e').log();
+                      ('❌ Error type: ${e.runtimeType}').log();
+                                  
+                      String errorMessage = LocaleKeys.benefitRedeemErrorMsg.tr();
+                      
+                      if (e is HMPError) {
+                        ('❌ HMPError details - message: ${e.message}, error: ${e.error}').log();
+                        
+                        if (e.error?.contains('SPACE_OUT_OF_RANGE') == true) {
+                          errorMessage = LocaleKeys.space_out_of_range.tr();
+                        } else if (e.error?.contains('ALREADY_CHECKED_IN') == true) {
+                          errorMessage = LocaleKeys.already_checked_in.tr();
+                        } else if (e.error?.contains('INVALID_SPACE') == true) {
+                          errorMessage = LocaleKeys.invalid_space.tr();
+                        }
+                        else if (e.message.contains('SPACE_OUT_OF_RANGE')) {
+                          errorMessage = LocaleKeys.space_out_of_range.tr();
+                        } else if (e.message.contains('ALREADY_CHECKED_IN')) {
+                          errorMessage = LocaleKeys.already_checked_in.tr();
+                        } else if (e.message.contains('INVALID_SPACE')) {
+                          errorMessage = LocaleKeys.invalid_space.tr();
+                        }
+                      } 
+                      else if (e.toString().contains('SPACE_OUT_OF_RANGE')) {
+                        errorMessage = LocaleKeys.space_out_of_range.tr();
+                      } else if (e.toString().contains('ALREADY_CHECKED_IN')) {
+                        errorMessage = LocaleKeys.already_checked_in.tr();
+                      } else if (e.toString().contains('INVALID_SPACE')) {
+                        errorMessage = LocaleKeys.invalid_space.tr();
+                      }
+                      
+                      ('📋 Final error message: $errorMessage').log();
+                      
+                      if (mounted) {
+                        Navigator.of(context).pop();
+                        showDialog(
+                          context: context,
+                          builder: (context) => const CheckinFailDialog(),
+                        );
+                      }
+                    }
+                  },
+                );
+              },
+            );
+          }
+        });
+      }
+    });
+  }
 }
-
-
-
-// MultiBlocListener(
-//       listeners: [
-//         BlocListener<WepinCubit, WepinState>(
-//           listenWhen: (previous, current) =>
-//               current.isPerformWepinWalletSave &&
-//               current.wepinLifeCycleStatus == WepinLifeCycle.login,
-//           bloc: getIt<WepinCubit>(),
-//           listener: (context, state) async {
-//             if (!state.isPerformWepinWelcomeNftRedeem) {
-//               "[EventsWepinScreen] the WepinState is: $state".log();
-
-//               // Manage loader based on isLoading state
-//               if (state.isLoading) {
-//                 getIt<WepinCubit>().showLoader();
-//               } else {
-//                 getIt<WepinCubit>().dismissLoader();
-//               }
-
-//               if (state.wepinLifeCycleStatus == WepinLifeCycle.login) {
-//                 await getIt<WepinCubit>().fetchAccounts();
-//                 getIt<WepinCubit>()
-//                     .dismissLoader(); // Ensure loader dismisses post-fetch
-//               }
-
-//               if (state.wepinLifeCycleStatus == WepinLifeCycle.login &&
-//                   state.accounts.isNotEmpty) {
-//                 for (var account in state.accounts) {
-//                   if (account.network.toLowerCase() == "ethereum") {
-//                     await getIt<WalletsCubit>().onPostWallet(
-//                       saveWalletRequestDto: SaveWalletRequestDto(
-//                         publicAddress: account.address,
-//                         provider: "WEPIN_EVM",
-//                       ),
-//                     );
-//                   }
-//                 }
-//                 getIt<WepinCubit>().openWepinWidget(context);
-//                 getIt<WepinCubit>().onResetWepinSDKFetchedWallets();
-//               }
-//             }
-//           },
-//         ),
-//         BlocListener<WepinCubit, WepinState>(
-//           listenWhen: (previous, current) =>
-//               previous.wepinLifeCycleStatus !=
-//                   WepinLifeCycle.loginBeforeRegister &&
-//               current.wepinLifeCycleStatus ==
-//                   WepinLifeCycle.loginBeforeRegister &&
-//               current.isPerformWepinWalletSave,
-//           // listenWhen: (previous, current) => current.isPerformWepinWalletSave,
-//           bloc: getIt<WepinCubit>(),
-//           listener: (context, state) {
-//             if (!state.isPerformWepinWelcomeNftRedeem) {
-//               if (state.wepinLifeCycleStatus ==
-//                   WepinLifeCycle.loginBeforeRegister) {
-//                 getIt<WepinCubit>().dismissLoader();
-//                 // Now loader will be shown by
-//                 getIt<WepinCubit>().registerToWepin(context);
-//               }
-//             }
-//           },
-//         )
-//       ],

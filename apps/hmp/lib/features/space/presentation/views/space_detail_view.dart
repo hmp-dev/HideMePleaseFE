@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +40,7 @@ import 'package:mobile/features/space/presentation/widgets/matching_help.dart';
 import 'package:mobile/features/space/presentation/widgets/checkin_success_dialog.dart';
 import 'package:mobile/features/space/presentation/widgets/space_benefit_list_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:nfc_manager/nfc_manager.dart';
 
 class SpaceDetailView extends StatefulWidget {
   const SpaceDetailView({super.key, required this.space, this.spaceEntity});
@@ -668,16 +671,49 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   }
 
   Future<void> _handleCheckIn() async {
+    if (Platform.isIOS) {
+      _handleCheckInIOS();
+    } else {
+      _handleCheckInAndroid();
+    }
+  }
+
+  Future<void> _handleCheckInIOS() async {
+    bool isAvailable = await NfcManager.instance.isAvailable();
+    if (!isAvailable) {
+      ('! NFC not available').log();
+      // Consider showing a dialog to the user if NFC is not available.
+      return;
+    }
+
+    NfcManager.instance.startSession(
+      onDiscovered: (NfcTag tag) async {
+        await NfcManager.instance.stopSession();
+        await _proceedWithCheckIn();
+      }, 
+      onError: (NfcError error) async {
+        await NfcManager.instance.stopSession();
+        // Check if the error is due to the user cancelling the NFC scan.
+        if (error.message.contains('Session invalidated by user')) {
+          ('NFC scan cancelled by user.').log();
+        } else {
+          ('NFC error: ${error.message}').log();
+          // For other errors, we are not showing a dialog as per the general request
+          // to avoid dialogs on cancellation/errors in the NFC stage.
+        }
+      }
+    );
+  }
+
+  Future<void> _handleCheckInAndroid() async {
     ('✅ Check-in button tapped - Simulating NFC scan...').log();
     Timer? debugTimer;
-    
-    // 다이얼로그를 닫기 위한 Completer 생성
+
     final dialogCompleter = Completer<void>();
 
     _showNfcScanDialog(context, onCancel: () {
       ('🟧 NFC Scan Canceled by user.').log();
       debugTimer?.cancel();
-      // 다이얼로그가 아직 열려있으면 닫음
       if (!dialogCompleter.isCompleted) {
         Navigator.of(context).pop();
         dialogCompleter.complete();
@@ -686,25 +722,82 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
     debugTimer = Timer(const Duration(seconds: 5), () {
       ('✅ NFC simulation successful after 5 seconds.').log();
-      
-      // 다이얼로그가 아직 열려있으면 닫음
+
       if (!dialogCompleter.isCompleted && mounted) {
         Navigator.of(context).pop();
         dialogCompleter.complete();
-
-        // 잠시 후 직원 확인 다이얼로그 띄우기
-        Future.delayed(const Duration(milliseconds: 200), () {
-          if (mounted) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return const CheckinEmployDialog();
-              },
-            );
-          }
-        });
+        _proceedWithCheckIn();
       }
     });
+  }
+
+  Future<void> _proceedWithCheckIn() async {
+    // Ensure the function is called on a mounted widget
+    if (!mounted) return;
+
+    // Short delay to allow the NFC modal to dismiss smoothly
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    if (mounted) {
+      final spaceCubit = getIt<SpaceCubit>();
+      final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
+      final benefitDescription =
+          benefits.isNotEmpty ? benefits.first.description : '등록된 혜택이 없습니다.';
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CheckinEmployDialog(
+            benefitDescription: benefitDescription,
+            spaceName: widget.space.name,
+            onConfirm: () async {
+              try {
+                final position = await Geolocator.getCurrentPosition(
+                  desiredAccuracy: LocationAccuracy.high,
+                );
+                ('📍 Current location for check-in: ${position.latitude}, ${position.longitude}')
+                    .log();
+
+                print('📡 Calling check-in API with parameters:');
+                print('   spaceId: ${widget.space.id}');
+                print('   latitude: ${position.latitude}');
+                print('   longitude: ${position.longitude}');
+
+                await spaceCubit.onCheckInWithNfc(
+                  spaceId: widget.space.id,
+                  latitude: position.latitude,
+                  longitude: position.longitude,
+                );
+
+                if (mounted) {
+                  Navigator.of(context).pop(); // Close employ dialog
+                  await showDialog(
+                    context: context,
+                    builder: (context) => CheckinSuccessDialog(
+                      spaceName: widget.space.name,
+                      benefitDescription: benefitDescription,
+                    ),
+                  );
+                  // 다이얼로그가 닫힌 후 데이터 새로고침
+                  _fetchCheckInStatus();
+                  _fetchCheckInUsers();
+                  _fetchCurrentGroup();
+                }
+              } catch (e) {
+                ('❌ Check-in error: $e').log();
+                if (mounted) {
+                  Navigator.of(context).pop(); // Close employ dialog
+                  showDialog(
+                    context: context,
+                    builder: (context) => const CheckinFailDialog(),
+                  );
+                }
+              }
+            },
+          );
+        },
+      );
+    }
   }
 
   /// Builds a row that displays the category icon, business status, and distance.
@@ -1242,6 +1335,7 @@ class HidingBanner extends StatelessWidget {
                               benefits.isNotEmpty
                                   ? benefits.first.description
                                   : "체크인하고 하이딩하면",
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
@@ -1466,17 +1560,19 @@ class HidingStatusBanner extends StatelessWidget {
               ),
             ),
             const VerticalSpace(20),
-            const Text(
-              "매칭 완료된 하이더",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
-            ),
-            const VerticalSpace(10),
-            _buildPlayerAvatars(completedHiders,
-                useTransparentForEmpty: true),
-            const VerticalSpace(20),
+            if (completedHiders.isNotEmpty) ...[
+              const Text(
+                "매칭 완료된 하이더",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
+              ),
+              const VerticalSpace(10),
+              _buildPlayerAvatars(completedHiders,
+                  useTransparentForEmpty: true),
+              const VerticalSpace(20),
+            ]
           ],
         ),
       ),
