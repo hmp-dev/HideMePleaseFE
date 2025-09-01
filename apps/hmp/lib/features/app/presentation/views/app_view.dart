@@ -271,18 +271,9 @@ class _AppViewState extends State<AppView> {
                                       barrierDismissible: false,
                                       builder: (context) => CheckinSuccessDialog(
                                         spaceName: spaceDetail.name,
-                                        benefit: spaceEntity.benefitDescription.isNotEmpty 
+                                        benefitDescription: spaceEntity.benefitDescription.isNotEmpty 
                                             ? spaceEntity.benefitDescription 
                                             : spaceDetail.introduction,
-                                        onCancel: () {
-                                          Navigator.of(context).pop();
-                                          // Live Activity 종료
-                                          liveActivityService.endCheckInActivity();
-                                        },
-                                        onConfirm: () {
-                                          Navigator.of(context).pop();
-                                          // TODO: 직원 확인 로직 추가
-                                        },
                                       ),
                                     );
                                   } else {

@@ -40,7 +40,6 @@ import 'package:mobile/features/space/presentation/widgets/matching_help.dart';
 import 'package:mobile/features/space/presentation/widgets/checkin_success_dialog.dart';
 import 'package:mobile/features/space/presentation/widgets/space_benefit_list_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:nfc_manager/nfc_manager.dart';
 
 class SpaceDetailView extends StatefulWidget {
   const SpaceDetailView({super.key, required this.space, this.spaceEntity});
@@ -544,12 +543,14 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   }
 
   void _showNfcScanDialog(BuildContext context, {required Function onCancel}) {
+    print('🔷 _showNfcScanDialog called');
     showModalBottomSheet(
       context: context,
       isDismissible: false,
       enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (BuildContext bottomSheetContext) {
+        print('🔷 Building NFC scan dialog UI');
         return Container(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(bottomSheetContext).size.height * 0.75,
@@ -671,46 +672,53 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   }
 
   Future<void> _handleCheckIn() async {
+    print('🔵 _handleCheckIn called');
+    print('🔵 Platform: ${Platform.isIOS ? "iOS" : "Android"}');
+    
     if (Platform.isIOS) {
+      print('🔵 Calling _handleCheckInIOS');
       _handleCheckInIOS();
     } else {
+      print('🔵 Calling _handleCheckInAndroid');
       _handleCheckInAndroid();
     }
   }
 
   Future<void> _handleCheckInIOS() async {
-    bool isAvailable = await NfcManager.instance.isAvailable();
-    if (!isAvailable) {
-      ('! NFC not available').log();
-      // Consider showing a dialog to the user if NFC is not available.
-      return;
-    }
-
-    NfcManager.instance.startSession(
-      onDiscovered: (NfcTag tag) async {
-        await NfcManager.instance.stopSession();
+    print('🍎 _handleCheckInIOS started');
+    print('🍎 Using SafeNfcService for iOS NFC reading...');
+    
+    // SafeNfcService 사용 (앱바와 동일한 방식)
+    await SafeNfcService.startReading(
+      context: context,
+      onSuccess: (spaceId) async {
+        print('🍎 NFC tag read successfully: $spaceId');
+        ('📍 NFC UUID read: $spaceId').log();
+        
+        // 여기서는 실제 spaceId를 사용하지 않고 현재 공간으로 체크인
+        // (space_detail_view는 이미 특정 공간에 있으므로)
         await _proceedWithCheckIn();
-      }, 
-      onError: (NfcError error) async {
-        await NfcManager.instance.stopSession();
-        // Check if the error is due to the user cancelling the NFC scan.
-        if (error.message.contains('Session invalidated by user')) {
+      },
+      onError: (errorMessage) {
+        print('🍎 NFC error: $errorMessage');
+        ('NFC error: $errorMessage').log();
+        
+        // 사용자가 취소한 경우는 에러 다이얼로그를 표시하지 않음
+        if (errorMessage.contains('cancelled') || errorMessage.contains('Session invalidated')) {
           ('NFC scan cancelled by user.').log();
-        } else {
-          ('NFC error: ${error.message}').log();
-          // For other errors, we are not showing a dialog as per the general request
-          // to avoid dialogs on cancellation/errors in the NFC stage.
         }
-      }
+      },
     );
   }
 
   Future<void> _handleCheckInAndroid() async {
+    print('🤖 _handleCheckInAndroid started');
     ('✅ Check-in button tapped - Simulating NFC scan...').log();
     Timer? debugTimer;
 
     final dialogCompleter = Completer<void>();
 
+    print('🤖 Showing NFC scan dialog...');
     _showNfcScanDialog(context, onCancel: () {
       ('🟧 NFC Scan Canceled by user.').log();
       debugTimer?.cancel();
@@ -1397,7 +1405,15 @@ class HidingBanner extends StatelessWidget {
                           ],
                         )
                       : GestureDetector(
-                          onTap: onCheckIn,
+                          onTap: () {
+                            print('🟢 Check-in button tapped!');
+                            if (onCheckIn != null) {
+                              print('🟢 onCheckIn callback exists, calling it...');
+                              onCheckIn!();
+                            } else {
+                              print('🔴 onCheckIn callback is null!');
+                            }
+                          },
                           child: Container(
                             width: 135,
                             height: 45,

@@ -715,7 +715,7 @@ class _MapScreenState extends State<MapScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.white.withOpacity(0.8),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
                 ),
@@ -831,7 +831,7 @@ class _MapScreenState extends State<MapScreen> {
                             Text(
                               space.name,
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontSize: 17,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Pretendard',
@@ -2320,7 +2320,7 @@ class _MapScreenState extends State<MapScreen> {
                   bearing: 0.0,
                   pitch: 0.0,
                 ),
-                styleUri: 'mapbox://styles/ixplorer/cmbhjhxbr00b401sn9glq0y9l', // 커스텀 스타일 적용
+                styleUri: 'mapbox://styles/ixplorer/cmes4lqyt00hj01sg9nvlbkvr', // 커스텀 스타일 적용
                 textureView: Platform.isAndroid, // Android만 textureView 사용
               ),
             ),
@@ -3391,10 +3391,10 @@ class _MapScreenState extends State<MapScreen> {
                   height: 38,
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0x3319BAFF), // #19BAFF33 배경색
+                    color: const Color(0xffffffFF), // #19BAFF33 배경색
                     borderRadius: BorderRadius.circular(19), // 카테고리 버튼과 같은 라운드 테두리
                     border: Border.all(
-                      color: const Color(0xFF797979), // 카테고리 버튼과 같은 테두리 색상
+                      color: const Color(0x132E41), // 카테고리 버튼과 같은 테두리 색상
                       width: 1,
                     ),
                   ),
@@ -3448,13 +3448,13 @@ class _MapScreenState extends State<MapScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         height: 38,
         decoration: BoxDecoration(
-          color: const Color(0x3319BAFF), // #19BAFF33 배경색
+          color: const Color.fromARGB(248, 255, 255, 255), // #19BAFF33 배경색
           borderRadius: BorderRadius.circular(19),
           border: Border.all(
             color: isSelected 
-                ? const Color(0xFF00A3FF)
-                : const Color(0xFF5A5A5A),
-            width: isSelected ? 1.5 : 1,
+                ? const Color(0x132E41)
+                : const Color(0x132E41).withOpacity(0.7),
+            width: isSelected ? 2 : 1,
           ),
         ),
         child: Center(
@@ -3528,8 +3528,8 @@ class _MapScreenState extends State<MapScreen> {
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: isSelected
-                      ? Colors.white
-                      : const Color(0xFF9A9A9A),
+                      ? Color(0x132E41)
+                      : const Color(0x132E41).withOpacity(0.7),
                   fontFamily: 'Pretendard',
                 ),
               ),

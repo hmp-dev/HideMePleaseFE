@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/common/presentation/widgets/profile_avatar_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mobile/features/common/presentation/widgets/space_info_card.dart';
+import 'package:mobile/features/common/presentation/widgets/map_info_card.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/screens/my_profile_screen.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
@@ -276,7 +276,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                     children: [
                       MapWidget(
                         onMapCreated: _onMapCreated,
-                        styleUri: MapboxStyles.STANDARD,
+                        styleUri: 'mapbox://styles/ixplorer/cmes4lqyt00hj01sg9nvlbkvr',
                       ),
                       // 지도 위 오버레이 (선택적)
                       Positioned.fill(
@@ -310,8 +310,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   itemBuilder: (context, index) {
                     final user = nearbyUsers[index];
                     return Container(
-                      width: 80,
-                      margin: const EdgeInsets.only(right: 12),
+                      width: 60,
+                      margin: const EdgeInsets.only(right: 4),
                       child: Column(
                         children: [
                           Container(
@@ -461,10 +461,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   itemBuilder: (context, index) {
                     final space = spaces[index];
                     return Container(
+                      width: 280, // Fixed width for horizontal scroll
                       margin: const EdgeInsets.only(right: 12),
-                      child: SpaceInfoCard(
+                      child: MapInfoCard(
                         space: space,
-                        showDetailButton: false,
                       ),
                     );
                   },
