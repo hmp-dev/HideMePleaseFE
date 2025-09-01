@@ -18,6 +18,7 @@ class SpaceState extends BaseState {
   final bool allSpacesLoaded;
   final RequestStatus loadingMoreStatus;
   final int spacesPage;
+  final SpaceEntity? selectedSpace;
 
   @override
   final RequestStatus submitStatus;
@@ -41,52 +42,55 @@ class SpaceState extends BaseState {
     required this.allSpacesLoaded,
     required this.loadingMoreStatus,
     required this.spacesPage,
+    this.selectedSpace,
   });
 
   factory SpaceState.initial() => SpaceState(
-        submitStatus: RequestStatus.initial,
-        spacesResponseEntity: SpacesResponseEntity.empty(),
-        errorMessage: "",
-        selectedNftTokenAddress: "",
-        nfcToken: "",
-        benefitRedeemStatus: false,
-        topUsedNfts: const [],
-        newSpaceList: const [],
-        spaceList: const [],
-        recommendationSpaceList: const [],
-        spaceCategory: SpaceCategory.ENTIRE,
-        spaceDetailEntity: const SpaceDetailEntity.empty(),
-        benefitsGroupEntity: BenefitsGroupEntity.empty(),
-        isLoadingMoreFetch: false,
-        currentSpaceId: "",
-        allSpacesLoaded: false,
-        loadingMoreStatus: RequestStatus.initial,
-        spacesPage: 1,
-      );
+    submitStatus: RequestStatus.initial,
+    spacesResponseEntity: SpacesResponseEntity.empty(),
+    errorMessage: "",
+    selectedNftTokenAddress: "",
+    nfcToken: "",
+    benefitRedeemStatus: false,
+    topUsedNfts: const [],
+    newSpaceList: const [],
+    spaceList: const [],
+    recommendationSpaceList: const [],
+    spaceCategory: SpaceCategory.ENTIRE,
+    spaceDetailEntity: const SpaceDetailEntity.empty(),
+    benefitsGroupEntity: BenefitsGroupEntity.empty(),
+    isLoadingMoreFetch: false,
+    currentSpaceId: "",
+    allSpacesLoaded: false,
+    loadingMoreStatus: RequestStatus.initial,
+    spacesPage: 1,
+    selectedSpace: null,
+  );
 
   //bool get isLoadingMore => loadingMoreStatus == RequestStatus.loading;
 
   @override
   List<Object?> get props => [
-        submitStatus,
-        spacesResponseEntity,
-        errorMessage,
-        selectedNftTokenAddress,
-        nfcToken,
-        benefitRedeemStatus,
-        topUsedNfts,
-        newSpaceList,
-        spaceList,
-        recommendationSpaceList,
-        spaceCategory,
-        spaceDetailEntity,
-        benefitsGroupEntity,
-        isLoadingMoreFetch,
-        currentSpaceId,
-        allSpacesLoaded,
-        loadingMoreStatus,
-        spacesPage,
-      ];
+    submitStatus,
+    spacesResponseEntity,
+    errorMessage,
+    selectedNftTokenAddress,
+    nfcToken,
+    benefitRedeemStatus,
+    topUsedNfts,
+    newSpaceList,
+    spaceList,
+    recommendationSpaceList,
+    spaceCategory,
+    spaceDetailEntity,
+    benefitsGroupEntity,
+    isLoadingMoreFetch,
+    currentSpaceId,
+    allSpacesLoaded,
+    loadingMoreStatus,
+    spacesPage,
+    selectedSpace,
+  ];
 
   @override
   SpaceState copyWith({
@@ -108,20 +112,22 @@ class SpaceState extends BaseState {
     bool? allSpacesLoaded,
     RequestStatus? loadingMoreStatus,
     int? spacesPage,
+    SpaceEntity? selectedSpace,
+    bool clearSelectedSpace = false,
   }) {
     return SpaceState(
       submitStatus: submitStatus ?? this.submitStatus,
       spacesResponseEntity: spacesResponseEntity ?? this.spacesResponseEntity,
       errorMessage: errorMessage ?? this.errorMessage,
       selectedNftTokenAddress:
-          selectedNftTokenAddress ?? this.selectedNftTokenAddress,
+      selectedNftTokenAddress ?? this.selectedNftTokenAddress,
       nfcToken: nfcToken ?? this.nfcToken,
       benefitRedeemStatus: benefitRedeemStatus ?? this.benefitRedeemStatus,
       topUsedNfts: topUsedNfts ?? this.topUsedNfts,
       newSpaceList: newSpaceList ?? this.newSpaceList,
       spaceList: spaceList ?? this.spaceList,
       recommendationSpaceList:
-          recommendationSpaceList ?? this.recommendationSpaceList,
+      recommendationSpaceList ?? this.recommendationSpaceList,
       spaceCategory: spaceCategory ?? this.spaceCategory,
       spaceDetailEntity: spaceDetailEntity ?? this.spaceDetailEntity,
       benefitsGroupEntity: benefitsGroupEntity ?? this.benefitsGroupEntity,
@@ -130,6 +136,7 @@ class SpaceState extends BaseState {
       allSpacesLoaded: allSpacesLoaded ?? this.allSpacesLoaded,
       loadingMoreStatus: loadingMoreStatus ?? this.loadingMoreStatus,
       spacesPage: spacesPage ?? this.spacesPage,
+      selectedSpace: clearSelectedSpace ? null : selectedSpace ?? this.selectedSpace,
     );
   }
 }
