@@ -670,7 +670,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   Future<void> _handleCheckIn() async {
     ('✅ Check-in button tapped - Simulating NFC scan...').log();
     Timer? debugTimer;
-    
+
     // 다이얼로그를 닫기 위한 Completer 생성
     final dialogCompleter = Completer<void>();
 
@@ -686,7 +686,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
     debugTimer = Timer(const Duration(seconds: 5), () {
       ('✅ NFC simulation successful after 5 seconds.').log();
-      
+
       // 다이얼로그가 아직 열려있으면 닫음
       if (!dialogCompleter.isCompleted && mounted) {
         Navigator.of(context).pop();
@@ -695,10 +695,67 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         // 잠시 후 직원 확인 다이얼로그 띄우기
         Future.delayed(const Duration(milliseconds: 200), () {
           if (mounted) {
+            final spaceCubit = getIt<SpaceCubit>();
+            final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
+            final benefitDescription =
+                benefits.isNotEmpty ? benefits.first.description : '등록된 혜택이 없습니다.';
+
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return const CheckinEmployDialog();
+                return CheckinEmployDialog(
+                  benefitDescription: benefitDescription,
+                  spaceName: widget.space.name,
+                  onConfirm: () async {
+                    try {
+                      // 1. 현재 위치 가져오기
+                      final position = await Geolocator.getCurrentPosition(
+                        desiredAccuracy: LocationAccuracy.high,
+                      );
+                      ('📍 Current location for check-in: ${position.latitude}, ${position.longitude}')
+                          .log();
+
+                      // Print parameters before API call
+                      print('📡 Calling check-in API with parameters:');
+                      print('   spaceId: ${widget.space.id}');
+                      print('   latitude: ${position.latitude}');
+                      print('   longitude: ${position.longitude}');
+
+                      // 2. Space 체크인 API 호출
+                      await spaceCubit.onCheckInWithNfc(
+                        spaceId: widget.space.id,
+                        latitude: position.latitude,
+                        longitude: position.longitude,
+                      );
+
+                      // 3. 성공 시: 현재 다이얼로그 닫고 성공 다이얼로그 표시
+                      if (mounted) {
+                        Navigator.of(context).pop(); // Close employ dialog
+                        await showDialog(
+                          context: context,
+                          builder: (context) => CheckinSuccessDialog(
+                            spaceName: widget.space.name,
+                            benefitDescription: benefitDescription,
+                          ),
+                        );
+                        // 다이얼로그가 닫힌 후 데이터 새로고침
+                        _fetchCheckInStatus();
+                        _fetchCheckInUsers();
+                        _fetchCurrentGroup();
+                      }
+                    } catch (e) {
+                      ('❌ Check-in error: $e').log();
+                      // 4. 실패 시: 현재 다이얼로그 닫고 실패 다이얼로그 표시
+                      if (mounted) {
+                        Navigator.of(context).pop(); // Close employ dialog
+                        showDialog(
+                          context: context,
+                          builder: (context) => const CheckinFailDialog(),
+                        );
+                      }
+                    }
+                  },
+                );
               },
             );
           }
@@ -1242,6 +1299,7 @@ class HidingBanner extends StatelessWidget {
                               benefits.isNotEmpty
                                   ? benefits.first.description
                                   : "체크인하고 하이딩하면",
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
