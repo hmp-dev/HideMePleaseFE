@@ -15,6 +15,7 @@ import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.
 //import 'package:mobile/features/community/presentation/screens/community_screen.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/home/presentation/screens/home_screen.dart';
+import 'package:mobile/features/home/presentation/screens/new_home_screen.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/screens/my_profile_screen.dart';
@@ -99,7 +100,10 @@ class _AppViewState extends State<AppView> {
                           itemBuilder: (context, index) {
                             print('🏗️ Building page for index: $index');
                             
-                            if (index == MenuType.space.menuIndex) {
+                            if (index == MenuType.home.menuIndex) {
+                              print('🏠 Returning NewHomeScreen for index $index');
+                              return const NewHomeScreen();
+                            } else if (index == MenuType.space.menuIndex) {
                               print('🗺️ Returning MapScreen for index $index');
                               return MapScreen(
                                 onShowBottomBar: () => getIt<PageCubit>().showBottomBar(),
@@ -108,9 +112,6 @@ class _AppViewState extends State<AppView> {
                             } else if (index == MenuType.events.menuIndex) {
                               print('🎪 Returning HomeScreen (Events) for index $index');
                               return const HomeScreen(); // EventsWepinScreen();
-                            } else if (index == MenuType.home.menuIndex) {
-                              print('🏠 Returning HomeScreen for index $index');
-                              return const HomeScreen();
                             //} else if (index ==
                             //    MenuType.community.menuIndex) {
                             //  return const CommunityScreen();
@@ -133,18 +134,18 @@ class _AppViewState extends State<AppView> {
                             right: 0,
                             bottom: 0,
                             child: CheckInBottomBar(
+                          isHomeActive: state.menuType == MenuType.home,
                           isMapActive: state.menuType == MenuType.space,
-                          isMyActive: state.menuType == MenuType.myProfile,
+                          onHomeTap: () {
+                            ('🏠 Home button tapped').log();
+                            // Navigate to Home Screen
+                            _onChangeMenu(MenuType.home);
+                          },
                           onMapTap: () {
                             ('🗺️ MAP button tapped').log();
                             // Navigate to Map Screen
                             _onChangeMenu(MenuType.space);
                             getIt<SpaceCubit>().onFetchAllSpaceViewData();
-                          },
-                          onMyTap: () {
-                            ('👤 My button tapped').log();
-                            // Navigate to MyProfile Screen
-                            _onChangeMenu(MenuType.myProfile);
                           },
                           onCheckInTap: () async {
                             ('✅ Check-in button tapped - Starting NFC reading').log();

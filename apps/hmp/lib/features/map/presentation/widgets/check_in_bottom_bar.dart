@@ -3,19 +3,19 @@ import 'dart:ui';
 import 'package:flutter_svg/flutter_svg.dart'; // SvgPicture 사용을 위해 추가
 
 class CheckInBottomBar extends StatelessWidget {
+  final VoidCallback? onHomeTap;
   final VoidCallback? onMapTap;
-  final VoidCallback? onMyTap;
   final VoidCallback? onCheckInTap;
+  final bool isHomeActive;
   final bool isMapActive;
-  final bool isMyActive;
 
   const CheckInBottomBar({
     Key? key,
+    this.onHomeTap,
     this.onMapTap,
-    this.onMyTap,
     this.onCheckInTap,
+    this.isHomeActive = false,
     this.isMapActive = false,
-    this.isMyActive = false,
   }) : super(key: key);
 
   @override
@@ -44,10 +44,39 @@ class CheckInBottomBar extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                    // 왼쪽: MAP과 MY 버튼
+                    // 왼쪽: 홈과 숨을곳 버튼
                     Row(
                       children: [
-                        // MAP 버튼
+                        // 홈 버튼
+                        GestureDetector(
+                          onTap: onHomeTap,
+                          child: SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.home_outlined,
+                                  color: isHomeActive ? Colors.white : Colors.grey[400],
+                                  size: 24,
+                                ),
+                                const SizedBox(height: 1),
+                                Text(
+                                  '홈',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: isHomeActive ? Colors.white : Colors.grey[400],
+                                    fontWeight: isHomeActive ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // 숨을곳 버튼
                         GestureDetector(
                           onTap: onMapTap,
                           child: SizedBox(
@@ -57,55 +86,18 @@ class CheckInBottomBar extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SvgPicture.asset(
-                                  'assets/icons/map_bottom_icon_map.svg',
-                                  colorFilter: ColorFilter.mode(
-                                    isMapActive ? Colors.white : Colors.grey[400]!,
-                                    BlendMode.srcIn,
-                                  ),
-                                  width: 24,
-                                  height: 24,
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  color: isMapActive ? Colors.white : Colors.grey[400],
+                                  size: 24,
                                 ),
                                 const SizedBox(height: 1),
                                 Text(
-                                  'MAP',
+                                  '숨을곳',
                                   style: TextStyle(
                                     fontSize: 9,
                                     color: isMapActive ? Colors.white : Colors.grey[400],
                                     fontWeight: isMapActive ? FontWeight.w600 : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // MY 버튼
-                        GestureDetector(
-                          onTap: onMyTap,
-                          child: SizedBox(
-                            width: 48,
-                            height: 48,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/icons/map_bottom_icon_my.svg',
-                                  colorFilter: ColorFilter.mode(
-                                    isMyActive ? Colors.white : Colors.grey[400]!,
-                                    BlendMode.srcIn,
-                                  ),
-                                  width: 24,
-                                  height: 24,
-                                ),
-                                const SizedBox(height: 1),
-                                Text(
-                                  'MY',
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    color: isMyActive ? Colors.white : Colors.grey[400],
-                                    fontWeight: isMyActive ? FontWeight.w600 : FontWeight.normal,
                                   ),
                                 ),
                               ],

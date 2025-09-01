@@ -1,19 +1,19 @@
 import 'package:flutter/cupertino.dart';
 
 enum MenuType {
+  home(
+    activeIconPath: "assets/icons/nav_home_active.png",
+    deactivateIconPath: "assets/icons/nav_home_deactive.png",
+    menuIndex: 0,
+  ),
   space(
     activeIconPath: "assets/icons/nav_space_active.png",
     deactivateIconPath: "assets/icons/nav_space_deactive.png",
-    menuIndex: 0,
+    menuIndex: 1,
   ),
   events(
     activeIconPath: "assets/icons/nav_wallet_active.png",
     deactivateIconPath: "assets/icons/nav_wallet_deactive.png",
-    menuIndex: 1,
-  ),
-  home(
-    activeIconPath: "assets/icons/nav_home_active.png",
-    deactivateIconPath: "assets/icons/nav_home_deactive.png",
     menuIndex: 2,
   ),
   /*community(
@@ -39,12 +39,12 @@ enum MenuType {
 
   String title(BuildContext context) {
     switch (this) {
+      case MenuType.home:
+        return "홈";
       case MenuType.space:
-        return "Space";
+        return "숨을곳";
       case MenuType.events:
         return "Events";
-      case MenuType.home:
-        return "Home";
       //case MenuType.community:
       //  return "Community";
       case MenuType.myProfile:
