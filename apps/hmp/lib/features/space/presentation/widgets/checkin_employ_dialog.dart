@@ -29,10 +29,10 @@ class CheckinEmployDialog extends StatelessWidget {
               width: 370,
               margin: const EdgeInsets.only(top: 70),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: const Color(0xFFEAF8FF),
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
-                  color: const Color(0xFF23B0FF),
+                  color: const Color(0xFF132E41),
                 ),
               ),
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -51,9 +51,9 @@ class CheckinEmployDialog extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       const Text(
-                        '체크인 보상',
+                        '체크인 혜택',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -65,7 +65,7 @@ class CheckinEmployDialog extends StatelessWidget {
                     width: 306,
                     padding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: const Color(0xFF132E41).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
@@ -74,7 +74,7 @@ class CheckinEmployDialog extends StatelessWidget {
                         Text(
                           benefitDescription,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -93,7 +93,7 @@ class CheckinEmployDialog extends StatelessWidget {
                             Text(
                               spaceName,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.black.withOpacity(0.7),
                                 fontSize: 14,
                               ),
                               textAlign: TextAlign.center,
@@ -107,7 +107,7 @@ class CheckinEmployDialog extends StatelessWidget {
                   Text(
                     '*각 제휴 공간에서 1일 1회 혜택을 사용할 수 있어.',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.black.withOpacity(0.7),
                       fontSize: 12,
                     ),
                   ),
@@ -115,7 +115,7 @@ class CheckinEmployDialog extends StatelessWidget {
                   Text(
                     '*직원이 아래 확인 버튼을 직접 누르도록 화면을 보여줘.',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.black.withOpacity(0.7),
                       fontSize: 12,
                     ),
                   ),
@@ -128,9 +128,13 @@ class CheckinEmployDialog extends StatelessWidget {
                           Navigator.of(context).pop();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.3),
+                          backgroundColor: const Color(0x4D000000),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(19),
+                            side: const BorderSide(
+                              color: Color(0xFF132E41),
+                              width: 1,
+                            ),
                           ),
                           minimumSize: const Size(100, 38),
                         ),
@@ -160,13 +164,17 @@ class CheckinEmployDialog extends StatelessWidget {
                               colors: [Color(0xFF2CB3FF), Color(0xFF7CD0FF)],
                             ),
                             borderRadius: BorderRadius.circular(19),
+                            border: Border.all(
+                              color: const Color(0xFF132E41),
+                              width: 1,
+                            ),
                           ),
                           child: Container(
                             width: 179,
                             height: 38,
                             alignment: Alignment.center,
                             child: const Text(
-                              '직원 확인',
+                              '사장님 확인',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,

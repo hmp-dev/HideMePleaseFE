@@ -105,7 +105,7 @@ class NewSpaceItem extends StatelessWidget {
                                 const SizedBox(width: 5),
                                 Text(
                                   "${newSpaceEntity.hidingCount}${LocaleKeys.peopleAreHiding.tr()}",
-                                  style: fontCompactSm(color: fore2),
+                                  style: fontCompactSm(color: Colors.white),
                                 ),
                               ],
                             ),

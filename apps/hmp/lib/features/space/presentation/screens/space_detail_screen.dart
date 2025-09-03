@@ -67,6 +67,7 @@ class _SpaceDetailScreenState extends State<SpaceDetailScreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFEAF8FF),
       body: SingleChildScrollView(
         child: BlocBuilder<SpaceCubit, SpaceState>(
           bloc: getIt<SpaceCubit>(),

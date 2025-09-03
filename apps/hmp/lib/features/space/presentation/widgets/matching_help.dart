@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class MatchingHelpDialog extends StatelessWidget {
   const MatchingHelpDialog({super.key});
@@ -13,22 +15,25 @@ class MatchingHelpDialog extends StatelessWidget {
       child: Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 10.0),
         backgroundColor: Colors.transparent,
-        child: Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.topCenter,
-          children: [
-            Container(
-              width: 370,
-              height: 242, // Adjusted height for the new title
-              margin: const EdgeInsets.only(top: 0), // Make space for the image
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(
-                  color: const Color(0xFF23B0FF),
-                ),
-              ),
-              child: Column(
+        child: SizedBox(
+          height: 460, // Total height for image + modal
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                bottom: 0,
+                child: Container(
+                  width: 370,
+                  height: 242,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF8FF),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: const Color(0xFF132E41),
+                    ),
+                  ),
+                  child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -41,10 +46,10 @@ class MatchingHelpDialog extends StatelessWidget {
                         height: 24,
                       ),
                       const SizedBox(width: 8),
-                      const Text(
-                        '매칭이란?',
-                        style: TextStyle(
-                          color: Colors.white,
+                      Text(
+                        LocaleKeys.what_is_matching.tr() + '?',
+                        style: const TextStyle(
+                          color: Colors.black,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -52,34 +57,34 @@ class MatchingHelpDialog extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  const Text(
-                    '블루체크 매장에 방문하면 혜택을 받기 위해 [체크인]을 해',
-                    style: TextStyle(
-                      color: Colors.white,
+                  Text(
+                    LocaleKeys.matching_help_desc1.tr(),
+                    style: const TextStyle(
+                      color: Colors.black,
                       fontSize: 12,
                     ),
                   ),
                   const SizedBox(height: 3),
-                  const Text(
-                    '그리고 체크인 후 매장에 머무르는 걸 [하이딩]이라고 해',
-                    style: TextStyle(
-                      color: Colors.white,
+                  Text(
+                    LocaleKeys.matching_help_desc2.tr(),
+                    style: const TextStyle(
+                      color: Colors.black,
                       fontSize: 12,
                     ),
                   ),
                   const SizedBox(height: 3),
-                  const Text(
-                    '하이딩 시작 후 자동으로 [매칭]에 참여하게 되는데',
-                    style: TextStyle(
-                      color: Colors.white,
+                  Text(
+                    LocaleKeys.matching_help_desc3.tr(),
+                    style: const TextStyle(
+                      color: Colors.black,
                       fontSize: 12,
                     ),
                   ),
                   const SizedBox(height: 3),
-                  const Text(
-                    '매칭은 정해진 인원이 모이면 추가 리워드(SAV)를 주는 걸 말해!',
-                    style: TextStyle(
-                      color: Colors.white,
+                  Text(
+                    LocaleKeys.matching_help_desc4.tr(),
+                    style: const TextStyle(
+                      color: Colors.black,
                       fontSize: 12,
                     ),
                   ),
@@ -94,9 +99,9 @@ class MatchingHelpDialog extends StatelessWidget {
                       ),
                       const SizedBox(width: 2),
                       Text(
-                        '매장에서 50미터 벗어나면 하이딩과 매칭이 종료되니 주의해줘!',
+                        LocaleKeys.matching_help_caution.tr(),
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.black.withOpacity(0.7),
                           fontSize: 12,
                         ),
                       ),
@@ -123,26 +128,31 @@ class MatchingHelpDialog extends StatelessWidget {
                           colors: [Color(0xFF2CB3FF), Color(0xFF7CD0FF)],
                         ),
                         borderRadius: BorderRadius.circular(19),
+                        border: Border.all(
+                          color: const Color(0xFF132E41),
+                          width: 1,
+                        ),
                       ),
                       child: Container(
                         width: 179,
                         height: 38,
                         alignment: Alignment.center,
-                        child: const Text(
-                          '확인했어!',
-                          style: TextStyle(
+                        child: Text(
+                          LocaleKeys.matching_help_confirm.tr(),
+                          style: const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-              top: -230,
+              ),
+              Positioned(
+                top: 0,
               child: DefaultImage(
                 path: "assets/icons/matching_image.png",
                 width: 218,
@@ -150,6 +160,7 @@ class MatchingHelpDialog extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

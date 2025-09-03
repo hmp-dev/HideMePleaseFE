@@ -26,23 +26,16 @@ class CheckinSuccessDialog extends StatelessWidget {
             clipBehavior: Clip.none,
             alignment: Alignment.topCenter,
             children: [
-              // SVG Background
-              Positioned(
-                top: 30,
-                child: SvgPicture.asset(
-                  'assets/icons/checkin_success_bg.svg',
-                  width: 370,
-                ),
-              ),
+              // Background removed for light theme
               // Content Container
               Container(
                 width: 370,
                 margin: const EdgeInsets.only(top: 70),
                 decoration: BoxDecoration(
-                  color: Colors.transparent,
+                  color: const Color(0xFFEAF8FF),
                   borderRadius: BorderRadius.circular(15),
                   border: Border.all(
-                    color: const Color(0xFF23B0FF),
+                    color: const Color(0xFF132E41),
                   ),
                 ),
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -63,7 +56,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                         const Text(
                           '체크인 성공!',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -74,7 +67,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                     Text(
                       '블루체크 매장에 체크인하고 혜택받은 걸 축하해!',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 14,
                       ),
                     ),
@@ -82,7 +75,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                     Text(
                       '보상으로 1 Savory를 증정할게!',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 14,
                       ),
                     ),
@@ -90,7 +83,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                     Text(
                       '이제 자동으로 매칭에 참여하게 됐어 :)',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 14,
                       ),
                     ),
@@ -99,7 +92,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Container(
                         height: 2,
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.black.withOpacity(0.2),
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -111,7 +104,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'SAV 획득',
+                              'SAV 획듍',
                               style: TextStyle(
                                 color: Color(0xFFEA5211),
                                 fontSize: 16,
@@ -122,7 +115,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                             Text(
                               'SAV 현황',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -164,7 +157,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                                 const Text(
                                   '132',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),

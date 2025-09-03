@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter_svg/flutter_svg.dart'; // SvgPicture 사용을 위해 추가
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class CheckInBottomBar extends StatelessWidget {
   final VoidCallback? onHomeTap;
@@ -14,7 +16,7 @@ class CheckInBottomBar extends StatelessWidget {
     this.onHomeTap,
     this.onMapTap,
     this.onCheckInTap,
-    this.isHomeActive = false,
+    this.isHomeActive = true,
     this.isMapActive = false,
   }) : super(key: key);
 
@@ -36,8 +38,12 @@ class CheckInBottomBar extends StatelessWidget {
                 child: Container(
                   height: 72, // 높이 72로 변경
                   decoration: BoxDecoration(
-                    color: const Color(0x4D19BAFF), // #19BAFF4D 배경색
+                    color: Colors.white.withOpacity(0.12), // 흰색 12% 불투명도
                     borderRadius: BorderRadius.circular(36),
+                    border: Border.all(
+                      color: Color(0xFF132E41),
+                      width: 1,
+                    ),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -57,17 +63,20 @@ class CheckInBottomBar extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.home_outlined,
-                                  color: isHomeActive ? Colors.white : Colors.grey[400],
-                                  size: 24,
+                                Opacity(
+                                  opacity: isHomeActive ? 1.0 : 0.4,
+                                  child: Image.asset(
+                                    'assets/icons/map_bottom_icon_home.png',
+                                    width: 30,
+                                    height: 30,
+                                  ),
                                 ),
-                                const SizedBox(height: 1),
+                                const SizedBox(height: 2),
                                 Text(
-                                  '홈',
+                                  LocaleKeys.nav_home.tr(),
                                   style: TextStyle(
-                                    fontSize: 9,
-                                    color: isHomeActive ? Colors.white : Colors.grey[400],
+                                    fontSize: 13,
+                                    color: Color(0xFF132E41).withOpacity(isHomeActive ? 1.0 : 0.4),
                                     fontWeight: isHomeActive ? FontWeight.w600 : FontWeight.normal,
                                   ),
                                 ),
@@ -86,17 +95,20 @@ class CheckInBottomBar extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.location_on_outlined,
-                                  color: isMapActive ? Colors.white : Colors.grey[400],
-                                  size: 24,
+                                Opacity(
+                                  opacity: isMapActive ? 1.0 : 0.4,
+                                  child: Image.asset(
+                                    'assets/icons/map_bottom_icon_map.png',
+                                    width: 30,
+                                    height: 30,
+                                  ),
                                 ),
-                                const SizedBox(height: 1),
+                                const SizedBox(height: 2),
                                 Text(
-                                  '숨을곳',
+                                  LocaleKeys.nav_hiding.tr(),
                                   style: TextStyle(
-                                    fontSize: 9,
-                                    color: isMapActive ? Colors.white : Colors.grey[400],
+                                    fontSize: 13,
+                                    color: Color(0xFF132E41).withOpacity(isMapActive ? 1.0 : 0.4),
                                     fontWeight: isMapActive ? FontWeight.w600 : FontWeight.normal,
                                   ),
                                 ),

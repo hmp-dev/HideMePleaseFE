@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
@@ -22,6 +23,13 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+    );
     _controller = AnimationController(vsync: this);
 
     _submitDeviceLocationToBackend();
@@ -45,24 +53,32 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Lottie.asset(
-          "assets/lottie/splash.json",
-          controller: _controller,
-          onLoaded: (composition) {
-            _controller
-              ..duration = composition.duration
-              ..forward().whenComplete(() async {
-                setState(() {
-                  isAnimationComplete = true;
-                });
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  Routes.startUpScreen,
-                  (route) => false,
-                );
-              });
-          },
+      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFF87CEEB),
+      body: Container(
+        color: const Color(0xFF87CEEB),
+        child: SafeArea(
+          top: false,
+          child: Center(
+            child: Lottie.asset(
+              "assets/lottie/splash.json",
+              controller: _controller,
+              onLoaded: (composition) {
+                _controller
+                  ..duration = composition.duration
+                  ..forward().whenComplete(() async {
+                    setState(() {
+                      isAnimationComplete = true;
+                    });
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      Routes.startUpScreen,
+                      (route) => false,
+                    );
+                  });
+              },
+            ),
+          ),
         ),
       ),
     );

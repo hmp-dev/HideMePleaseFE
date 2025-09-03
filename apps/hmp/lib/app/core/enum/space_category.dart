@@ -8,5 +8,6 @@ enum SpaceCategory {
   COWORKING,
   MUSIC,
   MEAL,
+  BAKERY,
   ETC,
 }

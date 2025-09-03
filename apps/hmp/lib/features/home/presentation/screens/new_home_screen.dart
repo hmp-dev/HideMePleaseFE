@@ -1,4 +1,8 @@
+import 'dart:ui' as ui;
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/common/presentation/widgets/profile_avatar_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +11,7 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/screens/my_profile_screen.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 
@@ -19,6 +24,8 @@ class NewHomeScreen extends StatefulWidget {
 
 class _NewHomeScreenState extends State<NewHomeScreen> {
   MapboxMap? mapboxMap;
+  PointAnnotationManager? _currentLocationManager;
+  PointAnnotation? _currentLocationAnnotation;
   List<SpaceEntity> nearbySpaces = [];
   List<SpaceEntity> recommendedSpaces = [];
   double currentLatitude = 37.5665;
@@ -42,6 +49,13 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
     MapboxOptions.setAccessToken(mapboxAccessToken);
     _initializeData();
     _loadProfileParts();
@@ -81,8 +95,25 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
         currentLatitude = position.latitude;
         currentLongitude = position.longitude;
       });
+      
+      // 지도가 이미 생성되었다면 카메라 위치 업데이트
+      _updateMapLocation();
     } catch (e) {
       // 위치 가져오기 실패: $e
+    }
+  }
+  
+  void _updateMapLocation() {
+    if (mapboxMap != null) {
+      mapboxMap!.setCamera(
+        CameraOptions(
+          center: Point(coordinates: Position(currentLongitude, currentLatitude)),
+          zoom: 16.0,
+          pitch: 0,
+        ),
+      );
+      // 마커도 업데이트
+      _addCurrentLocationMarker();
     }
   }
 
@@ -98,7 +129,75 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     }
   }
 
-  void _onMapCreated(MapboxMap mapboxMap) {
+  Future<void> _addCurrentLocationMarkerImage() async {
+    try {
+      // 간단한 파란색 원형 마커 생성
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      const size = 60.0;
+      
+      // 외부 원 (흰색 테두리)
+      final outerPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(const Offset(size/2, size/2), size/2, outerPaint);
+      
+      // 내부 원 (파란색)
+      final innerPaint = Paint()
+        ..color = const Color(0xFF2CB3FF)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(const Offset(size/2, size/2), size/2 - 4, innerPaint);
+      
+      // 중앙 점 (흰색)
+      final centerPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(const Offset(size/2, size/2), 8, centerPaint);
+      
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(size.toInt(), size.toInt());
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      
+      if (byteData != null) {
+        await mapboxMap?.style.addStyleImage(
+          'current_location_marker',
+          1,
+          MbxImage(data: byteData.buffer.asUint8List(), width: size.toInt(), height: size.toInt()),
+          false,
+          [],
+          [],
+          null,
+        );
+      }
+    } catch (e) {
+      print('❌ Failed to add current location marker image: $e');
+    }
+  }
+  
+  Future<void> _addCurrentLocationMarker() async {
+    if (_currentLocationManager == null || mapboxMap == null) return;
+    
+    try {
+      // 기존 마커가 있으면 삭제
+      if (_currentLocationAnnotation != null) {
+        await _currentLocationManager!.delete(_currentLocationAnnotation!);
+        _currentLocationAnnotation = null;
+      }
+      
+      // 새로운 마커 생성
+      final markerOptions = PointAnnotationOptions(
+        geometry: Point(coordinates: Position(currentLongitude, currentLatitude)),
+        iconImage: 'current_location_marker',
+        iconSize: 0.5,
+      );
+      
+      _currentLocationAnnotation = await _currentLocationManager!.create(markerOptions);
+    } catch (e) {
+      print('❌ Failed to add current location marker: $e');
+    }
+  }
+  
+  void _onMapCreated(MapboxMap mapboxMap) async {
     this.mapboxMap = mapboxMap;
     mapboxMap.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
     mapboxMap.compass.updateSettings(CompassSettings(enabled: false));
@@ -110,14 +209,14 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
       rotateEnabled: false,
     ));
     
-    // 지도 초기 설정 - 줌 레벨 17.0으로 설정
-    mapboxMap.setCamera(
-      CameraOptions(
-        center: Point(coordinates: Position(currentLongitude, currentLatitude)),
-        zoom: 17.0,
-        pitch: 0,
-      ),
-    );
+    // 현재 위치 마커 매니저 초기화
+    _currentLocationManager = await mapboxMap.annotations.createPointAnnotationManager();
+    
+    // 마커 이미지 등록
+    await _addCurrentLocationMarkerImage();
+    
+    // 현재 위치로 카메라 설정
+    _updateMapLocation();
   }
 
   @override
@@ -126,24 +225,31 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     final profile = profileCubit.state.userProfileEntity;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            stops: [0.1, 0.8, 1.0],
+            stops: [0.0, 0.10, 0.85, 1.0],
             colors: [
-              Color(0xffE9F8FF), // #23B0FF99 
-              Colors.white,      // 흰색 (60% 지점)
-              Color(0xff23B0FF), // #23B0FF99
+              Color(0x9923B0FF), // #23B0FF99 (상태바 영역)
+              Color(0xFFEAF8FF), // 라이트 블루 (메인 배경)
+              Colors.white,      // 흰색 (중간)
+              Color(0xff23B0FF), // #23B0FF (하단)
             ],
           ),
         ),
         child: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          top: false,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // 헤더 섹션
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -166,7 +272,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             height: 56,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
+                              border: Border.all(color: const Color(0xFF132E41), width: 2),
                             ),
                             child: ClipOval(
                               child: (profilePartsString != null && profilePartsString!.isNotEmpty) ||
@@ -198,11 +304,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                               ),
                               Row(
                                 children: [
-                                  _buildStatItem(Icons.home, '88'),
+                                  _buildStatItem(Icons.home, '0'),
                                   const SizedBox(width: 8),
-                                  _buildStatItem(Icons.search, '94'),
+                                  _buildStatItem(Icons.search, '0'),
                                   const SizedBox(width: 8),
-                                  _buildStatItem(Icons.location_on, '152'),
+                                  _buildStatItem(Icons.location_on, '0'),
                                 ],
                               ),
                             ],
@@ -214,11 +320,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                     Stack(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.notifications_outlined),
+                          icon: Image.asset(
+                            'assets/icons/ico_bell.png',
+                            width: 28,
+                            height: 28,
+                          ),
                           iconSize: 28,
-                          color: Colors.black,
                           onPressed: () {},
                         ),
+                        if (false) ...[
                         Positioned(
                           right: 8,
                           top: 8,
@@ -231,7 +341,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             ),
                             child: const Center(
                               child: Text(
-                                '3',
+                                '0',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 8,
@@ -241,6 +351,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             ),
                           ),
                         ),
+                        ]
                       ],
                     ),
                   ],
@@ -268,7 +379,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                  border: Border.all(color: Color(0xFF132E41), width: 1),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(18),
@@ -276,7 +387,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                     children: [
                       MapWidget(
                         onMapCreated: _onMapCreated,
-                        styleUri: 'mapbox://styles/ixplorer/cmes4lqyt00hj01sg9nvlbkvr',
+                        styleUri: 'mapbox://styles/ixplorer/cmf3a35jy00u501rkdf9k9lme',
                       ),
                       // 지도 위 오버레이 (선택적)
                       Positioned.fill(
@@ -298,7 +409,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              /*const SizedBox(height: 20),
 
               // 근처 사용자 슬라이더
               SizedBox(
@@ -356,12 +467,12 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   },
                 ),
               ),
-
+              */
               const SizedBox(height: 24),
 
               // NEW! 새로 숨을 곳이 생겼어! 섹션
               _buildSpaceSection(
-                title: 'NEW! 새로 숨을 곳이 생겼어!',
+                title: LocaleKeys.new_hiding_places.tr(),
                 spaces: nearbySpaces,
                 showCategoryTag: true,
               ),
@@ -370,17 +481,17 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 
               // 근처 이런 곳에 숨어봐! 섹션
               _buildSpaceSection(
-                title: '근처 이런 곳에 숨어봐!',
+                title: LocaleKeys.nearby_hiding_places.tr(),
                 spaces: recommendedSpaces,
                 showCategoryTag: false,
               ),
 
-              const SizedBox(height: 100), // 바텀바 공간
+              const SizedBox(height: 130), // 바텀바 공간
             ],
           ),
         ),
       ),
-      ),
+    ),
     );
   }
 
@@ -411,37 +522,13 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Row(
-                  children: [
-                    Text(
-                      '상세보기',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -450,7 +537,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
           child: spaces.isEmpty
               ? Center(
                   child: Text(
-                    '주변 공간을 불러오는 중...',
+                    LocaleKeys.loading_nearby_spaces.tr(),
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                 )
@@ -461,7 +548,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   itemBuilder: (context, index) {
                     final space = spaces[index];
                     return Container(
-                      width: 280, // Fixed width for horizontal scroll
+                      width: MediaQuery.of(context).size.width - 40, // 화면 너비 - 좌우 패딩
                       margin: const EdgeInsets.only(right: 12),
                       child: MapInfoCard(
                         space: space,

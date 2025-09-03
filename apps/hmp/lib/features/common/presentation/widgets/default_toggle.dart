@@ -50,8 +50,8 @@ class _CustomToggleState extends State<CustomToggle> {
               duration: ANIMATION_DURATION,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
-                border: Border.all(color: black500),
-                color: widget.initialValue ? hmpBlue : bgNega4,
+                border: Border.all(color: const Color(0xFF132E41)),
+                color: widget.initialValue ? const Color(0x3323B0FF) : const Color(0x1A000000),
               ),
               child: const Row(
                 children: [
@@ -93,7 +93,7 @@ class _CustomToggleState extends State<CustomToggle> {
                     width: widget.circleSize,
                     height: widget.circleSize,
                     decoration: BoxDecoration(
-                      color: white,
+                      color: widget.initialValue ? const Color(0xFF23B0FF) : const Color(0x4D000000),
                       borderRadius: BorderRadius.circular(100),
                     ),
                     alignment: Alignment.center,

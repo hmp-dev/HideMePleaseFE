@@ -17,7 +17,7 @@ class PageState extends BaseState {
 
   factory PageState.initial() => PageState(
       submitStatus: RequestStatus.initial,
-      menuType: MenuType.space,
+      menuType: MenuType.home,
       showBottomBar: true,
       pageController: PreloadPageController(initialPage: 0));
 

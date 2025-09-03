@@ -274,7 +274,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 widget.space.introduction.length > 90
                     ? '${widget.space.introduction.substring(0, 90)}...'
                     : widget.space.introduction,
-                style: fontTitle05(),
+                style: fontBodySmMedium(),
               ),
               /*
               const VerticalSpace(10),
@@ -304,8 +304,15 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "체크인 및 매칭 혜택",
-                    style: fontTitle06(),
+                    LocaleKeys.checkin_and_matching_benefits.tr(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                      letterSpacing: -0.1,
+                      height: 1.4,
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -325,8 +332,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                         ),
                         const HorizontalSpace(4),
                         Text(
-                          "매칭이란",
-                          style: fontBodySm(color: Colors.white.withOpacity(0.5)),
+                          LocaleKeys.what_is_matching.tr(),
+                          style: fontBodySm(color: Colors.black.withOpacity(0.5)),
                         ),
                         const HorizontalSpace(4),
                         DefaultImage(
@@ -370,11 +377,18 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         const VerticalSpace(20),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: SizedBox(
+          child: Container(
             width: MediaQuery.of(context).size.width,
             height: 250,
-            child: ClipRRect(
+            decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12.0),
+              border: Border.all(
+                color: const Color(0xFF132E41),
+                width: 1,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(11.0),
               child: Stack(
                 children: [
                   GoogleMap(
@@ -453,9 +467,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 Row(
                   children: [
                     DefaultImage(
-                      path: "assets/icons/icon_location.svg",
-                      width: 16,
-                      height: 16,
+                      path: "assets/icons/icon_location.png",
+                      width: 20,
+                      height: 20,
                     ),
                     const HorizontalSpace(10),
                     Expanded(
@@ -472,19 +486,19 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                                 ClipboardData(text: widget.space.address))
                             .then((_) {
                           Fluttertoast.showToast(
-                            msg: "주소가 복사되었습니다.",
+                            msg: LocaleKeys.address_copied.tr(),
                             toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
                             backgroundColor: Colors.grey[800],
-                            textColor: Colors.white,
+                            textColor: Colors.black,
                             fontSize: 16.0,
                           );
                         });
                       },
                       child: DefaultImage(
                         path: "assets/icons/icon_copy.svg",
-                        width: 16,
-                        height: 16,
+                        width: 20,
+                        height: 20,
                       ),
                     ),
                   ],
@@ -494,9 +508,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                   Row(
                     children: [
                       DefaultImage(
-                        path: "assets/icons/icon_time.svg",
-                        width: 16,
-                        height: 16,
+                        path: "assets/icons/icon_time.png",
+                        width: 20,
+                        height: 20,
                       ),
                       const HorizontalSpace(10),
                       Text(
@@ -512,11 +526,11 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                     const VerticalSpace(10),
                     Row(
                       children: [
-                        const SizedBox(width: 26), // Indent for alignment
+                        const SizedBox(width: 30), // Indent for alignment
                         Text(
-                          '${todayHours.breakStartTime!} ~ ${todayHours.breakEndTime!} 브레이크타임',
+                          '${todayHours.breakStartTime!} ~ ${todayHours.breakEndTime!} ${LocaleKeys.break_time_hours.tr()}',
                           style:
-                              fontCompactSm(color: Colors.white.withOpacity(0.5)),
+                              fontCompactSm(color: Colors.black.withOpacity(0.5)),
                         ),
                       ],
                     ),
@@ -555,12 +569,13 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(bottomSheetContext).size.height * 0.75,
           ),
-          decoration: const BoxDecoration(
-            color: Color(0xFF2C2C2E),
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: const Color(0xFFEAF8FF),
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(28),
               topRight: Radius.circular(28),
             ),
+            border: Border.all(color: const Color(0xFF132E41), width: 1),
           ),
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(32, 20, 32, 32),
@@ -571,7 +586,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                   width: 40,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Color(0xFF132E41).withOpacity(0.3),
                     borderRadius: BorderRadius.circular(2.5),
                   ),
                 ),
@@ -585,12 +600,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
+                          color: Color(0xFF132E41).withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.close,
-                          color: Colors.white,
+                          color: Color(0xFF132E41),
                           size: 20,
                         ),
                       ),
@@ -601,7 +616,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 const Text(
                   'Ready to Scan',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -611,7 +626,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 Text(
                   LocaleKeys.nfc_tag_nearby.tr(),
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.black.withOpacity(0.8),
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
@@ -623,19 +638,19 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: const Color(0xFF007AFF),
+                      color: const Color(0xFF132E41),
                       width: 3,
                     ),
                   ),
                   child: Container(
                     margin: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF007AFF),
+                      color: const Color(0xFF132E41),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.smartphone,
-                      color: Colors.white,
+                      color: Colors.black,
                       size: 40,
                     ),
                   ),
@@ -647,8 +662,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                   child: ElevatedButton(
                     onPressed: () => onCancel(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007AFF),
-                      foregroundColor: Colors.white,
+                      backgroundColor: const Color(0xFF132E41),
+                      foregroundColor: Colors.black,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28),
@@ -750,7 +765,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
       final spaceCubit = getIt<SpaceCubit>();
       final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
       final benefitDescription =
-          benefits.isNotEmpty ? benefits.first.description : '등록된 혜택이 없습니다.';
+          benefits.isNotEmpty ? benefits.first.description : LocaleKeys.no_benefits_registered.tr();
 
       showDialog(
         context: context,
@@ -821,22 +836,39 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
           // Left side: Icon and Status
           Row(
             children: [
-              (spaceDetailEntity.category.toLowerCase() == "walkerhill")
-                  ? DefaultImage(
-                      path: "assets/icons/walkerhill.png",
-                      width: 16,
-                      height: 16,
-                    )
-                  : DefaultImage(
-                      path:
-                          "assets/icons/ic_space_category_${spaceDetailEntity.category.toLowerCase()}.svg",
-                      width: 16,
-                      height: 16,
+              // Category with blue background label
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF19BAFF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    (spaceDetailEntity.category.toLowerCase() == "walkerhill")
+                        ? DefaultImage(
+                            path: "assets/icons/walkerhill.png",
+                            width: 16,
+                            height: 16,
+                          )
+                        : DefaultImage(
+                            path:
+                                "assets/icons/ic_space_category_${spaceDetailEntity.category.toLowerCase()}.svg",
+                            width: 16,
+                            height: 16,
+                          ),
+                    const HorizontalSpace(5),
+                    Text(
+                      getLocalCategoryName(spaceDetailEntity.category),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-              const HorizontalSpace(5),
-              Text(
-                getLocalCategoryName(spaceDetailEntity.category),
-                style: fontCompactSm(),
+                  ],
+                ),
               ),
               const HorizontalSpace(15),
               Text(
@@ -848,7 +880,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
           // Right side: Distance
           if (_distanceInKm != null)
             Text(
-              '나에게서 $_distanceInKm' 'km',
+              LocaleKeys.distance_from_me.tr(args: [_distanceInKm ?? '']),
               style: fontBodySm(color: fore3),
             )
           else
@@ -866,7 +898,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
     if (spaceEntity != null && spaceEntity.businessHours.isNotEmpty) {
       // Temporary closure check
       if (spaceEntity.isTemporarilyClosed) {
-        return (text: '임시 휴무', color: Colors.red[300]!);
+        return (text: LocaleKeys.temporarily_closed.tr(), color: Colors.red[300]!);
       }
 
       final isOpen = spaceEntity.isCurrentlyOpen;
@@ -886,7 +918,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
       String hoursText = '';
 
       if (isOpen) {
-        statusText = '영업 중';
+        statusText = LocaleKeys.business_open.tr();
         if (todayHours.closeTime != null) {
           // Break time check
           if (todayHours.breakStartTime != null &&
@@ -901,18 +933,18 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
             if (currentMinutes >= breakStartMinutes &&
                 currentMinutes < breakEndMinutes) {
-              statusText = '휴게시간';
-              hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} 재오픈';
+              statusText = LocaleKeys.break_time.tr();
+              hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} ${LocaleKeys.reopens_at.tr()}';
             } else {
-              hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
+              hoursText = '${_formatTime24To12(todayHours.closeTime!)} ${LocaleKeys.closes_at.tr()}';
             }
           } else {
-            hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
+            hoursText = '${_formatTime24To12(todayHours.closeTime!)} ${LocaleKeys.closes_at.tr()}';
           }
         }
       } else {
         // Closed
-        statusText = '영업 종료';
+        statusText = LocaleKeys.business_end.tr();
 
         // Find next business day
         final tomorrow = DateTime.now().add(const Duration(days: 1));
@@ -926,7 +958,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         );
 
         if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
-          hoursText = '내일 ${_formatTime24To12(tomorrowHours.openTime!)} 오픈';
+          hoursText = '${LocaleKeys.tomorrow.tr()} ${_formatTime24To12(tomorrowHours.openTime!)} ${LocaleKeys.opens_at.tr()}';
         }
       }
 
@@ -1059,7 +1091,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
               ),
             ),
             Text(
-              '임시 휴무',
+              LocaleKeys.temporarily_closed.tr(),
               style: fontCompactSm(color: Colors.red[300]),
             ),
           ],
@@ -1098,10 +1130,10 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
           if (currentMinutes >= breakStartMinutes &&
               currentMinutes < breakEndMinutes) {
-            statusText = '휴게시간';
-            hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} 재오픈';
+            statusText = LocaleKeys.break_time.tr();
+            hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} ${LocaleKeys.reopens_at.tr()}';
           } else {
-            hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
+            hoursText = '${_formatTime24To12(todayHours.closeTime!)} ${LocaleKeys.closes_at.tr()}';
           }
         } else {
           hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
@@ -1192,13 +1224,13 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
     final minute = parts[1];
 
     if (hour == 0) {
-      return '오전 12:$minute';
+      return '${LocaleKeys.am.tr()} 12:$minute';
     } else if (hour < 12) {
-      return '오전 $hour:$minute';
+      return '${LocaleKeys.am.tr()} $hour:$minute';
     } else if (hour == 12) {
-      return '오후 12:$minute';
+      return '${LocaleKeys.pm.tr()} 12:$minute';
     } else {
-      return '오후 ${hour - 12}:$minute';
+      return '${LocaleKeys.pm.tr()} ${hour - 12}:$minute';
     }
   }
 
@@ -1289,7 +1321,7 @@ class HidingBanner extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: gradient,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        border: Border.all(color: Colors.transparent, width: 0.5), // Stroke
+        border: Border.all(color: const Color(0xFF132E41), width: 1), // Black border
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -1323,17 +1355,17 @@ class HidingBanner extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (isCheckedIn) ...[
-                            const Text(
-                              "체크인 완료!",
-                              style: TextStyle(
+                            Text(
+                              LocaleKeys.checkin_complete.tr(),
+                              style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold),
                             ),
                             const VerticalSpace(4),
-                            const Text(
-                              "5명 매칭 성공하면 +10SAV 획득!",
-                              style: TextStyle(
+                            Text(
+                              LocaleKeys.checkin_success_get_sav.tr(),
+                              style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold),
@@ -1342,7 +1374,7 @@ class HidingBanner extends StatelessWidget {
                             Text(
                               benefits.isNotEmpty
                                   ? benefits.first.description
-                                  : "체크인하고 하이딩하면",
+                                  : LocaleKeys.if_you_checkin_and_hide.tr(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                   color: Colors.black,
@@ -1351,9 +1383,9 @@ class HidingBanner extends StatelessWidget {
                             ),
                             if (benefits.isEmpty) ...[
                               const VerticalSpace(4),
-                              const Text(
-                                "다양한 혜택이 와르르!",
-                                style: TextStyle(
+                              Text(
+                                LocaleKeys.various_benefits.tr(),
+                                style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold),
@@ -1419,7 +1451,7 @@ class HidingBanner extends StatelessWidget {
                             height: 45,
                             child: Center(
                               child: SvgPicture.asset(
-                                'assets/icons/map_bottom_icon_checkin.svg',
+                                'assets/icons/btn_detail_checkin.svg',
                               ),
                             ),
                           ),
@@ -1456,31 +1488,30 @@ class HidingStatusBanner extends StatelessWidget {
         .toList();
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(1, 0, 1, 1), // Border width, no top border
       decoration: BoxDecoration(
         borderRadius:
             const BorderRadius.vertical(bottom: Radius.circular(16)),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF72CCFF), Color(0xFFF9F395)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        border: Border(
+          left: BorderSide(color: const Color(0xFF132E41), width: 1),
+          right: BorderSide(color: const Color(0xFF132E41), width: 1),
+          bottom: BorderSide(color: const Color(0xFF132E41), width: 1),
         ),
       ),
       child: Container(
         padding:
             const EdgeInsets.fromLTRB(15, 16, 15, 9), // Adjust for border
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: const Color(0xFFEAF8FF),
           borderRadius:
               const BorderRadius.vertical(bottom: Radius.circular(15)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "매칭 중인 하이더",
+            Text(
+              LocaleKeys.matching_hiders.tr(),
               style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -1504,8 +1535,7 @@ class HidingStatusBanner extends StatelessWidget {
 
                         // Case 1: Progress is 0, all segments are dark.
                         if (progress == 0) {
-                          segmentColor =
-                              const Color(0xFF020F18).withOpacity(0.8);
+                          segmentColor = Colors.white;
                         }
                         // Case 2: Progress is full, all segments are solid blue.
                         else if (progress >= total) {
@@ -1524,7 +1554,7 @@ class HidingStatusBanner extends StatelessWidget {
                                 Color(0xBF19BAFF),
                                 Color(0x8019BAFF),
                                 Color(0x4019BAFF),
-                                Color(0x0019BAFF),
+                                Color(0xFF19BAFF),
                               ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
@@ -1532,7 +1562,7 @@ class HidingStatusBanner extends StatelessWidget {
                           } else {
                             // Unfilled segments are dark.
                             segmentColor =
-                                const Color(0xFF020F18).withOpacity(0.8);
+                                const Color(0xFF19BAFF).withOpacity(0.8);
                           }
                         }
                         return Expanded(
@@ -1544,7 +1574,7 @@ class HidingStatusBanner extends StatelessWidget {
                                   ? Border(
                                       right: BorderSide(
                                         color:
-                                            Colors.white.withOpacity(0.0),
+                                            Colors.black.withOpacity(0.0),
                                         width: 1,
                                       ),
                                     )
@@ -1559,15 +1589,15 @@ class HidingStatusBanner extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(13.5),
-                      border: Border.all(color: const Color(0xFF19BAFF)),
+                      border: Border.all(color: const Color(0xFF132E41)),
                     ),
                   ),
                   // Text
                   Center(
                     child: Text(
-                      "${total - progress}명만 더 모이면 SAV 획득!",
+                      LocaleKeys.more_to_get_sav.tr(args: [(total - progress).toString()]),
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 12,
                       ),
                     ),
@@ -1577,10 +1607,10 @@ class HidingStatusBanner extends StatelessWidget {
             ),
             const VerticalSpace(20),
             if (completedHiders.isNotEmpty) ...[
-              const Text(
-                "매칭 완료된 하이더",
+              Text(
+                LocaleKeys.completed_matching_hiders.tr(),
                 style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 16,
                     fontWeight: FontWeight.bold),
               ),
@@ -1711,11 +1741,13 @@ class _PlayerAvatar extends StatelessWidget {
                       height: 50,
                     ),
         ),
-        const VerticalSpace(8),
-        Text(
-          name,
-          style: const TextStyle(color: Colors.white, fontSize: 12),
-        ),
+        if (name.isNotEmpty) ...[
+          const VerticalSpace(8),
+          Text(
+            name,
+            style: const TextStyle(color: Colors.black, fontSize: 12),
+          ),
+        ]
       ],
     );
   }
@@ -1736,7 +1768,7 @@ class _StatRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
+            style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 12),
           ),
           Text(
             value,
@@ -1761,7 +1793,7 @@ class _ProgressBar extends StatelessWidget {
       height: 27,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(13.5),
-        border: Border.all(color: const Color(0xFF19BAFF)),
+        border: Border.all(color: Colors.black),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(13.5),
@@ -1769,14 +1801,14 @@ class _ProgressBar extends StatelessWidget {
           children: [
             LinearProgressIndicator(
               value: progress / total,
-              backgroundColor: const Color(0xFF020F18).withOpacity(0.8),
+              backgroundColor: Colors.white.withOpacity(0.8),
               valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF19BAFF)),
             ),
             Center(
               child: Text(
                 "${total - progress}명만 더 모이면 SAV 획득!",
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 12,
                 ),
               ),

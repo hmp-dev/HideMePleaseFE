@@ -16,7 +16,7 @@ class ThickDivider extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: paddingTop, bottom: paddingBottom),
       child: const Divider(
-        color: bgNega5,
+        color: Color(0xFFE0E0E0),
         height: 8,
         thickness: 8,
       ),

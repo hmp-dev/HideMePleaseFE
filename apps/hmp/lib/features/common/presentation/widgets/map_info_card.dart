@@ -38,220 +38,184 @@ class MapInfoCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFFFFFFFF),
-              Color(0xFFF8F8F8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              spreadRadius: 0,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(color: Color(0xFF132E41), width: 1)
         ),
-        child: Stack(
-          children: [
-            // 배경 패턴 - 지그재그
-            Positioned(
-              top: -10,
-              right: -10,
-              child: Transform.rotate(
-                angle: 0.1,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 매장 이미지
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
                 child: Container(
                   width: 100,
                   height: 100,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00A3FF).withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  color: const Color(0xFF3A3A3A),
+                  child: space.image.isNotEmpty && !space.image.contains('undefined')
+                      ? Image.network(
+                          space.image,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                                strokeWidth: 2,
+                                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00A3FF)),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            print('❌ 이미지 로드 에러: ${space.image}');
+                            return Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey[600],
+                                size: 30,
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          color: const Color(0xFF3A3A3A),
+                          child: Center(
+                            child: Icon(
+                              Icons.store,
+                              color: Colors.grey[600],
+                              size: 30,
+                            ),
+                          ),
+                        ),
                 ),
               ),
-            ),
-            // 컨텐츠
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 매장 이미지
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      color: const Color(0xFF3A3A3A),
-                      child: space.image.isNotEmpty && !space.image.contains('undefined')
-                          ? Image.network(
-                              space.image,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                                    strokeWidth: 2,
-                                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00A3FF)),
-                                  ),
-                                );
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                print('❌ 이미지 로드 에러: ${space.image}');
-                                return Center(
-                                  child: Icon(
-                                    Icons.image_not_supported,
-                                    color: Colors.grey[600],
-                                    size: 30,
-                                  ),
-                                );
-                              },
-                            )
-                          : Container(
-                              color: const Color(0xFF3A3A3A),
-                              child: Center(
-                                child: Icon(
-                                  Icons.store,
-                                  color: Colors.grey[600],
-                                  size: 30,
-                                ),
-                              ),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // 매장 정보
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+              const SizedBox(width: 16),
+              // 매장 정보
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 카테고리 배지와 상세보기
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // 카테고리 배지와 상세보기
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00A3FF),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            _getCategoryDisplayName(space.category),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        // 상세보기
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF3A3A3A),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                _getCategoryDisplayName(space.category),
-                                style: const TextStyle(
-                                  color: Color(0xFF999999),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'Pretendard',
-                                ),
+                            Text(
+                              LocaleKeys.view_details.tr(),
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'Pretendard',
                               ),
                             ),
-                            // 상세보기
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  LocaleKeys.view_details.tr(),
-                                  style: TextStyle(
-                                    color: Colors.grey[500],
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w400,
-                                    fontFamily: 'Pretendard',
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: Colors.grey[500],
-                                  size: 12,
-                                ),
-                              ],
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.grey[500],
+                              size: 12,
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        // 매장명
-                        Text(
-                          space.name,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Pretendard',
-                            height: 1.2,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        // 운영 상태
-                        _buildBusinessHoursStatus(space),
-                        // 혜택 정보가 있을 때만 구분선과 혜택 표시
-                        if (space.benefitDescription.isNotEmpty) ...[
-                          const SizedBox(height: 10),
-                          // 구분선
-                          Container(
-                            height: 1,
-                            color: Colors.white.withValues(alpha: 0.3),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Image.asset(
-                                'assets/icons/ico_infobenefit.png',
-                                width: 12,
-                                height: 12,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                LocaleKeys.benefit.tr(),
-                                style: const TextStyle(
-                                  color: Color(0xFF00A3FF),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'Pretendard',
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                width: 2,
-                                height: 2,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF666666),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  space.benefitDescription,
-                                  style: const TextStyle(
-                                    color: Color(0xFF999999),
-                                    fontSize: 12,
-                                    fontFamily: 'Pretendard',
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    // 매장명
+                    Text(
+                      space.name,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Pretendard',
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    // 운영 상태
+                    _buildBusinessHoursStatus(space),
+                    // 혜택 정보가 있을 때만 구분선과 혜택 표시
+                    if (space.benefitDescription.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      // 구분선
+                      Container(
+                        height: 1,
+                        color: Colors.grey.withValues(alpha: 0.2),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/icons/ico_infobenefit.png',
+                            width: 12,
+                            height: 12,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            LocaleKeys.benefit.tr(),
+                            style: const TextStyle(
+                              color: Color(0xFF00A3FF),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Pretendard',
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 2,
+                            height: 2,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF666666),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              space.benefitDescription,
+                              style: const TextStyle(
+                                color: Color(0xFF999999),
+                                fontSize: 12,
+                                fontFamily: 'Pretendard',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

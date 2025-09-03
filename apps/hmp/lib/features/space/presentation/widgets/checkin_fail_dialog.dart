@@ -17,10 +17,10 @@ class CheckinFailDialog extends StatelessWidget {
           width: 350,
           height: 168,
           decoration: BoxDecoration(
-            color: Colors.black,
+            color: const Color(0xFFEAF8FF),
             borderRadius: BorderRadius.circular(15),
             border: Border.all(
-              color: const Color(0xFF23B0FF),
+              color: const Color(0xFF132E41),
             ),
           ),
           child: Column(
@@ -41,7 +41,7 @@ class CheckinFailDialog extends StatelessWidget {
                   Text(
                     LocaleKeys.nfc_checkin_error_title.tr(),
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -52,7 +52,7 @@ class CheckinFailDialog extends StatelessWidget {
               Text(
                 LocaleKeys.nfc_checkin_error_subtitle.tr(),
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 13,
                 ),
               ),
@@ -62,17 +62,36 @@ class CheckinFailDialog extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2CB3FF),
+                  padding: EdgeInsets.zero,
+                  backgroundColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(19),
                   ),
                   minimumSize: const Size(179, 38),
+                  shadowColor: Colors.transparent,
                 ),
-                child: Text(
-                  LocaleKeys.got_it_button.tr(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2CB3FF), Color(0xFF7CD0FF)],
+                    ),
+                    borderRadius: BorderRadius.circular(19),
+                    border: Border.all(
+                      color: const Color(0xFF132E41),
+                      width: 1,
+                    ),
+                  ),
+                  child: Container(
+                    width: 179,
+                    height: 38,
+                    alignment: Alignment.center,
+                    child: Text(
+                      LocaleKeys.got_it_button.tr(),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),

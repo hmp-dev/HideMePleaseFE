@@ -36,7 +36,7 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
-  Color _dominantColor = const Color(0xFFA9F4B6); // 기본 민트색
+  Color _dominantColor = const Color(0xFFEAF8FF); // 기본 라이트 블루색
   bool _isLoadingColor = false;
   bool _colorExtracted = false; // 색상 추출 완료 여부
   final GlobalKey _profileKey = GlobalKey(); // 프로필 위젯 캡처용
@@ -194,7 +194,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     // print('🏗️ MyProfileScreen build() called');
     
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFFEAF8FF),
       body: BlocConsumer<ProfileCubit, ProfileState>(
         bloc: getIt<ProfileCubit>(),
         listenWhen: (previous, current) {
@@ -225,7 +225,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     colors: [
                       _dominantColor,
                       _dominantColor.withOpacity(0.5),
-                      Colors.black,
+                      const Color(0xFFEAF8FF),
                     ],
                     stops: const [0.0, 0.4, 1.0],
                   ),
@@ -236,36 +236,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      // 백 버튼 추가
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 20, top: 20),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.3),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.arrow_back,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // 상단 헤더 (백 버튼, 하이딩 중, 설정)
+                      _buildTopHeader(),
 
-                      const SizedBox(height: 10),
-
-                      // 하이딩 중 태그 (프로필 위 중앙)
-                      _buildHidingStatus(),
+                      const SizedBox(height: 20),
 
                       const SizedBox(height: 20),
 
@@ -284,11 +258,19 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
                       const SizedBox(height: 30),
 
-                      // 나의 아지트 섹션
-                      _buildMyHidingSpotsSection(),
+                      // 여기에 숨었었어! 섹션
+                      _buildCardSection(
+                        title: LocaleKeys.i_was_hiding_here.tr(),
+                        content: LocaleKeys.update_in_progress.tr(),
+                      ),
 
-                      // 나의 캘린더 섹션
-                      _buildMyCalendarSection(),
+                      const SizedBox(height: 20),
+
+                      // 업적을 확인해봐! 섹션
+                      _buildCardSection(
+                        title: LocaleKeys.check_your_achievements.tr(),
+                        content: LocaleKeys.update_in_progress.tr(),
+                      ),
 
                       const SizedBox(height: 100), // 바텀바 공간
                     ],
@@ -302,115 +284,108 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     );
   }
 
-  Widget _buildHidingStatus() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: Color(0xFF19BAFF),
+  Widget _buildTopHeader() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // 백 버튼
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
                 shape: BoxShape.circle,
               ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              LocaleKeys.hiding_status.tr(),
-              style: const TextStyle(
-                color: Color(0xFF333333),
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+              child: const Icon(
+                Icons.arrow_back_ios,
+                color: Color(0xFF132E41),
+                size: 20,
               ),
             ),
-            const SizedBox(width: 6),
-            Icon(
-              Icons.chevron_right,
-              color: const Color(0xFF333333),
-              size: 18,
+          ),
+          
+          // 하이딩 중 태그
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFF132E41), width: 1),
             ),
-          ],
-        ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF19BAFF),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  LocaleKeys.hiding_status.tr(),
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.chevron_right,
+                  color: const Color(0xFF132E41),
+                  size: 18,
+                ),
+              ],
+            ),
+          ),
+          
+          // 설정 버튼
+          GestureDetector(
+            onTap: () {
+              getIt<SettingsCubit>().onGetSettingBannerInfo();
+              SettingsScreen.push(context);
+            },
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Image.asset(
+                  'assets/icons/ic_mysetting.png',
+                  width: 28,
+                  height: 28,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildProfileWithButtons(userProfile) {
     return Container(
+      height: 160,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 왼쪽 버튼들 (찜, 지갑)
-          Column(
-            children: [
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  width: 34,
-                  height: 34,
-                  color: Colors.transparent,
-                  child: Image.asset(
-                    'assets/icons/ic_myzzim.png',
-                    width: 34,
-                    height: 34,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                LocaleKeys.favorite.tr(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                ),
-              ),
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () async {
-                  print('🔘 지갑 버튼 클릭됨');
-                  
-                  try {
-                    final wepinCubit = getIt<WepinCubit>();
-                    // openWepinWidget이 모든 상태를 처리
-                    // initialized 상태에서 loginSocialAuthProvider가 토큰 새로고침을 처리
-                    await wepinCubit.openWepinWidget(context);
-                  } catch (e) {
-                    print('❌ 지갑 버튼 에러: $e');
-                  }
-                },
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  color: Colors.transparent,
-                  child: Image.asset(
-                    'assets/icons/ic_mywallet.png',
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                LocaleKeys.wallet.tr(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
+          // 스페이서 (왼쪽 공간)
+          const Spacer(),
           
-          const SizedBox(width: 20),
-          
-          // 프로필 이미지 - 더 크게 (버튼 2개 높이 + 간격보다 크게)
+          // 프로필 이미지 - 화면 중앙에 배치
           RepaintBoundary(
             key: _profileKey,
             child: Container(
@@ -453,79 +428,75 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             ),
           ),
           
-          const SizedBox(width: 20),
-          
-          // 오른쪽 버튼들 (알림, 설정)
-          Column(
-            children: [
-              Stack(
-                children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      color: Colors.transparent,
-                      child: Image.asset(
-                        'assets/icons/ic_mynoti.png',
-                        width: 30,
-                        height: 30,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: 6,
-                    top: 6,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                LocaleKeys.notification.tr(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                ),
-              ),
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () {
-                  // 설정 화면으로 이동
-                  getIt<SettingsCubit>().onGetSettingBannerInfo();
-                  SettingsScreen.push(context);
-                },
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  color: Colors.transparent,
-                  child: Image.asset(
-                    'assets/icons/ic_mysetting.png',
+          // 스페이서 및 오른쪽 버튼들
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 찜 버튼
+                GestureDetector(
+                  onTap: () {
+                    // 찜 기능 구현
+                  },
+                  child: Container(
                     width: 30,
                     height: 30,
+                    color: Colors.transparent,
+                    child: Center(
+                      child: Image.asset(
+                        'assets/icons/ic_myzzim.png',
+                        width: 28,
+                        height: 28,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                LocaleKeys.settings_label.tr(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
+                const SizedBox(height: 8),
+                Text(
+                  LocaleKeys.favorite.tr(),
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 11,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                // 지갑 버튼
+                GestureDetector(
+                  onTap: () async {
+                    print('🔘 지갑 버튼 클릭됨');
+                    
+                    try {
+                      final wepinCubit = getIt<WepinCubit>();
+                      // openWepinWidget이 모든 상태를 처리
+                      // initialized 상태에서 loginSocialAuthProvider가 토큰 새로고침을 처리
+                      await wepinCubit.openWepinWidget(context);
+                    } catch (e) {
+                      print('❌ 지갑 버튼 에러: $e');
+                    }
+                  },
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    color: Colors.transparent,
+                    child: Center(
+                      child: Image.asset(
+                        'assets/icons/ic_mywallet.png',
+                        width: 28,
+                        height: 28,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  LocaleKeys.wallet.tr(),
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -539,7 +510,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         Text(
           userProfile?.nickName ?? 'Jaeleah',
           style: const TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontSize: 32,
             fontWeight: FontWeight.bold,
           ),
@@ -556,21 +527,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               Text(
                 userProfile?.introduction?.isNotEmpty == true 
                     ? userProfile!.introduction! 
-                    : '너를 소개해봐',
+                    : LocaleKeys.sample_intro.tr(),
                 style: TextStyle(
-                  color: userProfile?.introduction?.isNotEmpty == true
-                      ? Colors.white.withOpacity(0.8)
-                      : Colors.white.withOpacity(0.5),
+                  color: Colors.black.withOpacity(0.7),
                   fontSize: 14,
-                  fontStyle: userProfile?.introduction?.isNotEmpty == true
-                      ? FontStyle.normal
-                      : FontStyle.italic,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8),
               Icon(
                 Icons.edit,
-                color: Colors.white.withOpacity(0.6),
+                color: Color(0xFF132E41).withOpacity(0.6),
                 size: 16,
               ),
             ],
@@ -583,27 +550,29 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Widget _buildStatsSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      height: 80,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF72CCFF),
+            const Color(0xFFBED7FF),
+            const Color(0xFFF9F395),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
         borderRadius: BorderRadius.circular(40),
+        border: Border.all(
+          color: const Color(0xFF132E41).withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildStatItem('0', LocaleKeys.friends.tr(), 'assets/images/ic_myfriend.png'),
-          Container(
-            width: 1,
-            height: 40,
-            color: Colors.white.withOpacity(0.2),
-          ),
-          _buildStatItem('0', LocaleKeys.check_in.tr(), 'assets/images/ic_mycheckin.png'),
-          Container(
-            width: 1,
-            height: 40,
-            color: Colors.white.withOpacity(0.2),
-          ),
-          _buildStatItem('0', 'SAV', 'assets/images/ic_mysav.png'),
+          _buildStatItem('0', LocaleKeys.friends.tr(), 'assets/icons/icon_status_friends.png'),
+          _buildStatItem('0', LocaleKeys.check_in.tr(), 'assets/icons/icon_status_checkin.png'),
+          _buildStatItem('0', 'SAVORY', 'assets/icons/icon_status_sav.png'),
         ],
       ),
     );
@@ -611,14 +580,20 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   Widget _buildStatItem(String value, String label, String iconPath) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 4),
         Row(
@@ -628,19 +603,74 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               iconPath,
               width: 16,
               height: 16,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.black.withOpacity(0.7),
             ),
             const SizedBox(width: 4),
             Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 10,
+                color: Colors.black.withOpacity(0.7),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildCardSection({required String title, required String content}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF132E41).withOpacity(0.2), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: Text(
+                  LocaleKeys.view_all.tr(),
+                  style: TextStyle(
+                    color: const Color(0xFF132E41).withOpacity(0.6),
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 30),
+            child: Center(
+              child: Text(
+                content,
+                style: TextStyle(
+                  color: Colors.black.withOpacity(0.5),
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -658,7 +688,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 Text(
                   LocaleKeys.my_hideout.tr(),
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -668,7 +698,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   child: Text(
                     LocaleKeys.total_visits.tr(),
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Color(0xFF132E41).withOpacity(0.5),
                       fontSize: 10,
                     ),
                   ),
@@ -703,7 +733,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       Text(
                         '${LocaleKeys.create_your_hideout.tr()} :)',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.black.withOpacity(0.7),
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -758,7 +788,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 Text(
                   title,
                   style: TextStyle(
-                    color: (color != Colors.transparent) ? Colors.black : Colors.white,
+                    color: Colors.black,
                     fontSize: (color != Colors.transparent) ? 17 :15,
                     fontWeight: (color != Colors.transparent) ? FontWeight.w700 : FontWeight.w600,
                   ),
@@ -766,7 +796,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 Text(
                   lastVisit,
                   style: TextStyle(
-                    color: (color != Colors.transparent) ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.6),
+                    color: Colors.black.withOpacity(0.6),
                     fontSize: 12,
                   ),
                 ),
@@ -825,7 +855,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               Text(
                 LocaleKeys.my_calendar.tr(),
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -833,7 +863,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               Text(
                 monthYearFormat.format(now),
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.black.withOpacity(0.7),
                   fontSize: 14,
                 ),
               ),
@@ -889,13 +919,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         color: isSelected 
             ? Colors.transparent
             : hasCheckIn
-                ? Colors.white.withOpacity(0.1)
-                : Colors.white.withOpacity(0.05),
+                ? Color(0xFF132E41).withOpacity(0.1)
+                : Color(0xFF132E41).withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected
               ? const Color(0xFF19BAFF)
-              : Colors.white.withOpacity(0.1),
+              : Color(0xFF132E41).withOpacity(0.3),
           width: isSelected ? 2 : 1,
         ),
       ),
@@ -950,7 +980,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           Text(
             day,
             style: TextStyle(
-              color: isSelected ? const Color(0xFF19BAFF) : Colors.white,
+              color: isSelected ? const Color(0xFF19BAFF) : Colors.black,
               fontSize: 16,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
@@ -980,12 +1010,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 width: dialogWidth,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A1A),
+                  color: const Color(0xFFEAF8FF),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFF23B0FF).withOpacity(0.3),
-                    width: 1,
-                  ),
+                  border: Border.all(color: const Color(0xFF000000), width: 1),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -994,7 +1021,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     Text(
                       LocaleKeys.self_introduction.tr(),
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
@@ -1005,7 +1032,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2A2A2A),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -1015,13 +1042,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             controller: textController,
                             maxLength: 20,
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 16,
                             ),
                             decoration: InputDecoration(
                               hintText: LocaleKeys.describe_yourself_placeholder.tr(),
                               hintStyle: TextStyle(
-                                color: Colors.white.withOpacity(0.3),
+                                color: Colors.black.withOpacity(0.3),
                                 fontSize: 16,
                               ),
                               border: InputBorder.none,
@@ -1037,7 +1064,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           Text(
                             '$characterCount/20',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.5),
+                              color: Colors.black.withOpacity(0.5),
                               fontSize: 12,
                             ),
                           ),
@@ -1058,7 +1085,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF878787),
+                                color: const Color(0xFFE0E0E0),
+                                border: Border.all(color: const Color(0xFF132E41), width: 1),
                                 borderRadius: BorderRadius.circular(25),
                               ),
                               child: Center(
@@ -1090,15 +1118,16 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
+                                gradient: LinearGradient(
                                   colors: [
-                                    Color(0xFF2CB3FF),
-                                    Color(0xFF7CD0FF),
+                                    const Color(0xff00A3FF),
+                                    const Color(0xff5FC5FF),
                                   ],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                 ),
                                 borderRadius: BorderRadius.circular(25),
+                                border: Border.all(color: const Color(0xFF000000), width: 1),
                               ),
                               child: Center(
                                 child: Text(

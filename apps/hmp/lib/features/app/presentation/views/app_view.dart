@@ -68,33 +68,21 @@ class _AppViewState extends State<AppView> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF0C0C0E),
-            Color(0xCC0C0C0E),
-          ],
-        ),
-      ),
-      child: SafeArea(
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            BlocConsumer<PageCubit, PageState>(
-              bloc: getIt<PageCubit>(),
-              listener: (context, state) {},
-              builder: (context, state) {
-                return BlocBuilder<EnableLocationCubit, EnableLocationState>(
-                  bloc: getIt<EnableLocationCubit>(),
-                  builder: (context, locState) {
-                    if (locState.isSubmitLoading) return Container();
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        BlocConsumer<PageCubit, PageState>(
+          bloc: getIt<PageCubit>(),
+          listener: (context, state) {},
+          builder: (context, state) {
+            return BlocBuilder<EnableLocationCubit, EnableLocationState>(
+              bloc: getIt<EnableLocationCubit>(),
+              builder: (context, locState) {
+                if (locState.isSubmitLoading) return Container();
 
-                    return Stack(
-                      children: [
-                        PreloadPageView.builder(
+                return Stack(
+                  children: [
+                    PreloadPageView.builder(
                           onPageChanged: (value) {},
                           itemBuilder: (context, index) {
                             print('🏗️ Building page for index: $index');
@@ -342,17 +330,15 @@ class _AppViewState extends State<AppView> {
                               },
                             );
                           },
-                        ),
-                          ),
-                      ],
-                    );
-                  },
+                    ),
+                      ),
+                  ],
                 );
               },
-            ),
-          ],
+            );
+          },
         ),
-      ),
+      ],
     );
   }
 

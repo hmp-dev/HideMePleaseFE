@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 enum MenuType {
   home(
@@ -40,9 +42,9 @@ enum MenuType {
   String title(BuildContext context) {
     switch (this) {
       case MenuType.home:
-        return "홈";
+        return LocaleKeys.nav_home.tr();
       case MenuType.space:
-        return "숨을곳";
+        return LocaleKeys.nav_hiding.tr();
       case MenuType.events:
         return "Events";
       //case MenuType.community:

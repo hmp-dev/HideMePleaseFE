@@ -164,8 +164,13 @@ class _MapScreenState extends State<MapScreen> {
       ),
       UnifiedCategoryEntity.fromSpaceCategory(
         SpaceCategory.MEAL,
-        LocaleKeys.meal.tr(),
+        LocaleKeys.restaurant.tr(),
         "assets/icons/icon_cate_food.png",
+      ),
+      UnifiedCategoryEntity.fromSpaceCategory(
+        SpaceCategory.BAKERY,
+        LocaleKeys.bakery.tr(),
+        "assets/icons/icon_cate_bbang.png",
       ),
       UnifiedCategoryEntity.fromSpaceCategory(
         SpaceCategory.CAFE,
@@ -176,11 +181,6 @@ class _MapScreenState extends State<MapScreen> {
         SpaceCategory.PUB,
         LocaleKeys.pub.tr(),
         "assets/icons/icon_cate_beer.png",
-      ),
-      UnifiedCategoryEntity.fromSpaceCategory(
-        SpaceCategory.MUSIC,
-        LocaleKeys.music.tr(),
-        "assets/icons/ic_space_category_music.svg",
       ),
       UnifiedCategoryEntity.fromSpaceCategory(
         SpaceCategory.ETC,
@@ -704,8 +704,8 @@ class _MapScreenState extends State<MapScreen> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF0C0C0E).withOpacity(0.5), // #0C0C0E 50% 투명도
-              border: Border.all(color: const Color(0xFF19BAFF), width: 1),
+              color: const Color(0xFFEAF8FF).withOpacity(0.5), // #0xFFEAF8FF 50% 투명도
+              border: Border.all(color: const Color(0xFF000000), width: 1),
               /*
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
@@ -790,17 +790,35 @@ class _MapScreenState extends State<MapScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF3A3A3A),
-                                    borderRadius: BorderRadius.circular(4),
+                                    color: const Color(0xFF19BAFF),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Text(
-                                    _getCategoryDisplayName(space.category),
-                                    style: const TextStyle(
-                                      color: Color(0xFF999999),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Pretendard',
-                                    ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      (space.category.toLowerCase() == "walkerhill")
+                                          ? Image.asset(
+                                              "assets/icons/walkerhill.png",
+                                              width: 16,
+                                              height: 16,
+                                            )
+                                          : SvgPicture.asset(
+                                              "assets/icons/ic_space_category_${space.category.toLowerCase()}.svg",
+                                              width: 16,
+                                              height: 16,
+                                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                            ),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        _getCategoryDisplayName(space.category),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'Pretendard',
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 // 상세보기
@@ -849,7 +867,7 @@ class _MapScreenState extends State<MapScreen> {
                               // 구분선
                               Container(
                                 height: 1,
-                                color: Colors.white.withOpacity(0.3),
+                                color: Colors.black.withOpacity(0.3),
                               ),
                               const SizedBox(height: 10),
                               Row(
@@ -1252,10 +1270,10 @@ class _MapScreenState extends State<MapScreen> {
         return LocaleKeys.category_cafe.tr();
       case 'MEAL':
         return LocaleKeys.category_restaurant.tr();
+      case 'BAKERY':
+        return LocaleKeys.category_bakery.tr();
       case 'PUB':
         return LocaleKeys.category_pub.tr();
-      case 'MUSIC':
-        return LocaleKeys.category_music.tr();
       case 'BAR':
         return LocaleKeys.category_bar.tr();
       case 'ETC':
@@ -1295,10 +1313,10 @@ class _MapScreenState extends State<MapScreen> {
         return const Color(0xFF8B4513);
       case 'MEAL':
         return const Color(0xFFFF6347);
+      case 'BAKERY':
+        return const Color(0xFFFFA500);
       case 'PUB':
         return const Color(0xFF32CD32);
-      case 'MUSIC':
-        return const Color(0xFF9370DB);
       case 'BAR':
         return const Color(0xFFFF1493);
       default:
@@ -1313,10 +1331,10 @@ class _MapScreenState extends State<MapScreen> {
         return 'marker_CAFE';
       case 'MEAL':
         return 'marker_MEAL';
+      case 'BAKERY':
+        return 'marker_BAKERY';
       case 'PUB':
         return 'marker_PUB';
-      case 'MUSIC':
-        return 'marker_MUSIC';
       case 'BAR':
         return 'marker_BAR';
       case 'ETC':
@@ -1396,6 +1414,15 @@ class _MapScreenState extends State<MapScreen> {
     final localeCode = currentLocale == 'ko' ? 'ko' : 'en';
     
     try {
+      // 먼저 worldview 설정 (한국의 경우 KR)
+      if (localeCode == 'ko') {
+        await mapboxMap!.style.setStyleImportConfigProperty(
+          'basemap',
+          'worldview',
+          'KR',
+        );
+      }
+      
       // 동적 로케일 설정
       await mapboxMap!.style.setStyleImportConfigProperty(
         'basemap',
@@ -1403,6 +1430,9 @@ class _MapScreenState extends State<MapScreen> {
         localeCode,
       );
       print('✅ Map language set to $localeCode');
+      
+      // 추가로 텍스트 레이어도 업데이트
+      await _updateTextLayers(localeCode);
     } catch (e) {
       print('❌ Error setting map language to $localeCode: $e');
       // 대안 방법: 스타일 레이어의 텍스트 필드 설정
@@ -1885,8 +1915,8 @@ class _MapScreenState extends State<MapScreen> {
     final categoryMarkers = {
       'CAFE': 'assets/icons/marker_cafe.png',
       'MEAL': 'assets/icons/marker_meal.png',
+      'BAKERY': 'assets/icons/marker_bakery.png',
       'PUB': 'assets/icons/marker_pub.png',
-      'MUSIC': 'assets/icons/marker_music.png',
       'BAR': 'assets/icons/marker_bar.png',
       'ETC': 'assets/icons/marker_cafe.png', // 기본 카페 아이콘 사용
     };
@@ -2061,8 +2091,8 @@ class _MapScreenState extends State<MapScreen> {
     final categoryColors = {
       'CAFE': const Color(0xFF8B4513), // 갈색
       'MEAL': const Color(0xFFFF6347), // 토마토색
+      'BAKERY': const Color(0xFFFFA500), // 오렌지색
       'PUB': const Color(0xFF32CD32),  // 라임그린
-      'MUSIC': const Color(0xFF9370DB), // 보라색
       'BAR': const Color(0xFFFF1493),  // 딥핑크
       'ETC': const Color(0xFF00A3FF),  // 기본 파란색
     };
@@ -2320,7 +2350,7 @@ class _MapScreenState extends State<MapScreen> {
                   bearing: 0.0,
                   pitch: 0.0,
                 ),
-                styleUri: 'mapbox://styles/ixplorer/cmes4lqyt00hj01sg9nvlbkvr', // 커스텀 스타일 적용
+                styleUri: 'mapbox://styles/ixplorer/cmf3a35jy00u501rkdf9k9lme', // 커스텀 스타일 적용
                 textureView: Platform.isAndroid, // Android만 textureView 사용
               ),
             ),
@@ -2379,19 +2409,11 @@ class _MapScreenState extends State<MapScreen> {
                 child: Container(
                   width: 48,
                   height: 48,
-                  decoration: BoxDecoration(
-                    color: const Color(0x3319BAFF), // #19BAFF33 배경색
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFF797979),
-                      width: 1,
-                    ),
-                  ),
                   child: Center(
                     child: SvgPicture.asset(
                       'assets/icons/mnoti.svg',
-                      width: 24, // 아이콘 크기 축소
-                      height: 24, // 아이콘 크기 축소
+                      width: 48,
+                      height: 48,
                     ),
                   ),
                 ),
@@ -2409,19 +2431,11 @@ class _MapScreenState extends State<MapScreen> {
                 child: Container(
                   width: 48,
                   height: 48,
-                  decoration: BoxDecoration(
-                    color: const Color(0x3319BAFF), // #19BAFF33 배경색
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFF797979),
-                      width: 1,
-                    ),
-                  ),
                   child: Center(
                     child: SvgPicture.asset(
                       'assets/icons/mlocation.svg',
-                      width: 32, // 아이콘 크기 통일
-                      height: 32, // 아이콘 크기 통일
+                      width: 48,
+                      height: 48,
                     ),
                   ),
                 ),
@@ -2483,6 +2497,9 @@ class _MapScreenState extends State<MapScreen> {
               break;
             case SpaceCategory.PUB:
               matches = space.category?.toLowerCase() == 'pub';
+              break;
+            case SpaceCategory.BAKERY:
+              matches = space.category?.toLowerCase() == 'bakery';
               break;
             case SpaceCategory.MUSIC:
               matches = space.category?.toLowerCase() == 'music';
@@ -3394,7 +3411,7 @@ class _MapScreenState extends State<MapScreen> {
                     color: const Color(0xffffffFF), // #19BAFF33 배경색
                     borderRadius: BorderRadius.circular(19), // 카테고리 버튼과 같은 라운드 테두리
                     border: Border.all(
-                      color: const Color(0x132E41), // 카테고리 버튼과 같은 테두리 색상
+                      color: const Color(0xFF132E41), // 카테고리 버튼과 같은 테두리 색상
                       width: 1,
                     ),
                   ),
@@ -3452,8 +3469,8 @@ class _MapScreenState extends State<MapScreen> {
           borderRadius: BorderRadius.circular(19),
           border: Border.all(
             color: isSelected 
-                ? const Color(0x132E41)
-                : const Color(0x132E41).withOpacity(0.7),
+                ? const Color(0xFF132E41)
+                : const Color(0xFF132E41).withOpacity(0.7),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -3501,8 +3518,8 @@ class _MapScreenState extends State<MapScreen> {
                     height: 16,
                     colorFilter: ColorFilter.mode(
                       isSelected 
-                          ? const Color(0xFFFFFFFF)
-                          : const Color(0xFF9A9A9A),
+                          ? Color(0xFF132E41)
+                          : Color(0xFF132E41).withOpacity(0.7),
                       BlendMode.srcIn,
                     ),
                   )
@@ -3528,8 +3545,8 @@ class _MapScreenState extends State<MapScreen> {
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: isSelected
-                      ? Color(0x132E41)
-                      : const Color(0x132E41).withOpacity(0.7),
+                      ? Color(0xFF132E41)
+                      : const Color(0xFF132E41).withOpacity(0.7),
                   fontFamily: 'Pretendard',
                 ),
               ),
@@ -3543,7 +3560,7 @@ class _MapScreenState extends State<MapScreen> {
   // 검색 오버레이 UI
   Widget _buildSearchOverlay() {
     return Container(
-      color: Colors.black.withOpacity(0.9),
+      color: const Color(0xFFEAF8FF),
       child: SafeArea(
         child: Column(
           children: [
@@ -3552,8 +3569,12 @@ class _MapScreenState extends State<MapScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[800],
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFF132E41).withOpacity(0.2),
+                    width: 1,
+                  ),
                 ),
                 child: TextField(
                   controller: searchController,
@@ -3561,13 +3582,13 @@ class _MapScreenState extends State<MapScreen> {
                   onSubmitted: _onSearchSubmitted,
                   autofocus: true,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 16,
                   ),
                   decoration: InputDecoration(
                     hintText: LocaleKeys.search_placeholder.tr(),
                     hintStyle: TextStyle(
-                      color: Colors.grey[400],
+                      color: Colors.grey[600],
                       fontSize: 16,
                     ),
                     border: InputBorder.none,
@@ -3590,7 +3611,7 @@ class _MapScreenState extends State<MapScreen> {
                         padding: const EdgeInsets.all(8),
                         child: const Icon(
                           Icons.arrow_back_ios,
-                          color: Colors.white,
+                          color: Colors.black,
                           size: 20,
                         ),
                       ),
@@ -3609,7 +3630,7 @@ class _MapScreenState extends State<MapScreen> {
                               padding: const EdgeInsets.all(8),
                               child: Icon(
                                 Icons.clear,
-                                color: Colors.grey[400],
+                                color: Colors.grey[600],
                                 size: 20,
                               ),
                             ),
@@ -3645,7 +3666,7 @@ class _MapScreenState extends State<MapScreen> {
               const Text(
                 'Recent',
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Colors.black54,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
@@ -3659,7 +3680,7 @@ class _MapScreenState extends State<MapScreen> {
                 child: const Text(
                   'Delete All',
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Colors.black54,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -3701,12 +3722,16 @@ class _MapScreenState extends State<MapScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.grey[800],
+                color: Colors.white,
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFF132E41).withOpacity(0.2),
+                  width: 1,
+                ),
               ),
               child: Icon(
                 Icons.access_time,
-                color: Colors.grey[400],
+                color: Colors.black54,
                 size: 20,
               ),
             ),
@@ -3721,7 +3746,7 @@ class _MapScreenState extends State<MapScreen> {
                   Text(
                     query,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -3730,7 +3755,7 @@ class _MapScreenState extends State<MapScreen> {
                     const Text(
                       'Cafe • 서울시 성북구 서대문',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: Colors.black54,
                         fontSize: 12,
                       ),
                     ),
@@ -3750,7 +3775,7 @@ class _MapScreenState extends State<MapScreen> {
                 height: 40,
                 child: Icon(
                   Icons.close,
-                  color: Colors.grey[400],
+                  color: Colors.black54,
                   size: 20,
                 ),
               ),
@@ -3766,7 +3791,7 @@ class _MapScreenState extends State<MapScreen> {
     if (isSearching) {
       return const Center(
         child: CircularProgressIndicator(
-          color: Colors.white,
+          color: Color(0xFF132E41),
         ),
       );
     }
@@ -3776,7 +3801,7 @@ class _MapScreenState extends State<MapScreen> {
         child: Text(
           '검색 결과가 없습니다',
           style: TextStyle(
-            color: Colors.grey,
+            color: Colors.black54,
             fontSize: 16,
           ),
         ),
@@ -3824,7 +3849,7 @@ class _MapScreenState extends State<MapScreen> {
                                 width: 20,
                                 height: 20,
                                 colorFilter: const ColorFilter.mode(
-                                  Colors.white,
+                                  Color(0xFF132E41),
                                   BlendMode.srcIn,
                                 ),
                               )
@@ -3842,7 +3867,7 @@ class _MapScreenState extends State<MapScreen> {
                 Text(
                   _calculateDistance(space),
                   style: const TextStyle(
-                    color: Colors.grey,
+                    color: Colors.black54,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -3860,7 +3885,7 @@ class _MapScreenState extends State<MapScreen> {
                   Text(
                     space.name,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -3874,7 +3899,7 @@ class _MapScreenState extends State<MapScreen> {
                     Text(
                       space.benefitDescription,
                       style: const TextStyle(
-                        color: Colors.grey,
+                        color: Colors.black54,
                         fontSize: 12,
                       ),
                       maxLines: 1,
@@ -3888,7 +3913,7 @@ class _MapScreenState extends State<MapScreen> {
             // 화살표 아이콘
             const Icon(
               Icons.arrow_forward_ios,
-              color: Colors.grey,
+              color: Colors.black54,
               size: 16,
             ),
           ],

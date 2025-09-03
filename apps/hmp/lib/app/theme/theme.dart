@@ -24,16 +24,16 @@ import 'package:flutter/rendering.dart';
 // 5% — 0D
 // 0% — 00
 
-// white 100%
-const fore1 = Color(0xFFFFFFFF);
-// white 70%
-const fore2 = Color(0xB3FFFFFF);
-// white 50%
-const fore3 = Color(0x80FFFFFF);
-// white 30%
-const fore4 = Color(0x4DFFFFFF);
-// white 5%
-const fore5 = Color(0x0DFFFFFF);
+// black 100%
+const fore1 = Color(0xFF000000);
+// black 70%
+const fore2 = Color(0xB3000000);
+// black 50%
+const fore3 = Color(0x80000000);
+// black 30%
+const fore4 = Color(0x4D000000);
+// black 5%
+const fore5 = Color(0x0D000000);
 
 // white 100%
 const foreNega1 = Color(0xFF000000);
@@ -87,8 +87,8 @@ const blue = Color(0xFF1877F4);
 const purple = Color(0xFF5200FF);
 const black = Color(0xFF000000);
 
-const scaffoldBg = Color(0xFF0C0C0E);
-const white = Color(0xFFFFFFFF);
+const scaffoldBg = Color(0xFFEAF8FF);
+const white = Color(0xFF000000);
 const extraLightGray = Color(0xFFE4E3E3);
 const lightGray = Color(0xFFF4F4F4);
 const lighterGray = Color(0xFFDAD9D9);
@@ -810,8 +810,8 @@ TextStyle fontTitle01Bold({Color? color = fore1}) => TextStyle(
 /// selection theme.
 ThemeData theme() {
   return ThemeData(
-    // Set the scaffold background color to a dark grey.
-    scaffoldBackgroundColor: const Color(0xFF0C0C0E),
+    // Set the scaffold background color to light blue.
+    scaffoldBackgroundColor: const Color(0xFFEAF8FF),
 
     // Set the primary color to a light blue.
     primaryColor: lightBlue,
@@ -820,7 +820,7 @@ ThemeData theme() {
     // to dark.
     colorScheme: ColorScheme.fromSeed(
       seedColor: lightBlue,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
     ),
 
     // Enable Material 3 usage.
