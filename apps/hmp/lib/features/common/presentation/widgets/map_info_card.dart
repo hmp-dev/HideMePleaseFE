@@ -106,18 +106,31 @@ class MapInfoCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: const Color(0xFF00A3FF),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(
-                            _getCategoryDisplayName(space.category),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset(
+                                _getCategoryIcon(space.category),
+                                width: 14,
+                                height: 14,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _getCategoryDisplayName(space.category),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: 'LINESeedKR',
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         // 상세보기
@@ -130,7 +143,7 @@ class MapInfoCard extends StatelessWidget {
                                 color: Colors.grey[500],
                                 fontSize: 13,
                                 fontWeight: FontWeight.w400,
-                                fontFamily: 'Pretendard',
+                                fontFamily: 'LINESeedKR',
                               ),
                             ),
                             const SizedBox(width: 4),
@@ -149,9 +162,9 @@ class MapInfoCard extends StatelessWidget {
                       space.name,
                       style: const TextStyle(
                         color: Colors.black,
-                        fontSize: 17,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        fontFamily: 'Pretendard',
+                        fontFamily: 'LINESeedKR',
                         height: 1.2,
                       ),
                       maxLines: 1,
@@ -166,13 +179,13 @@ class MapInfoCard extends StatelessWidget {
                       // 구분선
                       Container(
                         height: 1,
-                        color: Colors.grey.withValues(alpha: 0.2),
+                        color: Colors.black.withValues(alpha: 0.3),
                       ),
                       const SizedBox(height: 10),
                       Row(
                         children: [
                           Image.asset(
-                            'assets/icons/ico_infobenefit.png',
+                            'assets/icons/ico_infobenefit2.png',
                             width: 12,
                             height: 12,
                           ),
@@ -180,29 +193,29 @@ class MapInfoCard extends StatelessWidget {
                           Text(
                             LocaleKeys.benefit.tr(),
                             style: const TextStyle(
-                              color: Color(0xFF00A3FF),
-                              fontSize: 12,
+                              color: Colors.black,
+                              fontSize: 10,
                               fontWeight: FontWeight.w500,
-                              fontFamily: 'Pretendard',
+                              fontFamily: 'LINESeedKR',
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 4),
                           Container(
                             width: 2,
                             height: 2,
                             decoration: const BoxDecoration(
-                              color: Color(0xFF666666),
+                              color: Colors.black,
                               shape: BoxShape.circle,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               space.benefitDescription,
                               style: const TextStyle(
-                                color: Color(0xFF999999),
-                                fontSize: 12,
-                                fontFamily: 'Pretendard',
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontFamily: 'LINESeedKR',
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -238,8 +251,8 @@ class MapInfoCard extends StatelessWidget {
         LocaleKeys.temporarily_closed.tr(),
         style: TextStyle(
           color: Colors.red[300],
-          fontSize: 14,
-          fontFamily: 'Pretendard',
+          fontSize: 10,
+          fontFamily: 'LINESeedKR',
         ),
       );
     }
@@ -249,9 +262,9 @@ class MapInfoCard extends StatelessWidget {
       return Text(
         LocaleKeys.business_hours_info_not_available.tr(),
         style: TextStyle(
-          color: Colors.grey[400],
-          fontSize: 14,
-          fontFamily: 'Pretendard',
+          color: Colors.black,
+          fontSize: 10,
+          fontFamily: 'LINESeedKR',
         ),
       );
     }
@@ -288,17 +301,17 @@ class MapInfoCard extends StatelessWidget {
                 Text(
                   LocaleKeys.business_open.tr(),
                   style: TextStyle(
-                    color: Colors.green[400],
-                    fontSize: 14,
-                    fontFamily: 'Pretendard',
+                    color: Colors.black,
+                    fontSize: 10,
+                    fontFamily: 'LINESeedKR',
                   ),
                 ),
                 Text(
                   ' • ${todayHours.breakStartTime} ${LocaleKeys.break_time.tr()}',
                   style: TextStyle(
-                    color: Colors.orange[300],
-                    fontSize: 14,
-                    fontFamily: 'Pretendard',
+                    color: Colors.black,
+                    fontSize: 10,
+                    fontFamily: 'LINESeedKR',
                   ),
                 ),
               ],
@@ -311,17 +324,17 @@ class MapInfoCard extends StatelessWidget {
             Text(
               LocaleKeys.business_open.tr(),
               style: TextStyle(
-                color: Colors.green[400],
-                fontSize: 14,
-                fontFamily: 'Pretendard',
+                color: Colors.black,
+                fontSize: 10,
+                fontFamily: 'LINESeedKR',
               ),
             ),
             Text(
               ' • ${todayHours.closeTime} ${LocaleKeys.closes_at.tr()}',
               style: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 14,
-                fontFamily: 'Pretendard',
+                color: Colors.black,
+                fontSize: 10,
+                fontFamily: 'LINESeedKR',
               ),
             ),
           ],
@@ -330,9 +343,9 @@ class MapInfoCard extends StatelessWidget {
         return Text(
           LocaleKeys.business_open.tr(),
           style: TextStyle(
-            color: Colors.green[400],
-            fontSize: 14,
-            fontFamily: 'Pretendard',
+            color: Colors.black,
+            fontSize: 10,
+            fontFamily: 'LINESeedKR',
           ),
         );
       }
@@ -346,18 +359,18 @@ class MapInfoCard extends StatelessWidget {
           return Text(
             '${LocaleKeys.closed_day.tr()} • 다음 영업 시작',
             style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 14,
-              fontFamily: 'Pretendard',
+              color: Colors.black,
+              fontSize: 10,
+              fontFamily: 'LINESeedKR',
             ),
           );
         } else {
           return Text(
             LocaleKeys.closed_day.tr(),
             style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 14,
-              fontFamily: 'Pretendard',
+              color: Colors.black,
+              fontSize: 10,
+              fontFamily: 'LINESeedKR',
             ),
           );
         }
@@ -378,17 +391,17 @@ class MapInfoCard extends StatelessWidget {
               Text(
                 LocaleKeys.business_before_open.tr(),
                 style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 14,
-                  fontFamily: 'Pretendard',
+                  color: Colors.black,
+                  fontSize: 10,
+                  fontFamily: 'LINESeedKR',
                 ),
               ),
               Text(
                 ' • ${todayHours.openTime} ${LocaleKeys.opens_at.tr()}',
                 style: TextStyle(
-                  color: Colors.blue[300],
-                  fontSize: 14,
-                  fontFamily: 'Pretendard',
+                  color: Colors.black,
+                  fontSize: 10,
+                  fontFamily: 'LINESeedKR',
                 ),
               ),
             ],
@@ -410,17 +423,17 @@ class MapInfoCard extends StatelessWidget {
               Text(
                 LocaleKeys.break_time.tr(),
                 style: TextStyle(
-                  color: Colors.orange[300],
-                  fontSize: 14,
-                  fontFamily: 'Pretendard',
+                  color: Colors.black,
+                  fontSize: 10,
+                  fontFamily: 'LINESeedKR',
                 ),
               ),
               Text(
                 ' • ${todayHours.breakEndTime} 까지',
                 style: TextStyle(
-                  color: Colors.blue[300],
-                  fontSize: 14,
-                  fontFamily: 'Pretendard',
+                  color: Colors.black,
+                  fontSize: 10,
+                  fontFamily: 'LINESeedKR',
                 ),
               ),
             ],
@@ -431,9 +444,9 @@ class MapInfoCard extends StatelessWidget {
       return Text(
         LocaleKeys.business_end.tr(),
         style: TextStyle(
-          color: Colors.grey[400],
-          fontSize: 14,
-          fontFamily: 'Pretendard',
+          color: Colors.black,
+          fontSize: 10,
+          fontFamily: 'LINESeedKR',
         ),
       );
     }
@@ -452,8 +465,30 @@ class MapInfoCard extends StatelessWidget {
         return LocaleKeys.category_music.tr();
       case 'BAR':
         return LocaleKeys.category_bar.tr();
+      case 'BAKERY':
+        return LocaleKeys.bakery.tr();
       default:
         return category;
+    }
+  }
+
+  // 카테고리 아이콘 경로 반환
+  String _getCategoryIcon(String category) {
+    switch (category.toUpperCase()) {
+      case 'CAFE':
+        return 'assets/icons/icon_label_cafe.png';
+      case 'MEAL':
+        return 'assets/icons/icon_label_food.png';
+      case 'PUB':
+        return 'assets/icons/icon_label_cocktail.png';
+      case 'MUSIC':
+        return 'assets/icons/icon_cate_guitar.png';
+      case 'BAR':
+        return 'assets/icons/icon_label_cocktail.png';
+      case 'BAKERY':
+        return 'assets/icons/icon_label_bakery.png';
+      default:
+        return 'assets/icons/icon_label_etc.png';
     }
   }
 

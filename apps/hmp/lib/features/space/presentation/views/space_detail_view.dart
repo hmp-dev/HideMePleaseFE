@@ -31,6 +31,7 @@ import 'package:mobile/features/space/presentation/widgets/build_hiding_count_wi
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
+import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/features/nft/domain/entities/benefit_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
@@ -792,6 +793,43 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                   longitude: position.longitude,
                 );
 
+                // 체크인 사용자 정보 가져와서 Live Activity 시작
+                try {
+                  final spaceRemoteDataSource = getIt<SpaceRemoteDataSource>();
+                  final checkInUsersResponse = await spaceRemoteDataSource.getCheckInUsers(
+                    spaceId: widget.space.id,
+                  );
+                  
+                  // 현재 체크인한 인원 수 계산
+                  final currentUsers = checkInUsersResponse.currentGroup?.members?.length ?? 1;
+                  final remainingUsers = 5 - currentUsers; // 최대 5명 기준
+                  
+                  print('📊 Check-in users - Current: $currentUsers, Remaining: $remainingUsers');
+                  
+                  // Live Activity 시작 (실제 체크인 데이터 사용)
+                  final liveActivityService = getIt<LiveActivityService>();
+                  await liveActivityService.startCheckInActivity(
+                    spaceName: widget.space.name,
+                    currentUsers: currentUsers,
+                    remainingUsers: remainingUsers,
+                    spaceId: widget.space.id,  // 폴링을 위한 spaceId 전달
+                  );
+                } catch (e) {
+                  print('❌ Failed to fetch check-in users or start Live Activity: $e');
+                  // 에러 발생 시 기본값으로 Live Activity 시작
+                  try {
+                    final liveActivityService = getIt<LiveActivityService>();
+                    await liveActivityService.startCheckInActivity(
+                      spaceName: widget.space.name,
+                      currentUsers: 1,  // 본인만 체크인한 것으로 표시
+                      remainingUsers: 4,  // 4명이 더 필요한 것으로 표시
+                      spaceId: widget.space.id,
+                    );
+                  } catch (liveActivityError) {
+                    print('❌ Failed to start Live Activity: $liveActivityError');
+                  }
+                }
+
                 if (mounted) {
                   Navigator.of(context).pop(); // Close employ dialog
                   await showDialog(
@@ -808,11 +846,59 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 }
               } catch (e) {
                 ('❌ Check-in error: $e').log();
+                ('❌ Error type: ${e.runtimeType}').log();
+                
                 if (mounted) {
                   Navigator.of(context).pop(); // Close employ dialog
+                  
+                  // 서버 에러 메시지 파싱
+                  String errorMessage = '체크인 중 오류가 발생했습니다';
+                  
+                  if (e is HMPError) {
+                    ('❌ HMPError details - message: ${e.message}, error: ${e.error}').log();
+                    
+                    // 서버에서 전달된 직접적인 에러 메시지들 처리
+                    final serverMessage = e.message.toLowerCase();
+                    
+                    if (serverMessage.contains('이미 체크인한 상태입니다') || 
+                        serverMessage.contains('already_checked_in')) {
+                      errorMessage = '이미 체크인한 상태입니다';
+                    } else if (serverMessage.contains('space_out_of_range') ||
+                               serverMessage.contains('거리')) {
+                      errorMessage = '체크인 가능한 거리를 벗어났습니다';
+                    } else if (serverMessage.contains('현재 체크인이 불가능합니다') ||
+                               serverMessage.contains('체크인이 비활성화')) {
+                      errorMessage = '이 공간은 현재 체크인이 불가능합니다';
+                    } else if (serverMessage.contains('체크인 최대 인원수를 초과했습니다') ||
+                               serverMessage.contains('최대 인원')) {
+                      errorMessage = '체크인 최대 인원수를 초과했습니다';
+                    } else if (serverMessage.contains('오늘의 체크인 제한 인원수를 초과했습니다') ||
+                               serverMessage.contains('일일 체크인 제한')) {
+                      errorMessage = '오늘의 체크인 제한 인원수를 초과했습니다';
+                    } else if (serverMessage.contains('invalid_space')) {
+                      errorMessage = '유효하지 않은 공간입니다';
+                    } else if (e.message.isNotEmpty) {
+                      // 서버에서 직접 전달된 메시지가 있으면 그대로 사용
+                      errorMessage = e.message;
+                    }
+                    
+                    // HMPError의 error 필드에서도 체크 (백업)
+                    if (e.error?.contains('SPACE_OUT_OF_RANGE') == true) {
+                      errorMessage = '체크인 가능한 거리를 벗어났습니다';
+                    } else if (e.error?.contains('ALREADY_CHECKED_IN') == true) {
+                      errorMessage = '이미 체크인한 상태입니다';
+                    } else if (e.error?.contains('INVALID_SPACE') == true) {
+                      errorMessage = '유효하지 않은 공간입니다';
+                    }
+                  }
+                  
+                  // 커스텀 에러 메시지와 함께 체크인 실패 다이얼로그 표시
                   showDialog(
                     context: context,
-                    builder: (context) => const CheckinFailDialog(),
+                    barrierDismissible: false,
+                    builder: (context) => CheckinFailDialog(
+                      customErrorMessage: errorMessage,
+                    ),
                   );
                 }
               }

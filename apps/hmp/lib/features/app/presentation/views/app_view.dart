@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/enum/home_view_type.dart';
@@ -38,6 +39,7 @@ import 'package:mobile/features/space/presentation/widgets/checkin_fail_dialog.d
 import 'package:mobile/features/space/presentation/widgets/checkin_success_dialog.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mobile/app/core/error/error.dart';
+import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
@@ -244,14 +246,38 @@ class _AppViewState extends State<AppView> {
                                   );
                                   
                                   if (spaceDetail.id.isNotEmpty) {
-                                    // Live Activity 시작 (실제 공간 정보 사용)
-                                    final liveActivityService = getIt<LiveActivityService>();
-                                    await liveActivityService.startCheckInActivity(
-                                      spaceName: spaceDetail.name,
-                                      currentUsers: 2,  // TODO: 실제 체크인 수 API에서 받기
-                                      remainingUsers: 3,  // TODO: 실제 남은 인원 API에서 받기
-                                      spaceId: spaceId.trim(),  // 폴링을 위한 spaceId 전달
-                                    );
+                                    // 체크인 사용자 정보 가져오기
+                                    try {
+                                      final spaceRemoteDataSource = getIt<SpaceRemoteDataSource>();
+                                      final checkInUsersResponse = await spaceRemoteDataSource.getCheckInUsers(
+                                        spaceId: spaceId.trim(),
+                                      );
+                                      
+                                      // 현재 체크인한 인원 수 계산
+                                      final currentUsers = checkInUsersResponse.currentGroup?.members?.length ?? 1;
+                                      final remainingUsers = 5 - currentUsers; // 최대 5명 기준
+                                      
+                                      ('📊 Check-in users - Current: $currentUsers, Remaining: $remainingUsers').log();
+                                      
+                                      // Live Activity 시작 (실제 체크인 데이터 사용)
+                                      final liveActivityService = getIt<LiveActivityService>();
+                                      await liveActivityService.startCheckInActivity(
+                                        spaceName: spaceDetail.name,
+                                        currentUsers: currentUsers,
+                                        remainingUsers: remainingUsers,
+                                        spaceId: spaceId.trim(),  // 폴링을 위한 spaceId 전달
+                                      );
+                                    } catch (e) {
+                                      ('❌ Failed to fetch check-in users: $e').log();
+                                      // 에러 발생 시 기본값으로 Live Activity 시작
+                                      final liveActivityService = getIt<LiveActivityService>();
+                                      await liveActivityService.startCheckInActivity(
+                                        spaceName: spaceDetail.name,
+                                        currentUsers: 1,  // 본인만 체크인한 것으로 표시
+                                        remainingUsers: 4,  // 4명이 더 필요한 것으로 표시
+                                        spaceId: spaceId.trim(),
+                                      );
+                                    }
                                     
                                     // 성공 다이얼로그 표시
                                     showDialog(
@@ -278,27 +304,41 @@ class _AppViewState extends State<AppView> {
                                   ('❌ Check-in error: $e').log();
                                   ('❌ Error type: ${e.runtimeType}').log();
                                   
-                                  // 향상된 에러 메시지 파싱
+                                  // 서버 에러 메시지 파싱
                                   String errorMessage = LocaleKeys.benefitRedeemErrorMsg.tr();
                                   
                                   if (e is HMPError) {
                                     ('❌ HMPError details - message: ${e.message}, error: ${e.error}').log();
                                     
-                                    // HMPError의 error 필드에서 체크
-                                    if (e.error?.contains('SPACE_OUT_OF_RANGE') == true) {
-                                      errorMessage = LocaleKeys.space_out_of_range.tr();
-                                    } else if (e.error?.contains('ALREADY_CHECKED_IN') == true) {
-                                      errorMessage = LocaleKeys.already_checked_in.tr();
-                                    } else if (e.error?.contains('INVALID_SPACE') == true) {
-                                      errorMessage = LocaleKeys.invalid_space.tr();
+                                    // 서버에서 전달된 직접적인 에러 메시지들 처리
+                                    final serverMessage = e.message.toLowerCase();
+                                    
+                                    if (serverMessage.contains('이미 체크인한 상태입니다') || 
+                                        serverMessage.contains('already_checked_in')) {
+                                      errorMessage = '이미 체크인한 상태입니다';
+                                    } else if (serverMessage.contains('space_out_of_range') ||
+                                               serverMessage.contains('거리')) {
+                                      errorMessage = '체크인 가능한 거리를 벗어났습니다';
+                                    } else if (serverMessage.contains('현재 체크인이 불가능합니다') ||
+                                               serverMessage.contains('체크인이 비활성화')) {
+                                      errorMessage = '이 공간은 현재 체크인이 불가능합니다';
+                                    } else if (serverMessage.contains('체크인 최대 인원수를 초과했습니다') ||
+                                               serverMessage.contains('최대 인원')) {
+                                      errorMessage = '체크인 최대 인원수를 초과했습니다';
+                                    } else if (serverMessage.contains('오늘의 체크인 제한 인원수를 초과했습니다') ||
+                                               serverMessage.contains('일일 체크인 제한')) {
+                                      errorMessage = '오늘의 체크인 제한 인원수를 초과했습니다';
+                                    } else if (serverMessage.contains('invalid_space')) {
+                                      errorMessage = '유효하지 않은 공간입니다';
                                     }
-                                    // message 필드에서도 체크
-                                    else if (e.message.contains('SPACE_OUT_OF_RANGE')) {
-                                      errorMessage = LocaleKeys.space_out_of_range.tr();
-                                    } else if (e.message.contains('ALREADY_CHECKED_IN')) {
-                                      errorMessage = LocaleKeys.already_checked_in.tr();
-                                    } else if (e.message.contains('INVALID_SPACE')) {
-                                      errorMessage = LocaleKeys.invalid_space.tr();
+                                    
+                                    // HMPError의 error 필드에서도 체크 (백업)
+                                    if (e.error?.contains('SPACE_OUT_OF_RANGE') == true) {
+                                      errorMessage = '체크인 가능한 거리를 벗어났습니다';
+                                    } else if (e.error?.contains('ALREADY_CHECKED_IN') == true) {
+                                      errorMessage = '이미 체크인한 상태입니다';
+                                    } else if (e.error?.contains('INVALID_SPACE') == true) {
+                                      errorMessage = '유효하지 않은 공간입니다';
                                     }
                                   } 
                                   // HMPError가 아닌 경우 toString()으로 체크 (기존 로직 유지)
@@ -316,7 +356,9 @@ class _AppViewState extends State<AppView> {
                                   showDialog(
                                     context: context,
                                     barrierDismissible: false,
-                                    builder: (context) => const CheckinFailDialog(),
+                                    builder: (context) => CheckinFailDialog(
+                                      customErrorMessage: errorMessage,
+                                    ),
                                   );
                                 }
                               },
