@@ -72,7 +72,7 @@ dependencies:
   #sendbird_chat_sdk: ^4.2.31
   #sendbird_uikit: ^1.0.1
   #share_plus: ^9.0.0
-#  shared_preferences: ^2.2.3
+  shared_preferences: ^2.2.3
   sign_in_with_apple: ^6.1.4
   smooth_page_indicator: ^1.1.0
   #solana: ^0.30.4

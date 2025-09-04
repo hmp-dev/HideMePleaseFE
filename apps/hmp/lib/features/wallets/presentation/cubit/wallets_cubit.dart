@@ -22,6 +22,8 @@ import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:reown_appkit/reown_appkit.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 
 part 'wallets_state.dart';
 
@@ -51,16 +53,29 @@ class WalletsCubit extends BaseCubit<WalletsState> {
         ));
       },
       // users.map((e) => e.toEntity()).toList()
-      (wallets) {
+      (wallets) async {
+        final walletEntities = wallets.map((e) => e.toEntity()).toList();
+        
+        // Save wallet status to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(StorageValues.hasWallet, walletEntities.isNotEmpty);
+        '💾 Saved wallet status to SharedPreferences: ${walletEntities.isNotEmpty}'.log();
+        
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,
             errorMessage: '',
-            connectedWallets: wallets.map((e) => e.toEntity()).toList(),
+            connectedWallets: walletEntities,
           ),
         );
       },
     );
+  }
+  
+  // Check if user has any wallet
+  Future<bool> hasWallet() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(StorageValues.hasWallet) ?? false;
   }
 
   Future<void> onPostWallet({

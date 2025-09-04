@@ -17,4 +17,8 @@ abstract class StorageValues {
   static const String onboardingCurrentStep = 'onboardingCurrentStep';
   static const String onboardingCompleted = 'onboardingCompleted';
   static const String showOnboardingAfterLogout = 'showOnboardingAfterLogout';
+  
+  // Wallet and Profile status
+  static const String hasWallet = 'hasWallet';
+  static const String hasProfileParts = 'hasProfileParts';
 }

@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lottie/lottie.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
@@ -13,13 +13,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  bool isAnimationComplete = false;
-  bool isLocationSubmitted = false;
-
+class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -30,15 +24,22 @@ class _SplashScreenState extends State<SplashScreen>
         statusBarBrightness: Brightness.dark,
       ),
     );
-    _controller = AnimationController(vsync: this);
 
     _submitDeviceLocationToBackend();
+    _navigateAfterDelay();
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void _navigateAfterDelay() {
+    // GIF 애니메이션 시간 고려하여 6초 후 화면 전환
+    Timer(const Duration(seconds: 6), () {
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          Routes.startUpScreen,
+          (route) => false,
+        );
+      }
+    });
   }
 
   Future<void> _submitDeviceLocationToBackend() async {
@@ -57,28 +58,13 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: const Color(0xFF87CEEB),
       body: Container(
         color: const Color(0xFF87CEEB),
-        child: SafeArea(
-          top: false,
-          child: Center(
-            child: Lottie.asset(
-              "assets/lottie/splash.json",
-              controller: _controller,
-              onLoaded: (composition) {
-                _controller
-                  ..duration = composition.duration
-                  ..forward().whenComplete(() async {
-                    setState(() {
-                      isAnimationComplete = true;
-                    });
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      Routes.startUpScreen,
-                      (route) => false,
-                    );
-                  });
-              },
-            ),
-          ),
+        width: double.infinity,
+        height: double.infinity,
+        child: Image.asset(
+          "assets/lottie/splash.gif",
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.cover,
         ),
       ),
     );

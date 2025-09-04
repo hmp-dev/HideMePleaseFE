@@ -24,6 +24,10 @@ import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/app/core/constants/storage.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 
 class SocialAuthScreen extends StatefulWidget {
   const SocialAuthScreen({super.key});
@@ -198,29 +202,41 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
             // 로딩 화면을 보여주기 위한 짧은 지연
             await Future.delayed(const Duration(milliseconds: 500));
 
-            // 온보딩 여부에 따른 화면 전환
-            // TEMP: Always show onboarding for testing - 테스트를 위해 항상 온보딩 표시
-            await Navigator.pushNamedAndRemoveUntil(
-              context,
-              Routes.onboardingScreen,
-              (route) => false,
-            );
+            // 지갑과 프로필 정보 가져오기
+            '🔍 Checking wallet and profile status...'.log();
             
-            /* 원래 로직 - 나중에 원복 시 주석 해제
-            if (isShowOnBoarding == 0 || isShowOnBoarding == null) {
+            // 지갑 정보 확인
+            await getIt<WalletsCubit>().onGetAllWallets();
+            final hasWallet = await getIt<WalletsCubit>().hasWallet();
+            '💼 Has wallet: $hasWallet'.log();
+            
+            // 프로필 정보 확인
+            await getIt<ProfileCubit>().onGetUserProfile();
+            final hasProfileParts = await getIt<ProfileCubit>().hasProfileParts();
+            '👤 Has profile parts: $hasProfileParts'.log();
+            
+            // 온보딩 표시 여부 결정
+            final shouldShowOnboarding = !hasWallet || !hasProfileParts;
+            '🎯 Should show onboarding: $shouldShowOnboarding (hasWallet: $hasWallet, hasProfileParts: $hasProfileParts)'.log();
+            
+            // 화면 전환
+            if (shouldShowOnboarding) {
+              // 지갑이 없거나 프로필 파츠가 없으면 온보딩 화면으로
+              '📱 Navigating to onboarding screen'.log();
               await Navigator.pushNamedAndRemoveUntil(
                 context,
                 Routes.onboardingScreen,
                 (route) => false,
               );
             } else {
+              // 둘 다 있으면 StartUp 화면으로
+              '📱 Navigating to startup screen'.log();
               await Navigator.pushNamedAndRemoveUntil(
                 context,
                 Routes.startUpScreen,
                 (route) => false,
               );
             }
-            */
             return;
           }
 
