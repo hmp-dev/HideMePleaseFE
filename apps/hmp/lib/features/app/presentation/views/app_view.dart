@@ -223,14 +223,30 @@ class _AppViewState extends State<AppView> {
                                   
                                   ('📍 Current location: ${position.latitude}, ${position.longitude}').log();
                                   
-                                  // Space 체크인 API 호출
-                                  await getIt<SpaceCubit>().onCheckInWithNfc(
-                                    spaceId: spaceId.trim(),
-                                    latitude: position.latitude,
-                                    longitude: position.longitude,
-                                  );
+                                  // Space 체크인 API 호출 - 실패 시 에러 throw됨
+                                  try {
+                                    await getIt<SpaceCubit>().onCheckInWithNfc(
+                                      spaceId: spaceId.trim(),
+                                      latitude: position.latitude,
+                                      longitude: position.longitude,
+                                    );
+                                    ('✅ Check-in API successful').log();
+                                  } catch (checkInError) {
+                                    ('❌ Check-in API failed: $checkInError').log();
+                                    // 체크인 실패 메시지 표시
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(checkInError.toString()),
+                                        backgroundColor: Colors.red,
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                    return; // 체크인 실패 시 여기서 종료
+                                  }
                                   
-                                  // Space 상세 정보 가져오기
+                                  ('🎯 Check-in successful, proceeding with Live Activity...').log();
+                                  
+                                  // 체크인 성공 후 Space 상세 정보 가져오기
                                   await getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(
                                     spaceId: spaceId.trim(),
                                   );
@@ -277,6 +293,18 @@ class _AppViewState extends State<AppView> {
                                         remainingUsers: 4,  // 4명이 더 필요한 것으로 표시
                                         spaceId: spaceId.trim(),
                                       );
+                                    }
+                                    
+                                    // 라이브 액티비티 업데이트 - 체크인 확인 완료 상태로 변경
+                                    try {
+                                      ('📱 Updating Live Activity with isConfirmed = true').log();
+                                      final liveActivityService = getIt<LiveActivityService>();
+                                      await liveActivityService.updateCheckInActivity(
+                                        isConfirmed: true,
+                                      );
+                                      ('✅ Live Activity updated successfully').log();
+                                    } catch (e) {
+                                      ('❌ Failed to update Live Activity: $e').log();
                                     }
                                     
                                     // 성공 다이얼로그 표시

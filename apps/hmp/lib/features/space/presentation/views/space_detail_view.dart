@@ -786,14 +786,33 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                 print('   spaceId: ${widget.space.id}');
                 print('   latitude: ${position.latitude}');
                 print('   longitude: ${position.longitude}');
-
-                await spaceCubit.onCheckInWithNfc(
-                  spaceId: widget.space.id,
-                  latitude: position.latitude,
-                  longitude: position.longitude,
-                );
-
-                // 체크인 사용자 정보 가져와서 Live Activity 시작
+                
+                // 체크인 API 호출 - 실패 시 에러 throw됨
+                try {
+                  await spaceCubit.onCheckInWithNfc(
+                    spaceId: widget.space.id,
+                    latitude: position.latitude,
+                    longitude: position.longitude,
+                  );
+                  print('✅ Check-in API successful');
+                } catch (checkInError) {
+                  print('❌ Check-in API failed: $checkInError');
+                  if (mounted) {
+                    Navigator.of(context).pop(); // Close employ dialog
+                    // 체크인 실패 다이얼로그 표시
+                    showDialog(
+                      context: context,
+                      builder: (context) => CheckinFailDialog(
+                        customErrorMessage: checkInError.toString(),
+                      ),
+                    );
+                  }
+                  return; // 체크인 실패 시 여기서 종료
+                }
+                
+                print('🎯 Check-in successful, starting Live Activity...');
+                
+                // 체크인 성공 시에만 Live Activity 시작
                 try {
                   final spaceRemoteDataSource = getIt<SpaceRemoteDataSource>();
                   final checkInUsersResponse = await spaceRemoteDataSource.getCheckInUsers(
@@ -828,6 +847,17 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                   } catch (liveActivityError) {
                     print('❌ Failed to start Live Activity: $liveActivityError');
                   }
+                }
+                
+                // 라이브 액티비티 업데이트 - 사장님 확인 완료 상태로 변경
+                try {
+                  print('📱 Updating Live Activity with isConfirmed = true');
+                  await _liveActivityService.updateCheckInActivity(
+                    isConfirmed: true,
+                  );
+                  print('✅ Live Activity updated successfully');
+                } catch (e) {
+                  print('❌ Failed to update Live Activity: $e');
                 }
 
                 if (mounted) {
@@ -1715,6 +1745,9 @@ class HidingStatusBanner extends StatelessWidget {
       {bool useTransparentForEmpty = false}) {
     const int itemsPerRow = 5;
     List<Widget> rows = [];
+    
+    // 실제 멤버가 있는지 확인
+    final bool hasAnyMembers = members.isNotEmpty;
 
     for (int i = 0; i < members.length; i += itemsPerRow) {
       List<Widget> rowItems = [];
@@ -1729,6 +1762,7 @@ class HidingStatusBanner extends StatelessWidget {
             imagePath: '${appEnv.apiUrl}public/nft/user/${member.userId}/image',
             name: member.nickName,
             isActive: true, // TODO: Check if this is the current user
+            hasAnyMembersInGroup: hasAnyMembers,
           ),
         );
       }
@@ -1737,9 +1771,10 @@ class HidingStatusBanner extends StatelessWidget {
       while (rowItems.length < itemsPerRow) {
         rowItems.add(
           _PlayerAvatar(
-            imagePath: '', // Empty path for placeholder
+            imagePath: ' ', // Empty path for placeholder
             name: '',
             showTransparentOnEmpty: useTransparentForEmpty,
+            hasAnyMembersInGroup: hasAnyMembers,
           ),
         );
       }
@@ -1762,6 +1797,7 @@ class HidingStatusBanner extends StatelessWidget {
             imagePath: '',
             name: '',
             showTransparentOnEmpty: useTransparentForEmpty,
+            hasAnyMembersInGroup: false, // 멤버가 없으므로 false
           ),
         );
       }
@@ -1780,61 +1816,77 @@ class _PlayerAvatar extends StatelessWidget {
   final String name;
   final bool isActive;
   final bool showTransparentOnEmpty;
+  final bool hasAnyMembersInGroup;
 
   const _PlayerAvatar({
     required this.imagePath,
     required this.name,
     this.isActive = false,
     this.showTransparentOnEmpty = false,
+    this.hasAnyMembersInGroup = true, // 기본값 true로 설정 (기존 동작 유지)
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: isActive
-                ? Border.all(color: const Color(0xFF00A3FF), width: 1)
-                : null,
-            boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFF00A3FF).withOpacity(0.6),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                    ),
-                  ]
-                : [],
+    // 그룹에 실제 멤버가 있는 경우에만 이름 영역 높이 확보
+    final bool reserveNameSpace = hasAnyMembersInGroup;
+    
+    return SizedBox(
+      height: reserveNameSpace ? 80 : 50, // 멤버가 있으면 80, 없으면 50 (아바타만)
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start, // 위쪽 정렬
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: isActive
+                  ? Border.all(color: const Color(0xFF00A3FF), width: 1)
+                  : null,
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF00A3FF).withOpacity(0.6),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : [],
+            ),
+            child: name.isNotEmpty
+                ? CircleAvatar(
+                    radius: 25,
+                    backgroundImage: imagePath.startsWith('http')
+                        ? NetworkImage(imagePath)
+                        : AssetImage(imagePath) as ImageProvider,
+                    backgroundColor: Colors.grey,
+                  )
+                : showTransparentOnEmpty
+                    ? const CircleAvatar(
+                        radius: 25,
+                        backgroundColor: Colors.transparent,
+                      )
+                    : SvgPicture.asset(
+                        'assets/images/player_none.svg',
+                        width: 50,
+                        height: 50,
+                      ),
           ),
-          child: name.isNotEmpty
-              ? CircleAvatar(
-                  radius: 25,
-                  backgroundImage: imagePath.startsWith('http')
-                      ? NetworkImage(imagePath)
-                      : AssetImage(imagePath) as ImageProvider,
-                  backgroundColor: Colors.grey,
-                )
-              : showTransparentOnEmpty
-                  ? const CircleAvatar(
-                      radius: 25,
-                      backgroundColor: Colors.transparent,
+          if (reserveNameSpace) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 22,
+              child: name.isNotEmpty && !showTransparentOnEmpty
+                  ? Text(
+                      name,
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
                     )
-                  : SvgPicture.asset(
-                      'assets/images/player_none.svg',
-                      width: 50,
-                      height: 50,
-                    ),
-        ),
-        if (name.isNotEmpty) ...[
-          const VerticalSpace(8),
-          Text(
-            name,
-            style: const TextStyle(color: Colors.black, fontSize: 12),
-          ),
-        ]
-      ],
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

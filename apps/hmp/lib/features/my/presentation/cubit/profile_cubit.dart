@@ -8,6 +8,7 @@ import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 
 part 'profile_state.dart';
 
@@ -74,6 +75,13 @@ class ProfileCubit extends BaseCubit<ProfileState> {
             userEntity = userEntity.copyWith(profilePartsString: localProfileParts);
           }
         }
+        
+        // Save profile parts status to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        final hasProfileParts = userEntity.profilePartsString != null && 
+                               userEntity.profilePartsString!.isNotEmpty;
+        await prefs.setBool(StorageValues.hasProfileParts, hasProfileParts);
+        print('💾 Saved profile parts status to SharedPreferences: $hasProfileParts');
         
         emit(
           state.copyWith(
@@ -142,5 +150,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
         ),
       );
     }
+  }
+  
+  // Check if user has profile parts
+  Future<bool> hasProfileParts() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(StorageValues.hasProfileParts) ?? false;
   }
 }

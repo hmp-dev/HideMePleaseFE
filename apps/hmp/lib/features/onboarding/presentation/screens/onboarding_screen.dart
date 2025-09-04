@@ -30,6 +30,7 @@ import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
@@ -783,8 +784,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           ),
           BlocListener<EnableLocationCubit, EnableLocationState>(
             bloc: getIt<EnableLocationCubit>(),
-            listener: (context, state) {
+            listener: (context, state) async {
           if (state.submitStatus == RequestStatus.success) {
+            // 온보딩 완료 시 상태 업데이트
+            await _updateOnboardingCompletedStatus();
+            
             Navigator.pushNamedAndRemoveUntil(
               context,
               Routes.startUpScreen,
@@ -794,6 +798,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
           if ((state.submitStatus == RequestStatus.failure) &&
               state.isLocationDenied) {
+            // 위치 권한이 거부되어도 온보딩 완료로 처리
+            await _updateOnboardingCompletedStatus();
+            
             Navigator.pushNamedAndRemoveUntil(
               context,
               Routes.startUpScreen,
@@ -1059,5 +1066,32 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         '❌ Error in background image upload task: $e'.log();
       }
     });
+  }
+  
+  // 온보딩 완료 시 지갑과 프로필 파츠 상태 업데이트
+  Future<void> _updateOnboardingCompletedStatus() async {
+    try {
+      '📝 Updating onboarding completion status...'.log();
+      
+      // 지갑 상태 확인 및 저장
+      await getIt<WalletsCubit>().onGetAllWallets();
+      final hasWallet = getIt<WalletsCubit>().state.connectedWallets.isNotEmpty;
+      
+      // 프로필 상태 확인 및 저장
+      await getIt<ProfileCubit>().onGetUserProfile();
+      final userProfile = getIt<ProfileCubit>().state.userProfileEntity;
+      final hasProfileParts = userProfile?.profilePartsString != null && 
+                             userProfile!.profilePartsString!.isNotEmpty;
+      
+      // SharedPreferences에 상태 저장
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(StorageValues.hasWallet, hasWallet);
+      await prefs.setBool(StorageValues.hasProfileParts, hasProfileParts);
+      await prefs.setBool(StorageValues.onboardingCompleted, true);
+      
+      '✅ Onboarding status updated - Wallet: $hasWallet, ProfileParts: $hasProfileParts'.log();
+    } catch (e) {
+      '❌ Error updating onboarding status: $e'.log();
+    }
   }
 }

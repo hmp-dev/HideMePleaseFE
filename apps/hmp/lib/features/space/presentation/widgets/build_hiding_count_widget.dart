@@ -40,7 +40,7 @@ class BuildHidingCountWidget extends StatelessWidget {
             // 기존 ShadowText 대신 일반 Text를 사용하여 배경과 잘 어울리게 합니다.
             Text(
               "$hidingCount ${LocaleKeys.peopleAreHiding.tr()}",
-              style: fontCompactSm(color: white),
+              style: fontCompactSm(color: Colors.white),
             )
           ],
         ),
