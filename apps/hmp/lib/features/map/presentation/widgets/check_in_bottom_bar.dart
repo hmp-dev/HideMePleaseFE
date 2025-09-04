@@ -25,10 +25,11 @@ class CheckInBottomBar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(
         bottom: 30, // 화면 하단에서 30px 띄우기
+        left: 30, // 좌측 여백 30px
+        right: 30, // 우측 여백 30px
       ),
       child: Center(
         child: SizedBox(
-          width: 324, // 고정 너비 324px
           child: ClipRRect(
             borderRadius: BorderRadius.circular(36),
             child: BackdropFilter(
@@ -38,99 +39,114 @@ class CheckInBottomBar extends StatelessWidget {
                 child: Container(
                   height: 72, // 높이 72로 변경
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12), // 흰색 12% 불투명도
+                    color: const Color(0xFFFFFFFF).withOpacity(0.7), // 흰색 70% 불투명도
                     borderRadius: BorderRadius.circular(36),
                     border: Border.all(
-                      color: Color(0xFF132E41),
+                      color: const Color(0xFF132E41),
                       width: 1,
                     ),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                    // 왼쪽: 홈과 숨을곳 버튼
-                    Row(
-                      children: [
-                        // 홈 버튼
-                        GestureDetector(
-                          onTap: onHomeTap,
-                          child: SizedBox(
-                            width: 48,
-                            height: 48,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Opacity(
-                                  opacity: isHomeActive ? 1.0 : 0.4,
-                                  child: Image.asset(
-                                    'assets/icons/map_bottom_icon_home.png',
-                                    width: 30,
-                                    height: 30,
+                        // 왼쪽: 홈과 숨을곳 버튼
+                        Row(
+                          children: [
+                            // 홈 버튼
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20),
+                              child: GestureDetector(
+                                onTap: onHomeTap,
+                                child: SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Opacity(
+                                        opacity: isHomeActive ? 1.0 : 0.4,
+                                        child: Image.asset(
+                                          'assets/icons/map_bottom_icon_home.png',
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        LocaleKeys.nav_home.tr(),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: const Color(0xFF132E41)
+                                              .withOpacity(
+                                                  isHomeActive ? 1.0 : 0.4),
+                                          fontWeight: isHomeActive
+                                              ? FontWeight.w600
+                                              : FontWeight.normal,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  LocaleKeys.nav_home.tr(),
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF132E41).withOpacity(isHomeActive ? 1.0 : 0.4),
-                                    fontWeight: isHomeActive ? FontWeight.w600 : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // 숨을곳 버튼
-                        GestureDetector(
-                          onTap: onMapTap,
-                          child: SizedBox(
-                            width: 48,
-                            height: 48,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Opacity(
-                                  opacity: isMapActive ? 1.0 : 0.4,
-                                  child: Image.asset(
-                                    'assets/icons/map_bottom_icon_map.png',
-                                    width: 30,
-                                    height: 30,
-                                  ),
+                            const SizedBox(width: 32),
+                            // 숨을곳 버튼
+                            GestureDetector(
+                              onTap: onMapTap,
+                              child: SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Opacity(
+                                      opacity: isMapActive ? 1.0 : 0.4,
+                                      child: Image.asset(
+                                        'assets/icons/map_bottom_icon_map.png',
+                                        width: 30,
+                                        height: 30,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      LocaleKeys.nav_hiding.tr(),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: const Color(0xFF132E41)
+                                            .withOpacity(
+                                                isMapActive ? 1.0 : 0.4),
+                                        fontWeight: isMapActive
+                                            ? FontWeight.w600
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  LocaleKeys.nav_hiding.tr(),
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF132E41).withOpacity(isMapActive ? 1.0 : 0.4),
-                                    fontWeight: isMapActive ? FontWeight.w600 : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                        const SizedBox(width: 20),
+                        const SizedBox(width: 40),
                         // CHECK-IN 버튼
-                    GestureDetector(
-                      onTap: onCheckInTap,
-                      child: SizedBox(
-                        width: 136,
-                        height: 46,
-                        child: SvgPicture.asset(
-                          'assets/icons/map_bottom_icon_checkin.svg',
-                          fit: BoxFit.contain,
+                        Padding(
+                          padding: const EdgeInsets.only(right: 0),
+                          child: GestureDetector(
+                            onTap: onCheckInTap,
+                            child: SizedBox(
+                              width: 136,
+                              height: 46,
+                              child: SvgPicture.asset(
+                                'assets/icons/map_bottom_icon_checkin.svg',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
                       ],
                     ),
                   ),
@@ -151,7 +167,7 @@ class _GradientBorderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(36));
-    
+
     final paint = Paint()
       ..shader = LinearGradient(
         colors: [
@@ -164,7 +180,7 @@ class _GradientBorderPainter extends CustomPainter {
       ).createShader(rect)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
-    
+
     canvas.drawRRect(rrect, paint);
   }
 

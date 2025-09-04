@@ -170,9 +170,11 @@ class MapInfoCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     // 운영 상태
-                    _buildBusinessHoursStatus(space),
+                    Flexible(
+                      child: _buildBusinessHoursStatus(space),
+                    ),
                     // 혜택 정보가 있을 때만 구분선과 혜택 표시
                     if (space.benefitDescription.isNotEmpty) ...[
                       const SizedBox(height: 10),
