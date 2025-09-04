@@ -506,7 +506,7 @@ class _MapScreenState extends State<MapScreen> {
     // 현재 카메라 상태 확인 (체크인 표시 여부 및 화면 경계 확인)
     final cameraState = await mapboxMap!.getCameraState();
     final currentZoom = cameraState.zoom;
-    final showCheckInStatus = currentZoom >= 13; // 줌 13 이상일 때 체크인 상태 표시 (더 축소된 상태)
+    final showCheckInStatus = currentZoom >= 15; // 줌 15 이상일 때 체크인 상태 표시
     
     // 화면에 보이는 영역 계산
     final bounds = await mapboxMap!.coordinateBoundsForCamera(
@@ -566,8 +566,8 @@ class _MapScreenState extends State<MapScreen> {
             
             final mbxImage = MbxImage(
               data: dotsImageData,
-              width: 32,
-              height: 8,
+              width: 204, // (36 * 5 + 6 * 4) + 30 = 204
+              height: 66, // 36 + 30 = 66
             );
             
             await mapboxMap!.style.addStyleImage(
@@ -589,9 +589,9 @@ class _MapScreenState extends State<MapScreen> {
             PointAnnotationOptions(
               geometry: Point(coordinates: Position(space.longitude, space.latitude)),
               iconImage: checkInDotsId,
-              iconSize: 1.0,
+              iconSize: 0.3, // 3배 크기로 렌더링했으므로 0.3 스케일로 표시
               iconAnchor: IconAnchor.BOTTOM, // 점을 아래쪽 기준으로 정렬
-              iconOffset: [0.0, -25.0], // 마커 위로 25px 이동
+              iconOffset: [0.0, -60.0], // 마커 위로 60px 이동
             ),
           );
         }
@@ -634,9 +634,9 @@ class _MapScreenState extends State<MapScreen> {
     // Heading 마커 이미지 등록
     await _addHeadingMarkerImage();
     // Heading과 현재 위치 마커 업데이트 (매니저가 분리되어 레이어 순서 보장)
-    await _updateHeadingMarker(userActualLatitude, userActualLongitude);
+    // await _updateHeadingMarker(userActualLatitude, userActualLongitude); // 헤딩 표시 제거
     await _updateCurrentLocationMarker(userActualLatitude, userActualLongitude);
-    print('🧭 Added initial heading marker (bottom layer)');
+    // print('🧭 Added initial heading marker (bottom layer)');
     print('📍 Added initial current location marker at $userActualLatitude, $userActualLongitude (top layer)');
   }
 
@@ -1489,7 +1489,8 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // 체크인 점만 업데이트하는 함수 (기본 마커는 유지)
+  // 체크인 점만 업데이트하는 함수 (기본 마커는 유지) - 폴링 갱신 제거로 사용 안 함
+  /*
   Future<void> _updateCheckInDotsOnly(List<SpaceEntity> spaces) async {
     if (mapboxMap == null) return;
     if (_checkInDotsManager == null) return;
@@ -1501,7 +1502,7 @@ class _MapScreenState extends State<MapScreen> {
     final cameraState = await mapboxMap!.getCameraState();
     final currentZoom = cameraState.zoom;
     
-    if (currentZoom < 13) {
+    if (currentZoom < 15) {
       print('ℹ️ 줌 레벨 부족 - 체크인 점 표시 안 함 (줌: ${currentZoom.toStringAsFixed(1)})');
       return;
     }
@@ -1590,6 +1591,7 @@ class _MapScreenState extends State<MapScreen> {
       // print('🔵 화면에 보이는 ${checkInDots.length}개 체크인 점 업데이트');
     }
   }
+  */
   
   // 지도 스크롤 리스너
   void _onMapScrollListener(MapContentGestureContext context) {
@@ -1607,19 +1609,19 @@ class _MapScreenState extends State<MapScreen> {
       currentZoom = newZoom;
       
       // 줌 레벨이 크게 변경되었을 때만 전체 마커 업데이트 (깜빡임 방지)
-      if ((oldZoom < 13 && newZoom >= 13) || (oldZoom >= 13 && newZoom < 13)) {
+      if ((oldZoom < 15 && newZoom >= 15) || (oldZoom >= 15 && newZoom < 15)) {
         print('🔄 줌 레벨 임계값 변경 - 전체 마커 업데이트 필요');
         if (filteredSpaces.isNotEmpty) {
           await _addAllMarkers(filteredSpaces);
         }
       } 
-      // 줌 13 이상에서는 체크인 점만 업데이트
-      else if (newZoom >= 13) {
-        // print('🔵 체크인 점만 업데이트 (줌: ${newZoom.toStringAsFixed(1)})');
-        if (filteredSpaces.isNotEmpty) {
-          await _updateCheckInDotsOnly(filteredSpaces);
-        }
-      }
+      // 체크인 점 폴링 갱신 제거 - 성능 개선
+      // else if (newZoom >= 15) {
+      //   // print('🔵 체크인 점만 업데이트 (줌: ${newZoom.toStringAsFixed(1)})');
+      //   if (filteredSpaces.isNotEmpty) {
+      //     await _updateCheckInDotsOnly(filteredSpaces);
+      //   }
+      // }
     } catch (e) {
       print('❌ Error in onMapIdleListener: $e');
     }
@@ -1918,7 +1920,7 @@ class _MapScreenState extends State<MapScreen> {
       'BAKERY': 'assets/icons/marker_bakery.png',
       'PUB': 'assets/icons/marker_pub.png',
       'BAR': 'assets/icons/marker_bar.png',
-      'ETC': 'assets/icons/marker_cafe.png', // 기본 카페 아이콘 사용
+      'ETC': 'assets/icons/marker_etc.png', // 기본 카페 아이콘 사용
     };
 
     try {
@@ -1992,42 +1994,45 @@ class _MapScreenState extends State<MapScreen> {
 
   // 체크인 점만 그리는 함수 (투명 배경)
   Future<Uint8List> _createCheckInDotsOnly({required int currentUsers}) async {
-    final recorder = PictureRecorder();
+    final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     
-    // 캔버스 크기 (점들만 표시)
-    const dotSize = 5.0; // 크기 1픽셀 증가
-    const dotSpacing = 3.0; // 간격도 비례하여 증가
+    // 캔버스 크기를 3배로 늘려서 더 크고 선명하게 렌더링
+    const scale = 3.0;
+    const dotSize = 12.0 * scale; // 점 크기 더 증가
+    const dotSpacing = 2.0 * scale; // 간격 줄임
     const totalDotsWidth = (dotSize * 5) + (dotSpacing * 4);
-    const canvasWidth = totalDotsWidth + 4; // 약간의 여백
-    const canvasHeight = dotSize + 4; // 약간의 여백
+    const canvasWidth = totalDotsWidth + (10 * scale); // 여백
+    const canvasHeight = dotSize + (10 * scale); // 여백
     
     // 체크인 상태 점 그리기
-    const startX = 2.0; // 왼쪽 여백
-    const startY = 2.0; // 상단 여백
+    final startX = 5.0 * scale; // 왼쪽 여백
+    final startY = 5.0 * scale; // 상단 여백
     
     for (int i = 0; i < 5; i++) {
       final paint = Paint()
         ..color = i < currentUsers 
-          ? const Color(0xFF19BAFF) // 파란색 (#19BAFF)으로 변경
-          : const Color(0xFF666666) // 회색 (빈 자리)
-        ..style = PaintingStyle.fill;
+          ? const Color(0xFF00A3FF) // 파란색 (체크인한 인원)
+            : const Color(0xFFE7F6FF)  // 연한 파란색 (빈 자리)
+        ..style = PaintingStyle.fill
+        ..isAntiAlias = true; // 안티앨리어싱 추가
       
       // 점에 테두리 추가 (더 선명하게)
       final borderPaint = Paint()
-        ..color = Colors.white.withOpacity(0.8)
+        ..color = const Color(0xFF132E41) // 진한 테두리색
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.5;
+        ..strokeWidth = 2.0 * scale // 테두리 두께 증가
+        ..isAntiAlias = true;
       
       final center = Offset(
         startX + (i * (dotSize + dotSpacing)) + (dotSize / 2),
         startY + (dotSize / 2),
       );
       
+      // 점 그리기 (테두리보다 먼저)
+      canvas.drawCircle(center, (dotSize / 2) - (1.0 * scale), paint);
       // 테두리 그리기
-      canvas.drawCircle(center, dotSize / 2, borderPaint);
-      // 점 그리기
-      canvas.drawCircle(center, dotSize / 2, paint);
+      canvas.drawCircle(center, (dotSize / 2) - (1.0 * scale), borderPaint);
     }
     
     final picture = recorder.endRecording();
@@ -2035,7 +2040,9 @@ class _MapScreenState extends State<MapScreen> {
       canvasWidth.toInt(),
       canvasHeight.toInt(),
     );
-    final byteData = await image.toByteData(format: ImageByteFormat.png);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    
+    image.dispose();
     
     return byteData!.buffer.asUint8List();
   }
@@ -2101,7 +2108,7 @@ class _MapScreenState extends State<MapScreen> {
     
     // 1. 체크인 상태 점 그리기 (상단)
     if (currentUsers > 0 || true) { // 항상 표시 (0명일 때도 회색 점 표시)
-      const dotSize = 4.0;
+      const dotSize = 8.0;
       const dotSpacing = 2.0;
       const totalDotsWidth = (dotSize * 5) + (dotSpacing * 4);
       const startX = (totalWidth - totalDotsWidth) / 2;
@@ -2109,8 +2116,8 @@ class _MapScreenState extends State<MapScreen> {
       for (int i = 0; i < 5; i++) {
         final paint = Paint()
           ..color = i < currentUsers 
-            ? const Color(0xFFFF9500) // 주황색 (체크인한 인원)
-            : const Color(0xFF666666) // 회색 (빈 자리)
+            ? const Color(0xFF00A3FF) // 주황색 (체크인한 인원)
+            : const Color(0xFFE7F6FF) // 회색 (빈 자리)
           ..style = PaintingStyle.fill;
         
         canvas.drawCircle(
@@ -2135,7 +2142,7 @@ class _MapScreenState extends State<MapScreen> {
     
     // 마커 테두리
     final borderPaint = Paint()
-      ..color = Colors.white
+      ..color = Colors.black
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
     
@@ -2258,6 +2265,14 @@ class _MapScreenState extends State<MapScreen> {
     
     canvas.drawPath(backgroundPath, backgroundPaint);
     
+    // 검은색 테두리 그리기
+    final borderPaint = Paint()
+      ..color = const Color(0xFF132E41)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    
+    canvas.drawPath(backgroundPath, borderPaint);
+    
     // 흰색 체크마크 그리기
     final checkPaint = Paint()
       ..color = Colors.white
@@ -2304,6 +2319,7 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     print('🗺️ MapScreen build() called at ${DateTime.now()}');
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(
           'BLUECHECK MAP',
@@ -2312,9 +2328,9 @@ class _MapScreenState extends State<MapScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
-        elevation: 1,
+        elevation: 0,
         centerTitle: false,
       ),
       body: BlocListener<SpaceCubit, SpaceState>(
@@ -2359,7 +2375,7 @@ class _MapScreenState extends State<MapScreen> {
 
             // 상단 카테고리 필터 버튼들
             Positioned(
-              top: 16,
+              top: MediaQuery.of(context).padding.top + 16, // 상태바 바로 아래
               left: 16,
               right: 16, // 현재 위치 버튼이 하단으로 이동하여 공간 확보 불필요
               child: _buildCategoryFilterButtons(),
@@ -2368,7 +2384,7 @@ class _MapScreenState extends State<MapScreen> {
             // 마커 로딩 상태 표시
             if (isLoadingMarkers)
               Positioned(
-                top: 100,
+                top: MediaQuery.of(context).padding.top + 70, // 상태바 + 카테고리 버튼 아래
                 left: 16,
                 right: 16,
                 child: Container(
@@ -2558,7 +2574,7 @@ class _MapScreenState extends State<MapScreen> {
     // 현재 위치 마커가 사라졌을 수 있으므로 다시 추가
     print('📍 카테고리 변경 후 마커 재추가');
     // Heading 마커를 먼저 추가 (프로필 뒤에 표시되도록)
-    await _updateHeadingMarker(userActualLatitude, userActualLongitude);
+    // await _updateHeadingMarker(userActualLatitude, userActualLongitude); // 헤딩 표시 제거
     // 현재 위치 마커를 나중에 추가 (Heading 위에 표시되도록)
     await _updateCurrentLocationMarker(userActualLatitude, userActualLongitude);
     
@@ -2663,7 +2679,7 @@ class _MapScreenState extends State<MapScreen> {
       
       // 마커 업데이트 (혹시 사라졌을 경우를 대비)
       // Heading 마커를 먼저 업데이트 (프로필 뒤에 표시되도록)
-      await _updateHeadingMarker(userActualLatitude, userActualLongitude);
+      // await _updateHeadingMarker(userActualLatitude, userActualLongitude); // 헤딩 표시 제거
       // 현재 위치 마커를 나중에 업데이트 (Heading 위에 표시되도록)
       await _updateCurrentLocationMarker(userActualLatitude, userActualLongitude);
       
@@ -2694,9 +2710,9 @@ class _MapScreenState extends State<MapScreen> {
              DateTime.now().difference(_lastMovementTime!).inSeconds > 3)) {
           _currentHeading = _compassHeading;
           // 헤딩 마커 업데이트 (setState 밖에서 비동기로 처리)
-          if (userActualLatitude != 0 && userActualLongitude != 0) {
-            await _updateHeadingMarker(userActualLatitude, userActualLongitude);
-          }
+          // if (userActualLatitude != 0 && userActualLongitude != 0) {
+          //   await _updateHeadingMarker(userActualLatitude, userActualLongitude); // 헤딩 표시 제거
+          // }
         }
       });
       
@@ -2797,7 +2813,7 @@ class _MapScreenState extends State<MapScreen> {
       }
       
       // Heading 마커를 먼저 업데이트 (프로필 뒤에 표시되도록)
-      await _updateHeadingMarker(position.latitude, position.longitude);
+      // await _updateHeadingMarker(position.latitude, position.longitude); // 헤딩 표시 제거
       
       // 현재 위치 마커를 나중에 업데이트 (Heading 위에 표시되도록)
       await _updateCurrentLocationMarker(position.latitude, position.longitude);
@@ -2891,7 +2907,8 @@ class _MapScreenState extends State<MapScreen> {
       }
       
       // 새로운 현재 위치 마커 생성 - 마커 타입에 따라 iconSize 조정
-      final double markerIconSize = _isUsingProfileImage ? 1.0 : 0.45;
+      // 80x80 이미지를 40x40 크기로 표시하기 위해 0.5 스케일 사용
+      final double markerIconSize = _isUsingProfileImage ? 0.5 : 0.45;
       print('🎯 마커 iconSize 설정: ${_isUsingProfileImage ? "프로필 이미지" : "기본 마커"} - $markerIconSize');
       
       final currentLocationMarker = PointAnnotationOptions(
@@ -2986,42 +3003,52 @@ class _MapScreenState extends State<MapScreen> {
           await Future.delayed(const Duration(milliseconds: 500)); // 초기화 대기
         }
         
-        // 먼저 profilePartsString을 확인 (우선순위 1)
-        final profilePartsString = profileCubit.state.userProfileEntity.profilePartsString;
-        print('🎨 Profile parts string: ${profilePartsString.isNotEmpty ? "있음" : "없음"}');
+        // 사용자 ID를 확인하여 API를 통한 이미지 로드 (우선순위 1)
+        final userId = profileCubit.state.userProfileEntity.id;
+        print('👤 User ID: ${userId.isNotEmpty ? userId : "ID가 비어있음"}');
         
-        if (profilePartsString.isNotEmpty) {
-          print('🧩 프로필 파츠 발견, 캐릭터 렌더링 시도...');
-          final characterMarkerBytes = await _renderCharacterPartsAsImage(profilePartsString);
+        if (userId.isNotEmpty) {
+          // API를 통해 고품질 프로필 이미지 로드
+          final apiImageUrl = 'http://dev-api.hidemeplease.xyz/v1/public/nft/user/$userId/image';
+          print('🌐 API 프로필 이미지 URL: $apiImageUrl');
           
-          if (characterMarkerBytes != null) {
-            // 이미지 크기 확인
-            final ui.Codec codec = await ui.instantiateImageCodec(characterMarkerBytes);
-            final ui.FrameInfo frameInfo = await codec.getNextFrame();
-            final ui.Image image = frameInfo.image;
+          try {
+            final profileImageBytes = await _loadProfileImageFromUrl(apiImageUrl);
             
-            print('📏 캐릭터 마커 크기: ${image.width}x${image.height}');
-            
-            final mbxImage = MbxImage(
-              data: characterMarkerBytes,
-              width: image.width,
-              height: image.height,
-            );
-            
-            await mapboxMap!.style.addStyleImage(
-              'current_location_marker',
-              1.0,
-              mbxImage,
-              false,
-              [],
-              [],
-              null,
-            );
-            
-            image.dispose();
-            print('✅ 캐릭터 프로필 마커 성공적으로 추가됨');
-            _isUsingProfileImage = true; // 프로필 이미지 사용 플래그 설정
-            return; // 성공적으로 캐릭터 이미지를 추가했으므로 종료
+            if (profileImageBytes != null) {
+              // 프로필 이미지를 원형 마커로 변환
+              final circularMarkerBytes = await _createCircularProfileMarker(profileImageBytes);
+              
+              // 이미지 크기 확인
+              final ui.Codec codec = await ui.instantiateImageCodec(circularMarkerBytes);
+              final ui.FrameInfo frameInfo = await codec.getNextFrame();
+              final ui.Image image = frameInfo.image;
+              
+              print('📏 API 프로필 마커 크기: ${image.width}x${image.height}');
+              
+              final mbxImage = MbxImage(
+                data: circularMarkerBytes,
+                width: image.width,
+                height: image.height,
+              );
+              
+              await mapboxMap!.style.addStyleImage(
+                'current_location_marker',
+                1.0,
+                mbxImage,
+                false,
+                [],
+                [],
+                null,
+              );
+              
+              image.dispose();
+              print('✅ API 프로필 이미지 마커 성공적으로 추가됨');
+              _isUsingProfileImage = true; // 프로필 이미지 사용 플래그 설정
+              return; // 성공적으로 프로필 이미지를 추가했으므로 종료
+            }
+          } catch (e) {
+            print('⚠️ API 프로필 이미지 로드 실패: $e');
           }
         }
         
@@ -3330,8 +3357,8 @@ class _MapScreenState extends State<MapScreen> {
       final ui.FrameInfo frameInfo = await codec.getNextFrame();
       final ui.Image originalImage = frameInfo.image;
 
-      // 마커 크기 설정 - 기본 마커와 동일한 크기로 조정
-      final size = 40.0; // 60에서 40으로 변경
+      // 마커 크기 설정 - 더 큰 크기로 설정하여 품질 향상
+      final size = 80.0; // 40에서 80으로 증가하여 이미지 품질 개선
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
 
@@ -3343,7 +3370,7 @@ class _MapScreenState extends State<MapScreen> {
 
       // 클리핑 영역 설정 (원형)
       final path = Path()
-        ..addOval(Rect.fromLTWH(2, 2, size - 4, size - 4));
+        ..addOval(Rect.fromLTWH(3, 3, size - 6, size - 6));
       canvas.clipPath(path);
 
       // 프로필 이미지를 원형 영역에 맞게 그리기
@@ -3353,9 +3380,14 @@ class _MapScreenState extends State<MapScreen> {
         originalImage.width.toDouble(), 
         originalImage.height.toDouble()
       );
-      final dstRect = Rect.fromLTWH(2, 2, size - 4, size - 4);
+      final dstRect = Rect.fromLTWH(3, 3, size - 6, size - 6);
       
-      canvas.drawImageRect(originalImage, srcRect, dstRect, Paint());
+      // 안티앨리어싱을 위한 Paint 설정
+      final imagePaint = Paint()
+        ..isAntiAlias = true
+        ..filterQuality = FilterQuality.high;
+      
+      canvas.drawImageRect(originalImage, srcRect, dstRect, imagePaint);
 
       // 클리핑 해제
       canvas.restore();
@@ -3365,8 +3397,9 @@ class _MapScreenState extends State<MapScreen> {
       final borderPaint = Paint()
         ..color = const Color(0xFF00A3FF)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.0; // 3.0에서 2.0으로 변경
-      canvas.drawCircle(Offset(size/2, size/2), size/2 - 1, borderPaint);
+        ..strokeWidth = 3.0
+        ..isAntiAlias = true;
+      canvas.drawCircle(Offset(size/2, size/2), size/2 - 1.5, borderPaint);
 
       // 이미지 생성
       final picture = recorder.endRecording();

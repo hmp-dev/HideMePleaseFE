@@ -5,7 +5,12 @@ import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
 class CheckinFailDialog extends StatelessWidget {
-  const CheckinFailDialog({super.key});
+  final String? customErrorMessage;
+  
+  const CheckinFailDialog({
+    super.key,
+    this.customErrorMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +55,12 @@ class CheckinFailDialog extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                LocaleKeys.nfc_checkin_error_subtitle.tr(),
+                customErrorMessage ?? LocaleKeys.nfc_checkin_error_subtitle.tr(),
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 13,
                 ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
