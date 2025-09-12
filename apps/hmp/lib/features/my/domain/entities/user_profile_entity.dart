@@ -1,5 +1,37 @@
 import 'package:equatable/equatable.dart';
 
+class CheckInStats extends Equatable {
+  final int totalCheckIns;
+  final int todayCheckIns;
+  final int weekCheckIns;
+  final int monthCheckIns;
+  final dynamic activeCheckIn;
+
+  const CheckInStats({
+    required this.totalCheckIns,
+    required this.todayCheckIns,
+    required this.weekCheckIns,
+    required this.monthCheckIns,
+    this.activeCheckIn,
+  });
+
+  const CheckInStats.empty()
+      : totalCheckIns = 0,
+        todayCheckIns = 0,
+        weekCheckIns = 0,
+        monthCheckIns = 0,
+        activeCheckIn = null;
+
+  @override
+  List<Object?> get props => [
+        totalCheckIns,
+        todayCheckIns,
+        weekCheckIns,
+        monthCheckIns,
+        activeCheckIn,
+      ];
+}
+
 class UserProfileEntity extends Equatable {
   final String id;
   final String nickName;
@@ -13,6 +45,8 @@ class UserProfileEntity extends Equatable {
   final String chatAppId;
   final String profilePartsString;
   final String finalProfileImageUrl;
+  final int availableBalance;
+  final CheckInStats checkInStats;
 
   const UserProfileEntity({
     required this.id,
@@ -27,6 +61,8 @@ class UserProfileEntity extends Equatable {
     required this.chatAppId,
     required this.profilePartsString,
     required this.finalProfileImageUrl,
+    required this.availableBalance,
+    required this.checkInStats,
   });
 
   const UserProfileEntity.empty()
@@ -41,7 +77,9 @@ class UserProfileEntity extends Equatable {
         pfpImageUrl = '',
         chatAppId = '',
         profilePartsString = '',
-        finalProfileImageUrl = '';
+        finalProfileImageUrl = '',
+        availableBalance = 0,
+        checkInStats = const CheckInStats.empty();
 
   @override
   List<Object?> get props {
@@ -56,7 +94,9 @@ class UserProfileEntity extends Equatable {
       pfpImageUrl,
       chatAppId,
       profilePartsString,
-      finalProfileImageUrl
+      finalProfileImageUrl,
+      availableBalance,
+      checkInStats
     ];
   }
 
@@ -72,6 +112,8 @@ class UserProfileEntity extends Equatable {
     String? chatAppId,
     String? profilePartsString,
     String? finalProfileImageUrl,
+    int? availableBalance,
+    CheckInStats? checkInStats,
   }) {
     return UserProfileEntity(
       id: id,
@@ -86,6 +128,8 @@ class UserProfileEntity extends Equatable {
       chatAppId: chatAppId ?? this.chatAppId,
       profilePartsString: profilePartsString ?? this.profilePartsString,
       finalProfileImageUrl: finalProfileImageUrl ?? this.finalProfileImageUrl,
+      availableBalance: availableBalance ?? this.availableBalance,
+      checkInStats: checkInStats ?? this.checkInStats,
     );
   }
 }

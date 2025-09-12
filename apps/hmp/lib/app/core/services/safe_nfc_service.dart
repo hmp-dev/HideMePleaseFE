@@ -11,7 +11,7 @@ class SafeNfcService {
   
   static Future<void> startReading({
     required BuildContext context,
-    required Function(String) onSuccess,
+    required Future<void> Function(String) onSuccess,
     required Function(String) onError,
   }) async {
     print('🟦 SafeNfcService: Starting NFC reading...');
@@ -149,7 +149,16 @@ class SafeNfcService {
                 alertMessage: LocaleKeys.checkin_success.tr()
               );
               
-              onSuccess(tagId);
+              try {
+                print('🟦 Calling onSuccess callback with tagId: $tagId');
+                await onSuccess(tagId);
+                print('✅ onSuccess callback completed successfully');
+              } catch (e) {
+                print('❌ Error in onSuccess callback: $e');
+                ('❌ onSuccess callback error: $e').log();
+                // 콜백 에러는 onError로 전달
+                onError('체크인 처리 중 오류가 발생했습니다: $e');
+              }
             },
             onError: (error) async {
               print('🔴 NFC Error occurred');
@@ -198,7 +207,7 @@ class SafeNfcService {
         _showAndroidNfcDialog(context, () {
           // 바텀시트 취소 시 호출
           NfcManager.instance.stopSession();
-          onError('NFC 읽기가 취소되었습니다.');
+          onError('사용자가 NFC 읽기를 취소했습니다.');
         });
         
         await NfcManager.instance.startSession(
@@ -288,7 +297,17 @@ class SafeNfcService {
             Navigator.of(context).pop();
             
             await NfcManager.instance.stopSession();
-            onSuccess(tagId);
+            
+            try {
+              print('🟦 Calling onSuccess callback with tagId: $tagId');
+              await onSuccess(tagId);
+              print('✅ onSuccess callback completed successfully');
+            } catch (e) {
+              print('❌ Error in onSuccess callback: $e');
+              ('❌ onSuccess callback error: $e').log();
+              // 콜백 에러는 onError로 전달
+              onError('체크인 처리 중 오류가 발생했습니다: $e');
+            }
           },
           onError: (error) async {
             ('🔴 Android NFC Error: $error').log();

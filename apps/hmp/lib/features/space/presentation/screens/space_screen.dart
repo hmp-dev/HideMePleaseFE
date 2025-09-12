@@ -1,11 +1,15 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/space/domain/entities/recommendation_space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/views/space_view.dart';
+import 'package:mobile/features/space/presentation/widgets/space_guide_overlay.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Represents the Space screen widget.
 ///
@@ -33,28 +37,63 @@ class SpaceScreen extends StatefulWidget {
 }
 
 class _SpaceScreenState extends State<SpaceScreen> {
+  bool _showGuide = false;
+  bool _guideCheckComplete = false;
+
   @override
   void initState() {
     super.initState();
     getIt<SpaceCubit>().onFetchAllSpaceViewData();
+    _checkFirstTimeUser();
+  }
+
+  Future<void> _checkFirstTimeUser() async {
+    print('🔍 _checkFirstTimeUser called');
+    final prefs = await SharedPreferences.getInstance();
+    // 디버그를 위해 가이드를 리셋 (나중에 제거 가능)
+    await prefs.remove('hasSeenSpaceGuide');
+    
+    final hasSeenGuide = prefs.getBool('hasSeenSpaceGuide') ?? false;
+    print('🎯 Space Guide Check - hasSeenGuide: $hasSeenGuide');
+    
+    // 강제로 가이드 표시
+    print('📱 Force showing Space Guide Overlay');
+    if (mounted) {
+      setState(() {
+        _showGuide = true;
+        _guideCheckComplete = true;
+      });
+      print('✅ State updated - _showGuide: $_showGuide, _guideCheckComplete: $_guideCheckComplete');
+    }
+  }
+
+  void _onGuideComplete() {
+    setState(() {
+      _showGuide = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EnableLocationCubit, EnableLocationState>(
-      bloc: getIt<EnableLocationCubit>(),
-      builder: (context, locationState) {
-        return BlocBuilder<SpaceCubit, SpaceState>(
-          bloc: getIt<SpaceCubit>(),
-          builder: (context, state) {
-            final collectionLogo = state.topUsedNfts.isNotEmpty
-                ? state.topUsedNfts[0].collectionLogo
-                : "";
+    print('🏗️ Building SpaceScreen - _showGuide: $_showGuide, _guideCheckComplete: $_guideCheckComplete');
+    
+    return Stack(
+      children: [
+        // Main content
+        BlocBuilder<EnableLocationCubit, EnableLocationState>(
+          bloc: getIt<EnableLocationCubit>(),
+          builder: (context, locationState) {
+            return BlocBuilder<SpaceCubit, SpaceState>(
+              bloc: getIt<SpaceCubit>(),
+              builder: (context, state) {
+                final collectionLogo = state.topUsedNfts.isNotEmpty
+                    ? state.topUsedNfts[0].collectionLogo
+                    : "";
 
-            return SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: Stack(
-                children: [
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  child: Stack(
+                    children: [
                   if (state.submitStatus == RequestStatus.success)
                     PositionedDirectional(
                       child: collectionLogo == ""
@@ -119,6 +158,15 @@ class _SpaceScreenState extends State<SpaceScreen> {
           },
         );
       },
-    );
+    ),
+    // Show guide overlay on top of everything
+    if (_guideCheckComplete && _showGuide)
+      Positioned.fill(
+        child: SpaceGuideOverlay(
+          onComplete: _onGuideComplete,
+        ),
+      ),
+  ],
+);
   }
 }

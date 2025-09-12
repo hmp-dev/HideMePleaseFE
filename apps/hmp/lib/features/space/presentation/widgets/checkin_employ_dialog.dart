@@ -2,10 +2,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 
-class CheckinEmployDialog extends StatelessWidget {
+class CheckinEmployDialog extends StatefulWidget {
   final String benefitDescription;
   final String spaceName;
-  final Future<void> Function() onConfirm;
+  final VoidCallback onConfirm;
 
   const CheckinEmployDialog({
     super.key,
@@ -13,6 +13,13 @@ class CheckinEmployDialog extends StatelessWidget {
     required this.spaceName,
     required this.onConfirm,
   });
+
+  @override
+  State<CheckinEmployDialog> createState() => _CheckinEmployDialogState();
+}
+
+class _CheckinEmployDialogState extends State<CheckinEmployDialog> {
+  bool _isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +70,7 @@ class CheckinEmployDialog extends StatelessWidget {
                   const SizedBox(height: 15),
                   Container(
                     width: 306,
-                    padding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
+                    padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
                     decoration: BoxDecoration(
                       color: const Color(0xFF132E41).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
@@ -72,7 +79,7 @@ class CheckinEmployDialog extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          benefitDescription,
+                          widget.benefitDescription,
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -91,7 +98,7 @@ class CheckinEmployDialog extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              spaceName,
+                              widget.spaceName,
                               style: TextStyle(
                                 color: Colors.black.withOpacity(0.7),
                                 fontSize: 14,
@@ -124,11 +131,15 @@ class CheckinEmployDialog extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
+                        onPressed: _isProcessing 
+                            ? null 
+                            : () {
+                                Navigator.of(context).pop(false);
+                              },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0x4D000000),
+                          backgroundColor: _isProcessing 
+                              ? const Color(0x1A000000) 
+                              : const Color(0x4D000000),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(19),
                             side: const BorderSide(
@@ -147,39 +158,73 @@ class CheckinEmployDialog extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: onConfirm,
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          backgroundColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(19),
-                          ),
-                          minimumSize: const Size(179, 38),
-                          shadowColor: Colors.transparent,
-                        ),
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2CB3FF), Color(0xFF7CD0FF)],
+                      AnimatedOpacity(
+                        opacity: _isProcessing ? 0.5 : 1.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: ElevatedButton(
+                          onPressed: _isProcessing 
+                              ? null 
+                              : () async {
+                                  setState(() {
+                                    _isProcessing = true;
+                                  });
+                                  
+                                  // onConfirm 콜백 실행
+                                  widget.onConfirm();
+                                  
+                                  // 다이얼로그 닫기
+                                  if (mounted) {
+                                    Navigator.of(context).pop(true);
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            backgroundColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(19),
                             ),
-                            borderRadius: BorderRadius.circular(19),
-                            border: Border.all(
-                              color: const Color(0xFF132E41),
-                              width: 1,
-                            ),
+                            minimumSize: const Size(179, 38),
+                            shadowColor: Colors.transparent,
                           ),
-                          child: Container(
-                            width: 179,
-                            height: 38,
+                          child: Stack(
                             alignment: Alignment.center,
-                            child: const Text(
-                              '사장님 확인',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                            children: [
+                              Ink(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: _isProcessing 
+                                        ? [const Color(0xFF2CB3FF).withOpacity(0.5), const Color(0xFF7CD0FF).withOpacity(0.5)]
+                                        : [const Color(0xFF2CB3FF), const Color(0xFF7CD0FF)],
+                                  ),
+                                  borderRadius: BorderRadius.circular(19),
+                                  border: Border.all(
+                                    color: const Color(0xFF132E41),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Container(
+                                  width: 179,
+                                  height: 38,
+                                  alignment: Alignment.center,
+                                  child: _isProcessing 
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                                          ),
+                                        )
+                                      : const Text(
+                                          '사장님 확인',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ),

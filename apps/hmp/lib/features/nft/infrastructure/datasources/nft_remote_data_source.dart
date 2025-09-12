@@ -10,6 +10,8 @@ import 'package:mobile/features/nft/infrastructure/dtos/save_selected_token_reor
 import 'package:mobile/features/nft/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/selected_nft_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/welcome_nft_dto.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/mint_nft_request_dto.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/mint_nft_response_dto.dart';
 
 @lazySingleton
 class NftRemoteDataSource {
@@ -142,5 +144,19 @@ class NftRemoteDataSource {
     final response = await _network.get(
         "user/collection/$tokenAddress/usage-history", queryParams);
     return NftUsageHistoryDto.fromJson(response.data as Map<String, dynamic>);
+  }
+  
+  Future<MintNftResponseDto> requestMintPfpNft(MintNftRequestDto request) async {
+    '🎨 Requesting NFT minting with wallet: ${request.walletAddress}'.log();
+    '📝 Image URL: ${request.imageUrl}'.log();
+    '📝 Metadata URL: ${request.metadataUrl}'.log();
+    
+    final response = await _network.post(
+      "nft/pfp/mint",
+      request.toJson(),
+    );
+    
+    '✅ NFT minting response received'.log();
+    return MintNftResponseDto.fromJson(response.data as Map<String, dynamic>);
   }
 }

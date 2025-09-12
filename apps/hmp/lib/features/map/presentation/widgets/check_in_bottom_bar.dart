@@ -4,10 +4,10 @@ import 'package:flutter_svg/flutter_svg.dart'; // SvgPicture 사용을 위해 �
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 
-class CheckInBottomBar extends StatelessWidget {
+class CheckInBottomBar extends StatefulWidget {
   final VoidCallback? onHomeTap;
   final VoidCallback? onMapTap;
-  final VoidCallback? onCheckInTap;
+  final Future<void> Function()? onCheckInTap;
   final bool isHomeActive;
   final bool isMapActive;
 
@@ -21,6 +21,13 @@ class CheckInBottomBar extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<CheckInBottomBar> createState() => _CheckInBottomBarState();
+}
+
+class _CheckInBottomBarState extends State<CheckInBottomBar> {
+  bool _isProcessing = false;
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
@@ -28,7 +35,7 @@ class CheckInBottomBar extends StatelessWidget {
       ),
       child: Center(
         child: SizedBox(
-          width: 324, // 고정 너비 324px
+          width: MediaQuery.of(context).size.width - 40, // 컨텐츠와 동일한 너비 (좌우 20px 마진)
           child: ClipRRect(
             borderRadius: BorderRadius.circular(36),
             child: BackdropFilter(
@@ -55,16 +62,16 @@ class CheckInBottomBar extends StatelessWidget {
                       children: [
                         // 홈 버튼
                         GestureDetector(
-                          onTap: onHomeTap,
+                          onTap: widget.onHomeTap,
                           child: SizedBox(
                             width: 48,
-                            height: 48,
+                            height: 63,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Opacity(
-                                  opacity: isHomeActive ? 1.0 : 0.4,
+                                  opacity: widget.isHomeActive ? 1.0 : 0.4,
                                   child: Image.asset(
                                     'assets/icons/map_bottom_icon_home.png',
                                     width: 30,
@@ -76,8 +83,8 @@ class CheckInBottomBar extends StatelessWidget {
                                   LocaleKeys.nav_home.tr(),
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Color(0xFF132E41).withOpacity(isHomeActive ? 1.0 : 0.4),
-                                    fontWeight: isHomeActive ? FontWeight.w600 : FontWeight.normal,
+                                    color: Color(0xFF132E41).withOpacity(widget.isHomeActive ? 1.0 : 0.4),
+                                    fontWeight: widget.isHomeActive ? FontWeight.w600 : FontWeight.normal,
                                   ),
                                 ),
                               ],
@@ -87,16 +94,16 @@ class CheckInBottomBar extends StatelessWidget {
                         const SizedBox(width: 12),
                         // 숨을곳 버튼
                         GestureDetector(
-                          onTap: onMapTap,
+                          onTap: widget.onMapTap,
                           child: SizedBox(
                             width: 48,
-                            height: 48,
+                            height: 63,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Opacity(
-                                  opacity: isMapActive ? 1.0 : 0.4,
+                                  opacity: widget.isMapActive ? 1.0 : 0.4,
                                   child: Image.asset(
                                     'assets/icons/map_bottom_icon_map.png',
                                     width: 30,
@@ -108,8 +115,8 @@ class CheckInBottomBar extends StatelessWidget {
                                   LocaleKeys.nav_hiding.tr(),
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Color(0xFF132E41).withOpacity(isMapActive ? 1.0 : 0.4),
-                                    fontWeight: isMapActive ? FontWeight.w600 : FontWeight.normal,
+                                    color: Color(0xFF132E41).withOpacity(widget.isMapActive ? 1.0 : 0.4),
+                                    fontWeight: widget.isMapActive ? FontWeight.w600 : FontWeight.normal,
                                   ),
                                 ),
                               ],
@@ -121,13 +128,58 @@ class CheckInBottomBar extends StatelessWidget {
                         const SizedBox(width: 20),
                         // CHECK-IN 버튼
                     GestureDetector(
-                      onTap: onCheckInTap,
-                      child: SizedBox(
-                        width: 136,
-                        height: 46,
-                        child: SvgPicture.asset(
-                          'assets/icons/map_bottom_icon_checkin.svg',
-                          fit: BoxFit.contain,
+                      onTap: _isProcessing 
+                          ? null 
+                          : () async {
+                              if (widget.onCheckInTap != null) {
+                                setState(() {
+                                  _isProcessing = true;
+                                });
+                                try {
+                                  await widget.onCheckInTap!();
+                                } finally {
+                                  if (mounted) {
+                                    setState(() {
+                                      _isProcessing = false;
+                                    });
+                                  }
+                                }
+                              }
+                            },
+                      child: AnimatedOpacity(
+                        opacity: _isProcessing ? 0.5 : 1.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: SizedBox(
+                          width: 136,
+                          height: 46,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/map_bottom_icon_checkin.svg',
+                                fit: BoxFit.contain,
+                              ),
+                              if (_isProcessing)
+                                Container(
+                                  width: 136,
+                                  height: 46,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.7),
+                                    borderRadius: BorderRadius.circular(23),
+                                  ),
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF132E41)),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -19,6 +19,12 @@ class SpaceState extends BaseState {
   final RequestStatus loadingMoreStatus;
   final int spacesPage;
   final SpaceEntity? selectedSpace;
+  
+  // Check-in tracking fields
+  final String? currentCheckedInSpaceId;
+  final double? checkInLatitude;
+  final double? checkInLongitude;
+  final DateTime? checkInTime;
 
   @override
   final RequestStatus submitStatus;
@@ -43,6 +49,10 @@ class SpaceState extends BaseState {
     required this.loadingMoreStatus,
     required this.spacesPage,
     this.selectedSpace,
+    this.currentCheckedInSpaceId,
+    this.checkInLatitude,
+    this.checkInLongitude,
+    this.checkInTime,
   });
 
   factory SpaceState.initial() => SpaceState(
@@ -65,6 +75,10 @@ class SpaceState extends BaseState {
     loadingMoreStatus: RequestStatus.initial,
     spacesPage: 1,
     selectedSpace: null,
+    currentCheckedInSpaceId: null,
+    checkInLatitude: null,
+    checkInLongitude: null,
+    checkInTime: null,
   );
 
   //bool get isLoadingMore => loadingMoreStatus == RequestStatus.loading;
@@ -90,6 +104,10 @@ class SpaceState extends BaseState {
     loadingMoreStatus,
     spacesPage,
     selectedSpace,
+    currentCheckedInSpaceId,
+    checkInLatitude,
+    checkInLongitude,
+    checkInTime,
   ];
 
   @override
@@ -114,6 +132,11 @@ class SpaceState extends BaseState {
     int? spacesPage,
     SpaceEntity? selectedSpace,
     bool clearSelectedSpace = false,
+    String? currentCheckedInSpaceId,
+    double? checkInLatitude,
+    double? checkInLongitude,
+    DateTime? checkInTime,
+    bool clearCheckInData = false,
   }) {
     return SpaceState(
       submitStatus: submitStatus ?? this.submitStatus,
@@ -137,6 +160,10 @@ class SpaceState extends BaseState {
       loadingMoreStatus: loadingMoreStatus ?? this.loadingMoreStatus,
       spacesPage: spacesPage ?? this.spacesPage,
       selectedSpace: clearSelectedSpace ? null : selectedSpace ?? this.selectedSpace,
+      currentCheckedInSpaceId: clearCheckInData ? null : currentCheckedInSpaceId ?? this.currentCheckedInSpaceId,
+      checkInLatitude: clearCheckInData ? null : checkInLatitude ?? this.checkInLatitude,
+      checkInLongitude: clearCheckInData ? null : checkInLongitude ?? this.checkInLongitude,
+      checkInTime: clearCheckInData ? null : checkInTime ?? this.checkInTime,
     );
   }
 }

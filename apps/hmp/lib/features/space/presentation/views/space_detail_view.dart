@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/env/app_env.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -15,6 +17,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/app/core/helpers/map_utils.dart';
 import 'package:mobile/app/core/services/live_activity_service.dart';
 import 'package:mobile/app/core/services/safe_nfc_service.dart';
+import 'package:mobile/app/core/services/global_overlay_service.dart';
+import 'package:nfc_manager/nfc_manager.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
@@ -24,6 +28,7 @@ import 'package:mobile/features/space/domain/entities/business_hours_entity.dart
 import 'package:mobile/features/space/domain/entities/check_in_status_entity.dart';
 import 'package:mobile/features/space/domain/entities/check_in_user_entity.dart';
 import 'package:mobile/features/space/domain/entities/check_in_users_response_entity.dart';
+import 'package:mobile/features/space/infrastructure/dtos/check_in_users_response_dto.dart';
 import 'package:mobile/features/space/domain/entities/current_group_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
@@ -41,6 +46,7 @@ import 'package:mobile/features/space/presentation/widgets/matching_help.dart';
 import 'package:mobile/features/space/presentation/widgets/checkin_success_dialog.dart';
 import 'package:mobile/features/space/presentation/widgets/space_benefit_list_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 
 class SpaceDetailView extends StatefulWidget {
   const SpaceDetailView({super.key, required this.space, this.spaceEntity});
@@ -52,15 +58,26 @@ class SpaceDetailView extends StatefulWidget {
   State<SpaceDetailView> createState() => _SpaceDetailViewState();
 }
 
-class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
+class _SpaceDetailViewState extends State<SpaceDetailView> 
+    with RouteAware, WidgetsBindingObserver {
   late final SpaceRepository _spaceRepository;
   late final LiveActivityService _liveActivityService;
+  
+  // Navigator에 직접 접근하기 위한 GlobalKey
+  static final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   List<Marker> allMarkers = [];
   late GoogleMapController _controller;
   String? _distanceInKm;
   CheckInStatusEntity? _checkInStatus;
+  
+  // 체크인 성공 오버레이는 GlobalOverlayService에서 관리
   CheckInUsersResponseEntity? _checkInUsersResponse;
   CurrentGroupEntity? _currentGroup;
+  SpaceDetailEntity? _updatedSpaceDetail;
+  
+  // 주기적 새로고침을 위한 타이머
+  Timer? _refreshTimer;
+  bool _isActive = true;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.5518911, 126.9917937),
@@ -70,12 +87,98 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _spaceRepository = getIt<SpaceRepository>();
     _liveActivityService = getIt<LiveActivityService>();
     _calculateDistance();
     _fetchCheckInStatus();
     _fetchCheckInUsers();
+    
+    // 주기적 새로고침 타이머 시작 (30초마다)
+    _startPeriodicRefresh();
     _fetchCurrentGroup();
+    _fetchSpaceDetail();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _stopPeriodicRefresh();
+    _isActive = false;
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    switch (state) {
+      case AppLifecycleState.resumed:
+        ('🔄 [SpaceDetail] App resumed - starting refresh').log();
+        if (_isActive && mounted) {
+          _startPeriodicRefresh();
+          // 앱이 다시 활성화되면 즉시 한 번 새로고침
+          _performPeriodicRefresh();
+        }
+        break;
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        ('⏸️ [SpaceDetail] App paused/inactive - stopping refresh').log();
+        _stopPeriodicRefresh();
+        break;
+      case AppLifecycleState.hidden:
+        ('🫥 [SpaceDetail] App hidden - stopping refresh').log();
+        _stopPeriodicRefresh();
+        break;
+    }
+  }
+
+  /// 주기적 새로고침 시작
+  void _startPeriodicRefresh() {
+    _refreshTimer?.cancel();
+    
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (!_isActive || !mounted) {
+        timer.cancel();
+        return;
+      }
+      
+      ('🔄 [SpaceDetail] Periodic refresh triggered').log();
+      _performPeriodicRefresh();
+    });
+    
+    ('⏰ [SpaceDetail] Started periodic refresh every 30 seconds').log();
+  }
+
+  /// 주기적 새로고침 중지
+  void _stopPeriodicRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+    ('⏹️ [SpaceDetail] Stopped periodic refresh').log();
+  }
+
+  /// 실제 새로고침 작업 수행
+  Future<void> _performPeriodicRefresh() async {
+    if (!mounted || !_isActive) return;
+    
+    try {
+      ('🔄 [SpaceDetail] Refreshing data...').log();
+      
+      // 동시에 여러 데이터 새로고침
+      await Future.wait([
+        _fetchCheckInStatus(),
+        _fetchCheckInUsers(),
+        _fetchCurrentGroup(),
+        _fetchSpaceDetail(),
+      ]);
+      
+      ('✅ [SpaceDetail] Periodic refresh completed').log();
+    } catch (e) {
+      ('❌ [SpaceDetail] Periodic refresh failed: $e').log();
+      
+      // 네트워크 오류 등이 발생하면 재시도를 위해 타이머는 계속 유지
+    }
   }
 
   Future<void> _fetchCurrentGroup() async {
@@ -126,6 +229,23 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         if (mounted) {
           setState(() {
             _checkInStatus = status;
+          });
+        }
+      },
+    );
+  }
+  
+  Future<void> _fetchSpaceDetail() async {
+    final result = await _spaceRepository.getSpaceDetail(spaceId: widget.space.id);
+    result.fold(
+      (error) {
+        print('Error fetching space detail: $error');
+      },
+      (spaceDetail) {
+        print('Successfully fetched space detail - checkInCount: ${spaceDetail.checkInCount}');
+        if (mounted) {
+          setState(() {
+            _updatedSpaceDetail = spaceDetail.toEntity();
           });
         }
       },
@@ -240,8 +360,10 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                     fit: BoxFit.cover,
                   ),
             buildBackArrowIconButton(context),
-            if (widget.space.checkInCount > 0)
-              BuildHidingCountWidget(hidingCount: widget.space.checkInCount),
+            if ((_updatedSpaceDetail?.checkInCount ?? widget.space.checkInCount) > 0)
+              BuildHidingCountWidget(
+                hidingCount: _updatedSpaceDetail?.checkInCount ?? widget.space.checkInCount,
+              ),
           ],
         ),
         // // 새로 추가된 타이틀 영역 (주석 처리)
@@ -355,13 +477,17 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                     checkInStatus: _checkInStatus,
                     onCheckIn: _handleCheckIn,
                     benefits: state.benefitsGroupEntity.benefits,
+                    currentGroupProgress: _currentGroup?.progress ?? widget.space.currentGroupProgress,
+                    onComingSoon: _showComingSoonDialog,
+                    currentGroup: _currentGroup,
                   );
                 },
               ),
               HidingStatusBanner(
-                currentGroupProgress: widget.space.currentGroupProgress,
+                currentGroupProgress: _currentGroup?.progress ?? widget.space.currentGroupProgress,
                 checkInUsersResponse: _checkInUsersResponse,
                 currentGroup: _currentGroup,
+                checkInStatus: _checkInStatus,
               ),
             ],
           ),
@@ -504,7 +630,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                     ),
                   ],
                 ),
-                if (todayHours != null && !todayHours.isClosed) ...[
+                // 영업시간 표시 - todayHours가 있으면 상세 정보, 없으면 기본 정보 표시
+                if (todayHours != null) ...[
                   const VerticalSpace(10),
                   Row(
                     children: [
@@ -515,12 +642,15 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                       ),
                       const HorizontalSpace(10),
                       Text(
-                        '${todayHours.openTime ?? ''} ~ ${todayHours.closeTime ?? ''}',
+                        todayHours.isClosed 
+                            ? LocaleKeys.closed_today.tr()
+                            : '${todayHours.openTime ?? ''} ~ ${todayHours.closeTime ?? ''}',
                         style: fontCompactSmBold(),
                       ),
                     ],
                   ),
-                  if (todayHours.breakStartTime != null &&
+                  if (!todayHours.isClosed &&
+                      todayHours.breakStartTime != null &&
                       todayHours.breakStartTime!.isNotEmpty &&
                       todayHours.breakEndTime != null &&
                       todayHours.breakEndTime!.isNotEmpty) ...[
@@ -536,6 +666,24 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
                       ],
                     ),
                   ],
+                ] else if (widget.space.businessHoursStart.isNotEmpty && 
+                          widget.space.businessHoursEnd.isNotEmpty) ...[
+                  // Fallback: SpaceDetailEntity의 기본 영업시간 정보 사용
+                  const VerticalSpace(10),
+                  Row(
+                    children: [
+                      DefaultImage(
+                        path: "assets/icons/icon_time.png",
+                        width: 20,
+                        height: 20,
+                      ),
+                      const HorizontalSpace(10),
+                      Text(
+                        '${widget.space.businessHoursStart} ~ ${widget.space.businessHoursEnd}',
+                        style: fontCompactSmBold(),
+                      ),
+                    ],
+                  ),
                 ],
               ],
             );
@@ -556,6 +704,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
       ],
     );
   }
+
 
   void _showNfcScanDialog(BuildContext context, {required Function onCancel}) {
     print('🔷 _showNfcScanDialog called');
@@ -691,6 +840,56 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
     print('🔵 _handleCheckIn called');
     print('🔵 Platform: ${Platform.isIOS ? "iOS" : "Android"}');
     
+    // 먼저 거리 체크
+    print('📍 Checking distance to store before proceeding...');
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      
+      final distance = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        widget.space.latitude,
+        widget.space.longitude,
+      );
+      
+      print('📏 Distance to store: ${distance.toStringAsFixed(1)}m');
+      
+      // 50m 이상 떨어져 있으면 체크인 차단
+      if (distance > 50.0) {
+        print('❌ Too far from store: ${distance.toStringAsFixed(1)}m > 50m');
+        
+        if (mounted) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => CheckinFailDialog(
+              customErrorMessage: '매장에서 너무 멀리 떨어져 있어. 가까이 이동해서 다시 시도해봐!',
+            ),
+          );
+        }
+        return; // 체크인 프로세스 중단
+      }
+      
+      print('✅ Distance check passed: ${distance.toStringAsFixed(1)}m < 50m');
+      
+    } catch (e) {
+      print('❌ Failed to get location: $e');
+      
+      if (mounted) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => CheckinFailDialog(
+            customErrorMessage: '위치를 확인할 수 없습니다. 위치 권한을 확인해주세요.',
+          ),
+        );
+      }
+      return; // 체크인 프로세스 중단
+    }
+    
+    // 거리 체크 통과 후 기존 프로세스 진행
     if (Platform.isIOS) {
       print('🔵 Calling _handleCheckInIOS');
       _handleCheckInIOS();
@@ -711,9 +910,11 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
         print('🍎 NFC tag read successfully: $spaceId');
         ('📍 NFC UUID read: $spaceId').log();
         
+        // 앱바와 동일하게 직접 context 사용 (savedContext 제거)
         // 여기서는 실제 spaceId를 사용하지 않고 현재 공간으로 체크인
         // (space_detail_view는 이미 특정 공간에 있으므로)
-        await _proceedWithCheckIn();
+        print('🚀 NFC callback: calling _proceedWithCheckInDirect');
+        await _proceedWithCheckInDirect();
       },
       onError: (errorMessage) {
         print('🍎 NFC error: $errorMessage');
@@ -729,214 +930,613 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
   Future<void> _handleCheckInAndroid() async {
     print('🤖 _handleCheckInAndroid started');
-    ('✅ Check-in button tapped - Simulating NFC scan...').log();
-    Timer? debugTimer;
-
-    final dialogCompleter = Completer<void>();
-
-    print('🤖 Showing NFC scan dialog...');
-    _showNfcScanDialog(context, onCancel: () {
+    print('🤖 Using SafeNfcService for Android NFC reading...');
+    
+    // Show NFC scan dialog
+    _showNfcScanDialog(context, onCancel: () async {
       ('🟧 NFC Scan Canceled by user.').log();
-      debugTimer?.cancel();
-      if (!dialogCompleter.isCompleted) {
-        Navigator.of(context).pop();
-        dialogCompleter.complete();
+      // Stop NFC session
+      try {
+        await NfcManager.instance.stopSession();
+      } catch (_) {
+        // Ignore errors when stopping session
       }
     });
-
-    debugTimer = Timer(const Duration(seconds: 5), () {
-      ('✅ NFC simulation successful after 5 seconds.').log();
-
-      if (!dialogCompleter.isCompleted && mounted) {
-        Navigator.of(context).pop();
-        dialogCompleter.complete();
-        _proceedWithCheckIn();
-      }
-    });
+    
+    // SafeNfcService 사용 (iOS와 동일)
+    await SafeNfcService.startReading(
+      context: context,
+      onSuccess: (spaceId) async {
+        print('🤖 NFC tag read successfully: $spaceId');
+        ('📍 NFC UUID read: $spaceId').log();
+        
+        // Close NFC dialog first
+        if (mounted && context.mounted) {
+          Navigator.of(context).pop();
+          await _proceedWithCheckIn(context);
+        } else {
+          print('⚠️ Widget or context not mounted after NFC read');
+        }
+      },
+      onError: (errorMessage) {
+        print('🤖 NFC error: $errorMessage');
+        ('NFC error: $errorMessage').log();
+        
+        if (mounted && context.mounted) {
+          Navigator.of(context).pop(); // Close NFC dialog
+          
+          // 사용자가 취소한 경우는 에러 다이얼로그를 표시하지 않음
+          if (!errorMessage.contains('cancelled') && !errorMessage.contains('Session invalidated')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      },
+    );
   }
 
-  Future<void> _proceedWithCheckIn() async {
-    // Ensure the function is called on a mounted widget
-    if (!mounted) return;
+  // 직접 체크인 처리하는 새로운 메서드 (앱바와 동일한 방식)
+  Future<void> _proceedWithCheckInDirect() async {
+    print('🔄 _proceedWithCheckInDirect called');
+    
+    // mounted 상태 체크
+    if (!mounted) {
+      print('⚠️ Widget not mounted');
+      return;
+    }
+    
+    // 바로 체크인 프로세스 진행 (지연 없이)
+    print('✅ Context is mounted, proceeding with check-in flow immediately...');
+    final spaceCubit = getIt<SpaceCubit>();
+    final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
+    final benefitDescription =
+        benefits.isNotEmpty ? benefits.first.description : LocaleKeys.no_benefits_registered.tr();
+
+    bool userConfirmed = false;
+    
+    // Show CheckinEmployDialog and wait for user confirmation
+    print('💳 Showing CheckinEmployDialog...');
+    final dialogResult = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false, // false로 변경하여 딤 터치로 닫히지 않도록
+      builder: (BuildContext context) {
+        return CheckinEmployDialog(
+          benefitDescription: benefitDescription,
+          spaceName: widget.space.name,
+          onConfirm: () {
+            print('✅ User confirmed in CheckinEmployDialog - onConfirm callback called');
+            userConfirmed = true;
+          },
+        );
+      },
+    );
+
+    print('📊 Dialog completed - dialogResult: $dialogResult, userConfirmed: $userConfirmed');
+    
+    // User cancelled
+    if (dialogResult != true) {
+      print('⚠️ User cancelled check-in - dialogResult was: $dialogResult');
+      return;
+    }
+    
+    if (!userConfirmed) {
+      print('⚠️ userConfirmed is false - onConfirm callback was not called properly');
+      return;
+    }
+    
+    print('🎯 Both dialogResult=true and userConfirmed=true, proceeding with check-in...');
+    
+    // 이후 비즉니스 로직 계속... (앱바와 동일한 패턴)
+    await _performCheckInDirect(benefitDescription);
+  }
+  
+  Future<void> _proceedWithCheckIn(BuildContext dialogContext) async {
+    print('🔄 _proceedWithCheckIn called with context');
+    
+    // Check both mounted and context.mounted
+    if (!mounted || !dialogContext.mounted) {
+      print('⚠️ Widget or context not mounted, returning early from _proceedWithCheckIn');
+      return;
+    }
 
     // Short delay to allow the NFC modal to dismiss smoothly
     await Future.delayed(const Duration(milliseconds: 200));
 
-    if (mounted) {
+    if (mounted && dialogContext.mounted) {
+      print('✅ Widget and context still mounted after delay, proceeding with check-in flow');
       final spaceCubit = getIt<SpaceCubit>();
       final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
       final benefitDescription =
           benefits.isNotEmpty ? benefits.first.description : LocaleKeys.no_benefits_registered.tr();
 
-      showDialog(
-        context: context,
+      bool userConfirmed = false;
+      
+      // Show CheckinEmployDialog and wait for user confirmation
+      print('📋 Showing CheckinEmployDialog...');
+      final dialogResult = await showDialog<bool>(
+        context: dialogContext,
+        barrierDismissible: true,
         builder: (BuildContext context) {
           return CheckinEmployDialog(
             benefitDescription: benefitDescription,
             spaceName: widget.space.name,
-            onConfirm: () async {
-              try {
-                final position = await Geolocator.getCurrentPosition(
-                  desiredAccuracy: LocationAccuracy.high,
-                );
-                ('📍 Current location for check-in: ${position.latitude}, ${position.longitude}')
-                    .log();
-
-                print('📡 Calling check-in API with parameters:');
-                print('   spaceId: ${widget.space.id}');
-                print('   latitude: ${position.latitude}');
-                print('   longitude: ${position.longitude}');
-                
-                // 체크인 API 호출 - 실패 시 에러 throw됨
-                try {
-                  await spaceCubit.onCheckInWithNfc(
-                    spaceId: widget.space.id,
-                    latitude: position.latitude,
-                    longitude: position.longitude,
-                  );
-                  print('✅ Check-in API successful');
-                } catch (checkInError) {
-                  print('❌ Check-in API failed: $checkInError');
-                  if (mounted) {
-                    Navigator.of(context).pop(); // Close employ dialog
-                    // 체크인 실패 다이얼로그 표시
-                    showDialog(
-                      context: context,
-                      builder: (context) => CheckinFailDialog(
-                        customErrorMessage: checkInError.toString(),
-                      ),
-                    );
-                  }
-                  return; // 체크인 실패 시 여기서 종료
-                }
-                
-                print('🎯 Check-in successful, starting Live Activity...');
-                
-                // 체크인 성공 시에만 Live Activity 시작
-                try {
-                  final spaceRemoteDataSource = getIt<SpaceRemoteDataSource>();
-                  final checkInUsersResponse = await spaceRemoteDataSource.getCheckInUsers(
-                    spaceId: widget.space.id,
-                  );
-                  
-                  // 현재 체크인한 인원 수 계산
-                  final currentUsers = checkInUsersResponse.currentGroup?.members?.length ?? 1;
-                  final remainingUsers = 5 - currentUsers; // 최대 5명 기준
-                  
-                  print('📊 Check-in users - Current: $currentUsers, Remaining: $remainingUsers');
-                  
-                  // Live Activity 시작 (실제 체크인 데이터 사용)
-                  final liveActivityService = getIt<LiveActivityService>();
-                  await liveActivityService.startCheckInActivity(
-                    spaceName: widget.space.name,
-                    currentUsers: currentUsers,
-                    remainingUsers: remainingUsers,
-                    spaceId: widget.space.id,  // 폴링을 위한 spaceId 전달
-                  );
-                } catch (e) {
-                  print('❌ Failed to fetch check-in users or start Live Activity: $e');
-                  // 에러 발생 시 기본값으로 Live Activity 시작
-                  try {
-                    final liveActivityService = getIt<LiveActivityService>();
-                    await liveActivityService.startCheckInActivity(
-                      spaceName: widget.space.name,
-                      currentUsers: 1,  // 본인만 체크인한 것으로 표시
-                      remainingUsers: 4,  // 4명이 더 필요한 것으로 표시
-                      spaceId: widget.space.id,
-                    );
-                  } catch (liveActivityError) {
-                    print('❌ Failed to start Live Activity: $liveActivityError');
-                  }
-                }
-                
-                // 라이브 액티비티 업데이트 - 사장님 확인 완료 상태로 변경
-                try {
-                  print('📱 Updating Live Activity with isConfirmed = true');
-                  await _liveActivityService.updateCheckInActivity(
-                    isConfirmed: true,
-                  );
-                  print('✅ Live Activity updated successfully');
-                } catch (e) {
-                  print('❌ Failed to update Live Activity: $e');
-                }
-
-                if (mounted) {
-                  Navigator.of(context).pop(); // Close employ dialog
-                  await showDialog(
-                    context: context,
-                    builder: (context) => CheckinSuccessDialog(
-                      spaceName: widget.space.name,
-                      benefitDescription: benefitDescription,
-                    ),
-                  );
-                  // 다이얼로그가 닫힌 후 데이터 새로고침
-                  _fetchCheckInStatus();
-                  _fetchCheckInUsers();
-                  _fetchCurrentGroup();
-                }
-              } catch (e) {
-                ('❌ Check-in error: $e').log();
-                ('❌ Error type: ${e.runtimeType}').log();
-                
-                if (mounted) {
-                  Navigator.of(context).pop(); // Close employ dialog
-                  
-                  // 서버 에러 메시지 파싱
-                  String errorMessage = '체크인 중 오류가 발생했습니다';
-                  
-                  if (e is HMPError) {
-                    ('❌ HMPError details - message: ${e.message}, error: ${e.error}').log();
-                    
-                    // 서버에서 전달된 직접적인 에러 메시지들 처리
-                    final serverMessage = e.message.toLowerCase();
-                    
-                    if (serverMessage.contains('이미 체크인한 상태입니다') || 
-                        serverMessage.contains('already_checked_in')) {
-                      errorMessage = '이미 체크인한 상태입니다';
-                    } else if (serverMessage.contains('space_out_of_range') ||
-                               serverMessage.contains('거리')) {
-                      errorMessage = '체크인 가능한 거리를 벗어났습니다';
-                    } else if (serverMessage.contains('현재 체크인이 불가능합니다') ||
-                               serverMessage.contains('체크인이 비활성화')) {
-                      errorMessage = '이 공간은 현재 체크인이 불가능합니다';
-                    } else if (serverMessage.contains('체크인 최대 인원수를 초과했습니다') ||
-                               serverMessage.contains('최대 인원')) {
-                      errorMessage = '체크인 최대 인원수를 초과했습니다';
-                    } else if (serverMessage.contains('오늘의 체크인 제한 인원수를 초과했습니다') ||
-                               serverMessage.contains('일일 체크인 제한')) {
-                      errorMessage = '오늘의 체크인 제한 인원수를 초과했습니다';
-                    } else if (serverMessage.contains('invalid_space')) {
-                      errorMessage = '유효하지 않은 공간입니다';
-                    } else if (e.message.isNotEmpty) {
-                      // 서버에서 직접 전달된 메시지가 있으면 그대로 사용
-                      errorMessage = e.message;
-                    }
-                    
-                    // HMPError의 error 필드에서도 체크 (백업)
-                    if (e.error?.contains('SPACE_OUT_OF_RANGE') == true) {
-                      errorMessage = '체크인 가능한 거리를 벗어났습니다';
-                    } else if (e.error?.contains('ALREADY_CHECKED_IN') == true) {
-                      errorMessage = '이미 체크인한 상태입니다';
-                    } else if (e.error?.contains('INVALID_SPACE') == true) {
-                      errorMessage = '유효하지 않은 공간입니다';
-                    }
-                  }
-                  
-                  // 커스텀 에러 메시지와 함께 체크인 실패 다이얼로그 표시
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => CheckinFailDialog(
-                      customErrorMessage: errorMessage,
-                    ),
-                  );
-                }
-              }
+            onConfirm: () {
+              print('✅ User confirmed in CheckinEmployDialog');
+              userConfirmed = true;
+              // onConfirm 콜백이 호출되면 dialog는 자체적으로 Navigator.pop(context, true)를 호출함
             },
           );
         },
       );
+
+      print('📊 Dialog result: $dialogResult, userConfirmed: $userConfirmed');
+      
+      // User cancelled
+      if (dialogResult != true || !userConfirmed) {
+        print('⚠️ User cancelled check-in (dialogResult: $dialogResult, userConfirmed: $userConfirmed)');
+        return;
+      }
+      
+      print('✅ User confirmed, proceeding with check-in...');
+
+      // User confirmed, proceed with check-in  
+      await _performCheckIn(dialogContext, benefitDescription);
+    } else {
+      print('⚠️ Widget or context unmounted after delay, cannot proceed with check-in');
     }
+  }
+  
+  // 기존 _performCheckIn 메서드에서 비즈니스 로직 처리
+  Future<void> _performCheckInOriginal(BuildContext savedContext, String benefitDescription) async {
+    bool checkInSuccess = false;
+    
+    try {
+        final position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+        ('📍 Current location for check-in: ${position.latitude}, ${position.longitude}')
+            .log();
+
+        // 위치 검증 추가
+        final distance = Geolocator.distanceBetween(
+          position.latitude,
+          position.longitude,
+          widget.space.latitude,
+          widget.space.longitude,
+        );
+        
+        print('📏 Distance to store: ${distance.toStringAsFixed(1)}m');
+        
+        // 50m 이상 떨어져 있으면 체크인 차단
+        if (distance > 50.0) {
+          print('❌ Too far from store: ${distance.toStringAsFixed(1)}m > 50m');
+          
+          if (mounted) {
+            await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => CheckinFailDialog(
+                customErrorMessage: '매장에서 너무 멀리 떨어져 있어. 가까이 이동해서 다시 시도해봐!',
+              ),
+            );
+          }
+          return;
+        }
+
+        print('📡 Calling check-in API with parameters:');
+        print('   spaceId: ${widget.space.id}');
+        print('   latitude: ${position.latitude}');
+        print('   longitude: ${position.longitude}');
+        
+        // 체크인 API 호출 - 실패 시 에러 throw됨
+        String? checkInErrorMessage;
+        
+        print('📱 Calling onCheckInWithNfc...');
+        final spaceCubit = getIt<SpaceCubit>();
+        print('🔍 Before check-in call - submitStatus: ${spaceCubit.state.submitStatus}');
+        print('🔍 Before check-in call - errorMessage: ${spaceCubit.state.errorMessage}');
+        
+        bool checkInApiCalled = false;
+        try {
+          await spaceCubit.onCheckInWithNfc(
+            spaceId: widget.space.id,
+            latitude: position.latitude,
+            longitude: position.longitude,
+          );
+          checkInApiCalled = true;
+          print('✅ onCheckInWithNfc completed without exception');
+        } catch (e) {
+          print('🚨 Exception caught: $e');
+          checkInApiCalled = false;
+        }
+        
+        // Always check the state after the call
+        print('📊 After check-in call - submitStatus: ${spaceCubit.state.submitStatus}');
+        print('📊 After check-in call - errorMessage: ${spaceCubit.state.errorMessage}');
+        print('📊 After check-in call - checkInApiCalled: $checkInApiCalled');
+        
+        // 명확한 성공/실패 판단
+        // API 호출 성공 + 에러 메시지 없음 = 성공
+        if (checkInApiCalled && spaceCubit.state.errorMessage.isEmpty) {
+          print('✅ Check-in API successful');
+          print('🎉 Setting checkInSuccess = true');
+          checkInSuccess = true;
+        } else if (spaceCubit.state.errorMessage.isNotEmpty) {
+          // 에러 메시지가 있으면 실패
+          print('❌ Check-in failed with error: ${spaceCubit.state.errorMessage}');
+          checkInErrorMessage = spaceCubit.state.errorMessage;
+          checkInSuccess = false;
+          
+          // Show error dialog
+          if (mounted && savedContext.mounted) {
+            await showDialog(
+              context: savedContext,
+              barrierDismissible: false,
+              builder: (context) => CheckinFailDialog(
+                customErrorMessage: checkInErrorMessage,
+              ),
+            );
+          }
+          return; // Exit after showing error
+        } else if (!checkInApiCalled) {
+          // API 호출 자체가 실패한 경우
+          print('❌ Check-in API call failed');
+          checkInSuccess = false;
+          return;
+        } else {
+          // 그 외의 경우 (submitStatus가 애매한 경우)
+          print('⚠️ Ambiguous state but treating as success');
+          print('   - checkInApiCalled: $checkInApiCalled');
+          print('   - submitStatus: ${spaceCubit.state.submitStatus}');
+          print('   - errorMessage: ${spaceCubit.state.errorMessage}');
+          checkInSuccess = true;
+        }
+      } catch (e) {
+        // 체크인 실패 시에만 에러 처리
+        ('❌ Check-in error: $e').log();
+        ('❌ Error type: ${e.runtimeType}').log();
+        checkInSuccess = false; // 명시적으로 실패 설정
+        
+        if (mounted && savedContext.mounted) {
+          // 서버 에러 메시지 파싱
+          String errorMessage = '체크인 중 오류가 발생했습니다';
+          
+          if (e is Exception) {
+            // Exception 타입의 에러 메시지 추출
+            final exceptionMessage = e.toString();
+            if (exceptionMessage.startsWith('Exception: ')) {
+              errorMessage = exceptionMessage.substring(11);
+            }
+          } else if (e is HMPError) {
+            ('❌ HMPError details - message: ${e.message}, error: ${e.error}').log();
+            
+            // 서버에서 전달된 직접적인 에러 메시지들 처리
+            final serverMessage = e.message.toLowerCase();
+            
+            if (serverMessage.contains('이미 체크인한 상태입니다') || 
+                serverMessage.contains('already_checked_in')) {
+              errorMessage = '이미 체크인한 상태입니다';
+            } else if (serverMessage.contains('space_out_of_range') ||
+                       serverMessage.contains('거리')) {
+              errorMessage = '체크인 가능한 거리를 벗어났습니다';
+            } else if (serverMessage.contains('현재 체크인이 불가능합니다') ||
+                       serverMessage.contains('체크인이 비활성화')) {
+              errorMessage = '이 공간은 현재 체크인이 불가능합니다';
+            } else if (serverMessage.contains('체크인 최대 인원수를 초과했습니다') ||
+                       serverMessage.contains('최대 인원')) {
+              errorMessage = '체크인 최대 인원수를 초과했습니다';
+            } else if (serverMessage.contains('오늘의 체크인 제한 인원수를 초과했습니다') ||
+                       serverMessage.contains('일일 체크인 제한')) {
+              errorMessage = '오늘의 체크인 제한 인원수를 초과했습니다';
+            } else if (serverMessage.contains('invalid_space')) {
+              errorMessage = '유효하지 않은 공간입니다';
+            } else if (e.message.isNotEmpty) {
+              // 서버에서 직접 전달된 메시지가 있으면 그대로 사용
+              errorMessage = e.message;
+            }
+            
+            // HMPError의 error 필드에서도 체크 (백업)
+            if (e.error?.contains('SPACE_OUT_OF_RANGE') == true) {
+              errorMessage = '체크인 가능한 거리를 벗어났습니다';
+            } else if (e.error?.contains('ALREADY_CHECKED_IN') == true) {
+              errorMessage = '이미 체크인한 상태입니다';
+            } else if (e.error?.contains('INVALID_SPACE') == true) {
+              errorMessage = '유효하지 않은 공간입니다';
+            }
+          }
+          
+          // 커스텀 에러 메시지와 함께 체크인 실패 다이얼로그 표시
+          await showDialog(
+            context: savedContext,
+            barrierDismissible: false,
+            builder: (context) => CheckinFailDialog(
+              customErrorMessage: errorMessage,
+            ),
+          );
+        }
+      }
+      
+      // 체크인이 성공한 경우에만 후속 작업 처리
+      print('🔍 Final checkInSuccess value: $checkInSuccess');
+      if (checkInSuccess) {
+        print('🎯 Check-in successful, proceeding with post-check-in tasks...');
+        
+        // 라이브 액티비티 시작 (에러가 나도 체크인 성공에는 영향 없음)
+        try {
+          print('🔄 Fetching check-in users for Live Activity...');
+          final spaceRemoteDataSource = getIt<SpaceRemoteDataSource>();
+          
+          CheckInUsersResponseDto? checkInUsersResponse;
+          try {
+            checkInUsersResponse = await spaceRemoteDataSource.getCheckInUsers(
+              spaceId: widget.space.id,
+            ).timeout(Duration(seconds: 5)); // 5초 타임아웃으로 단축
+            print('✅ Successfully fetched check-in users for Live Activity');
+          } catch (e) {
+            print('⚠️ getCheckInUsers failed or timed out: $e');
+            print('🔄 Proceeding with default values...');
+            // API 호출 실패 시 null로 유지하고 기본값 사용
+          }
+          
+          // currentGroupProgress에서 maxCapacity 파싱
+          final progress = widget.space.currentGroupProgress;
+          final parts = progress.split('/');
+          final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
+          
+          // 현재 체크인한 인원 수 계산 (API 응답이 없으면 기본값 1 사용)
+          final currentUsers = checkInUsersResponse?.currentGroup?.members?.length ?? 1;
+          final remainingUsers = maxCapacity - currentUsers;
+                  
+          print('📊 Check-in users - Current: $currentUsers, Remaining: $remainingUsers, Max: $maxCapacity');
+          
+          // Live Activity 시작 (실제 체크인 데이터 또는 기본값 사용)
+          final liveActivityService = getIt<LiveActivityService>();
+          await liveActivityService.startCheckInActivity(
+            spaceName: widget.space.name,
+            currentUsers: currentUsers,
+            remainingUsers: remainingUsers,
+            maxCapacity: maxCapacity,
+            spaceId: widget.space.id,  // 폴링을 위한 spaceId 전달
+          );
+          print('✅ Live Activity started successfully');
+        } catch (e) {
+          print('❌ Failed to start Live Activity: $e');
+          // Live Activity 실패해도 체크인 성공 다이얼로그는 표시해야 함
+          print('🔄 Proceeding without Live Activity...');
+        }
+        
+        // 라이브 액티비티 업데이트 - 사장님 확인 완료 상태로 변경
+        try {
+          print('📱 Updating Live Activity with isConfirmed = true');
+          await _liveActivityService.updateCheckInActivity(
+            isConfirmed: true,
+          );
+          print('✅ Live Activity updated successfully');
+        } catch (e) {
+          print('⚠️ Failed to update Live Activity (not affecting check-in): $e');
+        }
+
+        // savedContext만 체크
+        print('🔍 Checking savedContext.mounted: ${savedContext.mounted}');
+        
+        if (savedContext.mounted) {
+          print('📱 SavedContext is mounted, proceeding with success flow...');
+          // CheckinEmployDialog는 자체적으로 닫히므로 Navigator.pop() 제거
+          
+          // 체크인 성공 다이얼로그 표시 전에 데이터 먼저 새로고침
+          print('🔄 Refreshing data after successful check-in...');
+          await Future.wait([
+            _fetchCheckInStatus(),
+            _fetchCheckInUsers(),  // 매칭 중인 하이더 업데이트
+            _fetchCurrentGroup(),   // 프로그레스바 업데이트
+            _fetchSpaceDetail(),    // Space 정보 업데이트 (checkInCount 포함)
+          ]);
+          
+          // 프로필 정보도 업데이트 (홈화면, 프로필화면 반영)
+          final profileCubit = getIt<ProfileCubit>();
+          await profileCubit.onGetUserProfile();
+          
+          print('✅ Data refresh completed');
+          
+          // Get the updated available balance
+          final availableBalance = profileCubit.state.userProfileEntity?.availableBalance ?? 0;
+          print('💰 Current balance: $availableBalance SAV');
+          
+          // 데이터 업데이트 후 성공 다이얼로그 표시
+          print('🎉 Showing CheckinSuccessDialog with savedContext...');
+          
+          await showDialog(
+            context: savedContext,  // 저장된 context 사용
+            barrierDismissible: true, // 딤 처리 터치로 닫기 가능
+            builder: (dialogContext) => CheckinSuccessDialog(
+              spaceName: widget.space.name,
+              benefitDescription: benefitDescription,
+              availableBalance: availableBalance, // Already updated from server
+            ),
+          );
+          print('✅ CheckinSuccessDialog closed');
+        } else {
+          print('⚠️ SavedContext is not mounted, skipping success dialog');
+        }
+      }
+  }
+  
+  // 앱바와 동일한 패턴의 체크인 처리
+  Future<void> _performCheckInDirect(String benefitDescription) async {
+    print('🔄 _performCheckInDirect started');
+    
+    // End any existing Live Activity before starting new check-in
+    try {
+      final liveActivityService = getIt<LiveActivityService>();
+      await liveActivityService.endCheckInActivity();
+      print('🔄 Ended existing Live Activity before new check-in');
+    } catch (e) {
+      print('⚠️ No existing Live Activity to end or failed to end: $e');
+    }
+    
+    bool checkInSuccess = false;
+    
+    try {
+      // 위치 권한 및 현재 위치 확인
+      final position = await Geolocator.getCurrentPosition();
+      
+      // 위치 검증 추가
+      final distance = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        widget.space.latitude,
+        widget.space.longitude,
+      );
+      
+      print('📏 Distance to store: ${distance.toStringAsFixed(1)}m');
+      
+      // 50m 이상 떨어져 있으면 체크인 차단
+      if (distance > 50.0) {
+        print('❌ Too far from store: ${distance.toStringAsFixed(1)}m > 50m');
+        
+        if (mounted) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => CheckinFailDialog(
+              customErrorMessage: '매장에서 너무 멀리 떨어져 있어. 가까이 이동해서 다시 시도해봐!',
+            ),
+          );
+        }
+        return;
+      }
+
+      // 체크인 API 호출
+      print('📱 Calling spaceCubit.onCheckInWithNfc...');
+      final spaceCubit = getIt<SpaceCubit>();
+      await spaceCubit.onCheckInWithNfc(
+        spaceId: widget.space.id,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+      
+      // API 성공 확인
+      print('📊 After API call - errorMessage: "${spaceCubit.state.errorMessage}"');
+      if (spaceCubit.state.errorMessage.isEmpty) {
+        print('✅ Check-in API successful');
+        checkInSuccess = true;
+      } else {
+        print('❌ Check-in failed with error: ${spaceCubit.state.errorMessage}');
+        if (mounted) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => CheckinFailDialog(
+              customErrorMessage: spaceCubit.state.errorMessage,
+            ),
+          );
+        }
+        return;
+      }
+    } catch (e) {
+      print('❌ Check-in error: $e');
+      
+      // Clean up Live Activity if it was started
+      try {
+        final liveActivityService = getIt<LiveActivityService>();
+        await liveActivityService.endCheckInActivity();
+        print('🧹 Live Activity cleaned up after check-in failure');
+      } catch (cleanupError) {
+        print('⚠️ Failed to clean up Live Activity: $cleanupError');
+      }
+      
+      if (mounted) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => CheckinFailDialog(
+            customErrorMessage: '체크인 중 오류가 발생했습니다',
+          ),
+        );
+      }
+      return;
+    }
+    
+    // 체크인 성공 시 후속 처리 (앱바와 동일한 패턴)
+    if (checkInSuccess) {
+      print('🎯 Check-in successful, proceeding with post-check-in tasks...');
+      
+      try {
+        print('🔄 Starting Live Activity...');
+        // Live Activity 시작 시도
+        final progress = widget.space.currentGroupProgress;
+        final parts = progress.split('/');
+        final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
+        
+        final liveActivityService = getIt<LiveActivityService>();
+        await liveActivityService.startCheckInActivity(
+          spaceName: widget.space.name,
+          currentUsers: 1,
+          remainingUsers: maxCapacity - 1,
+          maxCapacity: maxCapacity,
+          spaceId: widget.space.id,
+        );
+        
+        print('🔄 Updating Live Activity...');
+        // Live Activity 업데이트
+        await liveActivityService.updateCheckInActivity(isConfirmed: true);
+        print('✅ Live Activity completed');
+      } catch (e) {
+        print('⚠️ Live Activity failed but continuing: $e');
+      }
+      
+      print('🔄 Updating profile...');
+      // 프로필 정보 업데이트
+      final profileCubit = getIt<ProfileCubit>();
+      await profileCubit.onGetUserProfile();
+      print('✅ Profile updated');
+      
+      // 성공 상태 업데이트 (setState 사용)
+      print('🔍 Checking mounted: $mounted');
+      
+      final availableBalance = profileCubit.state.userProfileEntity?.availableBalance ?? 0;
+      print('💰 Available balance: $availableBalance');
+      
+      print('🎉 Triggering CheckinSuccess overlay with setState...');
+      print('📋 Success parameters:');
+      print('   - spaceName: ${widget.space.name}');
+      print('   - benefitDescription: $benefitDescription');
+      print('   - availableBalance: $availableBalance');
+      
+      // 전역 오버레이 서비스 호출 (mounted 상태 무관)
+      GlobalOverlayService.showCheckInSuccessOverlay(
+        spaceName: widget.space.name ?? '매장',
+        benefitDescription: benefitDescription ?? '체크인 혜택',
+        availableBalance: availableBalance + 1,  // Add 1 SAV for the check-in reward
+      );
+      print('✅ GlobalOverlayService called successfully');
+      
+      print('🔄 Starting data refresh...');
+      // 데이터 새로고침 (mounted 체크 없이 실행)
+      try {
+        await Future.wait([
+          _fetchCheckInStatus(),
+          _fetchCheckInUsers(),
+          _fetchCurrentGroup(),
+          _fetchSpaceDetail(),
+        ]);
+        print('✅ Data refresh completed');
+      } catch (e) {
+        print('⚠️ Data refresh failed: $e');
+      }
+    } else {
+      print('❌ Check-in was not successful, skipping post-processing');
+    }
+  }
+
+  // 기존 메서드들 (하위 호환성을 위해 유지)
+  Future<void> _performCheckIn(BuildContext savedContext, String benefitDescription) async {
+    // 새로운 방식으로 리다이렉트
+    await _performCheckInDirect(benefitDescription);
   }
 
   /// Builds a row that displays the category icon, business status, and distance.
@@ -1382,7 +1982,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
 
   Positioned buildBackArrowIconButton(BuildContext context) {
     return Positioned(
-      top: 40,
+      top: 60,
       left: 28,
       child: Container(
         decoration: BoxDecoration(
@@ -1411,19 +2011,119 @@ class _SpaceDetailViewState extends State<SpaceDetailView> with RouteAware {
       ),
     );
   }
+
+  void _showComingSoonDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  LocaleKeys.coming_soon.tr(),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '사이렌 기능은 곧 제공될 예정입니다',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF19BAFF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '확인',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
-class HidingBanner extends StatelessWidget {
+class HidingBanner extends StatefulWidget {
   const HidingBanner(
-      {super.key, this.checkInStatus, this.onCheckIn, this.benefits = const []});
+      {super.key, this.checkInStatus, this.onCheckIn, this.benefits = const [], this.currentGroupProgress, this.onComingSoon, this.currentGroup});
   final CheckInStatusEntity? checkInStatus;
-  final VoidCallback? onCheckIn;
+  final Future<void> Function()? onCheckIn;
+  final VoidCallback? onComingSoon;
   final List<BenefitEntity> benefits;
+  final String? currentGroupProgress;
+  final CurrentGroupEntity? currentGroup;
+
+  @override
+  State<HidingBanner> createState() => _HidingBannerState();
+}
+
+class _HidingBannerState extends State<HidingBanner> {
+  bool _isProcessing = false;
+
+  // 그룹 인원수에 따른 보너스 포인트 계산
+  int getGroupBonusPoints(int groupSize) {
+    switch (groupSize) {
+      case 2: return 2;
+      case 3: return 3;
+      case 4: return 5;
+      case 5: return 7;
+      default: return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final bool isLoading = checkInStatus == null;
-    final bool isCheckedIn = checkInStatus?.isCheckedIn ?? false;
+    final bool isLoading = widget.checkInStatus == null;
+    final bool isCheckedIn = widget.checkInStatus?.isCheckedIn ?? false;
+
+    // Parse currentGroupProgress to get total
+    final parts = (widget.currentGroupProgress ?? '').split('/');
+    final int total = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
+    
+    // 매칭 완료 여부 판단 - 사용자가 그룹에서 빠졌는지 확인
+    final profileCubit = getIt<ProfileCubit>();
+    final myUserId = profileCubit.state.userProfileEntity?.id;
+    
+    // 그룹 멤버에 내가 있는지 확인
+    final isInGroup = widget.currentGroup?.members.any(
+      (member) => member.userId == myUserId
+    ) ?? false;
+    
+    // 매칭 완료 = 포인트를 받았지만(보너스 포인트) 그룹에서 빠진 상태
+    final isMatchingComplete = (widget.checkInStatus?.earnedPoints ?? 0) > 1 && !isInGroup;
 
     // SVG의 그라데이션 정의
     const gradient = LinearGradient(
@@ -1470,7 +2170,25 @@ class HidingBanner extends StatelessWidget {
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (isCheckedIn) ...[
+                          if (isCheckedIn && isMatchingComplete) ...[
+                            // 체크인도 하고 매칭도 완료된 상태
+                            Text(
+                              LocaleKeys.daily_benefit.tr(),
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const VerticalSpace(4),
+                            Text(
+                              LocaleKeys.come_tomorrow.tr(),
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ] else if (isCheckedIn) ...[
+                            // 체크인만 완료된 상태
                             Text(
                               LocaleKeys.checkin_complete.tr(),
                               style: const TextStyle(
@@ -1480,7 +2198,15 @@ class HidingBanner extends StatelessWidget {
                             ),
                             const VerticalSpace(4),
                             Text(
-                              LocaleKeys.checkin_success_get_sav.tr(),
+                              context.locale.languageCode == 'en' 
+                                ? LocaleKeys.checkin_success_get_sav.tr(args: [
+                                    getGroupBonusPoints(total).toString(),
+                                    total.toString()
+                                  ])
+                                : LocaleKeys.checkin_success_get_sav.tr(args: [
+                                    total.toString(), 
+                                    getGroupBonusPoints(total).toString()
+                                  ]),
                               style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
@@ -1488,8 +2214,8 @@ class HidingBanner extends StatelessWidget {
                             ),
                           ] else ...[
                             Text(
-                              benefits.isNotEmpty
-                                  ? benefits.first.description
+                              widget.benefits.isNotEmpty
+                                  ? widget.benefits.first.description
                                   : LocaleKeys.if_you_checkin_and_hide.tr(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
@@ -1497,7 +2223,7 @@ class HidingBanner extends StatelessWidget {
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold),
                             ),
-                            if (benefits.isEmpty) ...[
+                            if (widget.benefits.isEmpty) ...[
                               const VerticalSpace(4),
                               Text(
                                 LocaleKeys.various_benefits.tr(),
@@ -1522,9 +2248,7 @@ class HidingBanner extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             GestureDetector(
-                              onTap: () {
-                                // TODO: Implement siren action
-                              },
+                              onTap: widget.onComingSoon,
                               child: Container(
                                 width: 150,
                                 height: 45,
@@ -1537,9 +2261,7 @@ class HidingBanner extends StatelessWidget {
                             ),
                             const HorizontalSpace(10),
                             GestureDetector(
-                              onTap: () {
-                                // TODO: Implement share action
-                              },
+                              onTap: widget.onComingSoon,
                               child: Container(
                                 width: 150,
                                 height: 45,
@@ -1553,21 +2275,62 @@ class HidingBanner extends StatelessWidget {
                           ],
                         )
                       : GestureDetector(
-                          onTap: () {
-                            print('🟢 Check-in button tapped!');
-                            if (onCheckIn != null) {
-                              print('🟢 onCheckIn callback exists, calling it...');
-                              onCheckIn!();
-                            } else {
-                              print('🔴 onCheckIn callback is null!');
-                            }
-                          },
-                          child: Container(
-                            width: 135,
-                            height: 45,
-                            child: Center(
-                              child: SvgPicture.asset(
-                                'assets/icons/btn_detail_checkin.svg',
+                          onTap: _isProcessing 
+                              ? null 
+                              : () async {
+                                  print('🟢 Check-in button tapped!');
+                                  if (widget.onCheckIn != null) {
+                                    print('🟢 onCheckIn callback exists, calling it...');
+                                    setState(() {
+                                      _isProcessing = true;
+                                    });
+                                    try {
+                                      await widget.onCheckIn!();
+                                    } finally {
+                                      if (mounted) {
+                                        setState(() {
+                                          _isProcessing = false;
+                                        });
+                                      }
+                                    }
+                                  } else {
+                                    print('🔴 onCheckIn callback is null!');
+                                  }
+                                },
+                          child: AnimatedOpacity(
+                            opacity: _isProcessing ? 0.5 : 1.0,
+                            duration: const Duration(milliseconds: 200),
+                            child: Container(
+                              width: 135,
+                              height: 45,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Center(
+                                    child: SvgPicture.asset(
+                                      'assets/icons/btn_detail_checkin.svg',
+                                    ),
+                                  ),
+                                  if (_isProcessing)
+                                    Container(
+                                      width: 135,
+                                      height: 45,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.7),
+                                        borderRadius: BorderRadius.circular(22.5),
+                                      ),
+                                      child: const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF132E41)),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                           ),
@@ -1585,17 +2348,43 @@ class HidingStatusBanner extends StatelessWidget {
       {super.key,
       required this.currentGroupProgress,
       this.checkInUsersResponse,
-      this.currentGroup});
+      this.currentGroup,
+      this.checkInStatus});
 
   final String currentGroupProgress;
   final CheckInUsersResponseEntity? checkInUsersResponse;
   final CurrentGroupEntity? currentGroup;
+  final CheckInStatusEntity? checkInStatus;
 
   @override
   Widget build(BuildContext context) {
     final parts = currentGroupProgress.split('/');
     final int progress = parts.length == 2 ? int.tryParse(parts[0]) ?? 0 : 0;
-    final int total = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
+    
+    // maxCapacity를 서버 데이터에서 가져오기 (기본값 5 대신 서버 값 우선)
+    int total = 5; // 최종 대안 기본값
+    
+    // 1. currentGroupProgress에서 파싱 시도
+    if (parts.length == 2 && parts[1].isNotEmpty) {
+      total = int.tryParse(parts[1]) ?? 5;
+    } 
+    // 2. currentGroup.progress에서 파싱 시도
+    else if (currentGroup != null && currentGroup!.progress.isNotEmpty) {
+      final groupParts = currentGroup!.progress.split('/');
+      if (groupParts.length == 2 && groupParts[1].isNotEmpty) {
+        total = int.tryParse(groupParts[1]) ?? 5;
+      }
+    }
+    
+    print('🎯 [HidingStatusBanner] Using maxCapacity: $total (from: ${parts.length == 2 ? "currentGroupProgress" : "currentGroup"})');
+
+    // 현재 유저 ID 가져오기
+    final currentUserId = getIt<ProfileCubit>().state.userProfileEntity?.id;
+    print('🔍 [HidingStatusBanner] Current User ID: $currentUserId');
+    print('🔍 [HidingStatusBanner] checkInUsersResponse: $checkInUsersResponse');
+    print('🔍 [HidingStatusBanner] currentGroup: $currentGroup');
+    print('🔍 [HidingStatusBanner] checkInUsersResponse?.users.length: ${checkInUsersResponse?.users.length}');
+    print('🔍 [HidingStatusBanner] currentGroup?.members.length: ${currentGroup?.members.length}');
 
     final memberIds =
         currentGroup?.members.map((e) => e.userId).toSet() ?? {};
@@ -1632,8 +2421,20 @@ class HidingStatusBanner extends StatelessWidget {
                   fontWeight: FontWeight.bold),
             ),
             const VerticalSpace(10),
-            _buildPlayerAvatars(
-                (checkInUsersResponse?.users ?? []).take(5).toList()),
+            () {
+              // 매칭중인 하이더는 currentGroup.members를 사용해야 함
+              var matchingUsers = (currentGroup?.members ?? []);
+              
+              print('🔍 [HidingStatusBanner] Using currentGroup.members for matching hiders');
+              print('🔍 [HidingStatusBanner] Matching users count: ${matchingUsers.length}');
+              
+              // 디버깅: 매칭중인 멤버 정보 출력
+              for (var member in matchingUsers) {
+                print('🔍 [HidingStatusBanner] Matching Member: ${member.nickName} (${member.userId})');
+              }
+              
+              return _buildPlayerAvatars(matchingUsers, maxCapacity: total, currentUserId: currentUserId);
+            }(),
             const VerticalSpace(20),
             // Simplified progress bar
             SizedBox(
@@ -1678,7 +2479,7 @@ class HidingStatusBanner extends StatelessWidget {
                           } else {
                             // Unfilled segments are dark.
                             segmentColor =
-                                const Color(0xFF19BAFF).withOpacity(0.8);
+                                Colors.white.withOpacity(0.8);
                           }
                         }
                         return Expanded(
@@ -1742,8 +2543,8 @@ class HidingStatusBanner extends StatelessWidget {
   }
 
   Widget _buildPlayerAvatars(List<CheckInUserEntity> members,
-      {bool useTransparentForEmpty = false}) {
-    const int itemsPerRow = 5;
+      {bool useTransparentForEmpty = false, int? maxCapacity, String? currentUserId}) {
+    final int itemsPerRow = maxCapacity ?? 5;
     List<Widget> rows = [];
     
     // 실제 멤버가 있는지 확인
@@ -1757,12 +2558,25 @@ class HidingStatusBanner extends StatelessWidget {
 
       // Add avatars for actual members in the current row
       for (var member in sublist) {
+        final isCurrentUser = currentUserId != null && member.userId == currentUserId;
+        
+        // profileImageUrl이 있으면 우선 사용, 없으면 기존 패턴 사용
+        final imageUrl = (member.profileImageUrl?.isNotEmpty == true) 
+            ? member.profileImageUrl!
+            : '${appEnv.apiUrl}public/nft/user/${member.userId}/image';
+            
+        print('🔍 [_buildPlayerAvatars] Member: ${member.nickName} (${member.userId}), isActive: $isCurrentUser');
+        print('🖼️ [_buildPlayerAvatars] Using image URL: $imageUrl');
+        
         rowItems.add(
-          _PlayerAvatar(
-            imagePath: '${appEnv.apiUrl}public/nft/user/${member.userId}/image',
-            name: member.nickName,
-            isActive: true, // TODO: Check if this is the current user
-            hasAnyMembersInGroup: hasAnyMembers,
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: _PlayerAvatar(
+              imagePath: imageUrl,
+              name: member.nickName,
+              isActive: isCurrentUser,
+              hasAnyMembersInGroup: hasAnyMembers,
+            ),
           ),
         );
       }
@@ -1770,11 +2584,14 @@ class HidingStatusBanner extends StatelessWidget {
       // Add empty placeholder avatars to fill the remaining slots in the current row
       while (rowItems.length < itemsPerRow) {
         rowItems.add(
-          _PlayerAvatar(
-            imagePath: ' ', // Empty path for placeholder
-            name: '',
-            showTransparentOnEmpty: useTransparentForEmpty,
-            hasAnyMembersInGroup: hasAnyMembers,
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: _PlayerAvatar(
+              imagePath: ' ', // Empty path for placeholder
+              name: '',
+              showTransparentOnEmpty: useTransparentForEmpty,
+              hasAnyMembersInGroup: hasAnyMembers,
+            ),
           ),
         );
       }
@@ -1782,7 +2599,7 @@ class HidingStatusBanner extends StatelessWidget {
       rows.add(Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: rowItems,
         ),
       ));
@@ -1793,16 +2610,19 @@ class HidingStatusBanner extends StatelessWidget {
       List<Widget> emptyRow = [];
       for (int i = 0; i < itemsPerRow; i++) {
         emptyRow.add(
-          _PlayerAvatar(
-            imagePath: '',
-            name: '',
-            showTransparentOnEmpty: useTransparentForEmpty,
-            hasAnyMembersInGroup: false, // 멤버가 없으므로 false
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: _PlayerAvatar(
+              imagePath: '',
+              name: '',
+              showTransparentOnEmpty: useTransparentForEmpty,
+              hasAnyMembersInGroup: false, // 멤버가 없으므로 false
+            ),
           ),
         );
       }
       rows.add(Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: emptyRow,
       ));
     }
@@ -1841,8 +2661,8 @@ class _PlayerAvatar extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: isActive
-                  ? Border.all(color: const Color(0xFF00A3FF), width: 1)
-                  : null,
+                  ? Border.all(color: const Color(0xFF00A3FF), width: 1, style: BorderStyle.solid)
+                  : Border.all(color: Colors.transparent, width: 0, style: BorderStyle.none),
               boxShadow: isActive
                   ? [
                       BoxShadow(

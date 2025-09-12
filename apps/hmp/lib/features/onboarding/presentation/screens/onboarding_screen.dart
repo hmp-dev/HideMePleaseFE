@@ -36,6 +36,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
+import 'package:mobile/features/nft/domain/repositories/nft_repository.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/mint_nft_request_dto.dart';
+import 'package:mobile/app/core/env/app_env.dart';
 
 /// OnBoardingScreen is a stateful widget that represents the onboarding screen.
 ///
@@ -87,6 +90,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   bool _isConfirming = false;
   bool _isCheckingWallet = false; // Add wallet checking state
   bool _hasExistingWallet = false; // Track if user has existing wallet
+  bool _isWepinInitialized = false; // Track if Wepin SDK is initialized
   String selectedProfile = '';
   CharacterProfile? selectedCharacter;
   String nickname = '';
@@ -95,11 +99,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   @override
   void initState() {
+    super.initState();
+    
     // New onboarding screens (2 new + 2 existing)
     // Total 4 screens now
-
-    // Initialize Wepin SDK for wallet creation
-    _initializeWepin();
 
     // call function to check if location is enabled with error handling
     try {
@@ -110,13 +113,24 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     
     // Load saved onboarding state
     _loadOnboardingState();
-
-    super.initState();
+  }
+  
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // Initialize Wepin SDK only once when dependencies are ready
+    if (!_isWepinInitialized) {
+      _isWepinInitialized = true;
+      _initializeWepin();
+    }
   }
 
   Future<void> _initializeWepin() async {
     try {
       '🔧 Initializing Wepin SDK for onboarding...'.log();
+      '📱 Current onboarding step: $currentSlideIndex'.log();
+      
       final wepinCubit = getIt<WepinCubit>();
       
       // Initialize Wepin SDK with current language
@@ -126,7 +140,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       
       '✅ Wepin SDK initialized successfully'.log();
       
-      // Check for existing WePIN wallet
+      // Check for existing WePIN wallet after SDK is ready
       await _checkExistingWepinWallet();
     } catch (e) {
       '❌ Failed to initialize Wepin SDK: $e'.log();
@@ -143,29 +157,54 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         return;
       }
       
-      // Check if user is registered with WePIN
+      // Check if user is registered with WePIN and has actual wallet
       bool isRegistered = false;
+      bool hasActualWallet = false;
+      
       try {
         // Try to get current user to check if registered
         final currentUser = await wepinCubit.state.wepinWidgetSDK!.login.getCurrentWepinUser();
         isRegistered = (currentUser != null && currentUser.userInfo != null);
-        '🔍 WePIN user check in initState: ${isRegistered ? "Existing user found" : "No user found"}'.log();
+        '🔍 WePIN user check: ${isRegistered ? "Existing user found" : "No user found"}'.log();
+        
         if (isRegistered && currentUser!.userInfo != null) {
           '📧 Existing user email: ${currentUser.userInfo!.email}'.log();
+          
+          // Check if user has actual wallet addresses
+          final walletsCubit = getIt<WalletsCubit>();
+          await walletsCubit.onGetAllWallets();
+          '💼 Connected wallets count: ${walletsCubit.state.connectedWallets.length}'.log();
+          
+          if (walletsCubit.state.connectedWallets.isNotEmpty) {
+            // Check for Ethereum wallet specifically
+            try {
+              final ethereumWallet = walletsCubit.state.connectedWallets.firstWhere(
+                (wallet) => wallet.provider.toLowerCase() == 'ethereum',
+                orElse: () => walletsCubit.state.connectedWallets.first,
+              );
+              '💼 Found wallet: ${ethereumWallet.provider} - ${ethereumWallet.publicAddress}'.log();
+              hasActualWallet = true;
+            } catch (e) {
+              '⚠️ Error finding wallet: $e'.log();
+              hasActualWallet = false;
+            }
+          } else {
+            '⚠️ WePIN user exists but no wallet addresses found'.log();
+            hasActualWallet = false;
+          }
         }
       } catch (e) {
-        '⚠️ Error checking WePIN user in initState: $e'.log();
+        '⚠️ Error checking WePIN user: $e'.log();
       }
       
-      if (isRegistered) {
-        '✅ Existing WePIN user detected during initialization'.log();
+      if (isRegistered && hasActualWallet) {
+        '✅ Existing WePIN user with wallet detected'.log();
         
         // Try to get the current status
         final status = await wepinCubit.state.wepinWidgetSDK!.getStatus();
         '📊 Current WePIN status: $status'.log();
         
-        // If user is registered but not logged in, they can login later
-        // Mark that wallet exists so we show appropriate UI
+        // User has both WePIN account and wallet address
         setState(() {
           _hasExistingWallet = true;
         });
@@ -180,8 +219,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             '⚠️ Silent login failed: $e'.log();
           }
         }
+      } else if (isRegistered && !hasActualWallet) {
+        '⚠️ WePIN user exists but no wallet - need to create wallet'.log();
+        setState(() {
+          _hasExistingWallet = false;
+        });
       } else {
-        '🆕 New WePIN user - will need to create wallet'.log();
+        '🆕 New WePIN user - will need to create account and wallet'.log();
         setState(() {
           _hasExistingWallet = false;
         });
@@ -513,9 +557,82 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         }
       }
       
-      // Register to create wallet
-      if (status == WepinLifeCycle.login || status == WepinLifeCycle.loginBeforeRegister) {
-        '🚀 Starting Wepin registration...'.log();
+      // Handle based on WePIN status
+      if (status == WepinLifeCycle.login) {
+        '🔍 Already logged in, checking existing wallets...'.log();
+        
+        // User is already logged in, check if they have wallets
+        final accounts = await wepinCubit.state.wepinWidgetSDK!.getAccounts();
+        '📋 Existing accounts: ${accounts.length}'.log();
+        
+        if (accounts.isNotEmpty) {
+          // User already has wallets
+          for (var account in accounts) {
+            '💳 Existing - Network: ${account.network}, Address: ${account.address}'.log();
+          }
+          
+          final ethereumAccounts = accounts.where((account) => 
+            account.network.toLowerCase() == 'ethereum'
+          ).toList();
+          
+          if (ethereumAccounts.isNotEmpty) {
+            '✅ Ethereum wallet already exists!'.log();
+            
+            // Save wallets to backend (in case not saved)
+            await wepinCubit.saveWalletsToHMPBackend(accounts);
+            
+            // User has wallet, move to next page
+            setState(() {
+              _isConfirming = false;
+              _hasExistingWallet = true;
+            });
+            _moveToPage(2); // Move to character selection
+          } else {
+            '⚠️ Has wallets but no Ethereum wallet'.log();
+            // May need to create Ethereum wallet specifically
+            setState(() {
+              _isConfirming = false;
+            });
+          }
+        } else {
+          '⚠️ Logged in but no wallets found - may need finalize'.log();
+          
+          // Try to finalize wallet creation
+          try {
+            '🔄 Attempting to finalize wallet creation...'.log();
+            await wepinCubit.state.wepinWidgetSDK!.finalize();
+            
+            // Check accounts again
+            final newAccounts = await wepinCubit.state.wepinWidgetSDK!.getAccounts();
+            if (newAccounts.isNotEmpty) {
+              '✅ Wallets created after finalize'.log();
+              await wepinCubit.saveWalletsToHMPBackend(newAccounts);
+              setState(() {
+                _isConfirming = false;
+              });
+              _moveToPage(2);
+            } else {
+              '❌ Still no wallets after finalize'.log();
+              setState(() {
+                _isConfirming = false;
+              });
+            }
+          } catch (e) {
+            '❌ Error during finalize: $e'.log();
+            setState(() {
+              _isConfirming = false;
+            });
+          }
+        }
+        
+        // Check user status and save tokens
+        await _checkAndSaveWepinUser();
+        await _saveWepinTokensAfterOAuth();
+        
+      } else if (status == WepinLifeCycle.loginBeforeRegister) {
+        '🚀 Starting Wepin registration for new user...'.log();
+        
+        // New user needs registration
         await wepinCubit.state.wepinWidgetSDK!.register(context);
         
         // After registration, check user status and save tokens
@@ -562,7 +679,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         setState(() {
           _isConfirming = false;
         });
-        '❌ Wepin not in correct state for registration: $status'.log();
+        '❌ Wepin not in correct state for wallet creation: $status'.log();
       }
     } catch (e) {
       setState(() {
@@ -600,12 +717,116 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           '✅ WePIN 로그인 상태 저장 완료'.log();
         } else {
           '⚠️ WePIN 사용자 정보 없음'.log();
+          await _clearWepinLoginState();
         }
       } catch (e) {
         '❌ getCurrentWepinUser 에러: $e'.log();
+        
+        // InvalidLoginSession 오류 처리
+        if (e.toString().contains('InvalidLoginSession')) {
+          '🔄 InvalidLoginSession 감지 - 세션 복구 시도'.log();
+          await _handleInvalidLoginSession(wepinCubit);
+        } else {
+          // 다른 오류의 경우 로그인 상태 정리
+          await _clearWepinLoginState();
+        }
       }
     } catch (e) {
       '❌ _checkAndSaveWepinUser 에러: $e'.log();
+      await _clearWepinLoginState();
+    }
+  }
+
+  /// InvalidLoginSession 오류 처리 및 세션 복구
+  Future<void> _handleInvalidLoginSession(WepinCubit wepinCubit) async {
+    try {
+      '🔄 세션 복구 프로세스 시작...'.log();
+      
+      // 1. 현재 Wepin 상태 확인
+      final currentStatus = await wepinCubit.state.wepinWidgetSDK!.getStatus();
+      '📊 현재 Wepin 상태: $currentStatus'.log();
+      
+      // 2. 세션 정리 - Wepin 로그아웃 시도
+      try {
+        '🧹 Wepin 세션 정리 시도...'.log();
+        await wepinCubit.state.wepinWidgetSDK!.login.logoutWepin();
+        '✅ Wepin 로그아웃 완료'.log();
+      } catch (logoutError) {
+        '⚠️ Wepin 로그아웃 실패 (무시 가능): $logoutError'.log();
+      }
+      
+      // 3. 상태 업데이트
+      final newStatus = await wepinCubit.state.wepinWidgetSDK!.getStatus();
+      wepinCubit.updateWepinStatus(newStatus);
+      '📊 정리 후 Wepin 상태: $newStatus'.log();
+      
+      // 4. 로컬 상태 정리
+      await _clearWepinLoginState();
+      
+      // 5. 소셜 로그인 토큰 새로고침 시도
+      '🔄 소셜 로그인 토큰 새로고침 시도...'.log();
+      await wepinCubit.getSocialLoginValues();
+      
+      // 6. 토큰이 있으면 자동 재로그인 시도
+      final hasValidToken = (wepinCubit.state.socialTokenIsAppleOrGoogle == 'GOOGLE' && 
+                            wepinCubit.state.googleAccessToken?.isNotEmpty == true) ||
+                           (wepinCubit.state.socialTokenIsAppleOrGoogle == 'APPLE' && 
+                            wepinCubit.state.appleIdToken?.isNotEmpty == true);
+                            
+      if (hasValidToken) {
+        '🔄 유효한 토큰 발견 - 자동 재로그인 시도...'.log();
+        
+        try {
+          await wepinCubit.loginSocialAuthProvider();
+          
+          // 재로그인 후 상태 확인
+          final recoveredStatus = await wepinCubit.state.wepinWidgetSDK!.getStatus();
+          '📊 복구 후 Wepin 상태: $recoveredStatus'.log();
+          
+          if (recoveredStatus == WepinLifeCycle.login) {
+            '✅ 세션 복구 성공'.log();
+            
+            // 복구된 사용자 정보 다시 확인
+            try {
+              final recoveredUser = await wepinCubit.state.wepinWidgetSDK!.login.getCurrentWepinUser();
+              if (recoveredUser != null && recoveredUser.userInfo != null) {
+                '✅ 복구된 사용자 정보 저장: ${recoveredUser.userInfo!.email}'.log();
+                
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('wepin_logged_in', true);
+                await prefs.setString('wepin_user_email', recoveredUser.userInfo!.email);
+                await prefs.setString('wepin_user_provider', recoveredUser.userInfo!.provider ?? '');
+              }
+            } catch (userCheckError) {
+              '⚠️ 복구 후 사용자 정보 확인 실패: $userCheckError'.log();
+            }
+          } else {
+            '⚠️ 재로그인 후에도 상태가 login이 아님: $recoveredStatus'.log();
+          }
+        } catch (reloginError) {
+          '❌ 자동 재로그인 실패: $reloginError'.log();
+        }
+      } else {
+        '⚠️ 유효한 토큰이 없어 자동 재로그인 불가'.log();
+      }
+      
+    } catch (e) {
+      '❌ 세션 복구 실패: $e'.log();
+      await _clearWepinLoginState();
+    }
+  }
+
+  /// Wepin 로그인 상태 정리
+  Future<void> _clearWepinLoginState() async {
+    try {
+      '🧹 Wepin 로그인 상태 정리 중...'.log();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('wepin_logged_in');
+      await prefs.remove('wepin_user_email');
+      await prefs.remove('wepin_user_provider');
+      '✅ Wepin 로그인 상태 정리 완료'.log();
+    } catch (e) {
+      '❌ Wepin 로그인 상태 정리 실패: $e'.log();
     }
   }
 
@@ -944,15 +1165,20 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                 }
                                                 '✅ 온보딩 완료 - 저장된 단계 초기화'.log();
                                                 
-                                                // Start background task for image merging and S3 upload
+                                                // Start background task for image merging and NFT minting
                                                 _startImageUploadTask(selectedCharacter);
                                                 
-                                                // Navigate directly to app screen
-                                                Navigator.pushNamedAndRemoveUntil(
-                                                  context,
-                                                  Routes.appScreen,
-                                                  (route) => false,
-                                                );
+                                                // Give the background task time to start before navigation
+                                                await Future.delayed(const Duration(milliseconds: 100));
+                                                
+                                                // Navigate to app screen
+                                                if (context.mounted) {
+                                                  Navigator.pushNamedAndRemoveUntil(
+                                                    context,
+                                                    Routes.appScreen,
+                                                    (route) => false,
+                                                  );
+                                                }
                                               },
                                 )
                               : Padding(
@@ -1014,17 +1240,31 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     ("isShowOnBoarding: $isShowOnBoarding").log();
   }
 
-  /// Start background task to merge character layers and upload to S3
+  /// Start background task to merge character layers and mint NFT
   Future<void> _startImageUploadTask(CharacterProfile? character) async {
+    '🚀 _startImageUploadTask called with character: ${character != null}'.log();
+    
     if (character == null) {
       '⚠️ No character selected for image upload'.log();
       return;
     }
 
-    // Run in background using Future.microtask
-    Future.microtask(() async {
+    // Run in background without await to ensure it continues after navigation
+    // Using anonymous async function for immediate execution
+    () async {
       try {
-        '🎨 Starting character image merge and upload process'.log();
+        '🎨 Starting character image merge process'.log();
+        '📝 Character ID: ${character.id}'.log();
+        '🎨 Character layers:'.log();
+        '  - Background: ${character.background}'.log();
+        '  - Body: ${character.body}'.log();
+        '  - Clothes: ${character.clothes}'.log();
+        '  - Hair: ${character.hair}'.log();
+        '  - Eyes: ${character.eyes}'.log();
+        '  - Nose: ${character.nose}'.log();
+        if (character.earAccessory != null) {
+          '  - Ear Accessory: ${character.earAccessory}'.log();
+        }
         
         // Step 1: Merge character layers
         final imageBytes = await CharacterImageService.mergeCharacterLayers(character);
@@ -1032,40 +1272,101 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           '❌ Failed to merge character layers'.log();
           return;
         }
-        '✅ Successfully merged character layers (${imageBytes.length} bytes)'.log();
-
-        // Step 2: Upload to S3
-        final uploadService = getIt<ImageUploadService>();
-        final fileName = CharacterImageService.generateFileName(character.id);
+        '✅ Successfully merged character layers'.log();
+        '📊 Image size: ${imageBytes.length} bytes (${(imageBytes.length / 1024).toStringAsFixed(2)} KB)'.log();
         
-        final s3Url = await uploadService.uploadCharacterImageToS3(
-          imageBytes: imageBytes,
-          fileName: fileName,
-        );
-
-        if (s3Url == null) {
-          '❌ Failed to upload image to S3'.log();
-          return;
-        }
-        '✅ Successfully uploaded to S3: $s3Url'.log();
-
-        // Step 3: Update profile with final image URL
+        // Step 2: Skip S3 upload (not needed as per user request)
+        '⏭️ Skipping S3 upload (using server-side image generation)'.log();
+        
+        // Step 3: Get profile to ensure it's updated
         final profileCubit = getIt<ProfileCubit>();
-        final updateRequest = UpdateProfileRequestDto(
-          finalProfileImageUrl: s3Url,
-        );
-        
-        await profileCubit.onUpdateUserProfile(updateRequest);
-        '✅ Profile updated with final image URL'.log();
-
-        // Step 4: Refresh profile to get updated data
         await profileCubit.onGetUserProfile();
-        '✅ Profile refreshed with new image URL'.log();
+        '✅ Profile data refreshed'.log();
+        
+        // Step 4: Trigger NFT minting with API endpoint
+        await _mintProfileNft();
 
-      } catch (e) {
+      } catch (e, stackTrace) {
         '❌ Error in background image upload task: $e'.log();
+        '📚 Stack trace: $stackTrace'.log();
       }
-    });
+    }(); // 즉시 실행
+  }
+  
+  /// Mint profile NFT using server-generated image
+  Future<void> _mintProfileNft() async {
+    try {
+      '🎨 Starting profile NFT minting process'.log();
+      
+      // Get wallet address
+      final walletsCubit = getIt<WalletsCubit>();
+      await walletsCubit.onGetAllWallets();
+      '💼 Connected wallets: ${walletsCubit.state.connectedWallets}'.log();
+      
+      if (walletsCubit.state.connectedWallets.isEmpty) {
+        '❌ No wallet found for minting'.log();
+        return;
+      }
+      
+      // Get the first Ethereum wallet (provider field contains the network)
+      final ethereumWallet = walletsCubit.state.connectedWallets.firstWhere(
+        (wallet) => wallet.provider.toLowerCase() == 'ethereum',
+        orElse: () => walletsCubit.state.connectedWallets.first,
+      );
+      
+      final walletAddress = ethereumWallet.publicAddress;
+      '💼 Using wallet ethereumWallet for minting: $ethereumWallet'.log();
+      '💼 Using wallet address for minting: $walletAddress'.log();
+      
+      // Get user profile for metadata
+      final profileCubit = getIt<ProfileCubit>();
+      final userProfile = profileCubit.state.userProfileEntity;
+      
+      if (userProfile == null) {
+        '❌ User profile not found'.log();
+        return;
+      }
+      
+      // Construct URLs using server endpoints
+      final imageUrl = '${appEnv.apiUrl}public/nft/user/${userProfile.id}/image';
+      final metadataUrl = '${appEnv.apiUrl}public/nft/user/${userProfile.id}/metadata';
+      '🖼️ Image URL: $imageUrl'.log();
+      '📝 Metadata URL: $metadataUrl'.log();
+      
+      // Create mint request
+      final mintRequest = MintNftRequestDto(
+        walletAddress: walletAddress,
+        imageUrl: imageUrl,
+        metadataUrl: metadataUrl,
+      );
+      
+      // Call minting API
+      final nftRepository = getIt<NftRepository>();
+      final result = await nftRepository.mintPfpNft(request: mintRequest);
+      
+      result.fold(
+        (error) {
+          '❌ NFT minting failed: ${error.message}'.log();
+        },
+        (response) async {
+          '✅ NFT minting successful!'.log();
+          '🔗 Transaction Hash: ${response.transactionHash}'.log();
+          '🎨 NFT Address: ${response.tokenAddress}'.log();
+          '🎨 Token ID: ${response.tokenId}'.log();
+          '⛓️ Chain: ${response.chain}'.log();
+          '📝 Message: ${response.message}'.log();
+          
+          // Save minting status
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool(StorageValues.hasMintedNft, true);
+          await prefs.setString(StorageValues.mintingTransactionId, response.transactionHash);
+          '💾 Minting status saved to storage'.log();
+        },
+      );
+    } catch (e) {
+      '❌ Error in NFT minting: $e'.log();
+      // Non-blocking - user can continue even if minting fails
+    }
   }
   
   // 온보딩 완료 시 지갑과 프로필 파츠 상태 업데이트

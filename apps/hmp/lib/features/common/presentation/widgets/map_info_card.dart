@@ -48,13 +48,18 @@ class MapInfoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 매장 이미지
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  color: const Color(0xFF3A3A3A),
-                  child: space.image.isNotEmpty && !space.image.contains('undefined')
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF132E41), width: 1),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: Container(
+                    color: const Color(0xFF3A3A3A),
+                    child: space.image.isNotEmpty && !space.image.contains('undefined')
                       ? Image.network(
                           space.image,
                           fit: BoxFit.cover,
@@ -92,6 +97,7 @@ class MapInfoCard extends StatelessWidget {
                             ),
                           ),
                         ),
+                  ),
                 ),
               ),
               const SizedBox(width: 16),

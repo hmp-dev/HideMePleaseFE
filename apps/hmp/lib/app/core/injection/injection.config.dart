@@ -11,9 +11,13 @@
 import 'package:connectivity_plus/connectivity_plus.dart' as _i3;
 import 'package:get_it/get_it.dart' as _i1;
 import 'package:injectable/injectable.dart' as _i2;
-import 'package:mobile/app/core/injection/register_module.dart' as _i56;
+import 'package:mobile/app/core/injection/register_module.dart' as _i58;
 import 'package:mobile/app/core/network/network.dart' as _i11;
+import 'package:mobile/app/core/services/check_in_location_service.dart'
+    as _i55;
 import 'package:mobile/app/core/services/live_activity_service.dart' as _i5;
+import 'package:mobile/app/core/services/nearby_store_validation_service.dart'
+    as _i57;
 import 'package:mobile/app/core/storage/secure_storage.dart' as _i8;
 import 'package:mobile/features/app/presentation/cubit/app_cubit.dart' as _i53;
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart' as _i7;
@@ -90,7 +94,7 @@ import 'package:mobile/features/space/infrastructure/repositories/space_reposito
 import 'package:mobile/features/space/presentation/cubit/benefit_redeem_cubit.dart'
     as _i32;
 import 'package:mobile/features/space/presentation/cubit/event_category_cubit.dart'
-    as _i55;
+    as _i56;
 import 'package:mobile/features/space/presentation/cubit/nearby_spaces_cubit.dart'
     as _i42;
 import 'package:mobile/features/space/presentation/cubit/space_benefits_cubit.dart'
@@ -220,10 +224,14 @@ extension GetItInjectableX on _i1.GetIt {
           gh<_i30.AuthRepository>(),
           gh<_i10.AuthLocalDataSource>(),
         ));
-    gh.factory<_i55.EventCategoryCubit>(
-        () => _i55.EventCategoryCubit(gh<_i35.EventCategoryRepository>()));
+    gh.lazySingleton<_i55.CheckInLocationService>(
+        () => _i55.CheckInLocationService(gh<_i50.SpaceCubit>()));
+    gh.factory<_i56.EventCategoryCubit>(
+        () => _i56.EventCategoryCubit(gh<_i35.EventCategoryRepository>()));
+    gh.lazySingleton<_i57.NearbyStoreValidationService>(
+        () => _i57.NearbyStoreValidationService(gh<_i50.SpaceCubit>()));
     return this;
   }
 }
 
-class _$RegisterModule extends _i56.RegisterModule {}
+class _$RegisterModule extends _i58.RegisterModule {}

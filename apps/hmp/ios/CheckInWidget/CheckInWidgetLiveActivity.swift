@@ -34,7 +34,7 @@ struct CheckInWidgetLiveActivity: Widget {
                 }
                 
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("\(context.state.currentUsers)/5")
+                    Text("\(context.state.currentUsers)/\(context.attributes.maxCapacity)")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.trailing, 8)
@@ -90,7 +90,7 @@ struct CheckInWidgetLiveActivity: Widget {
                 }
             } compactTrailing: {
                 // Compact Trailing - 오른쪽 작은 영역
-                Text("\(context.state.currentUsers)/5")
+                Text("\(context.state.currentUsers)/\(context.attributes.maxCapacity)")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(.white)
             } minimal: {
@@ -110,7 +110,7 @@ struct CheckInLiveActivityView: View {
     var body: some View {
         ZStack {
             // 검정 배경
-            Color.black
+            Color(red: 0.9176, green: 0.9725, blue: 1.0, opacity: 1.0)
             
             VStack(spacing: 0) {
                 // 상단: 로고 + 하이드미플리즈 + 점 표시
@@ -124,14 +124,14 @@ struct CheckInLiveActivityView: View {
                         
                         Text("하이드미플리즈")
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                     }
                     
                     Spacer()
                     
                     // 오른쪽: 5개 점 표시
                     HStack(spacing: 6) {
-                        ForEach(0..<5) { index in
+                        ForEach(0..<context.attributes.maxCapacity, id: \.self) { index in
                             Circle()
                                 .fill(index < context.state.currentUsers ? 
                                       Color(red: 0.17, green: 0.70, blue: 1.0) : // 파란색
@@ -152,19 +152,19 @@ struct CheckInLiveActivityView: View {
                         // 공간 이름
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.seal.fill")
-                                .foregroundColor(.white)
+                                .foregroundColor(.black)
                                 .font(.system(size: 16))
                             
                             Text(context.attributes.spaceName)
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
+                                .foregroundColor(.black)
                         }
                         
                         // 매칭 상태
                         HStack(spacing: 4) {
                             Text("매칭 성공까지")
                                 .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(.black)
                             
                             Text("\(context.state.remainingUsers)명")
                                 .font(.system(size: 20, weight: .bold))
@@ -172,7 +172,7 @@ struct CheckInLiveActivityView: View {
                             
                             Text("남음")
                                 .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(Color(red: 0.17, green: 0.70, blue: 1.0))
                         }
                     }
                     .padding(.leading, 20)
@@ -184,7 +184,7 @@ struct CheckInLiveActivityView: View {
                         // SAV 리워드
                         Text("SAV 리워드")
                             .font(.system(size: 12))
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.black.opacity(0.7))
                         
                         // 아이콘과 큰 숫자
                         HStack(spacing: 8) {

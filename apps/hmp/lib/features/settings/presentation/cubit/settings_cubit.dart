@@ -3,6 +3,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/services/live_activity_service.dart';
 import 'package:mobile/features/settings/domain/entities/announcement_entity.dart';
 import 'package:mobile/features/settings/domain/entities/settings_banner_entity.dart';
 import 'package:mobile/features/settings/domain/repositories/settings_repository.dart';
@@ -178,6 +180,16 @@ class SettingsCubit extends BaseCubit<SettingsState> {
         ));
       },
       (result) {
+        // End Live Activity before account deletion
+        try {
+          ("회원 탈퇴 - 라이브 액티비티 종료 중...").log();
+          final liveActivityService = getIt<LiveActivityService>();
+          liveActivityService.endCheckInActivity();
+          ("회원 탈퇴 - 라이브 액티비티 종료 완료").log();
+        } catch (e) {
+          ("회원 탈퇴 - 라이브 액티비티 종료 실패: $e").log();
+        }
+        
         emit(
           state.copyWith(
             isWithdrawalSuccessful: true,

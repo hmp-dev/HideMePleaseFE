@@ -16,6 +16,7 @@ class SpaceEntity extends Equatable {
   final List<BusinessHoursEntity> businessHours;
   final bool isTemporarilyClosed;
   final List<SpaceEventCategoryEntity> spaceEventCategories;
+  final String currentGroupProgress;
 
   const SpaceEntity({
     required this.id,
@@ -31,6 +32,7 @@ class SpaceEntity extends Equatable {
     this.businessHours = const [],
     this.isTemporarilyClosed = false,
     this.spaceEventCategories = const [],
+    this.currentGroupProgress = '',
   });
 
   @override
@@ -49,6 +51,7 @@ class SpaceEntity extends Equatable {
       businessHours,
       isTemporarilyClosed,
       spaceEventCategories,
+      currentGroupProgress,
     ];
   }
 
@@ -66,6 +69,7 @@ class SpaceEntity extends Equatable {
     List<BusinessHoursEntity>? businessHours,
     bool? isTemporarilyClosed,
     List<SpaceEventCategoryEntity>? spaceEventCategories,
+    String? currentGroupProgress,
   }) {
     return SpaceEntity(
       id: id ?? this.id,
@@ -81,6 +85,7 @@ class SpaceEntity extends Equatable {
       businessHours: businessHours ?? this.businessHours,
       isTemporarilyClosed: isTemporarilyClosed ?? this.isTemporarilyClosed,
       spaceEventCategories: spaceEventCategories ?? this.spaceEventCategories,
+      currentGroupProgress: currentGroupProgress ?? this.currentGroupProgress,
     );
   }
 
@@ -97,7 +102,8 @@ class SpaceEntity extends Equatable {
         longitude = 0.0,
         businessHours = const [],
         isTemporarilyClosed = false,
-        spaceEventCategories = const [];
+        spaceEventCategories = const [],
+        currentGroupProgress = '';
 
   // Helper method to check if the store is currently open
   bool get isCurrentlyOpen {

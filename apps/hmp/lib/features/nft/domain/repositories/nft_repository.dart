@@ -12,6 +12,8 @@ import 'package:mobile/features/nft/infrastructure/dtos/save_selected_token_reor
 import 'package:mobile/features/nft/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/selected_nft_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/welcome_nft_dto.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/mint_nft_request_dto.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/mint_nft_response_dto.dart';
 
 abstract class NftRepository {
   Future<Either<HMPError, NftCollectionsGroupDto>> getNftCollections({
@@ -58,6 +60,10 @@ abstract class NftRepository {
     String? order,
     String? page,
     String? type,
+  });
+  
+  Future<Either<HMPError, MintNftResponseDto>> mintPfpNft({
+    required MintNftRequestDto request,
   });
 
   // Future<Either<HMPError, NftCommunityResponseDto>> getNftCommunities(

@@ -28,6 +28,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/auth/presentation/widgets/terms_modal_dialog.dart';
+import 'package:mobile/features/auth/data/terms_data.dart';
 
 class SocialAuthScreen extends StatefulWidget {
   const SocialAuthScreen({super.key});
@@ -220,6 +222,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
             '🎯 Should show onboarding: $shouldShowOnboarding (hasWallet: $hasWallet, hasProfileParts: $hasProfileParts)'.log();
             
             // 화면 전환
+            //if (true) { //debug
             if (shouldShowOnboarding) {
               // 지갑이 없거나 프로필 파츠가 없으면 온보딩 화면으로
               '📱 Navigating to onboarding screen'.log();
@@ -273,7 +276,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                   ),
                   const SizedBox(height: 40),
                   const Text(
-                    '쉽고 재밌게 즐기는',
+                    '숨으면 혜택이 열린다!',
                     style: TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 28,
@@ -422,7 +425,15 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const TermsModalDialog(
+                              title: "서비스 이용약관",
+                              content: TermsData.termsOfService,
+                            ),
+                          );
+                        },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: const Size(0, 0),
@@ -443,7 +454,15 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                       ),
                       const SizedBox(width: 16),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const TermsModalDialog(
+                              title: "개인정보 취급방침",
+                              content: TermsData.privacyPolicy,
+                            ),
+                          );
+                        },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: const Size(0, 0),

@@ -15,6 +15,7 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/model_banner_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -62,6 +63,10 @@ class _StartUpScreenState extends State<StartUpScreen>
               // User is logged in
               // a - init
               await getIt<ProfileCubit>().init();
+              
+              // Restore check-in state from local storage
+              print('🔄 Checking for active check-in...');
+              await getIt<SpaceCubit>().restoreCheckInState();
 
               Future.delayed(const Duration(milliseconds: 200)).then((value) {
                 // c - fetch user connected Wallets
@@ -97,13 +102,30 @@ class _StartUpScreenState extends State<StartUpScreen>
                 final onboardingCompleted = prefs.getBool(StorageValues.onboardingCompleted) ?? false;
                 final showOnboardingAfterLogout = prefs.getBool(StorageValues.showOnboardingAfterLogout) ?? false;
                 final savedStep = prefs.getInt(StorageValues.onboardingCurrentStep);
+                
+                // Check for NFT minting and profile image
+                final hasMintedNft = prefs.getBool(StorageValues.hasMintedNft) ?? false;
+                final hasWallet = prefs.getBool(StorageValues.hasWallet) ?? false;
+                final hasProfileParts = prefs.getBool(StorageValues.hasProfileParts) ?? false;
+                
+                // Check current profile status
+                final profileCubit = getIt<ProfileCubit>();
+                final userProfile = profileCubit.state.userProfileEntity;
+                final hasProfileImage = userProfile?.finalProfileImageUrl?.isNotEmpty == true;
+                
+                // Enhanced skip logic: Skip onboarding if all conditions are met
+                final shouldSkipOnboarding = hasWallet && hasMintedNft && hasProfileImage;
+                
+                '📊 Onboarding check - Wallet: $hasWallet, Minted: $hasMintedNft, ProfileImage: $hasProfileImage'.log();
+                '🎯 Should skip onboarding: $shouldSkipOnboarding'.log();
 
                 if (context.mounted) {
                   // Show onboarding if:
                   // 1. User logged out and logged back in (showOnboardingAfterLogout flag)
-                  // 2. Onboarding not completed yet
+                  // 2. Onboarding not completed yet (unless skip conditions are met)
                   // 3. There's a saved step (user left mid-onboarding) and onboarding not completed
-                  if (showOnboardingAfterLogout || !onboardingCompleted || (savedStep != null && !onboardingCompleted)) {
+                  //if (true) { //debug
+                  if (!shouldSkipOnboarding && (showOnboardingAfterLogout || !onboardingCompleted || (savedStep != null && !onboardingCompleted))) {
                     '🚀 온보딩 화면으로 이동 - 로그아웃 후: $showOnboardingAfterLogout, 완료: $onboardingCompleted, 저장된 단계: $savedStep'.log();
                     
                     // Clear the flag if it was set
@@ -115,7 +137,12 @@ class _StartUpScreenState extends State<StartUpScreen>
                     Navigator.of(context).pushNamedAndRemoveUntil(
                         Routes.onboardingScreen, (Route<dynamic> route) => false);
                   } else {
-                    // Returning user - go to home
+                    // Returning user or skip conditions met - go to home
+                    if (shouldSkipOnboarding && !onboardingCompleted) {
+                      '✅ Skipping onboarding - all conditions met'.log();
+                      // Mark onboarding as completed if skipping due to having all requirements
+                      await prefs.setBool(StorageValues.onboardingCompleted, true);
+                    }
                     const SecureStorage().write(StorageValues.wasOnWelcomeWalletConnectScreen, "true");
                     Navigator.of(context).pushNamedAndRemoveUntil(
                         Routes.appScreen, (Route<dynamic> route) => false);

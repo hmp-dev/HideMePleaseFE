@@ -30,6 +30,8 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/features/onboarding/models/character_profile.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/features/space/presentation/widgets/space_guide_overlay.dart';
 
 class MapScreen extends StatefulWidget {
   final VoidCallback? onShowBottomBar;
@@ -48,6 +50,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   MapboxMap? mapboxMap;
   double currentZoom = 12.0;
+  Timer? _updateTimer; // 실시간 업데이트를 위한 타이머
 
   bool isLoadingMarkers = false;
   bool markersAdded = false; // 마커 추가 중복 방지
@@ -87,6 +90,8 @@ class _MapScreenState extends State<MapScreen> {
   PointAnnotationManager? _checkInDotsManager; // 체크인 점 전용 매니저
   PointAnnotationManager? _headingAnnotationManager; // GPS heading 매니저 (최하위 레이어)
   PointAnnotationManager? _currentLocationAnnotationManager; // 현재 위치 프로필 매니저 (최상위 레이어)
+  
+  Set<String> _registeredCheckInDots = {}; // 등록된 체크인 점들 추적
   
   // 실시간 위치 추적 관련
   StreamSubscription<geo.Position>? _positionSubscription;
@@ -497,8 +502,7 @@ class _MapScreenState extends State<MapScreen> {
     List<PointAnnotationOptions> checkInDots = [];
     markerSpaceMap.clear();
     
-    // 등록된 체크인 점 이미지 ID 추적
-    Set<String> registeredCheckInDots = {};
+    // 체크인 점 이미지 ID 추적은 클래스 멤버 _registeredCheckInDots 사용
     
     int validSpaceCount = 0;
     int invalidSpaceCount = 0;
@@ -537,36 +541,48 @@ class _MapScreenState extends State<MapScreen> {
                          space.longitude >= swLng &&
                          space.longitude <= neLng;
         
-        // 1. 기본 마커 추가 (항상)
+        // 1. 기본 마커 추가 (항상) - 줌 15 이상일 때 매장명 표시
         markers.add(
           PointAnnotationOptions(
             geometry: Point(coordinates: Position(space.longitude, space.latitude)),
             iconImage: _getMarkerIconForCategory(space.category),
             iconSize: 0.6,
+            // 줌 레벨 15 이상일 때만 매장명 텍스트 추가
+            textField: showCheckInStatus ? space.name : null,
+            textColor: showCheckInStatus ? Colors.black.value : null,
+            textHaloColor: showCheckInStatus ? Colors.white.value : null,
+            textHaloWidth: showCheckInStatus ? 1.5 : null,
+            textSize: showCheckInStatus ? 12.0 : null,
+            textOffset: showCheckInStatus ? [0.0, 2.2] : null,
+            textAnchor: showCheckInStatus ? TextAnchor.TOP : null,
           ),
         );
         markerSpaceMap[markerId] = space;
         
         // 2. 체크인 점 추가 (줌 13 이상, 화면에 보이는 매장만)
         if (showCheckInStatus && isVisible) {
-          // 실제 API에서 체크인 정보 가져오기
-          final currentUsers = await _getCheckInUsersCount(space.id);
+          // SpaceEntity의 currentGroupProgress 사용 (불필요한 API 호출 제거)
+          final progress = space.currentGroupProgress.isNotEmpty ? space.currentGroupProgress : "0/5";
+          final parts = progress.split('/');
+          final currentUsers = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 0 : 0;
+          final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
           
-          print('🔍 체크인 점 표시: ${space.name} - ${currentUsers}명 (실제 데이터)');
+          print('🔍 체크인 점 표시: ${space.name} - ${currentUsers}/${maxCapacity}명 (실제 데이터)');
           
           // 체크인 점 이미지 ID
-          final checkInDotsId = 'checkin_dots_$currentUsers';
+          final checkInDotsId = 'checkin_dots_${currentUsers}_${maxCapacity}';
           
           // 이미지가 아직 등록되지 않은 경우 생성
-          if (!registeredCheckInDots.contains(checkInDotsId)) {
+          if (!_registeredCheckInDots.contains(checkInDotsId)) {
             print('🎨 체크인 점 생성 중: $checkInDotsId');
             final dotsImageData = await _createCheckInDotsOnly(
               currentUsers: currentUsers,
+              maxCapacity: maxCapacity,
             );
             
             final mbxImage = MbxImage(
               data: dotsImageData,
-              width: 204, // (36 * 5 + 6 * 4) + 30 = 204
+              width: (36 * maxCapacity + 6 * (maxCapacity - 1)) + 30, // 동적 크기 계산
               height: 66, // 36 + 30 = 66
             );
             
@@ -580,7 +596,7 @@ class _MapScreenState extends State<MapScreen> {
               null,
             );
             
-            registeredCheckInDots.add(checkInDotsId);
+            _registeredCheckInDots.add(checkInDotsId);
             print('✅ 체크인 점 등록: $checkInDotsId');
           }
           
@@ -589,9 +605,9 @@ class _MapScreenState extends State<MapScreen> {
             PointAnnotationOptions(
               geometry: Point(coordinates: Position(space.longitude, space.latitude)),
               iconImage: checkInDotsId,
-              iconSize: 0.3, // 3배 크기로 렌더링했으므로 0.3 스케일로 표시
+              iconSize: 0.8, // 체크인 점 크기
               iconAnchor: IconAnchor.BOTTOM, // 점을 아래쪽 기준으로 정렬
-              iconOffset: [0.0, -60.0], // 마커 위로 60px 이동
+              iconOffset: [0.0, -20.0], // 마커 위로 20px 이동
             ),
           );
         }
@@ -1365,6 +1381,9 @@ class _MapScreenState extends State<MapScreen> {
       
       // 즉시 지도 설정 (지연 없이 바로 실행)
       await _setupMapImmediately();
+      
+      // 실시간 업데이트 타이머 시작 (30초마다)
+      _startRealTimeUpdates();
     } catch (e) {
       print('❌ Error in style loaded callback: $e');
       // 에러가 있어도 기본 설정은 진행
@@ -1372,6 +1391,75 @@ class _MapScreenState extends State<MapScreen> {
         isMapStyleLoaded = true;
       });
       await _setupMapImmediately();
+      _startRealTimeUpdates();
+    }
+  }
+
+  void _startRealTimeUpdates() {
+    // 기존 타이머가 있으면 취소
+    _updateTimer?.cancel();
+    
+    // 30초마다 체크인 상태만 업데이트
+    _updateTimer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+      if (mapboxMap != null && isMapStyleLoaded) {
+        print('🔄 Updating check-in status...');
+        await _updateCheckInDotsOnly();
+      }
+    });
+  }
+
+  Future<void> _updateCheckInDotsOnly() async {
+    try {
+      // 현재 줌 레벨 확인
+      final cameraState = await mapboxMap!.getCameraState();
+      if (cameraState.zoom < 15) {
+        return; // 줌 레벨이 낮으면 업데이트 안 함
+      }
+
+      // 최신 공간 데이터 가져오기
+      final spaceCubit = getIt<SpaceCubit>();
+      await spaceCubit.onFetchAllSpaceViewData();
+      final spaces = spaceCubit.state.spaceList;
+
+      // 체크인 점만 업데이트 (마커는 그대로 유지)
+      if (_checkInDotsManager != null) {
+        // 기존 체크인 점 삭제
+        await _checkInDotsManager!.deleteAll();
+        
+        // 새 체크인 점 추가
+        final checkInDots = <PointAnnotationOptions>[];
+        for (final space in spaces) {
+          if (space.latitude != 0 && space.longitude != 0) {
+            final progress = space.currentGroupProgress.isNotEmpty ? space.currentGroupProgress : "0/5";
+            final parts = progress.split('/');
+            final currentUsers = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 0 : 0;
+            final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
+            
+            final checkInDotsId = 'checkin_dots_${currentUsers}_${maxCapacity}';
+            
+            // 이미지가 등록되어 있으면 사용
+            if (_registeredCheckInDots.contains(checkInDotsId)) {
+              checkInDots.add(
+                PointAnnotationOptions(
+                  geometry: Point(coordinates: Position(space.longitude, space.latitude)),
+                  iconImage: checkInDotsId,
+                  iconSize: 0.8,
+                  iconAnchor: IconAnchor.BOTTOM,
+                  iconOffset: [0.0, -20.0],
+                ),
+              );
+            }
+          }
+        }
+        
+        if (checkInDots.isNotEmpty) {
+          await _checkInDotsManager!.createMulti(checkInDots);
+        }
+      }
+      
+      print('✅ Check-in dots updated successfully');
+    } catch (e) {
+      print('❌ Error updating check-in dots: $e');
     }
   }
   
@@ -1523,7 +1611,7 @@ class _MapScreenState extends State<MapScreen> {
     final swLng = bounds.southwest.coordinates.lng;
     
     List<PointAnnotationOptions> checkInDots = [];
-    Set<String> registeredCheckInDots = {};
+    // 체크인 점 이미지 ID 추적은 클래스 멤버 _registeredCheckInDots 사용
     int visibleCount = 0;
     
     for (final space in spaces) {
@@ -1536,25 +1624,29 @@ class _MapScreenState extends State<MapScreen> {
         
         if (isVisible) {
           visibleCount++;
-          // 실제 API에서 체크인 정보 가져오기
-          final currentUsers = await _getCheckInUsersCount(space.id);
+          // SpaceEntity의 currentGroupProgress 사용 (불필요한 API 호출 제거)
+          final progress = space.currentGroupProgress.isNotEmpty ? space.currentGroupProgress : "0/5";
+          final parts = progress.split('/');
+          final currentUsers = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 0 : 0;
+          final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
           
           // 체크인 점 이미지 ID
-          final checkInDotsId = 'checkin_dots_$currentUsers';
+          final checkInDotsId = 'checkin_dots_${currentUsers}_${maxCapacity}';
           
           // 이미지가 아직 등록되지 않은 경우 생성 (캐시 확인)
-          if (!registeredCheckInDots.contains(checkInDotsId)) {
+          if (!_registeredCheckInDots.contains(checkInDotsId)) {
             // 캐시 확인
             if (!_checkInDotImageCache.containsKey(checkInDotsId)) {
               final dotsImageData = await _createCheckInDotsOnly(
                 currentUsers: currentUsers,
+                maxCapacity: maxCapacity,
               );
               _checkInDotImageCache[checkInDotsId] = dotsImageData; // 캐시에 저장
               
               final mbxImage = MbxImage(
                 data: dotsImageData,
-                width: 32,
-                height: 8,
+                width: (36 * maxCapacity + 6 * (maxCapacity - 1)) + 30,
+                height: 66,
               );
               
               await mapboxMap!.style.addStyleImage(
@@ -1568,7 +1660,7 @@ class _MapScreenState extends State<MapScreen> {
               );
             }
             
-            registeredCheckInDots.add(checkInDotsId);
+            _registeredCheckInDots.add(checkInDotsId);
           }
           
           // 체크인 점 추가
@@ -1576,7 +1668,7 @@ class _MapScreenState extends State<MapScreen> {
             PointAnnotationOptions(
               geometry: Point(coordinates: Position(space.longitude, space.latitude)),
               iconImage: checkInDotsId,
-              iconSize: 1.0,
+              iconSize: 0.8,
               iconAnchor: IconAnchor.BOTTOM,
               iconOffset: [0.0, -25.0],
             ),
@@ -1611,6 +1703,15 @@ class _MapScreenState extends State<MapScreen> {
       // 줌 레벨이 크게 변경되었을 때만 전체 마커 업데이트 (깜빡임 방지)
       if ((oldZoom < 15 && newZoom >= 15) || (oldZoom >= 15 && newZoom < 15)) {
         print('🔄 줌 레벨 임계값 변경 - 전체 마커 업데이트 필요');
+        
+        // 줌 아웃 시 체크인 점 제거
+        if (newZoom < 15) {
+          print('🔍 줌 아웃 - 체크인 점 제거');
+          if (_checkInDotsManager != null) {
+            await _checkInDotsManager!.deleteAll();
+          }
+        }
+        
         if (filteredSpaces.isNotEmpty) {
           await _addAllMarkers(filteredSpaces);
         }
@@ -1660,9 +1761,9 @@ class _MapScreenState extends State<MapScreen> {
                       width: 320,
                       height: 96,
                       decoration: BoxDecoration(
-                        color: Color(0xFF181819), // 컬러 배경
+                        color: Color(0xFFEAF8FF), // 컬러 배경
                         border: Border.all(
-                          color: Color(0xFF23B0FF), // stroke color
+                          color: Colors.black, // stroke color
                           width: 1,
                         ),
                         borderRadius: BorderRadius.circular(10),
@@ -1674,7 +1775,7 @@ class _MapScreenState extends State<MapScreen> {
                             "앗! 아직 너무 멀리있어.\n좀 더 확대해서 숨을 곳을 클릭해봐!",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 14,
                               fontWeight: FontWeight.w500, // Pretendard Medium
                               letterSpacing: -0.14, // -1% of 14pt
@@ -1993,23 +2094,26 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // 체크인 점만 그리는 함수 (투명 배경)
-  Future<Uint8List> _createCheckInDotsOnly({required int currentUsers}) async {
+  Future<Uint8List> _createCheckInDotsOnly({
+    required int currentUsers,
+    required int maxCapacity,
+  }) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     
-    // 캔버스 크기를 3배로 늘려서 더 크고 선명하게 렌더링
-    const scale = 3.0;
-    const dotSize = 12.0 * scale; // 점 크기 더 증가
-    const dotSpacing = 2.0 * scale; // 간격 줄임
-    const totalDotsWidth = (dotSize * 5) + (dotSpacing * 4);
-    const canvasWidth = totalDotsWidth + (10 * scale); // 여백
-    const canvasHeight = dotSize + (10 * scale); // 여백
+    // 캔버스 크기를 2배로 줄여서 더 작게 렌더링
+    const scale = 2.0;
+    const dotSize = 8.0 * scale; // 점 크기 축소
+    const dotSpacing = 2.0 * scale; // 간격
+    final totalDotsWidth = (dotSize * maxCapacity) + (dotSpacing * (maxCapacity - 1));
+    final canvasWidth = totalDotsWidth + (10 * scale); // 여백
+    final canvasHeight = dotSize + (10 * scale); // 여백
     
     // 체크인 상태 점 그리기
     final startX = 5.0 * scale; // 왼쪽 여백
     final startY = 5.0 * scale; // 상단 여백
     
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < maxCapacity; i++) {
       final paint = Paint()
         ..color = i < currentUsers 
           ? const Color(0xFF00A3FF) // 파란색 (체크인한 인원)
@@ -2021,7 +2125,7 @@ class _MapScreenState extends State<MapScreen> {
       final borderPaint = Paint()
         ..color = const Color(0xFF132E41) // 진한 테두리색
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.0 * scale // 테두리 두께 증가
+        ..strokeWidth = 1.0 * scale // 테두리 두께 감소
         ..isAntiAlias = true;
       
       final center = Offset(
@@ -2047,17 +2151,16 @@ class _MapScreenState extends State<MapScreen> {
     return byteData!.buffer.asUint8List();
   }
   
-  // 체크인 정보 가져오기 (캐시 우선)
-  Future<int> _getCheckInUsersCount(String spaceId) async {
-    // 임시로 API 호출을 막고 항상 0을 반환합니다.
-    return 0;
-    /*
+  // 체크인 정보 가져오기 (캐시 우선) - 현재 인원과 최대 인원 모두 반환
+  Future<(int, int)> _getCheckInUsersCount(String spaceId) async {
     try {
       // 캐시가 유효한지 확인 (5분 이내)
       if (_lastCheckInCacheUpdate != null &&
           DateTime.now().difference(_lastCheckInCacheUpdate!).inMinutes < 5 &&
           _checkInCache.containsKey(spaceId)) {
-        return _checkInCache[spaceId]!;
+        // 캐시에서 가져올 때도 progress 파싱 필요
+        // 일단 캐시된 현재 인원과 기본값 5 반환
+        return (_checkInCache[spaceId]!, 5);
       }
       
       // API 호출하여 체크인 정보 가져오기
@@ -2066,18 +2169,21 @@ class _MapScreenState extends State<MapScreen> {
         spaceId: spaceId,
       );
       
-      final currentUsers = response.currentGroup?.members?.length ?? 0;
+      // progress 파싱 (예: "1/3")
+      final progress = response.currentGroup?.progress ?? "0/5";
+      final parts = progress.split('/');
+      final currentUsers = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 0 : 0;
+      final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
       
-      // 캐시 업데이트
+      // 캐시 업데이트 (현재 인원만)
       _checkInCache[spaceId] = currentUsers;
       _lastCheckInCacheUpdate = DateTime.now();
       
-      return currentUsers;
+      return (currentUsers, maxCapacity);
     } catch (e) {
       print('⚠️ 체크인 정보 가져오기 실패 (spaceId: $spaceId): $e');
-      return _checkInCache[spaceId] ?? 0; // 캐시된 값이 있으면 반환, 없으면 0
+      return (_checkInCache[spaceId] ?? 0, 5); // 캐시된 값이 있으면 반환, 없으면 0과 기본값 5
     }
-    */
   }
   
   // 체크인 상태가 포함된 마커 이미지 생성
@@ -2941,6 +3047,7 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     _stopLocationTracking();
     _compassSubscription?.cancel(); // 나침반 구독 해제
+    _updateTimer?.cancel(); // 실시간 업데이트 타이머 해제
     searchController.dispose();
     _categoryScrollController.dispose();
     mapboxMap?.dispose();

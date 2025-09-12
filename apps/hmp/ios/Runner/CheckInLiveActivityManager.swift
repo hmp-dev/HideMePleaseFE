@@ -10,11 +10,12 @@ class CheckInLiveActivityManager: NSObject {
     private var currentActivity: Activity<CheckInActivityAttributes>?
     private var updateTimer: Timer?
     
-    func startLiveActivity(spaceName: String, currentUsers: Int, remainingUsers: Int, channel: FlutterMethodChannel) {
+    func startLiveActivity(spaceName: String, currentUsers: Int, remainingUsers: Int, maxCapacity: Int, channel: FlutterMethodChannel) {
         print("🔵 [LiveActivity] Starting Live Activity...")
         print("🔵 [LiveActivity] Space Name: \(spaceName)")
         print("🔵 [LiveActivity] Current Users: \(currentUsers)")
         print("🔵 [LiveActivity] Remaining Users: \(remainingUsers)")
+        print("🔵 [LiveActivity] Max Capacity: \(maxCapacity)")
         
         // 권한 체크 (디버그를 위해 일시적으로 경고만 표시)
         let authInfo = ActivityAuthorizationInfo()
@@ -31,7 +32,8 @@ class CheckInLiveActivityManager: NSObject {
         }
         
         let attributes = CheckInActivityAttributes(
-            spaceName: spaceName
+            spaceName: spaceName,
+            maxCapacity: maxCapacity
         )
         
         let initialState = CheckInActivityAttributes.ContentState(

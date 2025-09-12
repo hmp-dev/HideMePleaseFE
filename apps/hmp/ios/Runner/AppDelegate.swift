@@ -34,7 +34,8 @@ import ActivityKit
           guard let args = call.arguments as? [String: Any],
                 let spaceName = args["spaceName"] as? String,
                 let currentUsers = args["currentUsers"] as? Int,
-                let remainingUsers = args["remainingUsers"] as? Int else {
+                let remainingUsers = args["remainingUsers"] as? Int,
+                let maxCapacity = args["maxCapacity"] as? Int else {
             print("❌ [Flutter Channel] Invalid arguments")
             result(FlutterError(code: "INVALID_ARGUMENTS",
                                  message: "Missing required arguments",
@@ -42,11 +43,12 @@ import ActivityKit
             return
           }
           
-          print("📱 [Flutter Channel] Starting Live Activity with spaceName: \(spaceName), currentUsers: \(currentUsers), remainingUsers: \(remainingUsers)")
+          print("📱 [Flutter Channel] Starting Live Activity with spaceName: \(spaceName), currentUsers: \(currentUsers), remainingUsers: \(remainingUsers), maxCapacity: \(maxCapacity)")
           CheckInLiveActivityManager.shared.startLiveActivity(
             spaceName: spaceName,
             currentUsers: currentUsers,
             remainingUsers: remainingUsers,
+            maxCapacity: maxCapacity,
             channel: channel
           )
           result(true)

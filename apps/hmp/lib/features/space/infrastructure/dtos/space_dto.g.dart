@@ -25,6 +25,7 @@ SpaceDto _$SpaceDtoFromJson(Map<String, dynamic> json) => SpaceDto(
           ?.map(
               (e) => SpaceEventCategoryDto.fromJson(e as Map<String, dynamic>))
           .toList(),
+      currentGroupProgress: json['currentGroupProgress'] as String?,
     );
 
 Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{
@@ -41,4 +42,5 @@ Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{
       'SpaceBusinessHours': instance.businessHours,
       'isTemporarilyClosed': instance.isTemporarilyClosed,
       'SpaceEventCategory': instance.spaceEventCategories,
+      'currentGroupProgress': instance.currentGroupProgress,
     };

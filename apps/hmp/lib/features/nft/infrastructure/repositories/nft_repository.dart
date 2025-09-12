@@ -16,6 +16,8 @@ import 'package:mobile/features/nft/infrastructure/dtos/save_selected_token_reor
 import 'package:mobile/features/nft/infrastructure/dtos/select_token_toggle_request_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/selected_nft_dto.dart';
 import 'package:mobile/features/nft/infrastructure/dtos/welcome_nft_dto.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/mint_nft_request_dto.dart';
+import 'package:mobile/features/nft/infrastructure/dtos/mint_nft_response_dto.dart';
 
 @LazySingleton(as: NftRepository)
 class NftRepositoryImpl extends NftRepository {
@@ -256,6 +258,27 @@ class NftRepositoryImpl extends NftRepository {
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(
         message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+  
+  @override
+  Future<Either<HMPError, MintNftResponseDto>> mintPfpNft({
+    required MintNftRequestDto request,
+  }) async {
+    try {
+      final response = await _nftRemoteDataSource.requestMintPfpNft(request);
+      return right(response);
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.response?.data['message'] ?? e.message,
         error: e,
         trace: t,
       ));

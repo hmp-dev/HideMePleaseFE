@@ -56,6 +56,7 @@ abstract class SpaceRepository {
     required String spaceId,
     required double latitude,
     required double longitude,
+    String? benefitId,
   });
 
   Future<Either<HMPError, CheckInStatusEntity>> getCheckInStatus({
@@ -68,4 +69,8 @@ abstract class SpaceRepository {
 
   Future<Either<HMPError, CurrentGroupEntity>> getCurrentGroup(
       {required String spaceId});
+
+  Future<Either<HMPError, bool>> checkOut({
+    required String spaceId,
+  });
 }

@@ -283,6 +283,13 @@ class WepinCubit extends BaseCubit<WepinState> {
   /// opened.
   Future<void> openWepinWidget(BuildContext context) async {
     "inside openWepinWidget".log();
+    
+    // 방어적 검사: 컨텍스트 유효성
+    if (!context.mounted) {
+      "❌ Context is not mounted, cannot open widget".log();
+      return;
+    }
+    
     showLoader();
     
     // Start wallet check timer when opening widget for NFT redemption
@@ -513,11 +520,7 @@ class WepinCubit extends BaseCubit<WepinState> {
     "🔍 Getting social login values, type: $socialTokenIsAppleOrGoogle".log();
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
-      // final appleIdTokenResult =
-      //     await _secureStorage.read(StorageValues.appleIdToken) ?? '';
-
-      // final appleIdTokenResult = await FirebaseAuth.instance.currentUser?.getIdToken() ?? "";
-      final appleIdTokenResult = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
+      final appleIdTokenResult = await _getAppleTokenWithRetry();
       
       "🍎 Apple ID Token retrieved: ${appleIdTokenResult.isNotEmpty ? 'Success' : 'Failed'}".log();
 
@@ -528,29 +531,7 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
-      "🔄 Getting stored Google ID Token...".log();
-      
-      var googleIdTokenResult = await _secureStorage.read(StorageValues.googleIdToken) ?? '';
-      
-      // If token is empty, try to refresh it
-      if (googleIdTokenResult.isEmpty) {
-        "⚠️ Stored Google ID token is empty, attempting to refresh...".log();
-        
-        // Try to refresh the Google token through AuthCubit
-        final refreshedToken = await getIt<AuthCubit>().refreshGoogleAccessToken();
-        
-        if (refreshedToken != null && refreshedToken.isNotEmpty) {
-          googleIdTokenResult = refreshedToken;
-          // Save the refreshed token for future use
-          await _secureStorage.write(
-            StorageValues.googleIdToken,
-            googleIdTokenResult,
-          );
-          "✅ Google ID token refreshed successfully from GoogleSignIn".log();
-        } else {
-          "❌ Failed to refresh Google ID token".log();
-        }
-      }
+      final googleIdTokenResult = await _getGoogleTokenWithRetry();
       
       "🔑 Google ID Token retrieved: ${googleIdTokenResult.isNotEmpty ? 'Success (${googleIdTokenResult.substring(0, min(20, googleIdTokenResult.length))}...)' : 'Failed - Unable to recover'}".log();
 
@@ -559,6 +540,112 @@ class WepinCubit extends BaseCubit<WepinState> {
         googleAccessToken: googleIdTokenResult, // Store ID token in googleAccessToken field for compatibility
       ));
     }
+  }
+
+  /// Google 토큰을 재시도 로직과 함께 가져옵니다
+  Future<String> _getGoogleTokenWithRetry({int maxRetries = 3}) async {
+    "🔄 Getting stored Google ID Token...".log();
+    
+    var googleIdTokenResult = await _secureStorage.read(StorageValues.googleIdToken) ?? '';
+    
+    // If token is available, return it
+    if (googleIdTokenResult.isNotEmpty) {
+      "✅ Found stored Google ID token".log();
+      return googleIdTokenResult;
+    }
+    
+    // Token is empty, try to refresh with retries
+    "⚠️ Stored Google ID token is empty, attempting to refresh...".log();
+    
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      "🔄 Google token refresh attempt $attempt/$maxRetries".log();
+      
+      try {
+        // Try to refresh the Google token through AuthCubit
+        final refreshedToken = await getIt<AuthCubit>().refreshGoogleAccessToken();
+        
+        if (refreshedToken != null && refreshedToken.isNotEmpty) {
+          // Validate token before saving
+          if (refreshedToken.length > 10) { // Basic validation
+            // Save the refreshed token with verification
+            await _secureStorage.write(StorageValues.googleIdToken, refreshedToken);
+            
+            // Wait a moment for storage to complete
+            await Future.delayed(const Duration(milliseconds: 100));
+            
+            // Verify the token was actually saved
+            final verifyToken = await _secureStorage.read(StorageValues.googleIdToken) ?? '';
+            if (verifyToken == refreshedToken) {
+              "✅ Google ID token refreshed and verified (attempt $attempt)".log();
+              return refreshedToken;
+            } else {
+              "⚠️ Token verification failed after save (attempt $attempt)".log();
+            }
+          } else {
+            "⚠️ Retrieved token appears invalid (too short) - attempt $attempt".log();
+          }
+        } else {
+          "⚠️ No token returned from refresh (attempt $attempt)".log();
+        }
+      } catch (e) {
+        "❌ Error during Google token refresh attempt $attempt: $e".log();
+      }
+      
+      // Wait before next retry (exponential backoff)
+      if (attempt < maxRetries) {
+        final waitTime = Duration(milliseconds: 500 * attempt);
+        "⏳ Waiting ${waitTime.inMilliseconds}ms before retry...".log();
+        await Future.delayed(waitTime);
+      }
+    }
+    
+    "❌ Failed to refresh Google ID token after $maxRetries attempts".log();
+    return '';
+  }
+
+  /// Apple 토큰을 재시도 로직과 함께 가져옵니다
+  Future<String> _getAppleTokenWithRetry({int maxRetries = 2}) async {
+    "🔄 Getting Apple ID Token...".log();
+    
+    // First try to get stored token
+    var appleIdTokenResult = await _secureStorage.read(StorageValues.appleIdToken) ?? '';
+    
+    if (appleIdTokenResult.isNotEmpty) {
+      "✅ Found stored Apple ID token".log();
+      return appleIdTokenResult;
+    }
+    
+    // Try to refresh Apple token
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      "🔄 Apple token refresh attempt $attempt/$maxRetries".log();
+      
+      try {
+        final refreshedToken = await getIt<AuthCubit>().refreshAppleIdToken() ?? '';
+        
+        if (refreshedToken.isNotEmpty) {
+          // Save the refreshed token
+          await _secureStorage.write(StorageValues.appleIdToken, refreshedToken);
+          
+          // Wait for storage to complete
+          await Future.delayed(const Duration(milliseconds: 100));
+          
+          "✅ Apple ID token refreshed successfully (attempt $attempt)".log();
+          return refreshedToken;
+        } else {
+          "⚠️ No Apple token returned from refresh (attempt $attempt)".log();
+        }
+      } catch (e) {
+        "❌ Error during Apple token refresh attempt $attempt: $e".log();
+      }
+      
+      // Wait before next retry
+      if (attempt < maxRetries) {
+        await Future.delayed(const Duration(milliseconds: 300));
+      }
+    }
+    
+    "❌ Failed to refresh Apple ID token after $maxRetries attempts".log();
+    return '';
   }
 
   String generateNonce([int length = 32]) {
@@ -601,8 +688,30 @@ class WepinCubit extends BaseCubit<WepinState> {
     "loginSocialAuthProvider is called".log();
     
     try {
-      // Check current status first
-      final currentStatus = await state.wepinWidgetSDK!.getStatus();
+      // 방어적 검사: SDK 유효성 확인
+      if (state.wepinWidgetSDK == null) {
+        "❌ Wepin SDK is null, cannot proceed with login".log();
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Wepin SDK not initialized',
+        ));
+        return;
+      }
+
+      // Check current status first with timeout
+      WepinLifeCycle currentStatus;
+      try {
+        currentStatus = await state.wepinWidgetSDK!.getStatus()
+            .timeout(const Duration(seconds: 10));
+      } catch (timeoutError) {
+        "❌ Timeout getting Wepin status: $timeoutError".log();
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Connection timeout. Please check your network and try again.',
+        ));
+        return;
+      }
+
       if (currentStatus == WepinLifeCycle.login) {
         "✅ Already logged in to Wepin".log();
         emit(state.copyWith(
@@ -631,12 +740,29 @@ class WepinCubit extends BaseCubit<WepinState> {
       }
       
       if (idToken == null || idToken.isEmpty) {
-        "❌ No ID token available for login".log();
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'No ID token available',
-        ));
-        return;
+        "❌ No ID token available for login, attempting token refresh...".log();
+        
+        // Try to get tokens again with force refresh
+        await getSocialLoginValues();
+        
+        // Get the token again after refresh
+        if (socialType == SocialLoginType.GOOGLE.name) {
+          idToken = state.googleAccessToken;
+        } else if (socialType == SocialLoginType.APPLE.name) {
+          idToken = state.appleIdToken;
+        }
+        
+        // If still no token after refresh, show error
+        if (idToken == null || idToken.isEmpty) {
+          "❌ Still no ID token available after refresh attempt".log();
+          emit(state.copyWith(
+            isLoading: false,
+            error: 'Authentication failed: Unable to get valid login token. Please try logging in again.',
+          ));
+          return;
+        } else {
+          "✅ Token obtained after refresh, proceeding with login".log();
+        }
       }
       
       try {
@@ -683,17 +809,11 @@ class WepinCubit extends BaseCubit<WepinState> {
         }
       } catch (e) {
         "❌ Error during login process: $e".log();
-        emit(state.copyWith(
-          isLoading: false,
-          error: e.toString(),
-        ));
+        _handleWepinError(e, 'login process');
       }
     } catch (e) {
       "❌ Error in loginSocialAuthProvider: $e".log();
-      emit(state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      ));
+      _handleWepinError(e, 'social auth login');
     }
   }
 
@@ -1237,5 +1357,94 @@ class WepinCubit extends BaseCubit<WepinState> {
   
   void dispose() {
     stopWalletCheckTimer();
+  }
+
+  /// 공통 오류 처리 함수
+  void _handleWepinError(dynamic error, String operation) {
+    final errorString = error.toString();
+    "❌ Wepin error during $operation: $errorString".log();
+    
+    // InvalidLoginSession 감지 및 처리
+    if (errorString.contains('InvalidLoginSession')) {
+      "🔄 InvalidLoginSession detected during $operation".log();
+      _handleInvalidLoginSessionError();
+    }
+    // 네트워크 관련 오류
+    else if (errorString.contains('Network') || 
+             errorString.contains('timeout') ||
+             errorString.contains('Connection')) {
+      "🌐 Network error detected during $operation".log();
+      emit(state.copyWith(
+        isLoading: false,
+        error: 'Network error. Please check your connection and try again.',
+      ));
+    }
+    // 일반 오류
+    else {
+      emit(state.copyWith(
+        isLoading: false,
+        error: 'An error occurred during $operation. Please try again.',
+      ));
+    }
+  }
+
+  /// InvalidLoginSession 오류 처리
+  void _handleInvalidLoginSessionError() {
+    "🔄 Handling InvalidLoginSession error...".log();
+    
+    // 세션 상태 리셋
+    emit(state.copyWith(
+      wepinLifeCycleStatus: WepinLifeCycle.initialized,
+      isLoading: false,
+      error: 'Session expired. Please login again.',
+    ));
+    
+    // 토큰 새로고침 시도
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      try {
+        "🔄 Attempting to refresh tokens after InvalidLoginSession".log();
+        await getSocialLoginValues();
+        
+        // 토큰이 있으면 자동 재로그인 시도
+        final hasValidToken = (state.socialTokenIsAppleOrGoogle == 'GOOGLE' && 
+                              (state.googleAccessToken?.isNotEmpty ?? false)) ||
+                             (state.socialTokenIsAppleOrGoogle == 'APPLE' && 
+                              (state.appleIdToken?.isNotEmpty ?? false));
+        
+        if (hasValidToken) {
+          "🔄 Valid token found, attempting automatic re-login".log();
+          await loginSocialAuthProvider();
+        } else {
+          "⚠️ No valid token found for automatic re-login".log();
+        }
+      } catch (e) {
+        "❌ Failed to recover from InvalidLoginSession: $e".log();
+      }
+    });
+  }
+
+  /// 토큰 유효성 검사
+  bool _isTokenValid(String? token) {
+    return token != null && 
+           token.isNotEmpty && 
+           token.length > 10 && // 최소 길이 체크
+           !token.contains('null') && // null 문자열 체크
+           token.split('.').length >= 2; // JWT 기본 구조 체크 (header.payload)
+  }
+
+  /// 안전한 Wepin 상태 가져오기
+  Future<WepinLifeCycle?> _getSafeWepinStatus() async {
+    try {
+      if (state.wepinWidgetSDK == null) {
+        "⚠️ Wepin SDK is null".log();
+        return null;
+      }
+      
+      return await state.wepinWidgetSDK!.getStatus()
+          .timeout(const Duration(seconds: 5));
+    } catch (e) {
+      "❌ Failed to get Wepin status safely: $e".log();
+      return null;
+    }
   }
 }

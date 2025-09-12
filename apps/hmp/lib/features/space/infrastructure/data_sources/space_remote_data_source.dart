@@ -6,6 +6,7 @@ import 'package:mobile/features/space/infrastructure/dtos/benefit_redeem_error_d
 import 'package:mobile/features/space/infrastructure/dtos/benefits_group_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/check_in_response_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/check_in_status_dto.dart';
+import 'package:mobile/features/space/infrastructure/dtos/check_out_response_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/new_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/recommendation_space_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_detail_dto.dart';
@@ -208,11 +209,19 @@ class SpaceRemoteDataSource {
     required String spaceId,
     required double latitude,
     required double longitude,
+    String? benefitId,
   }) async {
     final Map<String, dynamic> data = {
       'latitude': latitude,
       'longitude': longitude,
     };
+    
+    // Add benefitId if provided
+    if (benefitId != null && benefitId.isNotEmpty) {
+      data['benefitId'] = benefitId;
+      print('🎁 Check-in with benefit: $benefitId');
+    }
+    
     final response =
         await _network.post("space/$spaceId/check-in", data);
     return CheckInResponseDto.fromJson(response.data as Map<String, dynamic>);
@@ -238,5 +247,40 @@ class SpaceRemoteDataSource {
     final response =
         await _network.get("space/$spaceId/current-group", {});
     return CurrentGroupDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<CheckOutResponseDto> checkOut({required String spaceId}) async {
+    final response = await _network.request(
+      "v1/space/$spaceId/check-out", 
+      "DELETE",
+      null,
+    );
+    return CheckOutResponseDto.fromJson(response.data as Map<String, dynamic>);
+  }
+  
+  // Sends a heartbeat to maintain active check-in status
+  Future<void> sendCheckInHeartbeat({
+    required String spaceId,
+    required double latitude,
+    required double longitude,
+  }) async {
+    final Map<String, dynamic> body = {
+      'spaceId': spaceId,
+      'latitude': latitude,
+      'longitude': longitude,
+      'timestamp': DateTime.now().toUtc().toIso8601String(),
+    };
+    
+    print('💓 Sending heartbeat for space: $spaceId');
+    await _network.post("space/checkin/heartbeat", body);
+    print('✅ Heartbeat sent successfully');
+  }
+  
+  // Gets the current user's check-in status
+  Future<CheckInStatusDto> getCurrentUserCheckInStatus() async {
+    print('🔍 Fetching current user check-in status');
+    final response = await _network.get("space/checkin/status", {});
+    print('✅ Check-in status retrieved');
+    return CheckInStatusDto.fromJson(response.data as Map<String, dynamic>);
   }
 }

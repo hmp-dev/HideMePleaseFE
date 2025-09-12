@@ -21,4 +21,17 @@ abstract class StorageValues {
   // Wallet and Profile status
   static const String hasWallet = 'hasWallet';
   static const String hasProfileParts = 'hasProfileParts';
+  
+  // NFT Minting status
+  static const String hasMintedNft = 'hasMintedNft';
+  static const String mintingTransactionId = 'mintingTransactionId';
+  
+  // Check-in related constants
+  static const String activeCheckInSpaceId = 'activeCheckInSpaceId';
+  static const String checkInTimestamp = 'checkInTimestamp';
+  static const String checkInLatitude = 'checkInLatitude';
+  static const String checkInLongitude = 'checkInLongitude';
+  static const String checkInSpaceName = 'checkInSpaceName';
+  static const String checkInBenefitId = 'checkInBenefitId';
+  static const String checkInBenefitDescription = 'checkInBenefitDescription';
 }

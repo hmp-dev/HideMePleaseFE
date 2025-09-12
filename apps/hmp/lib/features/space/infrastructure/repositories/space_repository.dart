@@ -253,32 +253,47 @@ class SpaceRepositoryImpl extends SpaceRepository {
     required String spaceId,
     required double latitude,
     required double longitude,
+    String? benefitId,
   }) async {
     try {
+      print('🔍 Repository: Calling remote data source checkIn...');
+      if (benefitId != null) {
+        print('🎁 Repository: Including benefitId: $benefitId');
+      }
       final response = await _spaceRemoteDataSource.checkIn(
         spaceId: spaceId,
         latitude: latitude,
         longitude: longitude,
+        benefitId: benefitId,
       );
+      print('✅ Repository: Check-in successful, returning right');
       return right(response);
     } on DioException catch (e, t) {
+      print('❌ Repository: Caught DioException');
+      print('   - Status code: ${e.response?.statusCode}');
+      print('   - Response data: ${e.response?.data}');
+      
       // 서버 응답에서 실제 에러 메시지 추출
       String? serverMessage;
       try {
         if (e.response?.data is Map<String, dynamic>) {
           final responseData = e.response!.data as Map<String, dynamic>;
           serverMessage = responseData['message'] ?? e.message;
+          print('   - Extracted message: $serverMessage');
         }
       } catch (_) {
+        print('   - Failed to parse error message');
         // 파싱 실패 시 기본 메시지 사용
       }
       
+      print('❌ Repository: Returning left with error message: ${serverMessage ?? e.message}');
       return left(HMPError.fromNetwork(
         message: serverMessage ?? e.message,
-        error: e,
+        error: e.response?.data?.toString() ?? e.toString(),
         trace: t,
       ));
     } catch (e, t) {
+      print('❌ Repository: Caught unknown error: $e');
       return left(HMPError.fromUnknown(
         error: e,
         trace: t,
@@ -338,6 +353,25 @@ class SpaceRepositoryImpl extends SpaceRepository {
         spaceId: spaceId,
       );
       return right(response.toEntity());
+    } on DioException catch (e, t) {
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, bool>> checkOut({required String spaceId}) async {
+    try {
+      final response = await _spaceRemoteDataSource.checkOut(spaceId: spaceId);
+      return right(response.success);
     } on DioException catch (e, t) {
       return left(HMPError.fromNetwork(
         message: e.message,

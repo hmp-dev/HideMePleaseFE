@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'dart:math' as math;
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,15 +18,22 @@ import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart' as geo;
-
+import 'package:mobile/features/map/presentation/map_screen.dart';
+import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
+import 'package:mobile/app/core/enum/menu_type.dart';
 class NewHomeScreen extends StatefulWidget {
-  const NewHomeScreen({super.key});
+  final VoidCallback? onShowGuide;
+  
+  const NewHomeScreen({
+    super.key,
+    this.onShowGuide,
+  });
 
   @override
   State<NewHomeScreen> createState() => _NewHomeScreenState();
 }
 
-class _NewHomeScreenState extends State<NewHomeScreen> {
+class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserver {
   MapboxMap? mapboxMap;
   PointAnnotationManager? _currentLocationManager;
   PointAnnotation? _currentLocationAnnotation;
@@ -39,6 +47,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   String? profilePartsString;
   bool _isUsingProfileImage = false; // 프로필 이미지 사용 여부 추적
   static const double NEARBY_RADIUS_KM = 5.0; // 5km 반경
+  StreamSubscription? _profileSubscription;
   
   static const String mapboxAccessToken = 
       'pk.eyJ1IjoiaXhwbG9yZXIiLCJhIjoiY21hbmRkN24xMHJoNDJscHI2cHg0MndteiJ9.UsGyNkHONIeWgivVmAgGbw';
@@ -57,6 +66,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -67,6 +77,74 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     MapboxOptions.setAccessToken(mapboxAccessToken);
     _initializeData();
     _loadProfileParts();
+    _checkFirstTimeUser();
+    _subscribeToProfileChanges();
+  }
+
+  void _subscribeToProfileChanges() {
+    final profileCubit = getIt<ProfileCubit>();
+    _profileSubscription = profileCubit.stream.listen((state) {
+      if (mounted) {
+        setState(() {
+          // ProfileCubit 상태가 변경되면 화면을 다시 그립니다
+        });
+      }
+    });
+  }
+  
+  @override
+  void dispose() {
+    _profileSubscription?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    if (state == AppLifecycleState.resumed) {
+      // 앱이 포그라운드로 돌아왔을 때 위치 재갱신
+      print('🔄 App resumed - refreshing location and map');
+      _refreshLocationAndMap();
+    }
+  }
+  
+  Future<void> _refreshLocationAndMap() async {
+    // 현재 위치 다시 가져오기
+    await _getCurrentLocation();
+    
+    // 매장 데이터 다시 로드
+    await _loadSpaces();
+    
+    // 맵이 존재하면 카메라 위치 및 마커 업데이트
+    if (mapboxMap != null) {
+      _updateMapLocation();
+      if (allSpaces.isNotEmpty) {
+        _addSpaceMarkers();
+      }
+    }
+  }
+  
+  Future<void> _checkFirstTimeUser() async {
+    print('🔍 _checkFirstTimeUser called in NewHomeScreen');
+    final prefs = await SharedPreferences.getInstance();
+    // 디버그를 위해 가이드를 리셋 (나중에 제거 가능)
+    await prefs.remove('hasSeenHomeGuide');
+    
+    final hasSeenGuide = prefs.getBool('hasSeenHomeGuide') ?? false;
+    final dontShowAgain = prefs.getBool('dontShowTutorialAgain') ?? false;
+    
+    print('🎯 Home Guide Check - hasSeenGuide: $hasSeenGuide, dontShowAgain: $dontShowAgain');
+    
+    // "다시 보지 않기"가 체크되어 있지 않고, 가이드를 본 적이 없는 경우에만 표시
+    if (!hasSeenGuide && !dontShowAgain && mounted) {
+      print('📱 Requesting to show Home Guide Overlay');
+      // Call the callback to show guide at app level
+      widget.onShowGuide?.call();
+    } else if (dontShowAgain) {
+      print('⏭️ User has opted to not show tutorial again - skipping');
+    }
   }
   
   Future<void> _loadProfileParts() async {
@@ -397,7 +475,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
         final markerOptions = PointAnnotationOptions(
           geometry: Point(coordinates: Position(space.longitude!, space.latitude!)),
           iconImage: 'marker_$category',
-          iconSize: 0.5,
+          iconSize: 0.3,
+          // 매장명 텍스트 추가
+          textField: space.name,
+          textColor: Colors.black.value,
+          textHaloColor: Colors.white.value,
+          textHaloWidth: 1.5,
+          textSize: 11.0,
+          textOffset: [0.0, 2.0],
+          textAnchor: TextAnchor.TOP,
         );
         
         final marker = await _spaceMarkerManager!.create(markerOptions);
@@ -582,8 +668,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
       }
       
       // 마커 타입에 따라 iconSize 조정
-      // 80x80 이미지를 40x40 크기로 표시하기 위해 0.5 스케일 사용
-      final double markerIconSize = _isUsingProfileImage ? 0.5 : 0.45;
+      // 80x80 이미지를 더 작게 표시하기 위해 스케일 조정
+      final double markerIconSize = _isUsingProfileImage ? 0.3 : 0.25;
       print('🎯 [HomeScreen] 마커 iconSize 설정: ${_isUsingProfileImage ? "프로필 이미지" : "기본 마커"} - $markerIconSize');
       
       // 새로운 마커 생성
@@ -690,7 +776,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             height: 56,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: const Color(0xFF132E41), width: 2),
+                              border: Border.all(color: const Color(0xFF132E41), width: 1),
                             ),
                             child: ClipOval(
                               child: (profilePartsString != null && profilePartsString!.isNotEmpty) ||
@@ -723,11 +809,20 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                               ),
                               Row(
                                 children: [
-                                  _buildStatItem('assets/icons/icon_home_friends.png', '0'),
+                                  _buildStatItem(
+                                    'assets/icons/icon_home_friends.png',
+                                    '0'  // 친구 수는 0으로 표시
+                                  ),
                                   const SizedBox(width: 8),
-                                  _buildStatItem('assets/icons/icon_home_checkin.png', '0'),
+                                  _buildStatItem(
+                                    'assets/icons/icon_home_checkin.png', 
+                                    profile?.checkInStats?.totalCheckIns?.toString() ?? '0'
+                                  ),
                                   const SizedBox(width: 8),
-                                  _buildStatItem('assets/icons/icon_home_sav.png', '0'),
+                                  _buildStatItem(
+                                    'assets/icons/icon_home_sav.png', 
+                                    profile?.availableBalance?.toString() ?? '0'
+                                  ),
                                 ],
                               ),
                             ],
@@ -745,7 +840,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             height: 28,
                           ),
                           iconSize: 28,
-                          onPressed: () {},
+                          onPressed: _showNotificationComingSoonDialog,
                         ),
                         if (false) ...[
                         Positioned(
@@ -770,7 +865,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             ),
                           ),
                         ),
-                        ]
+                        ],
                       ],
                     ),
                   ],
@@ -794,37 +889,45 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
               const SizedBox(height: 12),
 
               // 지도 프리뷰 섹션
-              Container(
-                height: 120,
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Color(0xFF132E41), width: 1),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: Stack(
-                    children: [
-                      MapWidget(
-                        onMapCreated: _onMapCreated,
-                        styleUri: 'mapbox://styles/ixplorer/cmf3a35jy00u501rkdf9k9lme',
-                      ),
-                      // 지도 위 오버레이 (선택적)
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withOpacity(0.1),
-                              ],
+              GestureDetector(
+                onTap: () {
+                  // 바텀바 맵 탭으로 이동 (Navigator.push 대신 PageCubit 사용)
+                  getIt<PageCubit>().changePage(MenuType.space.menuIndex, MenuType.space);
+                  getIt<PageCubit>().showBottomBar();
+                  getIt<SpaceCubit>().onFetchAllSpaceViewData();
+                },
+                child: Container(
+                  height: 120,
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Color(0xFF132E41), width: 1),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: Stack(
+                      children: [
+                        MapWidget(
+                          onMapCreated: _onMapCreated,
+                          styleUri: 'mapbox://styles/ixplorer/cmf3a35jy00u501rkdf9k9lme',
+                        ),
+                        // 지도 위 오버레이 (선택적)
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.1),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -909,7 +1012,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
               SizedBox(height: MediaQuery.of(context).padding.bottom + 100), // 바텀바 공간
             ],
           ),
-          ),
+        ),
         ],
       ),
     );
@@ -959,7 +1062,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 130,
+          height: 134,
           child: spaces.isEmpty
               ? Center(
                   child: Text(
@@ -987,6 +1090,69 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 ),
         ),
       ],
+    );
+  }
+
+  void _showNotificationComingSoonDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  LocaleKeys.notification_home_coming_soon.tr(),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  LocaleKeys.notification_home_coming_soon.tr(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF19BAFF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '확인',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

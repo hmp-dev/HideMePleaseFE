@@ -1,22 +1,81 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 
-class CheckinSuccessDialog extends StatelessWidget {
+class CheckinSuccessDialog extends StatefulWidget {
   final String benefitDescription;
   final String spaceName;
+  final int availableBalance;
 
   const CheckinSuccessDialog({
     super.key,
     required this.benefitDescription,
     required this.spaceName,
+    required this.availableBalance,
   });
+
+  @override
+  State<CheckinSuccessDialog> createState() => _CheckinSuccessDialogState();
+}
+
+class _CheckinSuccessDialogState extends State<CheckinSuccessDialog> {
+  Timer? _timer;
+  bool _isClosing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 5초 후 자동으로 닫기 (안전한 방식으로)
+    _timer = Timer(const Duration(seconds: 5), () {
+      _safeCloseDialog();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  /// 안전한 다이얼로그 닫기
+  void _safeCloseDialog() {
+    // 이미 닫는 중이면 중복 실행 방지
+    if (_isClosing) return;
+    
+    // 위젯이 여전히 트리에 마운트되어 있는지 확인
+    if (!mounted) return;
+    
+    _isClosing = true;
+    
+    try {
+      // 현재 컨텍스트가 유효한지 확인
+      final navigator = Navigator.of(context);
+      
+      // 다이얼로그 닫기 전에 백그라운드 화면 상태 확인
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_isClosing) {
+          _isClosing = true;
+          navigator.pop();
+        }
+      });
+      
+      // 즉시 닫기
+      if (navigator.canPop()) {
+        navigator.pop();
+      }
+    } catch (e) {
+      // 오류가 발생해도 로그만 남기고 앱이 크래시하지 않도록 함
+      ('❌ Error closing CheckinSuccessDialog: $e').log();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
+      onTap: () => _safeCloseDialog(),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
         child: Dialog(
@@ -104,7 +163,7 @@ class CheckinSuccessDialog extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'SAV 획듍',
+                              'SAV 획득',
                               style: TextStyle(
                                 color: Color(0xFFEA5211),
                                 fontSize: 16,
@@ -154,8 +213,8 @@ class CheckinSuccessDialog extends StatelessWidget {
                                   height: 16,
                                 ),
                                 const SizedBox(width: 5),
-                                const Text(
-                                  '132',
+                                Text(
+                                  widget.availableBalance.toString(),
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 16,

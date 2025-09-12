@@ -21,38 +21,65 @@ class LiveActivityService {
     required String spaceName,
     required int currentUsers,
     required int remainingUsers,
+    required int maxCapacity,
     String? spaceId,
   }) async {
     print('🔵 [Flutter] Starting Live Activity...');
     print('🔵 [Flutter] Space Name: $spaceName');
     print('🔵 [Flutter] Current Users: $currentUsers');
     print('🔵 [Flutter] Remaining Users: $remainingUsers');
+    print('🔵 [Flutter] Max Capacity: $maxCapacity');
     
     if (!Platform.isIOS) {
       print('⚠️ [Flutter] Not iOS platform, skipping');
       return false;
     }
     
-    try {
-      print('🔵 [Flutter] Invoking native method: startCheckInActivity');
-      final result = await _channel.invokeMethod('startCheckInActivity', {
-        'spaceName': spaceName,
-        'currentUsers': currentUsers,
-        'remainingUsers': remainingUsers,
-      });
-      print('✅ [Flutter] Native method returned: $result');
-      
-      // 폴링 시작 (spaceId가 제공된 경우)
-      if (result == true && spaceId != null) {
-        _startPolling(spaceId);
+    // 재시도 로직 추가
+    int retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      try {
+        retryCount++;
+        print('🔵 [Flutter] Attempt $retryCount/$maxRetries - Invoking native method: startCheckInActivity');
+        
+        final result = await _channel.invokeMethod('startCheckInActivity', {
+          'spaceName': spaceName,
+          'currentUsers': currentUsers,
+          'remainingUsers': remainingUsers,
+          'maxCapacity': maxCapacity,
+        });
+        
+        print('✅ [Flutter] Native method returned: $result');
+        
+        if (result == true) {
+          // 폴링 시작 (spaceId가 제공된 경우)
+          if (spaceId != null) {
+            _startPolling(spaceId);
+          }
+          return true;
+        } else if (retryCount < maxRetries) {
+          print('⚠️ [Flutter] Live Activity failed, retrying after delay...');
+          await Future.delayed(Duration(seconds: retryCount)); // 점진적 지연
+        }
+        
+      } catch (e) {
+        print('❌ [Flutter] Error on attempt $retryCount: $e');
+        
+        if (retryCount >= maxRetries) {
+          print('❌ [Flutter] All attempts failed to start Live Activity');
+          print('❌ [Flutter] Final error: $e');
+          print('❌ [Flutter] Stack trace: ${StackTrace.current}');
+          return false;
+        } else {
+          print('⚠️ [Flutter] Retrying after delay...');
+          await Future.delayed(Duration(seconds: retryCount));
+        }
       }
-      
-      return result == true;
-    } catch (e) {
-      print('❌ [Flutter] Error starting Live Activity: $e');
-      print('❌ [Flutter] Stack trace: ${StackTrace.current}');
-      return false;
     }
+    
+    return false;
   }
   
   Future<bool> updateCheckInActivity({
@@ -86,12 +113,12 @@ class LiveActivityService {
     }
   }
   
-  // 백엔드 폴링 시작 (30초 간격)
+  // 백엔드 폴링 시작 (15초 간격으로 단축)
   void _startPolling(String spaceId) {
     _currentSpaceId = spaceId;
     _stopPolling(); // 기존 타이머 정리
     
-    _pollingTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       _fetchCheckInStatus();
     });
     
@@ -123,17 +150,32 @@ class LiveActivityService {
       
       print('📊 [Polling] Updating Live Activity - Current: $currentUsers, Remaining: $remainingUsers');
       print('📊 [Polling] Group completed: ${response.currentGroup?.isCompleted}');
+      print('📊 [Polling] Current group: ${response.currentGroup != null ? "exists" : "null"}');
+      print('📊 [Polling] Members count: ${response.currentGroup?.members?.length ?? 0}');
       
-      // Native 메서드 호출하여 Live Activity 업데이트
-      await _channel.invokeMethod('updateCheckInNumbers', {
-        'currentUsers': currentUsers,
-        'remainingUsers': remainingUsers,
-      });
+      // Live Activity 종료 조건 체크:
+      // 1. currentGroup이 완료됨 (isCompleted == true)
+      // 2. currentGroup이 null (매칭 완료 후 리셋됨)
+      // 3. currentGroup.members가 비어있음 (새 그룹 시작)
+      // 4. currentUsers가 0 (아무도 체크인하지 않음 - 리셋된 상태)
+      final shouldEndActivity = response.currentGroup?.isCompleted == true || 
+                                response.currentGroup == null ||
+                                (response.currentGroup?.members?.isEmpty ?? false) ||
+                                currentUsers == 0;
       
-      // 매칭 완료 시 Live Activity 자동 종료
-      if (response.currentGroup?.isCompleted == true) {
-        print('🎉 [Polling] Group completed! Ending Live Activity...');
+      if (shouldEndActivity) {
+        print('🎉 [Polling] Matching completed or group reset! Ending Live Activity...');
+        print('   - isCompleted: ${response.currentGroup?.isCompleted}');
+        print('   - currentGroup is null: ${response.currentGroup == null}');
+        print('   - members is empty: ${response.currentGroup?.members?.isEmpty ?? false}');
+        print('   - currentUsers is 0: ${currentUsers == 0}');
         await endCheckInActivity();
+      } else {
+        // Live Activity가 계속되어야 하는 경우에만 업데이트
+        await _channel.invokeMethod('updateCheckInNumbers', {
+          'currentUsers': currentUsers,
+          'remainingUsers': remainingUsers,
+        });
       }
       
     } catch (e) {

@@ -24,6 +24,7 @@ import 'package:mobile/features/wallets/presentation/screens/connected_wallets_l
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/features/space/presentation/widgets/space_guide_overlay.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -254,7 +255,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       const SizedBox(height: 30),
 
                       // 통계 섹션
-                      _buildStatsSection(),
+                      _buildStatsSection(userProfile),
 
                       const SizedBox(height: 30),
 
@@ -285,93 +286,101 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Widget _buildTopHeader() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // 백 버튼
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios,
-                color: Color(0xFF132E41),
-                size: 20,
-              ),
-            ),
-          ),
-          
-          // 하이딩 중 태그
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF132E41), width: 1),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF19BAFF),
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      bloc: getIt<ProfileCubit>(),
+      builder: (context, state) {
+        final userProfile = state.userProfileEntity;
+        final isHiding = userProfile?.checkInStats?.activeCheckIn != null;
+        
+        return Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // 백 버튼
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
                     shape: BoxShape.circle,
                   ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  LocaleKeys.hiding_status.tr(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                  child: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Color(0xFF132E41),
+                    size: 20,
                   ),
                 ),
-                const SizedBox(width: 6),
-                Icon(
-                  Icons.chevron_right,
-                  color: const Color(0xFF132E41),
-                  size: 18,
+              ),
+              
+              // 하이딩 중 태그
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF132E41), width: 1),
                 ),
-              ],
-            ),
-          ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isHiding ? const Color(0xFF19BAFF) : Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      isHiding ? LocaleKeys.hiding_status.tr() : '하이딩 전',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(
+                      Icons.chevron_right,
+                      color: const Color(0xFF132E41),
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
           
-          // 설정 버튼
-          GestureDetector(
-            onTap: () {
-              getIt<SettingsCubit>().onGetSettingBannerInfo();
-              SettingsScreen.push(context);
-            },
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Image.asset(
-                  'assets/icons/ic_mysetting.png',
-                  width: 28,
-                  height: 28,
+              // 설정 버튼
+              GestureDetector(
+                onTap: () {
+                  getIt<SettingsCubit>().onGetSettingBannerInfo();
+                  SettingsScreen.push(context);
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/icons/ic_mysetting.png',
+                      width: 28,
+                      height: 28,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -392,7 +401,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               width: 160,
               height: 160,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(80), // 완전한 원형 (width의 절반)
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFF72CCFF),
@@ -406,13 +415,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 padding: const EdgeInsets.all(3),
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(29),
+                    borderRadius: BorderRadius.circular(77), // 완전한 원형 유지
                     color: Colors.white,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(2),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(27),
+                      borderRadius: BorderRadius.circular(75), // 완전한 원형 유지
                       child: ProfileAvatarWidget(
                         profilePartsString: userProfile?.profilePartsString,
                         imageUrl: userProfile?.finalProfileImageUrl ?? userProfile?.pfpImageUrl,
@@ -547,7 +556,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     );
   }
 
-  Widget _buildStatsSection() {
+  Widget _buildStatsSection(userProfile) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       height: 80,
@@ -571,8 +580,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildStatItem('0', LocaleKeys.friends.tr(), 'assets/icons/icon_status_friends.png'),
-          _buildStatItem('0', LocaleKeys.check_in.tr(), 'assets/icons/icon_status_checkin.png'),
-          _buildStatItem('0', 'SAVORY', 'assets/icons/icon_status_sav.png'),
+          _buildStatItem(userProfile?.checkInStats?.totalCheckIns?.toString() ?? '0', LocaleKeys.check_in.tr(), 'assets/icons/icon_status_checkin.png'),
+          _buildStatItem(userProfile?.availableBalance?.toString() ?? '0', 'SAVORY', 'assets/icons/icon_status_sav.png'),
         ],
       ),
     );

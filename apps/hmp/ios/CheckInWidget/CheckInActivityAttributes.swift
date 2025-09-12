@@ -9,4 +9,5 @@ struct CheckInActivityAttributes: ActivityAttributes {
     }
     
     var spaceName: String // 공간 이름은 변경 불가
+    var maxCapacity: Int // 매장 최대 인원 (변경 불가)
 }

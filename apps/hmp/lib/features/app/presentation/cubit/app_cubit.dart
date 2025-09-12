@@ -7,6 +7,7 @@ import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
+import 'package:mobile/app/core/services/live_activity_service.dart';
 import 'package:mobile/app/core/storage/secure_storage.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
@@ -66,6 +67,16 @@ class AppCubit extends BaseCubit<AppState> {
         await prefs.remove(StorageValues.onboardingCurrentStep);
         
         ("온보딩 플래그 설정 완료 - 다음 로그인 시 온보딩 표시").log();
+
+        // End Live Activity before logout
+        try {
+          ("라이브 액티비티 종료 중...").log();
+          final liveActivityService = getIt<LiveActivityService>();
+          await liveActivityService.endCheckInActivity();
+          ("라이브 액티비티 종료 완료").log();
+        } catch (e) {
+          ("라이브 액티비티 종료 실패: $e").log();
+        }
 
         // logout from wepin
         await getIt<WepinCubit>().onLogoutWepinSdk();

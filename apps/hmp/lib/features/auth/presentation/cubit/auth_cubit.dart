@@ -87,35 +87,77 @@ class AuthCubit extends BaseCubit<AuthState> {
 
   Future<String?> refreshGoogleAccessToken() async {
     try {
+      "🔄 [AuthCubit] Starting Google token refresh...".log();
+      
       // Check if the user is already signed in
       final googleSignIn = GoogleSignIn();
-      final googleUser =
-          googleSignIn.currentUser ?? await googleSignIn.signInSilently();
+      var googleUser = googleSignIn.currentUser;
+      
+      "🔍 [AuthCubit] Current user: ${googleUser != null ? 'Found' : 'Not found'}".log();
+      
+      // Try silent sign-in first
+      if (googleUser == null) {
+        "🔄 [AuthCubit] Attempting silent sign-in...".log();
+        googleUser = await googleSignIn.signInSilently();
+        "🔍 [AuthCubit] Silent sign-in result: ${googleUser != null ? 'Success' : 'Failed'}".log();
+      }
 
       if (googleUser != null) {
+        "🔄 [AuthCubit] Getting authentication credentials...".log();
         final googleAuth = await googleUser.authentication;
 
-        // save Social Login Type
-        _localDataSource
-            .setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
-
-        // Save both access token and ID token
+        // Validate tokens before proceeding
         final googleAccessToken = googleAuth.accessToken ?? "";
         final googleIdToken = googleAuth.idToken ?? "";
         
-        _localDataSource.setGoogleAccessToken(googleAccessToken);
-        _localDataSource.setGoogleIdToken(googleIdToken);
+        "🔍 [AuthCubit] Access token: ${googleAccessToken.isNotEmpty ? 'Available (${googleAccessToken.substring(0, 10)}...)' : 'Empty'}".log();
+        "🔍 [AuthCubit] ID token: ${googleIdToken.isNotEmpty ? 'Available (${googleIdToken.substring(0, 10)}...)' : 'Empty'}".log();
+        
+        if (googleIdToken.isEmpty) {
+          "❌ [AuthCubit] Google ID token is empty after refresh".log();
+          return null;
+        }
+
+        // Save social login type first
+        "💾 [AuthCubit] Saving social login type...".log();
+        await _localDataSource.setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
+
+        // Save tokens with verification
+        "💾 [AuthCubit] Saving Google tokens...".log();
+        await _localDataSource.setGoogleAccessToken(googleAccessToken);
+        await _localDataSource.setGoogleIdToken(googleIdToken);
+        
+        // Add a small delay to ensure storage completion
+        await Future.delayed(const Duration(milliseconds: 50));
+        
+        // Verify tokens were saved
+        final savedIdToken = await _localDataSource.getGoogleIdToken();
+        if (savedIdToken != googleIdToken) {
+          "⚠️ [AuthCubit] Token verification failed - saved token differs from original".log();
+          
+          // Retry save once more
+          "🔄 [AuthCubit] Retrying token save...".log();
+          await _localDataSource.setGoogleIdToken(googleIdToken);
+          await Future.delayed(const Duration(milliseconds: 100));
+          
+          final retrySavedToken = await _localDataSource.getGoogleIdToken();
+          if (retrySavedToken != googleIdToken) {
+            "❌ [AuthCubit] Token save verification failed after retry".log();
+            return null;
+          }
+        }
+        
+        "✅ [AuthCubit] Google tokens refreshed and verified successfully".log();
         
         // Return ID token for Wepin SDK
         return googleIdToken;
-        // return googleAuth.idToken;//Wepin has suggested that login with id token is recommended. Hence made this change.
       } else {
-        // User is not signed in; you may need to prompt the user to sign in again
+        "❌ [AuthCubit] User is not signed in to Google".log();
         return null;
       }
     } catch (e) {
       // Handle error (e.g., log it, or return a meaningful error message)
-      ("Error refreshing Google access token: $e").log();
+      "❌ [AuthCubit] Error refreshing Google access token: $e".log();
       return null;
     }
   }

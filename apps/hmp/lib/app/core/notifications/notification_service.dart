@@ -20,7 +20,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
 
-enum NotificationType { none, spot, chat, match }
+enum NotificationType { none, spot, chat, match, matchingComplete }
 
 class NotificationServices {
   final FirebaseMessaging _messaging;
@@ -44,6 +44,11 @@ class NotificationServices {
 
   static final List<NotificationActionPayload> _processedNotificationPayloads =
       [];
+  
+  // 중복 푸시 필터링을 위한 캐시
+  static final Set<String> _recentMessageIds = {};
+  static final Map<String, DateTime> _messageTimestamps = {};
+  static const Duration _duplicateWindowDuration = Duration(seconds: 30);
 
   Future<void> initialize({
     void Function(NotificationType type, String payloadId)? onNotificationTap,
@@ -77,15 +82,45 @@ class NotificationServices {
 
         _onMessageSubscription?.cancel();
         _onMessageSubscription = FirebaseMessaging.onMessage.listen((message) {
+          // 메시지 ID 생성 (FCM messageId 또는 데이터 기반 해시)
+          final messageId = message.messageId ?? 
+              '${message.notification?.title}_${message.notification?.body}_${message.data['type']}_${message.data['id']}';
+          
+          // 중복 메시지 체크
+          if (_isDuplicateMessage(messageId)) {
+            ('🔄 중복 푸시 감지 및 무시: $messageId').log();
+            ('   - Title: ${message.notification?.title}').log();
+            ('   - Type: ${message.data['type']}').log();
+            return; // 중복 메시지는 처리하지 않음
+          }
+          
+          // 메시지 ID 캐시에 추가
+          _cacheMessageId(messageId);
+          
+          ("📱 새로운 푸시 수신: $messageId").log();
           ("notifications title:${message.notification?.title}").log();
           ("notifications body:${message.notification?.body}").log();
           ('count:${message.notification?.android?.count}').log();
           ('data:${message.data.toString()}').log();
 
-          if (!_isChatPageActive ||
+          // 체크인 관련 푸시는 이미 시스템 푸시로 표시되므로 로컬 알림 표시하지 않음
+          bool isCheckInNotification = message.data['type'] == 'CHECK_IN' || 
+                                       message.data['type'] == 'CHECK_IN_SUCCESS' ||
+                                       message.data['type'] == 'MATCHING_COMPLETE' ||
+                                       (message.notification?.title?.contains('체크인') ?? false) ||
+                                       (message.notification?.body?.contains('체크인') ?? false) ||
+                                       (message.notification?.title?.contains('매칭') ?? false) ||
+                                       (message.notification?.body?.contains('매칭') ?? false) ||
+                                       (message.notification?.title?.contains('체크아웃') ?? false) ||
+                                       (message.notification?.body?.contains('체크아웃') ?? false);
+
+          if (!isCheckInNotification && 
+              (!_isChatPageActive ||
               (_isChatPageActive &&
-                  message.data['type'] != 'MESSAGE_RECEIVED')) {
+                  message.data['type'] != 'MESSAGE_RECEIVED'))) {
             _showNotification(message);
+          } else if (isCheckInNotification) {
+            ('🔕 체크인 알림은 로컬 알림으로 표시하지 않음 (중복 방지)').log();
           }
         });
 
@@ -177,6 +212,9 @@ class NotificationServices {
         instance.onNotificationTap?.call(NotificationType.spot, payload.id!);
       } else if (payload.type == 'MESSAGE_RECEIVED') {
         instance.onNotificationTap?.call(NotificationType.chat, payload.id!);
+      } else if (payload.type == 'MATCHING_COMPLETE') {
+        ('🎯 Matching complete notification received').log();
+        instance.onNotificationTap?.call(NotificationType.matchingComplete, payload.id ?? '');
       }
     }
   }
@@ -237,6 +275,41 @@ class NotificationServices {
           ...message.data,
         }),
       );
+    }
+  }
+  
+  // 중복 메시지 체크 헬퍼 메서드들
+  bool _isDuplicateMessage(String messageId) {
+    // 이미 처리한 메시지인지 확인
+    if (_recentMessageIds.contains(messageId)) {
+      return true;
+    }
+    
+    // 오래된 메시지 ID 정리
+    _cleanupOldMessageIds();
+    
+    return false;
+  }
+  
+  void _cacheMessageId(String messageId) {
+    _recentMessageIds.add(messageId);
+    _messageTimestamps[messageId] = DateTime.now();
+  }
+  
+  void _cleanupOldMessageIds() {
+    final now = DateTime.now();
+    final expiredIds = <String>[];
+    
+    _messageTimestamps.forEach((id, timestamp) {
+      if (now.difference(timestamp) > _duplicateWindowDuration) {
+        expiredIds.add(id);
+      }
+    });
+    
+    // 오래된 ID들 제거
+    for (final id in expiredIds) {
+      _recentMessageIds.remove(id);
+      _messageTimestamps.remove(id);
     }
   }
 }
