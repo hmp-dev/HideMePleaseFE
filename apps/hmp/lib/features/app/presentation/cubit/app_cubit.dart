@@ -34,12 +34,61 @@ class AppCubit extends BaseCubit<AppState> {
     final authTokenRes = await _authRepository.getAuthToken();
 
     authTokenRes.fold(
-      (error) => emit(
-        state.copyWith(isLoggedIn: false),
-      ),
+      (error) {
+        '❌ [AppCubit] No auth token found or error: $error'.log();
+        emit(
+          state.copyWith(isLoggedIn: false),
+        );
+      },
       (authToken) async {
+        '🔑 [AppCubit] Auth token found, checking validity...'.log();
+
+        // Check if this is a fresh install by checking for user data
+        final prefs = await SharedPreferences.getInstance();
+
+        // More comprehensive check for fresh install
+        final hasUserData = prefs.containsKey('userId') ||
+                           prefs.containsKey('userEmail') ||
+                           prefs.containsKey(StorageValues.hasWallet) ||
+                           prefs.containsKey(StorageValues.hasProfileParts) ||
+                           prefs.containsKey(StorageValues.onboardingCompleted);
+
+        // Also check if we have a valid social token type stored
+        final socialTokenType = await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle);
+
+        if (!hasUserData) {
+          '⚠️ [AppCubit] Token exists but no user data - likely stale token from previous install'.log();
+          '🧹 [AppCubit] Clearing ALL stale auth data...'.log();
+
+          // Clear ALL auth-related data
+          await _secureStorage.delete('authToken');
+          await _secureStorage.delete(StorageValues.appleIdToken);
+          await _secureStorage.delete(StorageValues.googleAccessToken);
+          await _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
+          await _secureStorage.deleteAll(); // Clear all secure storage to be safe
+
+          emit(state.copyWith(isLoggedIn: false));
+          return;
+        }
+
+        // Even if we have user data, verify it's consistent
+        if (socialTokenType == null || socialTokenType.isEmpty) {
+          '⚠️ [AppCubit] User data exists but no social token type - inconsistent state'.log();
+          '🧹 [AppCubit] Clearing auth tokens due to inconsistent state...'.log();
+
+          // Clear auth tokens but keep user preferences
+          await _secureStorage.delete('authToken');
+          await _secureStorage.delete(StorageValues.appleIdToken);
+          await _secureStorage.delete(StorageValues.googleAccessToken);
+          await _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
+
+          emit(state.copyWith(isLoggedIn: false));
+          return;
+        }
+
+        '✅ [AppCubit] Valid auth token and user data found'.log();
         emit(state.copyWith(isLoggedIn: true));
-        
+
         // 자동 로그인 성공 시 Wepin SDK 초기화 및 소셜 토큰 전달
         await _initializeWepinForAutoLogin();
       },
@@ -47,52 +96,96 @@ class AppCubit extends BaseCubit<AppState> {
   }
 
   Future<void> onLogOut() async {
-    if (!state.isLoggedIn) return;
-    ("inside onLogOut").log();
-    EasyLoading.show();
+    if (!state.isLoggedIn) {
+      '⚠️ [AppCubit] User is not logged in, skipping logout'.log();
+      return;
+    }
 
-    final result = await _authRepository.requestLogOut();
+    '🔴 [AppCubit] Starting logout process...'.log();
 
-    result.fold(
-      (l) => ("inside onLogOut Error").log(),
-      (r) async {
-        _secureStorage.delete(StorageValues.appleIdToken);
-        _secureStorage.delete(StorageValues.googleAccessToken);
-        _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
+    try {
+      EasyLoading.show();
 
-        // Set flag to show onboarding after logout and clear onboarding data
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool(StorageValues.showOnboardingAfterLogout, true);
-        await prefs.remove(StorageValues.onboardingCompleted);
-        await prefs.remove(StorageValues.onboardingCurrentStep);
-        
-        ("온보딩 플래그 설정 완료 - 다음 로그인 시 온보딩 표시").log();
+      final result = await _authRepository.requestLogOut();
 
-        // End Live Activity before logout
-        try {
-          ("라이브 액티비티 종료 중...").log();
-          final liveActivityService = getIt<LiveActivityService>();
-          await liveActivityService.endCheckInActivity();
-          ("라이브 액티비티 종료 완료").log();
-        } catch (e) {
-          ("라이브 액티비티 종료 실패: $e").log();
-        }
+      await result.fold(
+        (error) async {
+          '❌ [AppCubit] Logout API request failed: $error'.log();
+          // Even if API logout fails, clear local data
+          await _clearLocalDataOnLogout();
+        },
+        (success) async {
+          '✅ [AppCubit] Logout API request successful'.log();
+          await _clearLocalDataOnLogout();
+        },
+      );
 
-        // logout from wepin
+      // logout from wepin - handle errors gracefully
+      try {
+        '🔑 [AppCubit] Logging out from WePIN SDK...'.log();
         await getIt<WepinCubit>().onLogoutWepinSdk();
-        // emit state for login status as false
+        '✅ [AppCubit] WePIN SDK logout successful'.log();
+      } catch (e) {
+        '⚠️ [AppCubit] WePIN SDK logout failed (continuing): $e'.log();
+      }
+
+      // emit state for login status as false
+      emit(state.copyWith(isLoggedIn: false));
+      '✅ [AppCubit] User logged out successfully'.log();
+
+      // Reset DI container - do this last
+      try {
+        await getIt.reset();
+        await configureDependencies();
+        onStart();
+      } catch (e) {
+        '⚠️ [AppCubit] DI reset failed: $e'.log();
+      }
+
+    } catch (e) {
+      '❌ [AppCubit] Logout process error: $e'.log();
+      // Try to clear local data even if logout fails
+      try {
+        await _clearLocalDataOnLogout();
         emit(state.copyWith(isLoggedIn: false));
-      },
-    );
+      } catch (cleanupError) {
+        '❌ [AppCubit] Failed to clear local data: $cleanupError'.log();
+      }
+      rethrow; // Re-throw to be caught by the UI
+    } finally {
+      EasyLoading.dismiss();
+    }
+  }
 
-    EasyLoading.dismiss();
+  Future<void> _clearLocalDataOnLogout() async {
+    try {
+      // Clear secure storage
+      await _secureStorage.delete(StorageValues.appleIdToken);
+      await _secureStorage.delete(StorageValues.googleAccessToken);
+      await _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
+      '✅ [AppCubit] Secure storage cleared'.log();
 
-    await getIt.reset();
+      // Set flag to show onboarding after logout and clear onboarding data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(StorageValues.showOnboardingAfterLogout, true);
+      await prefs.remove(StorageValues.onboardingCompleted);
+      await prefs.remove(StorageValues.onboardingCurrentStep);
+      await prefs.remove('profilePartsString'); // 프로필 이미지 데이터 삭제
+      await prefs.remove(StorageValues.hasProfileParts); // Clear profile parts flag
+      '✅ [AppCubit] SharedPreferences cleared'.log();
 
-    // DI
-    await configureDependencies();
-
-    onStart();
+      // End Live Activity before logout
+      try {
+        final liveActivityService = getIt<LiveActivityService>();
+        await liveActivityService.endCheckInActivity();
+        '✅ [AppCubit] Live Activity ended'.log();
+      } catch (e) {
+        '⚠️ [AppCubit] Live Activity end failed (non-critical): $e'.log();
+      }
+    } catch (e) {
+      '❌ [AppCubit] Error clearing local data: $e'.log();
+      throw e;
+    }
   }
 
   Future<void> onRefresh() async {

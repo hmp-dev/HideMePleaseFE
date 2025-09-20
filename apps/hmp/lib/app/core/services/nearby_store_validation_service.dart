@@ -1,8 +1,10 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 @lazySingleton
 class NearbyStoreValidationService {
@@ -84,20 +86,20 @@ class NearbyStoreValidationService {
     // Check location services
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      throw Exception('Location services are disabled');
+      throw Exception(LocaleKeys.location_services_disabled.tr());
     }
-    
+
     // Check permissions
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        throw Exception('Location permissions are denied');
+        throw Exception(LocaleKeys.location_permissions_denied.tr());
       }
     }
-    
+
     if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permissions are permanently denied');
+      throw Exception(LocaleKeys.location_permissions_permanently_denied.tr());
     }
     
     // Get position with high accuracy
@@ -193,7 +195,7 @@ class NearbyStoreValidationService {
   /// Gets a user-friendly error message based on the validation result
   String getValidationErrorMessage(List<SpaceEntity> nearbyStores) {
     if (nearbyStores.isEmpty) {
-      return '가까운 매장으로 이동해서 다시 시도해봐!';
+      return LocaleKeys.move_to_nearby_store.tr();
     }
     return '';
   }

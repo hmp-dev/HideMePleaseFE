@@ -583,7 +583,7 @@ class NftCubit extends BaseCubit<NftState> {
     EasyLoading.dismiss();
 
     // Handle response from the repository call
-    response.fold(
+    /*response.fold(
       // If the repository call fails, update state with error message
       (err) {
         // Dismiss loading indicator
@@ -619,7 +619,7 @@ class NftCubit extends BaseCubit<NftState> {
           duration: const Duration(seconds: 5),
         );
       },
-    );
+    ); */
   }
 
   // Future<void> onGetNftBenefits({

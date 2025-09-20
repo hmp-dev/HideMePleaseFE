@@ -9,9 +9,11 @@ part of 'space_dto.dart';
 SpaceDto _$SpaceDtoFromJson(Map<String, dynamic> json) => SpaceDto(
       id: json['id'] as String?,
       name: json['name'] as String?,
+      nameEn: json['nameEn'] as String?,
       image: json['image'] as String?,
       category: json['category'] as String?,
       benefitDescription: json['benefitDescription'] as String?,
+      benefitDescriptionEn: json['benefitDescriptionEn'] as String?,
       hot: json['hot'] as bool?,
       hotPoints: (json['hotPoints'] as num?)?.toInt(),
       hidingCount: (json['hidingCount'] as num?)?.toInt(),
@@ -31,9 +33,11 @@ SpaceDto _$SpaceDtoFromJson(Map<String, dynamic> json) => SpaceDto(
 Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'nameEn': instance.nameEn,
       'image': instance.image,
       'category': instance.category,
       'benefitDescription': instance.benefitDescription,
+      'benefitDescriptionEn': instance.benefitDescriptionEn,
       'hot': instance.hot,
       'hotPoints': instance.hotPoints,
       'hidingCount': instance.hidingCount,

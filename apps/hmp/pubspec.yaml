@@ -2,7 +2,7 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 2.5.13+179
+version: 2.5.14+191
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
@@ -55,6 +55,8 @@ dependencies:
   google_maps_flutter_android: ^2.8.0
   google_sign_in: ^6.2.1
   http: ^1.2.1
+  gal: ^2.3.0
+  image_picker: ^1.0.7
   injectable: ^2.4.1
   internet_connection_checker: ^1.0.0+1
   intl: ^0.20.2
@@ -71,7 +73,7 @@ dependencies:
   reown_appkit: ^1.3.0
   #sendbird_chat_sdk: ^4.2.31
   #sendbird_uikit: ^1.0.1
-  #share_plus: ^9.0.0
+  share_plus: ^10.1.4
   shared_preferences: ^2.2.3
   sign_in_with_apple: ^6.1.4
   smooth_page_indicator: ^1.1.0
@@ -95,6 +97,8 @@ dependencies:
   mapbox_maps_flutter: ^2.8.0
   # NFC functionality
   nfc_manager: ^3.5.0
+  # Background task scheduler
+  workmanager: ^0.9.0
   # Color extraction from images
   palette_generator: ^0.3.3+4
 

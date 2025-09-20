@@ -12,6 +12,9 @@ class NearBySpaceEntity extends Equatable {
   /// The name of the space.
   final String name;
 
+  /// The English name of the space.
+  final String nameEn;
+
   /// The latitude of the space's location.
   final double latitude;
 
@@ -27,11 +30,12 @@ class NearBySpaceEntity extends Equatable {
   /// The distance from the user's current location to the space.
   final int distance;
 
-  /// Creates a [NearBySpaceEntity] with the given [id], [name], [latitude],
+  /// Creates a [NearBySpaceEntity] with the given [id], [name], [nameEn], [latitude],
   /// [longitude], [address], [image], and [distance].
   const NearBySpaceEntity({
     required this.id,
     required this.name,
+    this.nameEn = '',
     required this.latitude,
     required this.longitude,
     required this.address,
@@ -45,6 +49,7 @@ class NearBySpaceEntity extends Equatable {
     return [
       id,
       name,
+      nameEn,
       latitude,
       longitude,
       address,
@@ -57,18 +62,20 @@ class NearBySpaceEntity extends Equatable {
   const NearBySpaceEntity.empty()
       : id = '',
         name = '',
+        nameEn = '',
         latitude = 0.0,
         longitude = 0.0,
         address = '',
         image = '',
         distance = 0;
 
-  /// Creates a new [NearBySpaceEntity] with the given [id], [name], [latitude],
+  /// Creates a new [NearBySpaceEntity] with the given [id], [name], [nameEn], [latitude],
   /// [longitude], [address], [image], and [distance]. If any of the values are
   /// null, the corresponding value from the current [NearBySpaceEntity] is used.
   NearBySpaceEntity copyWith({
     String? id,
     String? name,
+    String? nameEn,
     double? latitude,
     double? longitude,
     String? address,
@@ -78,6 +85,7 @@ class NearBySpaceEntity extends Equatable {
     return NearBySpaceEntity(
       id: id ?? this.id,
       name: name ?? this.name,
+      nameEn: nameEn ?? this.nameEn,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       address: address ?? this.address,

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/theme/theme.dart';
@@ -51,7 +52,9 @@ class SpaceBenefitItemWidget extends StatelessWidget {
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
                     child: Text(
-                      benefitEntity.description,
+                      context.locale.languageCode == 'en' && benefitEntity.descriptionEn.isNotEmpty
+                          ? benefitEntity.descriptionEn
+                          : benefitEntity.description,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: fontCompactMdMedium(),

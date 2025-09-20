@@ -66,6 +66,10 @@ android {
         manifestPlaceholders += [
                 'appAuthRedirectScheme': 'wepin.d410836424c7fd52e2bfd5eaa1560b4e'
         ]
+        // 16KB page alignment support
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+        }
     }
 
     signingConfigs {
@@ -80,11 +84,21 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            // Temporarily disable R8 to avoid missing class issues
+            // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
             signingConfig signingConfigs.release
         }
-        
+
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 }
 
@@ -95,7 +109,13 @@ flutter {
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
     implementation 'androidx.window:window:1.0.0'
-    implementation 'androidx.window:window-java:1.0.0'   
+    implementation 'androidx.window:window-java:1.0.0'
+
+    // Use the newer modular Google Play Core libraries to avoid conflicts
+    implementation 'com.google.android.play:core-common:2.0.3'
+    implementation 'com.google.android.play:feature-delivery:2.1.0'
+    implementation 'com.google.android.play:asset-delivery:2.2.2'
+    implementation 'com.google.android.gms:play-services-tasks:18.2.0'
 }
 
 // Firebase plugins are applied conditionally

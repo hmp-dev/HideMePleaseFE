@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
 import '../../models/character_profile.dart';
 import 'character_layer_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -10,12 +11,14 @@ class OnboardingPageFourth extends StatefulWidget {
   final String selectedProfile;
   final CharacterProfile? selectedCharacter;
   final Function(String) onNicknameChanged;
-  
+  final UserProfileEntity? userProfile;
+
   const OnboardingPageFourth({
     super.key,
     required this.selectedProfile,
     this.selectedCharacter,
     required this.onNicknameChanged,
+    this.userProfile,
   });
 
   @override
@@ -47,19 +50,127 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
     super.dispose();
   }
   
+  Widget _buildProfileImage(bool isKeyboardVisible) {
+    final size = isKeyboardVisible ? 200.0 : 280.0;
+
+    // 기존 프로필 이미지가 있는 경우 (finalProfileImageUrl 사용)
+    if (widget.userProfile != null &&
+        widget.userProfile!.finalProfileImageUrl != null &&
+        widget.userProfile!.finalProfileImageUrl!.isNotEmpty) {
+      return _buildNetworkImage(widget.userProfile!.finalProfileImageUrl!, size);
+    }
+
+    // pfpImageUrl이 있는 경우
+    if (widget.userProfile != null &&
+        widget.userProfile!.pfpImageUrl != null &&
+        widget.userProfile!.pfpImageUrl!.isNotEmpty) {
+      return _buildNetworkImage(widget.userProfile!.pfpImageUrl!, size);
+    }
+
+    // 새로 선택한 캐릭터가 있는 경우
+    if (widget.selectedCharacter != null) {
+      return CharacterLayerWidget(
+        character: widget.selectedCharacter!,
+        size: size,
+        fit: BoxFit.cover,
+      );
+    }
+
+    // 선택된 프로필 asset 이미지
+    if (widget.selectedProfile.isNotEmpty) {
+      return Image.asset(
+        widget.selectedProfile,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(
+              Icons.face,
+              size: 100,
+              color: Colors.white,
+            ),
+          );
+        },
+      );
+    }
+
+    // 기본 placeholder
+    return Container(
+      color: Colors.grey[300],
+      child: const Icon(
+        Icons.person,
+        size: 100,
+        color: Colors.grey,
+      ),
+    );
+  }
+
+  Widget _buildNetworkImage(String imageUrl, double size) {
+    // dev-api.hidemeplease.xyz URL에 대한 특별 처리
+    if (imageUrl.contains('dev-api.hidemeplease.xyz')) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        headers: const {
+          'Accept': 'image/*',
+          'User-Agent': 'HideMePlease/1.0',
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          print('Error loading profile image in nickname page: $error');
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(
+              Icons.error,
+              size: 100,
+              color: Colors.red,
+            ),
+          );
+        },
+      );
+    }
+
+    // 일반 URL은 일반 Image.network 사용
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        print('Error loading profile image: $error');
+        return Container(
+          color: Colors.grey[300],
+          child: const Icon(
+            Icons.error,
+            size: 100,
+            color: Colors.red,
+          ),
+        );
+      },
+    );
+  }
+
   void _onNicknameChanged() {
     final nickname = _nicknameController.text;
-    
+
     // Validate nickname
     String? newErrorMessage;
     if (nickname.isEmpty) {
       newErrorMessage = null;
     } else if (nickname.length < 2) {
-      newErrorMessage = '닉네임은 최소 2자 이상이어야 합니다';
+      newErrorMessage = LocaleKeys.onboarding_fourth_error_min.tr();
     } else if (nickname.length > 15) {
-      newErrorMessage = '닉네임은 최대 15자까지 가능합니다';
+      newErrorMessage = LocaleKeys.onboarding_fourth_error_max.tr();
     } else if (!RegExp(r'^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ_]+$', unicode: true).hasMatch(nickname)) {
-      newErrorMessage = '닉네임은 영문, 숫자, 한글만 사용 가능합니다';
+      newErrorMessage = LocaleKeys.onboarding_fourth_error_invalid.tr();
     } else {
       newErrorMessage = null;
     }
@@ -93,13 +204,13 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
           children: [
             SizedBox(height: isKeyboardVisible ? 5 : 10),
             // Title
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
                   Text(
-                    '마지막으로,',
-                    style: TextStyle(
+                    LocaleKeys.onboarding_fourth_title1.tr(),
+                    style: const TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
@@ -109,8 +220,8 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
                     textAlign: TextAlign.center,
                   ),
                   Text(
-                    '하이더에게 이름을 지어줘.',
-                    style: TextStyle(
+                    LocaleKeys.onboarding_fourth_title2.tr(),
+                    style: const TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
@@ -124,11 +235,11 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
             ),
             const SizedBox(height: 10),
             // Description
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Text(
-                '이름이 없으면 이 친구들... 말을 안 들어...\n적당히 이상하고 맘에 드는 걸로 하나 지어봐!',
-                style: TextStyle(
+                LocaleKeys.onboarding_fourth_desc.tr(),
+                style: const TextStyle(
                   fontFamily: 'LINESeedKR',
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
@@ -160,26 +271,7 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(18),
-                          child: widget.selectedCharacter != null
-                            ? CharacterLayerWidget(
-                                character: widget.selectedCharacter!,
-                                size: isKeyboardVisible ? 200 : 280,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(
-                                widget.selectedProfile,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: Colors.grey[300],
-                                    child: const Icon(
-                                      Icons.face,
-                                      size: 100,
-                                      color: Colors.white,
-                                    ),
-                                  );
-                                },
-                              ),
+                          child: _buildProfileImage(isKeyboardVisible),
                         ),
                       ),
                     const SizedBox(height: 20),
@@ -237,9 +329,9 @@ class _OnboardingPageFourthState extends State<OnboardingPageFourth> {
                     ],
                     const SizedBox(height: 10),
                     // Helper text
-                    const Text(
-                      '닉네임은 영어, 숫자, 한글만 가능해. (최대 15자)\n한 번 설정하면 바꿀 수 없어!',
-                      style: TextStyle(
+                    Text(
+                      LocaleKeys.onboarding_fourth_helper.tr(),
+                      style: const TextStyle(
                         fontFamily: 'LINESeedKR',
                         fontSize: 13,
                         fontWeight: FontWeight.w400,

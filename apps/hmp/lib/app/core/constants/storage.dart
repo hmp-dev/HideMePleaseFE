@@ -17,6 +17,8 @@ abstract class StorageValues {
   static const String onboardingCurrentStep = 'onboardingCurrentStep';
   static const String onboardingCompleted = 'onboardingCompleted';
   static const String showOnboardingAfterLogout = 'showOnboardingAfterLogout';
+  static const String onboardingVersion = 'onboardingVersion';
+  static const int CURRENT_ONBOARDING_VERSION = 2; // 새 온보딩 버전
   
   // Wallet and Profile status
   static const String hasWallet = 'hasWallet';
@@ -34,4 +36,8 @@ abstract class StorageValues {
   static const String checkInSpaceName = 'checkInSpaceName';
   static const String checkInBenefitId = 'checkInBenefitId';
   static const String checkInBenefitDescription = 'checkInBenefitDescription';
+
+  // Daily check-in tracking
+  static const String dailyCheckedInSpaces = 'dailyCheckedInSpaces';
+  static const String lastCheckInDate = 'lastCheckInDate';
 }

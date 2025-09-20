@@ -317,12 +317,25 @@ class CustomImageView extends StatelessWidget {
   }
 
   Widget _buildNetworkImage(String url) {
+    print('📷 CustomImageView - Loading image from URL: $url');
+
+    // 모든 네트워크 이미지에 대해 CachedNetworkImage 사용 (dev-api 포함)
+    // dev-api 이미지의 경우 캐시 키에 타임스탬프 추가하여 캐시 무효화
+    final cacheKey = url.contains('dev-api.hidemeplease.xyz')
+        ? '$url?t=${DateTime.now().millisecondsSinceEpoch ~/ 60000}' // 1분 단위 캐시
+        : url;
+
     return CachedNetworkImage(
       height: height,
       width: width,
       fit: fit,
       imageUrl: url,
+      cacheKey: cacheKey,
       color: color,
+      httpHeaders: const {
+        'Accept': 'image/*',
+        'User-Agent': 'HideMePlease/1.0',
+      },
       placeholder: (context, url) => const Center(
         child: SizedBox(
           height: 24.0,
@@ -330,12 +343,16 @@ class CustomImageView extends StatelessWidget {
           child: CircularProgressIndicator.adaptive(strokeWidth: 2.5),
         ),
       ),
-      errorWidget: (context, url, error) => Image.asset(
-        placeHolder,
-        height: height,
-        width: width,
-        fit: fit ?? BoxFit.cover,
-      ),
+      errorWidget: (context, url, error) {
+        print('❌ CustomImageView - Error loading image: $error');
+        print('❌ CustomImageView - Failed URL: $url');
+        return Image.asset(
+          placeHolder,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.cover,
+        );
+      },
     );
   }
 }

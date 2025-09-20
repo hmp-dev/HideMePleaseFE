@@ -233,4 +233,76 @@ class EnableLocationCubit extends BaseCubit<EnableLocationState> {
       onAskDeviceLocation();
     }
   }
+
+  /// Requests background location permission (Always Allow)
+  /// This should be called after the user has already granted "While Using App" permission
+  Future<bool> requestBackgroundLocationPermission() async {
+    try {
+      // First check current permission status
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      // If permission is already "always", return true
+      if (permission == LocationPermission.always) {
+        emit(state.copyWith(
+          isLocationEnabled: true,
+          isLocationPermissionGranted: true,
+          isBackgroundLocationGranted: true,
+          checkLocationPermsStatus: RequestStatus.success,
+        ));
+        return true;
+      }
+
+      // If permission is "whileInUse", we can request "always"
+      if (permission == LocationPermission.whileInUse) {
+        // On iOS, requesting permission again will prompt for "Always Allow"
+        // if the app has the proper background modes configured
+        permission = await Geolocator.requestPermission();
+
+        if (permission == LocationPermission.always) {
+          emit(state.copyWith(
+            isLocationEnabled: true,
+            isLocationPermissionGranted: true,
+            isBackgroundLocationGranted: true,
+            checkLocationPermsStatus: RequestStatus.success,
+          ));
+          return true;
+        }
+      }
+
+      // If permission is denied or deniedForever, handle accordingly
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        emit(state.copyWith(
+          isLocationEnabled: true,
+          isLocationPermissionGranted: false,
+          isBackgroundLocationGranted: false,
+          checkLocationPermsStatus: RequestStatus.failure,
+        ));
+        return false;
+      }
+
+      // Permission is whileInUse but user didn't upgrade to always
+      emit(state.copyWith(
+        isLocationEnabled: true,
+        isLocationPermissionGranted: true,
+        isBackgroundLocationGranted: false,
+        checkLocationPermsStatus: RequestStatus.success,
+      ));
+      return false;
+
+    } catch (e) {
+      Log.debug('Error requesting background location permission: $e');
+      emit(state.copyWith(
+        isBackgroundLocationGranted: false,
+        checkLocationPermsStatus: RequestStatus.failure,
+      ));
+      return false;
+    }
+  }
+
+  /// Checks if background location permission is granted
+  Future<bool> isBackgroundLocationGranted() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    return permission == LocationPermission.always;
+  }
 }

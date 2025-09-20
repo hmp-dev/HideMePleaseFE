@@ -41,6 +41,9 @@ import 'package:mobile/features/space/presentation/widgets/checkin_fail_dialog.d
 import 'package:mobile/features/space/presentation/widgets/checkin_success_dialog.dart';
 import 'package:mobile/features/space/presentation/widgets/space_guide_overlay.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
 import 'package:mobile/app/core/services/check_in_location_service.dart';
@@ -384,7 +387,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                   context: context,
                                   barrierDismissible: false,
                                   builder: (context) => CheckinFailDialog(
-                                    customErrorMessage: '가까운 매장으로 이동해서 다시 시도해봐!',
+                                    customErrorMessage: LocaleKeys.move_to_nearby_store.tr(),
                                   ),
                                 );
                                 return;
@@ -439,7 +442,35 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                   );
                                   return;
                                 }
-                                
+
+                                // Check if already checked in today at this space
+                                final prefs = await SharedPreferences.getInstance();
+                                final lastDate = prefs.getString(StorageValues.lastCheckInDate) ?? '';
+                                final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+                                // If date changed, clear the check-in records
+                                if (lastDate != today) {
+                                  ('📅 Date changed from $lastDate to $today, clearing check-in records').log();
+                                  await prefs.remove(StorageValues.dailyCheckedInSpaces);
+                                  await prefs.setString(StorageValues.lastCheckInDate, today);
+                                }
+
+                                // Check if this space was already checked in today
+                                final checkedSpaces = prefs.getStringList(StorageValues.dailyCheckedInSpaces) ?? [];
+                                if (checkedSpaces.contains(spaceId.trim())) {
+                                  ('⚠️ Already checked in at space $spaceId today via NFC').log();
+
+                                  // Show already checked in dialog
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => CheckinFailDialog(
+                                      customErrorMessage: '이미 체크인한 상태입니다',
+                                    ),
+                                  );
+                                  return;
+                                }
+
                                 try {
                                   // 위치 권한 확인 및 현재 위치 가져오기
                                   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -571,7 +602,17 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                   }
                                   
                                   ('🎯 Check-in successful, proceeding with Live Activity...').log();
-                                  
+
+                                  // Save the space ID to daily checked-in spaces list
+                                  final prefs = await SharedPreferences.getInstance();
+                                  final checkedSpaces = prefs.getStringList(StorageValues.dailyCheckedInSpaces) ?? [];
+                                  if (!checkedSpaces.contains(spaceId)) {
+                                    checkedSpaces.add(spaceId);
+                                    await prefs.setStringList(StorageValues.dailyCheckedInSpaces, checkedSpaces);
+                                    ('💾 Saved check-in record for space: $spaceId').log();
+                                  }
+                                  await prefs.setString(StorageValues.lastCheckInDate, DateFormat('yyyy-MM-dd').format(DateTime.now()));
+
                                   // Space 정보는 이미 위에서 가져왔으므로 상태만 다시 확인
                                   final spaceState = getIt<SpaceCubit>().state;
                                   final updatedSpaceDetail = spaceState.spaceDetailEntity;
@@ -597,24 +638,24 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                       
                                       // Live Activity 시작 (실제 체크인 데이터 사용)
                                       final liveActivityService = getIt<LiveActivityService>();
-                                      await liveActivityService.startCheckInActivity(
+                                      /*await liveActivityService.startCheckInActivity(
                                         spaceName: updatedSpaceDetail.name,
                                         currentUsers: currentUsers,
                                         remainingUsers: remainingUsers,
                                         maxCapacity: maxCapacity,
                                         spaceId: spaceId.trim(),  // 폴링을 위한 spaceId 전달
-                                      );
+                                      );*/
                                     } catch (e) {
                                       ('❌ Failed to fetch check-in users: $e').log();
                                       // 에러 발생 시 기본값으로 Live Activity 시작
                                       final liveActivityService = getIt<LiveActivityService>();
-                                      await liveActivityService.startCheckInActivity(
+                                      /*await liveActivityService.startCheckInActivity(
                                         spaceName: updatedSpaceDetail.name,
                                         currentUsers: 1,  // 본인만 체크인한 것으로 표시
                                         remainingUsers: maxCapacity - 1,  // 남은 인원 계산
                                         maxCapacity: maxCapacity,
                                         spaceId: spaceId.trim(),
-                                      );
+                                      );*/
                                     }
                                     
                                     // 라이브 액티비티 업데이트 - 체크인 확인 완료 상태로 변경
@@ -929,6 +970,34 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
       return;
     }
 
+    // Check if already checked in today at this space
+    final prefs = await SharedPreferences.getInstance();
+    final lastDate = prefs.getString(StorageValues.lastCheckInDate) ?? '';
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // If date changed, clear the check-in records
+    if (lastDate != today) {
+      ('📅 Date changed from $lastDate to $today, clearing check-in records').log();
+      await prefs.remove(StorageValues.dailyCheckedInSpaces);
+      await prefs.setString(StorageValues.lastCheckInDate, today);
+    }
+
+    // Check if this space was already checked in today
+    final checkedSpaces = prefs.getStringList(StorageValues.dailyCheckedInSpaces) ?? [];
+    if (checkedSpaces.contains(selectedSpace.id)) {
+      ('⚠️ Already checked in at ${selectedSpace.name} today').log();
+
+      // Show already checked in dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => CheckinFailDialog(
+          customErrorMessage: '이미 체크인한 상태입니다',
+        ),
+      );
+      return;
+    }
+
     ('✅ Check-in button tapped for ${selectedSpace.name} - Simulating NFC scan...').log();
     Timer? debugTimer;
 
@@ -999,6 +1068,16 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                           ),
                         );
                         
+                        // Save the space ID to daily checked-in spaces list
+                        final prefs = await SharedPreferences.getInstance();
+                        final checkedSpaces = prefs.getStringList(StorageValues.dailyCheckedInSpaces) ?? [];
+                        if (!checkedSpaces.contains(spaceToUse.id)) {
+                          checkedSpaces.add(spaceToUse.id);
+                          await prefs.setStringList(StorageValues.dailyCheckedInSpaces, checkedSpaces);
+                          ('💾 Saved check-in record for space: ${spaceToUse.id}').log();
+                        }
+                        await prefs.setString(StorageValues.lastCheckInDate, DateFormat('yyyy-MM-dd').format(DateTime.now()));
+
                         // 체크인 성공 후 데이터 새로고침
                         spaceCubit.onFetchAllSpaceViewData();
                         await profileCubit.onGetUserProfile(); // 사용자 프로필 정보 새로고침

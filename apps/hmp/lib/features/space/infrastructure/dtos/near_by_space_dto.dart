@@ -10,6 +10,8 @@ class NearBySpaceDto extends Equatable {
   final String? id;
   @JsonKey(name: "name")
   final String? name;
+  @JsonKey(name: "nameEn")
+  final String? nameEn;
   @JsonKey(name: "latitude")
   final double? latitude;
   @JsonKey(name: "longitude")
@@ -24,6 +26,7 @@ class NearBySpaceDto extends Equatable {
   const NearBySpaceDto({
     this.id,
     this.name,
+    this.nameEn,
     this.latitude,
     this.longitude,
     this.address,
@@ -41,6 +44,7 @@ class NearBySpaceDto extends Equatable {
     return [
       id,
       name,
+      nameEn,
       latitude,
       longitude,
       address,
@@ -52,6 +56,7 @@ class NearBySpaceDto extends Equatable {
   NearBySpaceEntity toEntity() => NearBySpaceEntity(
         id: id ?? "",
         name: name ?? "",
+        nameEn: nameEn ?? "",
         latitude: latitude ?? 0.0,
         longitude: longitude ?? 0.0,
         address: address ?? "",

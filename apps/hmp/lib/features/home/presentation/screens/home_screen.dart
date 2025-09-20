@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _initWallets();
       }
     });
-    _checkAndShowModelBannerDialog();
+    //_checkAndShowModelBannerDialog();
     initValues();
   }
 

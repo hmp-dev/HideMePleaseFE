@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -47,6 +50,9 @@ import 'package:mobile/features/space/presentation/widgets/checkin_success_dialo
 import 'package:mobile/features/space/presentation/widgets/space_benefit_list_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/space/presentation/widgets/share_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 
 class SpaceDetailView extends StatefulWidget {
   const SpaceDetailView({super.key, required this.space, this.spaceEntity});
@@ -371,7 +377,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
         Padding(
           padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
           child: Text(
-            widget.space.name,
+            context.locale.languageCode == 'en' && widget.space.nameEn.isNotEmpty
+                ? widget.space.nameEn
+                : widget.space.name,
             style: fontTitle05Bold(),
           ),
         ),
@@ -394,9 +402,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.space.introduction.length > 90
-                    ? '${widget.space.introduction.substring(0, 90)}...'
-                    : widget.space.introduction,
+                () {
+                  final intro = context.locale.languageCode == 'en' && widget.space.introductionEn.isNotEmpty
+                      ? widget.space.introductionEn
+                      : widget.space.introduction;
+                  return intro.length > 90 ? '${intro.substring(0, 90)}...' : intro;
+                }(),
                 style: fontBodySmMedium(),
               ),
               /*
@@ -479,6 +490,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                     benefits: state.benefitsGroupEntity.benefits,
                     currentGroupProgress: _currentGroup?.progress ?? widget.space.currentGroupProgress,
                     onComingSoon: _showComingSoonDialog,
+                    onShare: false ? _showShareDialog : _showShareComingSoonDialog,
                     currentGroup: _currentGroup,
                   );
                 },
@@ -557,7 +569,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                               widget.space.latitude, widget.space.longitude);
                         },
                         child: DefaultImage(
-                          path: "assets/icons/map_navi.png",
+                          path: context.locale.languageCode == 'en'
+                              ? "assets/icons/map_navi_en.png"
+                              : "assets/icons/map_navi.png",
                           width: 135,
                           height: 45,
                         ),
@@ -601,7 +615,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                     const HorizontalSpace(10),
                     Expanded(
                       child: Text(
-                        widget.space.address,
+                        context.locale.languageCode == 'en' && widget.space.addressEn.isNotEmpty
+                            ? widget.space.addressEn
+                            : widget.space.address,
                         style: fontCompactSmBold(),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -610,13 +626,15 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                     GestureDetector(
                       onTap: () {
                         Clipboard.setData(
-                                ClipboardData(text: widget.space.address))
+                                ClipboardData(text: context.locale.languageCode == 'en' && widget.space.addressEn.isNotEmpty
+                                    ? widget.space.addressEn
+                                    : widget.space.address))
                             .then((_) {
                           Fluttertoast.showToast(
                             msg: LocaleKeys.address_copied.tr(),
                             toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
-                            backgroundColor: Colors.grey[800],
+                            backgroundColor: Colors.white,
                             textColor: Colors.black,
                             fontSize: 16.0,
                           );
@@ -836,10 +854,66 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
     );
   }
 
+  // 로컬 체크인 기록 확인 메서드
+  Future<bool> _isAlreadyCheckedInToday(String spaceId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastDate = prefs.getString(StorageValues.lastCheckInDate) ?? '';
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // 날짜가 다르면 기록 초기화
+    if (lastDate != today) {
+      print('📅 Date changed from $lastDate to $today, clearing check-in records');
+      await prefs.remove(StorageValues.dailyCheckedInSpaces);
+      await prefs.setString(StorageValues.lastCheckInDate, today);
+      return false;
+    }
+
+    // 당일 체크인 기록 확인
+    final checkedSpaces = prefs.getStringList(StorageValues.dailyCheckedInSpaces) ?? [];
+    final isCheckedIn = checkedSpaces.contains(spaceId);
+    print('📱 Local check-in record for $spaceId: ${isCheckedIn ? "Already checked in today" : "Not checked in today"}');
+    print('📱 Today\'s checked-in spaces: $checkedSpaces');
+    return isCheckedIn;
+  }
+
+  // 체크인 성공 시 로컬 저장
+  Future<void> _saveLocalCheckInRecord(String spaceId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // 당일 체크인 목록에 추가
+    final checkedSpaces = prefs.getStringList(StorageValues.dailyCheckedInSpaces) ?? [];
+    if (!checkedSpaces.contains(spaceId)) {
+      checkedSpaces.add(spaceId);
+      await prefs.setStringList(StorageValues.dailyCheckedInSpaces, checkedSpaces);
+      print('💾 Saved check-in record for space: $spaceId');
+      print('💾 Updated daily check-in list: $checkedSpaces');
+    }
+
+    // 날짜 업데이트
+    await prefs.setString(StorageValues.lastCheckInDate, today);
+    print('💾 Updated last check-in date to: $today');
+  }
+
   Future<void> _handleCheckIn() async {
     print('🔵 _handleCheckIn called');
     print('🔵 Platform: ${Platform.isIOS ? "iOS" : "Android"}');
-    
+
+    // 로컬 체크인 기록 확인 (서버 요청 전에 1차 방어)
+    if (await _isAlreadyCheckedInToday(widget.space.id)) {
+      print('🚫 Already checked in today (local record)');
+      if (mounted) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => CheckinFailDialog(
+            customErrorMessage: '오늘 이미 이 매장에 체크인했어! 내일 다시 방문해줘 😊',
+          ),
+        );
+      }
+      return; // 체크인 프로세스 중단
+    }
+
     // 먼저 거리 체크
     print('📍 Checking distance to store before proceeding...');
     try {
@@ -993,8 +1067,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
     print('✅ Context is mounted, proceeding with check-in flow immediately...');
     final spaceCubit = getIt<SpaceCubit>();
     final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
-    final benefitDescription =
-        benefits.isNotEmpty ? benefits.first.description : LocaleKeys.no_benefits_registered.tr();
+    final isEnglish = context.locale.languageCode == 'en';
+    final benefitDescription = benefits.isNotEmpty
+        ? (isEnglish && benefits.first.descriptionEn.isNotEmpty
+            ? benefits.first.descriptionEn
+            : benefits.first.description)
+        : LocaleKeys.no_benefits_registered.tr();
 
     bool userConfirmed = false;
     
@@ -1050,8 +1128,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       print('✅ Widget and context still mounted after delay, proceeding with check-in flow');
       final spaceCubit = getIt<SpaceCubit>();
       final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
-      final benefitDescription =
-          benefits.isNotEmpty ? benefits.first.description : LocaleKeys.no_benefits_registered.tr();
+      final isEnglish = dialogContext.locale.languageCode == 'en';
+      final benefitDescription = benefits.isNotEmpty
+          ? (isEnglish && benefits.first.descriptionEn.isNotEmpty
+              ? benefits.first.descriptionEn
+              : benefits.first.description)
+          : LocaleKeys.no_benefits_registered.tr();
 
       bool userConfirmed = false;
       
@@ -1295,13 +1377,13 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
           
           // Live Activity 시작 (실제 체크인 데이터 또는 기본값 사용)
           final liveActivityService = getIt<LiveActivityService>();
-          await liveActivityService.startCheckInActivity(
+          /*await liveActivityService.startCheckInActivity(
             spaceName: widget.space.name,
             currentUsers: currentUsers,
             remainingUsers: remainingUsers,
             maxCapacity: maxCapacity,
             spaceId: widget.space.id,  // 폴링을 위한 spaceId 전달
-          );
+          );*/
           print('✅ Live Activity started successfully');
         } catch (e) {
           print('❌ Failed to start Live Activity: $e');
@@ -1464,23 +1546,39 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
     // 체크인 성공 시 후속 처리 (앱바와 동일한 패턴)
     if (checkInSuccess) {
       print('🎯 Check-in successful, proceeding with post-check-in tasks...');
-      
+
+      // 1. 로컬에 체크인 기록 저장 (추가 방어)
+      await _saveLocalCheckInRecord(widget.space.id);
+      print('💾 Local check-in record saved');
+
+      // 2. 체크인 상태 즉시 업데이트 (버튼 비활성화를 위해)
+      print('🔄 Immediately updating check-in status...');
+      await _fetchCheckInStatus();
+      print('✅ Check-in status updated');
+
+      // 3. UI 즉시 새로고침으로 버튼 비활성화
+      if (mounted) {
+        setState(() {
+          print('🎨 UI refreshed - check-in button should be disabled now');
+        });
+      }
+
       try {
         print('🔄 Starting Live Activity...');
         // Live Activity 시작 시도
         final progress = widget.space.currentGroupProgress;
         final parts = progress.split('/');
         final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
-        
+
         final liveActivityService = getIt<LiveActivityService>();
-        await liveActivityService.startCheckInActivity(
+        /*await liveActivityService.startCheckInActivity(
           spaceName: widget.space.name,
           currentUsers: 1,
           remainingUsers: maxCapacity - 1,
           maxCapacity: maxCapacity,
           spaceId: widget.space.id,
-        );
-        
+        );*/
+
         print('🔄 Updating Live Activity...');
         // Live Activity 업데이트
         await liveActivityService.updateCheckInActivity(isConfirmed: true);
@@ -1488,25 +1586,25 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       } catch (e) {
         print('⚠️ Live Activity failed but continuing: $e');
       }
-      
+
       print('🔄 Updating profile...');
       // 프로필 정보 업데이트
       final profileCubit = getIt<ProfileCubit>();
       await profileCubit.onGetUserProfile();
       print('✅ Profile updated');
-      
+
       // 성공 상태 업데이트 (setState 사용)
       print('🔍 Checking mounted: $mounted');
-      
+
       final availableBalance = profileCubit.state.userProfileEntity?.availableBalance ?? 0;
       print('💰 Available balance: $availableBalance');
-      
+
       print('🎉 Triggering CheckinSuccess overlay with setState...');
       print('📋 Success parameters:');
       print('   - spaceName: ${widget.space.name}');
       print('   - benefitDescription: $benefitDescription');
       print('   - availableBalance: $availableBalance');
-      
+
       // 전역 오버레이 서비스 호출 (mounted 상태 무관)
       GlobalOverlayService.showCheckInSuccessOverlay(
         spaceName: widget.space.name ?? '매장',
@@ -1514,12 +1612,12 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
         availableBalance: availableBalance + 1,  // Add 1 SAV for the check-in reward
       );
       print('✅ GlobalOverlayService called successfully');
-      
+
       print('🔄 Starting data refresh...');
-      // 데이터 새로고침 (mounted 체크 없이 실행)
+      // 데이터 새로고침 (mounted 체크 없이 실행) - 체크인 상태 한번 더 확인
       try {
         await Future.wait([
-          _fetchCheckInStatus(),
+          _fetchCheckInStatus(), // 한번 더 확실히 업데이트
           _fetchCheckInUsers(),
           _fetchCurrentGroup(),
           _fetchSpaceDetail(),
@@ -1562,18 +1660,24 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    (spaceDetailEntity.category.toLowerCase() == "walkerhill")
+                    (spaceDetailEntity.category.toLowerCase() == "meal")
                         ? DefaultImage(
-                            path: "assets/icons/walkerhill.png",
+                            path: "assets/icons/icon_label_food.png",
                             width: 16,
                             height: 16,
                           )
-                        : DefaultImage(
-                            path:
-                                "assets/icons/ic_space_category_${spaceDetailEntity.category.toLowerCase()}.svg",
-                            width: 16,
-                            height: 16,
-                          ),
+                        : (spaceDetailEntity.category.toLowerCase() == "walkerhill")
+                            ? DefaultImage(
+                                path: "assets/icons/walkerhill.png",
+                                width: 16,
+                                height: 16,
+                              )
+                            : DefaultImage(
+                                path:
+                                    "assets/icons/ic_space_category_${spaceDetailEntity.category.toLowerCase()}.svg",
+                                width: 16,
+                                height: 16,
+                              ),
                     const HorizontalSpace(5),
                     Text(
                       getLocalCategoryName(spaceDetailEntity.category),
@@ -1662,19 +1766,45 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
         // Closed
         statusText = LocaleKeys.business_end.tr();
 
-        // Find next business day
-        final tomorrow = DateTime.now().add(const Duration(days: 1));
-        final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
-        final tomorrowHours = spaceEntity.businessHours.firstWhere(
-          (hours) => hours.dayOfWeek == tomorrowDay,
-          orElse: () => BusinessHoursEntity(
-            dayOfWeek: tomorrowDay,
-            isClosed: true,
-          ),
-        );
+        // Only show next business day if we're past today's closing time
+        if (todayHours.closeTime != null) {
+          final closeParts = todayHours.closeTime!.split(':');
+          final closeMinutes = int.parse(closeParts[0]) * 60 + int.parse(closeParts[1]);
+          final currentMinutes = now.hour * 60 + now.minute;
 
-        if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
-          hoursText = '${LocaleKeys.tomorrow.tr()} ${_formatTime24To12(tomorrowHours.openTime!)} ${LocaleKeys.opens_at.tr()}';
+          // Only show next opening time if we're past today's closing time
+          if (currentMinutes > closeMinutes) {
+            // Find next business day
+            final tomorrow = DateTime.now().add(const Duration(days: 1));
+            final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
+            final tomorrowHours = spaceEntity.businessHours.firstWhere(
+              (hours) => hours.dayOfWeek == tomorrowDay,
+              orElse: () => BusinessHoursEntity(
+                dayOfWeek: tomorrowDay,
+                isClosed: true,
+              ),
+            );
+
+            if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
+              hoursText = '${LocaleKeys.tomorrow.tr()} ${_formatTime24To12(tomorrowHours.openTime!)} ${LocaleKeys.opens_at.tr()}';
+            }
+          }
+        } else if (todayHours.isClosed) {
+          // If today is a regular closed day, show next opening day
+          // Find next business day
+          final tomorrow = DateTime.now().add(const Duration(days: 1));
+          final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
+          final tomorrowHours = spaceEntity.businessHours.firstWhere(
+            (hours) => hours.dayOfWeek == tomorrowDay,
+            orElse: () => BusinessHoursEntity(
+              dayOfWeek: tomorrowDay,
+              isClosed: true,
+            ),
+          );
+
+          if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
+            hoursText = '${LocaleKeys.tomorrow.tr()} ${_formatTime24To12(tomorrowHours.openTime!)} ${LocaleKeys.opens_at.tr()}';
+          }
         }
       }
 
@@ -2039,9 +2169,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  '사이렌 기능은 곧 제공될 예정입니다',
-                  style: TextStyle(
+                Text(
+                  LocaleKeys.notification_coming_soon.tr(),
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
                   ),
@@ -2058,9 +2188,85 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                       color: const Color(0xFF19BAFF),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      '확인',
-                      style: TextStyle(
+                    child: Text(
+                      LocaleKeys.confirm.tr(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showShareDialog() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (BuildContext context) {
+        return ShareDialog(
+          spaceDetailEntity: widget.space,
+          spaceEntity: widget.spaceEntity,
+        );
+      },
+    );
+  }
+
+  void _showShareComingSoonDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  LocaleKeys.coming_soon.tr(),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  LocaleKeys.share_coming_soon.tr(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF19BAFF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      LocaleKeys.confirm.tr(),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -2078,10 +2284,11 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
 
 class HidingBanner extends StatefulWidget {
   const HidingBanner(
-      {super.key, this.checkInStatus, this.onCheckIn, this.benefits = const [], this.currentGroupProgress, this.onComingSoon, this.currentGroup});
+      {super.key, this.checkInStatus, this.onCheckIn, this.benefits = const [], this.currentGroupProgress, this.onComingSoon, this.onShare, this.currentGroup});
   final CheckInStatusEntity? checkInStatus;
   final Future<void> Function()? onCheckIn;
   final VoidCallback? onComingSoon;
+  final VoidCallback? onShare;
   final List<BenefitEntity> benefits;
   final String? currentGroupProgress;
   final CurrentGroupEntity? currentGroup;
@@ -2213,9 +2420,23 @@ class _HidingBannerState extends State<HidingBanner> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ] else ...[
+                            // Debug logs for benefit description
+                            Builder(
+                              builder: (context) {
+                                print('🔍 [HidingBanner] Locale: ${context.locale.languageCode}');
+                                if (widget.benefits.isNotEmpty) {
+                                  print('🔍 [HidingBanner] descriptionEn: "${widget.benefits.first.descriptionEn}"');
+                                  print('🔍 [HidingBanner] descriptionEn.isNotEmpty: ${widget.benefits.first.descriptionEn.isNotEmpty}');
+                                  print('🔍 [HidingBanner] description: "${widget.benefits.first.description}"');
+                                }
+                                return const SizedBox.shrink();
+                              }
+                            ),
                             Text(
                               widget.benefits.isNotEmpty
-                                  ? widget.benefits.first.description
+                                  ? (context.locale.languageCode == 'en' && widget.benefits.first.descriptionEn.isNotEmpty
+                                      ? widget.benefits.first.descriptionEn
+                                      : widget.benefits.first.description)
                                   : LocaleKeys.if_you_checkin_and_hide.tr(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
@@ -2243,7 +2464,7 @@ class _HidingBannerState extends State<HidingBanner> {
               bottom: 15,
               child: isLoading
                   ? const SizedBox(height: 45) // 로딩 중일 때 버튼 공간 확보
-                  : isCheckedIn
+                  : isCheckedIn || true
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -2254,20 +2475,24 @@ class _HidingBannerState extends State<HidingBanner> {
                                 height: 45,
                                 child: Center(
                                   child: SvgPicture.asset(
-                                    'assets/icons/icon_siren.svg',
+                                    context.locale.languageCode == 'en'
+                                        ? 'assets/icons/icon_siren_en.svg'
+                                        : 'assets/icons/icon_siren.svg',
                                   ),
                                 ),
                               ),
                             ),
                             const HorizontalSpace(10),
                             GestureDetector(
-                              onTap: widget.onComingSoon,
+                              onTap: widget.onShare,
                               child: Container(
                                 width: 150,
                                 height: 45,
                                 child: Center(
                                   child: SvgPicture.asset(
-                                    'assets/icons/icon_share.svg',
+                                    context.locale.languageCode == 'en'
+                                        ? 'assets/icons/icon_share_en.svg'
+                                        : 'assets/icons/icon_share.svg',
                                   ),
                                 ),
                               ),

@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 /// Widget shown when user already has a Wepin wallet
 class OnboardingPageWalletExists extends StatelessWidget {
@@ -12,13 +14,13 @@ class OnboardingPageWalletExists extends StatelessWidget {
         children: [
           const SizedBox(height: 20),
           // Title
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
                 Text(
-                  '오, 너는 이미',
-                  style: TextStyle(
+                  LocaleKeys.onboarding_wallet_exists_title1.tr(),
+                  style: const TextStyle(
                     fontFamily: 'LINESeedKR',
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
@@ -28,8 +30,8 @@ class OnboardingPageWalletExists extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 Text(
-                  '위핀지갑을 가지고 있네!',
-                  style: TextStyle(
+                  LocaleKeys.onboarding_wallet_exists_title2.tr(),
+                  style: const TextStyle(
                     fontFamily: 'LINESeedKR',
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
@@ -43,11 +45,11 @@ class OnboardingPageWalletExists extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           // Description
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Text(
-              '하미플 세계에선 지갑이 출입증이야.\n숨은 혜택을 확인하고 사용하기 위해서 꼭 필요하거든.\n이미 지갑이 있다니 멋진데!',
-              style: TextStyle(
+              LocaleKeys.onboarding_wallet_exists_desc.tr(),
+              style: const TextStyle(
                 fontFamily: 'LINESeedKR',
                 fontSize: 16,
                 fontWeight: FontWeight.w400,

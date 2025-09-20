@@ -15,28 +15,36 @@ class MatchingHelpDialog extends StatelessWidget {
       child: Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 10.0),
         backgroundColor: Colors.transparent,
-        child: SizedBox(
-          height: 460, // Total height for image + modal
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-                bottom: 0,
-                child: Container(
-                  width: 370,
-                  height: 242,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEAF8FF),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: const Color(0xFF132E41),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.topCenter,
+              children: [
+                // Content container at the bottom
+                Container(
+                  margin: const EdgeInsets.only(top: 105), // Half of image height to create overlap
+                    width: 370,
+                    // Remove fixed height to allow content-based sizing
+                    constraints: const BoxConstraints(
+                      minHeight: 150, // Adjusted minimum height
                     ),
-                  ),
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEAF8FF),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: const Color(0xFF132E41),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 120, bottom: 20, left: 16, right: 16), // Top padding for image overlap
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -107,7 +115,7 @@ class MatchingHelpDialog extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20), // Increased spacing before button
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -146,21 +154,23 @@ class MatchingHelpDialog extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
+                        ], // Close children array
+                      ),
                     ),
-                  ],
+                  ),
+                // Image positioned on top
+                Positioned(
+                  top: 0,
+                  child: DefaultImage(
+                    path: "assets/icons/matching_image.png",
+                    width: 218,
+                    height: 211,
+                  ),
                 ),
-              ),
-              ),
-              Positioned(
-                top: 0,
-              child: DefaultImage(
-                path: "assets/icons/matching_image.png",
-                width: 218,
-                height: 211,
-              ),
+              ],
             ),
           ],
-        ),
         ),
       ),
     );

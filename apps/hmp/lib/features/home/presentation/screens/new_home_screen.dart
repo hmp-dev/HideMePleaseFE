@@ -21,6 +21,7 @@ import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mobile/features/map/presentation/map_screen.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/app/core/enum/menu_type.dart';
+
 class NewHomeScreen extends StatefulWidget {
   final VoidCallback? onShowGuide;
   
@@ -44,7 +45,6 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   List<SpaceEntity> allSpaces = [];
   double currentLatitude = 37.5665;
   double currentLongitude = 126.9780;
-  String? profilePartsString;
   bool _isUsingProfileImage = false; // 프로필 이미지 사용 여부 추적
   static const double NEARBY_RADIUS_KM = 5.0; // 5km 반경
   StreamSubscription? _profileSubscription;
@@ -76,9 +76,18 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
     );
     MapboxOptions.setAccessToken(mapboxAccessToken);
     _initializeData();
-    _loadProfileParts();
     _checkFirstTimeUser();
     _subscribeToProfileChanges();
+    _checkBackgroundLocationPermission();
+  }
+
+  Future<void> _checkBackgroundLocationPermission() async {
+    // For testing: Reset dialog preferences to always show
+    // await BackgroundLocationService.resetDialogPreferences();
+
+    // Delay to avoid showing dialog immediately on screen load
+    await Future.delayed(const Duration(seconds: 2));
+    // Background location permission is now handled in StartUpScreen for all users
   }
 
   void _subscribeToProfileChanges() {
@@ -147,15 +156,6 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
     }
   }
   
-  Future<void> _loadProfileParts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final parts = prefs.getString('profilePartsString');
-    if (parts != null && mounted) {
-      setState(() {
-        profilePartsString = parts;
-      });
-    }
-  }
 
   Future<void> _initializeData() async {
     await _getCurrentLocation();
@@ -472,12 +472,19 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
         final category = space.category?.toUpperCase() ?? 'ETC';
         print('🏪 [HomeScreen] Creating marker for space: ${space.name}, category: $category');
         
+        // 영어 모드일 때 영문 매장명 사용
+        final locale = context.locale.languageCode;
+        final isEnglish = locale == 'en';
+        final displayName = isEnglish && space.nameEn.isNotEmpty
+            ? space.nameEn
+            : space.name;
+
         final markerOptions = PointAnnotationOptions(
           geometry: Point(coordinates: Position(space.longitude!, space.latitude!)),
           iconImage: 'marker_$category',
           iconSize: 0.3,
           // 매장명 텍스트 추가
-          textField: space.name,
+          textField: displayName,
           textColor: Colors.black.value,
           textHaloColor: Colors.white.value,
           textHaloWidth: 1.5,
@@ -521,7 +528,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
         
         if (userId.isNotEmpty) {
           // API를 통해 고품질 프로필 이미지 로드
-          final apiImageUrl = 'http://dev-api.hidemeplease.xyz/v1/public/nft/user/$userId/image';
+          final apiImageUrl = 'https://dev-api.hidemeplease.xyz/v1/public/nft/user/$userId/image';
           print('🌐 [HomeScreen] API 프로필 이미지 URL: $apiImageUrl');
           
           try {
@@ -567,7 +574,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
         // profilePartsString이 없으면 URL 기반 이미지 시도 (우선순위 2)
         final profileImageUrl = profileCubit.state.userProfileEntity.finalProfileImageUrl;
         print('🖼️ [HomeScreen] Profile image URL: ${profileImageUrl.isNotEmpty ? profileImageUrl : "URL이 비어있음"}');
-        
+
         if (profileImageUrl.isNotEmpty) {
           print('👤 [HomeScreen] 프로필 이미지 URL 발견: $profileImageUrl');
           final profileImageBytes = await _loadProfileImageFromUrl(profileImageUrl);
@@ -779,13 +786,12 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
                               border: Border.all(color: const Color(0xFF132E41), width: 1),
                             ),
                             child: ClipOval(
-                              child: (profilePartsString != null && profilePartsString!.isNotEmpty) ||
-                                     (profile != null && 
-                                      profile.profilePartsString != null && 
-                                      profile.profilePartsString!.isNotEmpty)
+                              child: profile != null
                                   ? ProfileAvatarWidget(
-                                      profilePartsString: profilePartsString ?? profile!.profilePartsString!,
+                                      profilePartsString: profile.profilePartsString,
+                                      imageUrl: profile.finalProfileImageUrl ?? profile.pfpImageUrl,
                                       size: 54,
+                                      placeholderPath: 'assets/images/launcher-icon.png',
                                     )
                                   : Container(
                                       color: Colors.grey[300],

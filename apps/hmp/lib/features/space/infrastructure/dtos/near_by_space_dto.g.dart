@@ -10,6 +10,7 @@ NearBySpaceDto _$NearBySpaceDtoFromJson(Map<String, dynamic> json) =>
     NearBySpaceDto(
       id: json['id'] as String?,
       name: json['name'] as String?,
+      nameEn: json['nameEn'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
       address: json['address'] as String?,
@@ -21,6 +22,7 @@ Map<String, dynamic> _$NearBySpaceDtoToJson(NearBySpaceDto instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'nameEn': instance.nameEn,
       'latitude': instance.latitude,
       'longitude': instance.longitude,
       'address': instance.address,

@@ -581,30 +581,55 @@ class SpaceCubit extends BaseCubit<SpaceState> {
     try {
       print('🔄 Restoring check-in state from local storage');
       final prefs = await SharedPreferences.getInstance();
-      
+
+      // Check for pending auto check-out from background task
+      final shouldAutoCheckOut = prefs.getBool('shouldAutoCheckOut') ?? false;
+      final pendingCheckOutSpaceId = prefs.getString('pendingCheckOutSpaceId');
+
+      if (shouldAutoCheckOut && pendingCheckOutSpaceId != null) {
+        print('🚨 Pending auto check-out detected for space: $pendingCheckOutSpaceId');
+        // Clear the flags
+        await prefs.remove('shouldAutoCheckOut');
+        await prefs.remove('pendingCheckOutSpaceId');
+        // Perform the check-out
+        await onCheckOut(spaceId: pendingCheckOutSpaceId);
+        print('✅ Completed pending auto check-out');
+        return;
+      }
+
       final spaceId = prefs.getString(StorageValues.activeCheckInSpaceId);
       final timestamp = prefs.getInt(StorageValues.checkInTimestamp);
       final latitude = prefs.getDouble(StorageValues.checkInLatitude);
       final longitude = prefs.getDouble(StorageValues.checkInLongitude);
       final spaceName = prefs.getString(StorageValues.checkInSpaceName);
-      
-      if (spaceId != null && timestamp != null) {
+
+      // Also check workmanager stored check-in data
+      final workmanagerSpaceId = prefs.getString('currentCheckedInSpaceId');
+      final workmanagerLat = prefs.getDouble('checkInLatitude');
+      final workmanagerLng = prefs.getDouble('checkInLongitude');
+
+      // Use workmanager data if available and main storage is empty
+      final activeSpaceId = spaceId ?? workmanagerSpaceId;
+      final activeLat = latitude ?? workmanagerLat;
+      final activeLng = longitude ?? workmanagerLng;
+
+      if (activeSpaceId != null && timestamp != null) {
         final checkInTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
         final timeDifference = DateTime.now().difference(checkInTime);
-        
+
         // If more than 10 minutes have passed, auto check-out
         if (timeDifference.inMinutes > 10) {
           print('⏰ Check-in expired (${timeDifference.inMinutes} minutes old), auto checking out');
-          await onCheckOut(spaceId: spaceId);
+          await onCheckOut(spaceId: activeSpaceId);
         } else {
-          print('✅ Valid check-in found for space: $spaceId ($spaceName)');
-          print('📍 Location: $latitude, $longitude');
+          print('✅ Valid check-in found for space: $activeSpaceId ($spaceName)');
+          print('📍 Location: $activeLat, $activeLng');
           print('⏱️ Check-in time: ${timeDifference.inMinutes} minutes ago');
-          
+
           emit(state.copyWith(
-            currentCheckedInSpaceId: spaceId,
-            checkInLatitude: latitude,
-            checkInLongitude: longitude,
+            currentCheckedInSpaceId: activeSpaceId,
+            checkInLatitude: activeLat,
+            checkInLongitude: activeLng,
             checkInTime: checkInTime,
           ));
         }

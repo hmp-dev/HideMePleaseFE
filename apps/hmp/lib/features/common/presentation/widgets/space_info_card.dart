@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
@@ -166,7 +167,7 @@ class SpaceInfoCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
-                        if (space.benefitDescription.isNotEmpty)
+                        if (_getBenefitDescription(context, space).isNotEmpty)
                           Row(
                             children: [
                               const Icon(
@@ -177,7 +178,7 @@ class SpaceInfoCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  space.benefitDescription,
+                                  _getBenefitDescription(context, space),
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: Color(0xFF19BAFF),
@@ -200,4 +201,17 @@ class SpaceInfoCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Helper function to get benefit description based on language
+String _getBenefitDescription(BuildContext context, SpaceEntity space) {
+  final isEnglish = context.locale.languageCode == 'en';
+
+  // 영어 모드이고 영문 설명이 있으면 영문 반환
+  if (isEnglish && space.benefitDescriptionEn.isNotEmpty) {
+    return space.benefitDescriptionEn;
+  }
+
+  // 그 외의 경우 기본 설명 반환
+  return space.benefitDescription;
 }

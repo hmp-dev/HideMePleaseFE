@@ -314,7 +314,7 @@ class _EventDetailViewState extends State<EventDetailView> {
               keyText: "신청 기간",
               valueText: "03/07(목) 11:50까지",
             ),
-            const EventFeatureValueWidget(
+            EventFeatureValueWidget(
               keyText: LocaleKeys.place.tr(),
               valueText: "하이드미 플리즈 을지로점 3층",
             ),
@@ -322,7 +322,7 @@ class _EventDetailViewState extends State<EventDetailView> {
               keyText: "NFT",
               valueText: "DADAZ only",
             ),
-            const EventFeatureValueWidget(
+            EventFeatureValueWidget(
               keyText: LocaleKeys.benefit.tr(),
               valueText: "커피 한잔, 디저트 1개",
             ),

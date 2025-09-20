@@ -4,9 +4,11 @@ class BenefitEntity extends Equatable {
   // remove all json ket and make required
   final String id;
   final String description;
+  final String descriptionEn;
   final bool singleUse;
   final String spaceId;
   final String spaceName;
+  final String spaceNameEn;
   final String spaceImage;
   final bool used;
   final String state;
@@ -20,9 +22,11 @@ class BenefitEntity extends Equatable {
   const BenefitEntity({
     required this.id,
     required this.description,
+    this.descriptionEn = '',
     required this.singleUse,
     required this.spaceId,
     required this.spaceName,
+    this.spaceNameEn = '',
     required this.spaceImage,
     required this.used,
     required this.state,
@@ -39,9 +43,11 @@ class BenefitEntity extends Equatable {
     return [
       id,
       description,
+      descriptionEn,
       singleUse,
       spaceId,
       spaceName,
+      spaceNameEn,
       spaceImage,
       used,
       state,
@@ -57,9 +63,11 @@ class BenefitEntity extends Equatable {
   BenefitEntity copyWith({
     String? id,
     String? description,
+    String? descriptionEn,
     bool? singleUse,
     String? spaceId,
     String? spaceName,
+    String? spaceNameEn,
     String? spaceImage,
     bool? used,
     String? state,
@@ -73,9 +81,11 @@ class BenefitEntity extends Equatable {
     return BenefitEntity(
       id: id ?? this.id,
       description: description ?? this.description,
+      descriptionEn: descriptionEn ?? this.descriptionEn,
       singleUse: singleUse ?? this.singleUse,
       spaceId: spaceId ?? this.spaceId,
       spaceName: spaceName ?? this.spaceName,
+      spaceNameEn: spaceNameEn ?? this.spaceNameEn,
       spaceImage: spaceImage ?? this.spaceImage,
       used: used ?? this.used,
       state: state ?? this.state,
@@ -91,9 +101,11 @@ class BenefitEntity extends Equatable {
   const BenefitEntity.empty()
       : id = '',
         description = '',
+        descriptionEn = '',
         singleUse = false,
         spaceId = '',
         spaceName = '',
+        spaceNameEn = '',
         spaceImage = '',
         used = false,
         state = '',

@@ -25,6 +25,9 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/app/core/constants/storage.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
+import 'package:geolocator/geolocator.dart';
 
 /// init Screen bool
 /// check if it is first time App is launched by user
@@ -32,6 +35,124 @@ import 'package:mobile/app/core/constants/storage.dart';
 int? isShowOnBoarding;
 
 String? _userSavedLanguageCode;
+
+// Background task callback - must be top-level or static
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    print('💓 Background task executing: $task');
+
+    try {
+      // Initialize dependencies for background context
+      await configureDependencies();
+
+      // Get stored check-in data
+      final prefs = await SharedPreferences.getInstance();
+      final spaceId = prefs.getString('currentCheckedInSpaceId');
+
+      if (spaceId == null) {
+        print('📍 No active check-in in background task');
+        return Future.value(true);
+      }
+
+      // Check location permission first
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        print('❌ Location permission not granted for background task');
+        return Future.value(false);
+      }
+
+      // Get current position with timeout
+      Position currentPosition;
+      try {
+        currentPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+          timeLimit: const Duration(seconds: 30),
+        );
+      } catch (e) {
+        print('⚠️ Failed to get position with high accuracy, trying with low accuracy');
+        currentPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.low,
+          timeLimit: const Duration(seconds: 15),
+        );
+      }
+
+      // Send heartbeat with retry logic
+      final spaceRemoteDataSource = getIt<SpaceRemoteDataSource>();
+      int retryCount = 0;
+      const maxRetries = 3;
+      bool heartbeatSent = false;
+
+      while (retryCount < maxRetries && !heartbeatSent) {
+        try {
+          await spaceRemoteDataSource.sendCheckInHeartbeat(
+            spaceId: spaceId,
+            latitude: currentPosition.latitude,
+            longitude: currentPosition.longitude,
+          );
+          heartbeatSent = true;
+          print('✅ Background heartbeat sent successfully');
+        } catch (e) {
+          retryCount++;
+          print('⚠️ Heartbeat attempt $retryCount failed: $e');
+          if (retryCount < maxRetries) {
+            await Future.delayed(Duration(seconds: 2 * retryCount));
+          }
+        }
+      }
+
+      if (!heartbeatSent) {
+        print('❌ Failed to send heartbeat after $maxRetries attempts');
+      }
+
+      // Check distance from check-in location
+      final checkInLat = prefs.getDouble('checkInLatitude');
+      final checkInLng = prefs.getDouble('checkInLongitude');
+
+      if (checkInLat != null && checkInLng != null) {
+        final distance = Geolocator.distanceBetween(
+          checkInLat,
+          checkInLng,
+          currentPosition.latitude,
+          currentPosition.longitude,
+        );
+
+        print('📏 Distance from check-in: ${distance.toStringAsFixed(2)}m');
+
+        // Auto check-out if too far
+        if (distance > 50.0) {
+          print('🚨 User moved beyond 50m in background, triggering auto check-out');
+
+          try {
+            // Perform auto check-out directly
+            await spaceRemoteDataSource.checkOut(spaceId: spaceId);
+
+            // Clear all check-in data after successful check-out
+            await prefs.remove('currentCheckedInSpaceId');
+            await prefs.remove('checkInLatitude');
+            await prefs.remove('checkInLongitude');
+
+            // Cancel the periodic task since we're checked out
+            await Workmanager().cancelByUniqueName('check-in-heartbeat');
+
+            print('✅ Auto check-out completed from background task');
+          } catch (e) {
+            print('❌ Failed to auto check-out from background: $e');
+            // Mark for check-out on app restart if background check-out fails
+            await prefs.setBool('shouldAutoCheckOut', true);
+            await prefs.setString('pendingCheckOutSpaceId', spaceId);
+          }
+        }
+      }
+    } catch (e) {
+      print('❌ Background task error: $e');
+    }
+
+    return Future.value(true);
+  });
+}
+
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   
@@ -101,6 +222,13 @@ Future initApp() async {
 
   // Configure the necessary dependencies for the app
   await configureDependencies();
+
+  // Initialize Workmanager for background tasks
+  await Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: kDebugMode, // Shows notifications in debug mode
+  );
+  print('✅ Workmanager initialized');
 
   // Initialize Firebase and localization
   await Future.wait([

@@ -38,23 +38,67 @@ class SocialAuthScreen extends StatefulWidget {
   State<SocialAuthScreen> createState() => _SocialAuthScreenState();
 }
 
-class _SocialAuthScreenState extends State<SocialAuthScreen> {
+class _SocialAuthScreenState extends State<SocialAuthScreen> with WidgetsBindingObserver {
   //final FlutterAppAuth appAuth = const FlutterAppAuth();
 
   bool isAgreeWithTerms = false;
   int? isShowOnBoarding;
+  bool _isActivelyLoggingIn = false;  // Track if login is in progress
+  bool _isFirstBuild = true;  // Prevent initial trigger
+  AppLifecycleState? _lastLifecycleState;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     checkIsShowOnBoarding();
     _checkAndRequestLocationPermission();
+
+    // Check if already logged in and redirect if necessary
+    _checkExistingLoginState();
+
     // Delay SDK initialization to avoid context issues
     Future.delayed(Duration.zero, () {
       if (mounted) {
         _initWallets();
       }
     });
+  }
+
+  void _checkExistingLoginState() {
+    final authState = getIt<AuthCubit>().state;
+    '🔍 [SocialAuthScreen] Checking existing login state - isLogInSuccessful: ${authState.isLogInSuccessful}'.log();
+
+    // If already logged in, navigate away immediately
+    if (authState.isLogInSuccessful) {
+      '⚠️ [SocialAuthScreen] User already logged in, should not be on login screen'.log();
+      // Don't navigate here, let StartupScreen handle it
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    '📱 [SocialAuthScreen] App lifecycle changed: $_lastLifecycleState -> $state'.log();
+
+    if (_lastLifecycleState == AppLifecycleState.paused &&
+        state == AppLifecycleState.resumed) {
+      '📱 [SocialAuthScreen] App resumed from background'.log();
+      // When returning from settings, reset the active login flag
+      // to prevent automatic navigation
+      if (!_isActivelyLoggingIn) {
+        '🔒 [SocialAuthScreen] Not actively logging in, preventing navigation'.log();
+      }
+    }
+
+    _lastLifecycleState = state;
   }
 
   Future<void> _checkAndRequestLocationPermission() async {
@@ -65,12 +109,12 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text("위치 권한 필요"),
-              content: Text("이 앱은 위치 정보를 사용합니다. 위치 서비스를 활성화해주세요."),
+              title: Text(LocaleKeys.permission_location_required.tr()),
+              content: Text(LocaleKeys.permission_location_enable_msg.tr()),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text("확인"),
+                  child: Text(LocaleKeys.common_confirm.tr()),
                 ),
               ],
             ),
@@ -85,7 +129,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           if (mounted) {
-            context.showSnackBar("위치 권한이 거부되었습니다");
+            context.showSnackBar(LocaleKeys.permission_location_denied.tr());
           }
           return;
         }
@@ -96,12 +140,20 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text("위치 권한 거부됨"),
-              content: Text("설정에서 위치 권한을 활성화해주세요"),
+              title: Text(LocaleKeys.permission_location_denied_title.tr()),
+              content: Text(LocaleKeys.permission_location_settings_msg.tr()),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text("확인"),
+                  child: Text(LocaleKeys.cancel.tr()),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // Open app settings
+                    Geolocator.openAppSettings();
+                  },
+                  child: Text(LocaleKeys.settings.tr()),
                 ),
               ],
             ),
@@ -118,7 +170,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
     } catch (e) {
       "Error getting location permission: $e".log();
       if (mounted) {
-        context.showSnackBar("위치 정보를 가져오는 중 오류가 발생했습니다");
+        context.showSnackBar(LocaleKeys.permission_location_error.tr());
       }
     }
   }
@@ -179,13 +231,44 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
         backgroundColor: const Color(0xFF87CEEB),
         body: BlocListener<AuthCubit, AuthState>(
         bloc: getIt<AuthCubit>(),
-        listenWhen: (previous, current) =>
-            previous.isLogInSuccessful != current.isLogInSuccessful,
+        listenWhen: (previous, current) {
+            // 더 포괄적인 조건으로 변경 - submitStatus 변화도 감지
+            final shouldListen =
+                (previous.isLogInSuccessful != current.isLogInSuccessful) ||
+                (previous.submitStatus != current.submitStatus &&
+                 current.submitStatus == RequestStatus.success &&
+                 current.isLogInSuccessful);
+
+            '🔍 [SocialAuthScreen] listenWhen check - '
+                'prev isLogIn: ${previous.isLogInSuccessful}, '
+                'curr isLogIn: ${current.isLogInSuccessful}, '
+                'prev status: ${previous.submitStatus}, '
+                'curr status: ${current.submitStatus}, '
+                'shouldListen: $shouldListen'.log();
+            return shouldListen;
+        },
         listener: (context, state) async {
+          '🔍 [SocialAuthScreen] BlocListener triggered - submitStatus: ${state.submitStatus}, isLogInSuccessful: ${state.isLogInSuccessful}, isActivelyLoggingIn: $_isActivelyLoggingIn, isFirstBuild: $_isFirstBuild'.log();
+
+          // Prevent initial trigger when widget first builds (but not when actively logging in)
+          if (_isFirstBuild && !_isActivelyLoggingIn) {
+            '🚫 [SocialAuthScreen] Ignoring first build trigger (not actively logging in)'.log();
+            _isFirstBuild = false;
+            return;
+          }
+          _isFirstBuild = false;  // Reset flag after first check
+
+          // Only process if actively logging in
+          if (!_isActivelyLoggingIn) {
+            '🔒 [SocialAuthScreen] Not actively logging in, ignoring state change'.log();
+            return;
+          }
+
           // 로딩 상태 처리
           if (state.submitStatus == RequestStatus.loading) {
+            '⏳ [SocialAuthScreen] Showing loading indicator...'.log();
             EasyLoading.show(
-              status: '온보딩 준비 중...',
+              status: LocaleKeys.onboarding_preparing.tr(),
               maskType: EasyLoadingMaskType.black,
             );
             return;
@@ -196,6 +279,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
 
           // 성공 상태 처리
           if (state.submitStatus == RequestStatus.success && state.isLogInSuccessful) {
+            '✅ [SocialAuthScreen] Login successful, checking onboarding requirements...'.log();
             // Wepin SDK 상태 로깅
             if (getIt<WepinCubit>().state.wepinWidgetSDK != null) {
               "${getIt<WepinCubit>().state}".log();
@@ -225,7 +309,13 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
             //if (true) { //debug
             if (shouldShowOnboarding) {
               // 지갑이 없거나 프로필 파츠가 없으면 온보딩 화면으로
-              '📱 Navigating to onboarding screen'.log();
+              '📱 [SocialAuthScreen] Navigating to onboarding screen'.log();
+
+              // Reset active login flag before navigation
+              setState(() {
+                _isActivelyLoggingIn = false;
+              });
+
               await Navigator.pushNamedAndRemoveUntil(
                 context,
                 Routes.onboardingScreen,
@@ -233,7 +323,13 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
               );
             } else {
               // 둘 다 있으면 StartUp 화면으로
-              '📱 Navigating to startup screen'.log();
+              '📱 [SocialAuthScreen] Navigating to startup screen'.log();
+
+              // Reset active login flag before navigation
+              setState(() {
+                _isActivelyLoggingIn = false;
+              });
+
               await Navigator.pushNamedAndRemoveUntil(
                 context,
                 Routes.startUpScreen,
@@ -245,6 +341,13 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
 
           // 실패 상태 처리
           if (state.submitStatus == RequestStatus.failure) {
+            '❌ [SocialAuthScreen] Login failed: ${state.message}'.log();
+
+            // Reset active login flag on failure
+            setState(() {
+              _isActivelyLoggingIn = false;
+            });
+
             context.showErrorSnackBar(state.message);
           }
         },
@@ -275,8 +378,9 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                     height: 120,
                   ),
                   const SizedBox(height: 40),
-                  const Text(
-                    '숨으면 혜택이 열린다!',
+                  Text(
+                    LocaleKeys.splash_benefits_title.tr(),
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 28,
@@ -285,9 +389,9 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    '내 주변 맛집 혜택',
+                  /*const SizedBox(height: 8),
+                  Text(
+                    LocaleKeys.splash_nearby_benefits.tr(),
                     style: TextStyle(
                       fontFamily: 'LINESeedKR',
                       fontSize: 28,
@@ -295,7 +399,7 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                       color: Colors.black87,
                       height: 1.2,
                     ),
-                  ),
+                  ),*/
                   const Spacer(flex: 2),
                   SizedBox(
                     width: 200,
@@ -322,6 +426,10 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                           borderRadius: BorderRadius.circular(28),
                           onTap: () {
                             if (isAgreeWithTerms) {
+                              setState(() {
+                                _isActivelyLoggingIn = true;
+                              });
+                              '🔑 [SocialAuthScreen] Starting Google login...'.log();
                               getIt<AuthCubit>().onGoogleLogin();
                             } else {
                               showAgreeTermsDialogue(context);
@@ -342,8 +450,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              const Text(
-                                '구글 로그인',
+                              Text(
+                                LocaleKeys.auth_google_login.tr(),
                                 style: TextStyle(
                                   fontFamily: 'LINESeedKR',
                                   fontSize: 16,
@@ -384,6 +492,10 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                             borderRadius: BorderRadius.circular(28),
                             onTap: () {
                               if (isAgreeWithTerms) {
+                                setState(() {
+                                  _isActivelyLoggingIn = true;
+                                });
+                                '🔑 [SocialAuthScreen] Starting Apple login...'.log();
                                 getIt<AuthCubit>().onAppleLogin();
                               } else {
                                 showAgreeTermsDialogue(context);
@@ -404,8 +516,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                const Text(
-                                  '애플 로그인',
+                                Text(
+                                  LocaleKeys.auth_apple_login.tr(),
                                   style: TextStyle(
                                     fontFamily: 'LINESeedKR',
                                     fontSize: 16,
@@ -428,8 +540,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         onPressed: () {
                           showDialog(
                             context: context,
-                            builder: (context) => const TermsModalDialog(
-                              title: "서비스 이용약관",
+                            builder: (context) => TermsModalDialog(
+                              title: LocaleKeys.terms_of_service.tr(),
                               content: TermsData.termsOfService,
                             ),
                           );
@@ -439,8 +551,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                           minimumSize: const Size(0, 0),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text(
-                          '서비스 이용약관',
+                        child: Text(
+                          LocaleKeys.terms_of_service.tr(),
                           style: TextStyle(
                             fontFamily: 'LINESeedKR',
                             fontSize: 13,
@@ -457,8 +569,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         onPressed: () {
                           showDialog(
                             context: context,
-                            builder: (context) => const TermsModalDialog(
-                              title: "개인정보 취급방침",
+                            builder: (context) => TermsModalDialog(
+                              title: LocaleKeys.privacy_policy.tr(),
                               content: TermsData.privacyPolicy,
                             ),
                           );
@@ -468,8 +580,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                           minimumSize: const Size(0, 0),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text(
-                          '개인정보 취급방침',
+                        child: Text(
+                          LocaleKeys.privacy_policy.tr(),
                           style: TextStyle(
                             fontFamily: 'LINESeedKR',
                             fontSize: 13,
@@ -508,9 +620,9 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text(
-                        '위 약관 내용에 동의합니다',
-                        style: TextStyle(
+                      Text(
+                        LocaleKeys.agree_to_terms.tr(),
+                        style: const TextStyle(
                           fontFamily: 'LINESeedKR',
                           fontSize: 14,
                           fontWeight: FontWeight.w400,

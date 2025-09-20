@@ -5,9 +5,11 @@ import 'package:mobile/features/space/domain/entities/space_event_category_entit
 class SpaceEntity extends Equatable {
   final String id;
   final String name;
+  final String nameEn;
   final String image;
   final String category;
   final String benefitDescription;
+  final String benefitDescriptionEn;
   final bool hot;
   final int hotPoints;
   final int hidingCount;
@@ -21,9 +23,11 @@ class SpaceEntity extends Equatable {
   const SpaceEntity({
     required this.id,
     required this.name,
+    this.nameEn = '',
     required this.image,
     required this.category,
     required this.benefitDescription,
+    this.benefitDescriptionEn = '',
     required this.hot,
     required this.hotPoints,
     required this.hidingCount,
@@ -40,9 +44,11 @@ class SpaceEntity extends Equatable {
     return [
       id,
       name,
+      nameEn,
       image,
       category,
       benefitDescription,
+      benefitDescriptionEn,
       hot,
       hotPoints,
       hidingCount,
@@ -58,9 +64,11 @@ class SpaceEntity extends Equatable {
   SpaceEntity copyWith({
     String? id,
     String? name,
+    String? nameEn,
     String? image,
     String? category,
     String? benefitDescription,
+    String? benefitDescriptionEn,
     bool? hot,
     int? hotPoints,
     int? hidingCount,
@@ -74,9 +82,11 @@ class SpaceEntity extends Equatable {
     return SpaceEntity(
       id: id ?? this.id,
       name: name ?? this.name,
+      nameEn: nameEn ?? this.nameEn,
       image: image ?? this.image,
       category: category ?? this.category,
       benefitDescription: benefitDescription ?? this.benefitDescription,
+      benefitDescriptionEn: benefitDescriptionEn ?? this.benefitDescriptionEn,
       hot: hot ?? this.hot,
       hotPoints: hotPoints ?? this.hotPoints,
       hidingCount: hidingCount ?? this.hidingCount,
@@ -92,9 +102,11 @@ class SpaceEntity extends Equatable {
   const SpaceEntity.empty()
       : id = '',
         name = '',
+        nameEn = '',
         image = '',
         category = '',
         benefitDescription = '',
+        benefitDescriptionEn = '',
         hot = false,
         hotPoints = 0,
         hidingCount = 0,

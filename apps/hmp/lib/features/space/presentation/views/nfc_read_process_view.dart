@@ -143,7 +143,7 @@ class _NfcReadProcessViewState extends State<NfcReadProcessView> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.black, // Set the background color to black
+        backgroundColor: Colors.white, // Set the background color to white
         body: SafeArea(
           child: Column(
             children: [
@@ -157,7 +157,7 @@ class _NfcReadProcessViewState extends State<NfcReadProcessView> {
                       path: "assets/icons/ic_close.svg",
                       width: 32,
                       height: 32,
-                      color: white,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -185,7 +185,7 @@ class _NfcReadProcessViewState extends State<NfcReadProcessView> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: fore4),
-                            color: Colors.black.withOpacity(0.7),
+                            color: Colors.white.withOpacity(0.9),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(18.0),

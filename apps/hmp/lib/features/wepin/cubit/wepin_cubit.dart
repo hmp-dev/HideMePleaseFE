@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field, use_build_context_synchronously
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
@@ -516,7 +517,7 @@ class WepinCubit extends BaseCubit<WepinState> {
     String socialTokenIsAppleOrGoogle =
         await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle) ??
             '';
-    
+
     "🔍 Getting social login values, type: $socialTokenIsAppleOrGoogle".log();
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
@@ -542,16 +543,74 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
   }
 
+  /// Firebase 토큰인지 확인하는 함수
+  bool _isFirebaseToken(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return false;
+
+      final payload = json.decode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1])))
+      );
+
+      final issuer = payload['iss'] as String?;
+      "🔍 Token issuer: $issuer".log();
+      return issuer?.contains('securetoken.google.com') ?? false;
+    } catch (e) {
+      "❌ Error checking token: $e".log();
+      return false;
+    }
+  }
+
+  /// JWT 토큰이 만료되었는지 확인하는 함수
+  bool _isTokenExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true; // 잘못된 토큰 형식
+
+      final payload = json.decode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1])))
+      );
+
+      final exp = payload['exp'] as int?;
+      if (exp == null) return true; // 만료시간 필드가 없음
+
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      final isExpired = now >= exp;
+
+      final remainingSeconds = exp - now;
+
+      if (isExpired) {
+        "⚠️ 토큰 만료됨: 현재=$now, 만료=$exp (${-remainingSeconds}초 전 만료)".log();
+      } else {
+        "✅ 토큰 유효: ${remainingSeconds}초 후 만료".log();
+      }
+
+      return isExpired;
+    } catch (e) {
+      "❌ 토큰 만료 확인 중 오류: $e".log();
+      return true; // 파싱할 수 없으면 만료된 것으로 간주
+    }
+  }
+
   /// Google 토큰을 재시도 로직과 함께 가져옵니다
   Future<String> _getGoogleTokenWithRetry({int maxRetries = 3}) async {
     "🔄 Getting stored Google ID Token...".log();
-    
+
     var googleIdTokenResult = await _secureStorage.read(StorageValues.googleIdToken) ?? '';
-    
-    // If token is available, return it
+
+    // If token is available, check if it's a Firebase token or expired
     if (googleIdTokenResult.isNotEmpty) {
-      "✅ Found stored Google ID token".log();
-      return googleIdTokenResult;
+      if (_isFirebaseToken(googleIdTokenResult)) {
+        "⚠️ Found Firebase token instead of Google OAuth token, forcing refresh...".log();
+        googleIdTokenResult = ''; // Clear Firebase token to force refresh
+      } else if (_isTokenExpired(googleIdTokenResult)) {
+        "⚠️ Google OAuth token has expired, forcing refresh...".log();
+        googleIdTokenResult = ''; // Clear expired token to force refresh
+      } else {
+        "✅ Found valid and non-expired Google OAuth ID token".log();
+        return googleIdTokenResult;
+      }
     }
     
     // Token is empty, try to refresh with retries
@@ -733,15 +792,21 @@ class WepinCubit extends BaseCubit<WepinState> {
         idToken = state.googleAccessToken; // This actually contains the ID token
         provider = 'google';
         "🔑 Using Google ID token for login".log();
+
+        // Check if it's a Firebase token and force refresh if needed
+        if (idToken != null && idToken.isNotEmpty && _isFirebaseToken(idToken)) {
+          "⚠️ Detected Firebase token in state, forcing refresh...".log();
+          idToken = null; // Clear to force refresh
+        }
       } else if (socialType == SocialLoginType.APPLE.name) {
         idToken = state.appleIdToken;
         provider = 'apple';
         "🔑 Using Apple ID token for login".log();
       }
-      
+
       if (idToken == null || idToken.isEmpty) {
-        "❌ No ID token available for login, attempting token refresh...".log();
-        
+        "❌ No valid ID token available for login, attempting token refresh...".log();
+
         // Try to get tokens again with force refresh
         await getSocialLoginValues();
         

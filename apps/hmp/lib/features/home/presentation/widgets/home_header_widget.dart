@@ -41,11 +41,13 @@ class HomeHeaderWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
+                // 프로필 화면과 동일한 구조
                 ProfileAvatarWidget(
                   profilePartsString: userProfile.profilePartsString,
                   imageUrl: userProfile.finalProfileImageUrl ?? userProfile.pfpImageUrl,
                   size: 54,
-                  borderRadius: 50,
+                  borderRadius: 27,
+                  placeholderPath: 'assets/images/profile_img.png',
                   fit: BoxFit.cover,
                 ),
                 const HorizontalSpace(10),

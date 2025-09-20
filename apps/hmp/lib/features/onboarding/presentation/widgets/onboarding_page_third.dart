@@ -70,13 +70,13 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
         children: [
           const SizedBox(height: 5),
           // Title
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
                 Text(
-                  '이제,',
-                  style: TextStyle(
+                  LocaleKeys.onboarding_third_title1.tr(),
+                  style: const TextStyle(
                     fontFamily: 'LINESeedKR',
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
@@ -86,8 +86,8 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
                   textAlign: TextAlign.center,
                 ),
                 Text(
-                  '너의 하이더를 고를 차례야.',
-                  style: TextStyle(
+                  LocaleKeys.onboarding_third_title2.tr(),
+                  style: const TextStyle(
                     fontFamily: 'LINESeedKR',
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
@@ -101,11 +101,11 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
           ),
           const SizedBox(height: 10),
           // Description
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Text(
-              '하이더는 이 세계에서 너를 표현해줄 존재지.\n어딘가에 숨어 있거나, 누군가랑 연결될 수도 있어.',
-              style: TextStyle(
+              LocaleKeys.onboarding_third_desc.tr(),
+              style: const TextStyle(
                 fontFamily: 'LINESeedKR',
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
@@ -213,10 +213,10 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
           ),
           const SizedBox(height: 10),
           // Warning text
-          hasReachedLimit 
-              ? const Text(
-                  '앗, 이제 다른 캐릭터를 선택할 수 없어.\n이 멋진 하이더로 하미플 세계를 즐겨보자!',
-                  style: TextStyle(
+          hasReachedLimit
+              ? Text(
+                  LocaleKeys.onboarding_third_limit_reached.tr(),
+                  style: const TextStyle(
                     fontFamily: 'LINESeedKR',
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -225,9 +225,9 @@ class _OnboardingPageThirdState extends State<OnboardingPageThird> {
                   ),
                   textAlign: TextAlign.center,
                 )
-              : const Text(
-                  '신중해야 해!\n이전의 캐릭터로는 다시 돌아갈 수 없어...',
-                  style: TextStyle(
+              : Text(
+                  LocaleKeys.onboarding_third_warning.tr(),
+                  style: const TextStyle(
                     fontFamily: 'LINESeedKR',
                     fontSize: 14,
                     fontWeight: FontWeight.w400,

@@ -1,5 +1,7 @@
 import 'dart:ui';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // 튜토리얼을 수동으로 트리거하기 위한 헬퍼 클래스
@@ -45,19 +47,24 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
   int _currentPage = 0;
   bool _dontShowAgain = false;
 
-  final List<String> _images = [
-    'assets/images/homeguide01.png',
-    'assets/images/homeguide02.png',
-    'assets/images/homeguide03.png',
-    'assets/images/homeguide04.png',
-  ];
+  List<String> _getImages(BuildContext context) {
+    final isEnglish = context.locale.languageCode == 'en';
+    return [
+      isEnglish ? 'assets/images/homeguide01_en.png' : 'assets/images/homeguide01.png',
+      isEnglish ? 'assets/images/homeguide02_en.png' : 'assets/images/homeguide02.png',
+      isEnglish ? 'assets/images/homeguide03_en.png' : 'assets/images/homeguide03.png',
+      isEnglish ? 'assets/images/homeguide04_en.png' : 'assets/images/homeguide04.png',
+    ];
+  }
 
-  final List<String> _messages = [
-    '블루체크 매장들은 우리를 숨겨주는 장소야 :)\n블루체크를 클릭하면 이 곳에 대한 정보와\n우리가 받을 수 있는 혜택을 확인할 수 있어!',
-    '혜택을 받으려면 아래 체크인 버튼을 눌러봐!\n블루체크 매장에서 NFC 태그 장치에 스캔을 한 후,\n사장님이나 직원에게 확인을 받으면 돼 :)',
-    '하이더들은 블루체크 매장에 자신의 목소리를\n남길 수 있고 우린 그걸 [사이렌]이라고 불러.\n사이렌 버튼을 누르고 하이더들의 사이렌을 확인해봐!',
-    '그럼, 이제 하미플 세계를 즐겨봐!',
-  ];
+  List<String> _getMessages(BuildContext context) {
+    return [
+      LocaleKeys.home_guide_message_1.tr(),
+      LocaleKeys.home_guide_message_2.tr(),
+      LocaleKeys.home_guide_message_3.tr(),
+      LocaleKeys.home_guide_message_4.tr(),
+    ];
+  }
 
   @override
   void dispose() {
@@ -65,8 +72,9 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
     super.dispose();
   }
 
-  void _nextPage() {
-    if (_currentPage < _images.length - 1) {
+  void _nextPage(BuildContext context) {
+    final images = _getImages(context);
+    if (_currentPage < images.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -90,6 +98,9 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    final images = _getImages(context);
+    final messages = _getMessages(context);
+
     return Stack(
       children: [
         // Full screen blocking container
@@ -102,7 +113,7 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
             color: Colors.black.withOpacity(0.8),
           ),
         ),
-        
+
         // Guide content
         AbsorbPointer(
           absorbing: false,
@@ -113,14 +124,14 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
                 _currentPage = index;
               });
             },
-            itemCount: _images.length,
+            itemCount: images.length,
             itemBuilder: (context, index) {
               return Stack(
                 children: [
                   // Background image
                   Center(
                     child: Image.asset(
-                      _images[index],
+                      images[index],
                       fit: BoxFit.cover,
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
@@ -142,7 +153,7 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            _messages[index],
+                            messages[index],
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -152,7 +163,7 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
                             textAlign: TextAlign.center,
                           ),
                           // "다시 보지 않기" 체크박스 (마지막 페이지에만 표시)
-                          if (index == _images.length - 1) ...[
+                          if (index == images.length - 1) ...[
                             const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -166,8 +177,8 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
                                   },
                                   activeColor: const Color(0xFF2CB3FF),
                                 ),
-                                const Text(
-                                  '다시 보지 않기',
+                                Text(
+                                  LocaleKeys.dont_show_again.tr(),
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.black54,
@@ -181,7 +192,7 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
                             width: double.infinity,
                             height: 48,
                             child: ElevatedButton(
-                              onPressed: _nextPage,
+                              onPressed: () => _nextPage(context),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF2CB3FF),
                                 foregroundColor: Colors.white,
@@ -191,7 +202,7 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
                                 elevation: 0,
                               ),
                               child: Text(
-                                index == _images.length - 1 ? '앱 시작하기' : '다음',
+                                index == images.length - 1 ? LocaleKeys.start_app.tr() : LocaleKeys.next.tr(),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -212,7 +223,7 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        _images.length,
+                        images.length,
                         (index) => Container(
                           margin: const EdgeInsets.symmetric(horizontal: 4),
                           width: 8,
@@ -229,7 +240,7 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
                   ),
                   
                   // Skip button at top right (except last page)
-                  if (index != _images.length - 1)
+                  if (index != images.length - 1)
                     Positioned(
                       top: MediaQuery.of(context).padding.top + 20,
                       right: 20,
@@ -248,8 +259,8 @@ class _SpaceGuideOverlayState extends State<SpaceGuideOverlay> {
                               width: 1,
                             ),
                           ),
-                          child: const Text(
-                            '건너뛰기',
+                          child: Text(
+                            LocaleKeys.skip.tr(),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,

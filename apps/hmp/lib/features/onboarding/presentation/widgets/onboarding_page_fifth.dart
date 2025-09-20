@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/character_profile.dart';
 import 'character_layer_widget.dart';
 
@@ -7,12 +11,14 @@ class OnboardingPageFifth extends StatefulWidget {
   final String selectedProfile;
   final CharacterProfile? selectedCharacter;
   final String nickname;
-  
+  final UserProfileEntity? userProfile;
+
   const OnboardingPageFifth({
     super.key,
     required this.selectedProfile,
     this.selectedCharacter,
     required this.nickname,
+    this.userProfile,
   });
 
   @override
@@ -47,6 +53,122 @@ class _OnboardingPageFifthState extends State<OnboardingPageFifth>
     super.dispose();
   }
 
+  Widget _buildProfileImage() {
+    // 기존 프로필이 있는 경우 (finalProfileImageUrl 사용)
+    if (widget.userProfile != null &&
+        widget.userProfile!.finalProfileImageUrl != null &&
+        widget.userProfile!.finalProfileImageUrl!.isNotEmpty) {
+      return _buildNetworkImage(widget.userProfile!.finalProfileImageUrl!);
+    }
+
+    // pfpImageUrl이 있는 경우
+    if (widget.userProfile != null &&
+        widget.userProfile!.pfpImageUrl != null &&
+        widget.userProfile!.pfpImageUrl!.isNotEmpty) {
+      return _buildNetworkImage(widget.userProfile!.pfpImageUrl!);
+    }
+
+    // 새로 선택한 캐릭터가 있는 경우
+    if (widget.selectedCharacter != null) {
+      return CharacterLayerWidget(
+        character: widget.selectedCharacter!,
+        size: 320,
+        fit: BoxFit.cover,
+      );
+    }
+
+    // 선택된 프로필 asset 이미지
+    if (widget.selectedProfile.isNotEmpty) {
+      return Image.asset(
+        widget.selectedProfile,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(
+              Icons.face,
+              size: 150,
+              color: Colors.green,
+            ),
+          );
+        },
+      );
+    }
+
+    // 기본 placeholder
+    return Container(
+      color: Colors.grey[300],
+      child: const Icon(
+        Icons.person,
+        size: 150,
+        color: Colors.grey,
+      ),
+    );
+  }
+
+  Widget _buildNetworkImage(String imageUrl) {
+    // dev-api.hidemeplease.xyz URL에 대한 특별 처리
+    if (imageUrl.contains('dev-api.hidemeplease.xyz')) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        headers: const {
+          'Accept': 'image/*',
+          'User-Agent': 'HideMePlease/1.0',
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          print('Error loading profile image: $error');
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(
+              Icons.error,
+              size: 150,
+              color: Colors.red,
+            ),
+          );
+        },
+      );
+    }
+
+    // 일반 URL은 CachedNetworkImage 사용
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      httpHeaders: const {
+        'Accept': 'image/*',
+        'User-Agent': 'HideMePlease/1.0',
+      },
+      placeholder: (context, url) => Container(
+        color: Colors.grey[200],
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      errorWidget: (context, url, error) {
+        print('Error loading profile image: $error');
+        return Container(
+          color: Colors.grey[300],
+          child: const Icon(
+            Icons.error,
+            size: 150,
+            color: Colors.red,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -64,7 +186,7 @@ class _OnboardingPageFifthState extends State<OnboardingPageFifth>
                 child: Column(
                   children: [
                     Text(
-                      '반가워, ${widget.nickname}',
+                      LocaleKeys.onboarding_completed_welcome.tr(namedArgs: {'nickname': widget.nickname}),
                       style: const TextStyle(
                         fontFamily: 'LINESeedKR',
                         fontSize: 28,
@@ -74,9 +196,9 @@ class _OnboardingPageFifthState extends State<OnboardingPageFifth>
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const Text(
-                      '모든 준비가 완료됐어!',
-                      style: TextStyle(
+                    Text(
+                      LocaleKeys.onboarding_completed_ready.tr(),
+                      style: const TextStyle(
                         fontFamily: 'LINESeedKR',
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -110,26 +232,7 @@ class _OnboardingPageFifthState extends State<OnboardingPageFifth>
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(28),
-                            child: widget.selectedCharacter != null
-                              ? CharacterLayerWidget(
-                                  character: widget.selectedCharacter!,
-                                  size: 320,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.asset(
-                                  widget.selectedProfile,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: Colors.grey[300],
-                                      child: const Icon(
-                                        Icons.face,
-                                        size: 150,
-                                        color: Colors.green,
-                                      ),
-                                    );
-                                  },
-                                ),
+                            child: _buildProfileImage(),
                           ),
                         ),
                       );
@@ -139,13 +242,13 @@ class _OnboardingPageFifthState extends State<OnboardingPageFifth>
               ),
               const SizedBox(height: 30),
               // Bottom text
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Column(
                   children: [
                     Text(
-                      '이제 우릴 숨겨줄 수 있는 곳들을 찾아가보자!',
-                      style: TextStyle(
+                      LocaleKeys.onboarding_completed_find_places.tr(),
+                      style: const TextStyle(
                         fontFamily: 'LINESeedKR',
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -154,10 +257,10 @@ class _OnboardingPageFifthState extends State<OnboardingPageFifth>
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
-                      '그곳에 가면 특별한 혜택이 기다리고 있어 :)',
-                      style: TextStyle(
+                      LocaleKeys.onboarding_completed_special_benefits.tr(),
+                      style: const TextStyle(
                         fontFamily: 'LINESeedKR',
                         fontSize: 15,
                         fontWeight: FontWeight.w400,

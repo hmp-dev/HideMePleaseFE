@@ -18,6 +18,7 @@ import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:mobile/features/common/presentation/services/background_location_service.dart';
 
 import '../../../../app/core/storage/secure_storage.dart';
 
@@ -51,11 +52,23 @@ class _StartUpScreenState extends State<StartUpScreen>
         BlocListener<AppCubit, AppState>(
           bloc: getIt<AppCubit>(),
           listener: (context, state) async {
+            print('🎯 StartUpScreen: AppCubit state received');
+            print('🎯 Is logged in: ${state.isLoggedIn}');
+
             if (!state.isLoggedIn) {
+              // Not logged in - navigate to login immediately
               Navigator.of(context).pushNamedAndRemoveUntil(
                   Routes.socialLogin, (Route<dynamic> route) => false);
             } else {
+              // User is logged in - proceed with initialization
               ("-------inside state.isLoggedIn: ${state.isLoggedIn}").log();
+
+              // Check background location permission ONLY for logged-in users
+              if (context.mounted) {
+                print('🎯 StartUpScreen: Checking background location for logged-in user...');
+                await BackgroundLocationService.checkAndRequestBackgroundLocation(context);
+                print('🎯 StartUpScreen: BackgroundLocationService completed');
+              }
 
               await getIt<ModelBannerCubit>().onGetModelBannerInfo();
 
@@ -63,15 +76,14 @@ class _StartUpScreenState extends State<StartUpScreen>
               // User is logged in
               // a - init
               await getIt<ProfileCubit>().init();
-              
+
               // Restore check-in state from local storage
               print('🔄 Checking for active check-in...');
               await getIt<SpaceCubit>().restoreCheckInState();
 
-              Future.delayed(const Duration(milliseconds: 200)).then((value) {
-                // c - fetch user connected Wallets
-                getIt<WalletsCubit>().onGetAllWallets();
-              });
+              // Now fetch wallets after permission dialog is handled
+              // This ensures navigation doesn't interrupt the dialog
+              getIt<WalletsCubit>().onGetAllWallets();
             }
           },
         ),
@@ -99,10 +111,26 @@ class _StartUpScreenState extends State<StartUpScreen>
 
                 // Check if onboarding has been completed
                 final prefs = await SharedPreferences.getInstance();
+
+                // Check onboarding version
+                final savedVersion = prefs.getInt(StorageValues.onboardingVersion) ?? 0;
+                final isNewVersion = savedVersion < StorageValues.CURRENT_ONBOARDING_VERSION;
+
+                '🔄 Onboarding version check - Saved: $savedVersion, Current: ${StorageValues.CURRENT_ONBOARDING_VERSION}'.log();
+
+                // If new version, reset onboarding flags
+                if (isNewVersion) {
+                  '🆕 New onboarding version detected, resetting flags...'.log();
+                  await prefs.remove(StorageValues.onboardingCompleted);
+                  await prefs.remove(StorageValues.onboardingCurrentStep);
+                  await prefs.remove(StorageValues.hasMintedNft);
+                  await prefs.remove(StorageValues.hasProfileParts);
+                }
+
                 final onboardingCompleted = prefs.getBool(StorageValues.onboardingCompleted) ?? false;
                 final showOnboardingAfterLogout = prefs.getBool(StorageValues.showOnboardingAfterLogout) ?? false;
                 final savedStep = prefs.getInt(StorageValues.onboardingCurrentStep);
-                
+
                 // Check for NFT minting and profile image
                 final hasMintedNft = prefs.getBool(StorageValues.hasMintedNft) ?? false;
                 final hasWallet = prefs.getBool(StorageValues.hasWallet) ?? false;
@@ -121,12 +149,13 @@ class _StartUpScreenState extends State<StartUpScreen>
 
                 if (context.mounted) {
                   // Show onboarding if:
-                  // 1. User logged out and logged back in (showOnboardingAfterLogout flag)
-                  // 2. Onboarding not completed yet (unless skip conditions are met)
-                  // 3. There's a saved step (user left mid-onboarding) and onboarding not completed
+                  // 1. New version detected (isNewVersion)
+                  // 2. User logged out and logged back in (showOnboardingAfterLogout flag)
+                  // 3. Onboarding not completed yet (unless skip conditions are met)
+                  // 4. There's a saved step (user left mid-onboarding) and onboarding not completed
                   //if (true) { //debug
-                  if (!shouldSkipOnboarding && (showOnboardingAfterLogout || !onboardingCompleted || (savedStep != null && !onboardingCompleted))) {
-                    '🚀 온보딩 화면으로 이동 - 로그아웃 후: $showOnboardingAfterLogout, 완료: $onboardingCompleted, 저장된 단계: $savedStep'.log();
+                  if (isNewVersion || (!shouldSkipOnboarding && (showOnboardingAfterLogout || !onboardingCompleted || (savedStep != null && !onboardingCompleted)))) {
+                    '🚀 온보딩 화면으로 이동 - 새 버전: $isNewVersion, 로그아웃 후: $showOnboardingAfterLogout, 완료: $onboardingCompleted, 저장된 단계: $savedStep'.log();
                     
                     // Clear the flag if it was set
                     if (showOnboardingAfterLogout) {

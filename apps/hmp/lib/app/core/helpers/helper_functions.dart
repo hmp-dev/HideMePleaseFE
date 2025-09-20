@@ -120,7 +120,7 @@ Future<bool> showHmpAlertDialog({
       return BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: AlertDialog(
-          backgroundColor: Colors.grey.shade900,
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
@@ -128,19 +128,20 @@ Future<bool> showHmpAlertDialog({
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: fontTitle07Bold(),
+              style: fontTitle07Bold(color: Colors.black),
             ),
           ),
           content: Text(
             content,
             textAlign: TextAlign.center,
-            style: fontBodySm(),
+            style: fontBodySm(color: Colors.black87),
           ),
           actions: <Widget>[
             HMPCustomButton(
-              bgColor: bg4,
+              bgColor: const Color(0xFF2CB3FF),
               height: 44,
               text: LocaleKeys.confirm.tr(),
+              textColor: Colors.white,
               onPressed: () {
                 onConfirm();
               },

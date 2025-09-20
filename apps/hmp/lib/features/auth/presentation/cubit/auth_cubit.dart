@@ -38,141 +38,128 @@ class AuthCubit extends BaseCubit<AuthState> {
         state.copyWith(submitStatus: RequestStatus.failure, message: l.message),
       ),
       (idToken) async {
-        // 새로운 계정 로그인 시 온보딩 상태 리셋
+        // 새로운 계정 로그인 시 온보딩 상태 및 프로필 데이터 리셋
         try {
-          '🔄 [AuthCubit] Resetting onboarding state for new account login...'.log();
           final prefs = await SharedPreferences.getInstance();
           await prefs.remove(StorageValues.onboardingCurrentStep);
           await prefs.remove(StorageValues.onboardingCompleted);
-          '✅ [AuthCubit] Onboarding state reset completed'.log();
+          await prefs.remove('profilePartsString'); // Clear old profile data
+          await prefs.remove(StorageValues.hasProfileParts); // Clear profile parts flag
         } catch (e) {
-          '❌ [AuthCubit] Failed to reset onboarding state: $e'.log();
+          // Handle error silently
         }
-        
+
         // Google 로그인 성공 후 Wepin 준비
         try {
-          '🔄 [AuthCubit] Google login successful, preparing Wepin...'.log();
-          
           // 저장 완료를 위해 짧은 지연 후 토큰 읽기
           await Future.delayed(const Duration(milliseconds: 100));
-          
+
           final googleIdToken = await _localDataSource.getGoogleIdToken();
-          '🔍 [AuthCubit] Retrieved Google ID token: ${googleIdToken?.isNotEmpty == true ? 'Success (${googleIdToken!.substring(0, 20)}...)' : 'Empty'}'.log();
-          
+
           if (googleIdToken != null && googleIdToken.isNotEmpty) {
-            '🔑 [AuthCubit] Got Google ID token, marking Wepin as ready...'.log();
             await getIt<WepinCubit>().loginWepinWithGoogle(googleIdToken);
           } else {
-            '❌ [AuthCubit] Google ID token is empty, retrying...'.log();
-            
             // 한 번 더 시도 (더 긴 지연)
             await Future.delayed(const Duration(milliseconds: 500));
             final retryToken = await _localDataSource.getGoogleIdToken();
-            
+
             if (retryToken != null && retryToken.isNotEmpty) {
-              '🔄 [AuthCubit] Retry successful, marking Wepin as ready...'.log();
               await getIt<WepinCubit>().loginWepinWithGoogle(retryToken);
-            } else {
-              '❌ [AuthCubit] Google ID token still empty after retry'.log();
             }
           }
         } catch (e) {
-          '❌ [AuthCubit] Failed to prepare Wepin after Google auth: $e'.log();
+          // Handle error silently
         }
-        
+
         onBackendApiLogin(firebaseIdToken: idToken);
       },
     );
   }
 
   Future<String?> refreshGoogleAccessToken() async {
+    '🔄 [AuthCubit] Starting Google token refresh...'.log();
+
     try {
-      "🔄 [AuthCubit] Starting Google token refresh...".log();
-      
       // Check if the user is already signed in
-      final googleSignIn = GoogleSignIn();
+      // IMPORTANT: serverClientId is required to get ID token
+      final googleSignIn = GoogleSignIn(
+        scopes: [
+          'email',
+          'openid',
+          'profile',
+        ],
+        // Web OAuth 2.0 Client ID from Firebase Console (required for ID token)
+        serverClientId: '307052986452-fnrk7udocq38qvmvrejb49je531hlr8f.apps.googleusercontent.com',
+      );
       var googleUser = googleSignIn.currentUser;
-      
-      "🔍 [AuthCubit] Current user: ${googleUser != null ? 'Found' : 'Not found'}".log();
-      
+      '📱 [AuthCubit] Current Google user: ${googleUser?.email ?? "null"}'.log();
+
       // Try silent sign-in first
       if (googleUser == null) {
-        "🔄 [AuthCubit] Attempting silent sign-in...".log();
+        '🔍 [AuthCubit] No current user, attempting silent sign-in...'.log();
         googleUser = await googleSignIn.signInSilently();
-        "🔍 [AuthCubit] Silent sign-in result: ${googleUser != null ? 'Success' : 'Failed'}".log();
+        '📱 [AuthCubit] Silent sign-in result: ${googleUser?.email ?? "null"}'.log();
       }
 
       if (googleUser != null) {
-        "🔄 [AuthCubit] Getting authentication credentials...".log();
+        '✅ [AuthCubit] Google user found, getting authentication...'.log();
         final googleAuth = await googleUser.authentication;
 
         // Validate tokens before proceeding
         final googleAccessToken = googleAuth.accessToken ?? "";
         final googleIdToken = googleAuth.idToken ?? "";
-        
-        "🔍 [AuthCubit] Access token: ${googleAccessToken.isNotEmpty ? 'Available (${googleAccessToken.substring(0, 10)}...)' : 'Empty'}".log();
-        "🔍 [AuthCubit] ID token: ${googleIdToken.isNotEmpty ? 'Available (${googleIdToken.substring(0, 10)}...)' : 'Empty'}".log();
-        
+
+        '🔑 [AuthCubit] Access token length: ${googleAccessToken.length}'.log();
+        '🔑 [AuthCubit] ID token length: ${googleIdToken.length}'.log();
+
         if (googleIdToken.isEmpty) {
-          "❌ [AuthCubit] Google ID token is empty after refresh".log();
+          '❌ [AuthCubit] Google ID token is empty'.log();
           return null;
         }
 
-        // Save social login type first
-        "💾 [AuthCubit] Saving social login type...".log();
+        // Save tokens
         await _localDataSource.setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
-
-        // Save tokens with verification
-        "💾 [AuthCubit] Saving Google tokens...".log();
         await _localDataSource.setGoogleAccessToken(googleAccessToken);
         await _localDataSource.setGoogleIdToken(googleIdToken);
-        
-        // Add a small delay to ensure storage completion
-        await Future.delayed(const Duration(milliseconds: 50));
-        
-        // Verify tokens were saved
-        final savedIdToken = await _localDataSource.getGoogleIdToken();
-        if (savedIdToken != googleIdToken) {
-          "⚠️ [AuthCubit] Token verification failed - saved token differs from original".log();
-          
-          // Retry save once more
-          "🔄 [AuthCubit] Retrying token save...".log();
-          await _localDataSource.setGoogleIdToken(googleIdToken);
-          await Future.delayed(const Duration(milliseconds: 100));
-          
-          final retrySavedToken = await _localDataSource.getGoogleIdToken();
-          if (retrySavedToken != googleIdToken) {
-            "❌ [AuthCubit] Token save verification failed after retry".log();
-            return null;
-          }
-        }
-        
-        "✅ [AuthCubit] Google tokens refreshed and verified successfully".log();
-        
-        // Return ID token for Wepin SDK
+
+        '✅ [AuthCubit] Tokens saved, returning Google OAuth ID token'.log();
+
+        // Return the Google OAuth ID token for Wepin, not Firebase token
         return googleIdToken;
       } else {
-        "❌ [AuthCubit] User is not signed in to Google".log();
+        '❌ [AuthCubit] No Google user available after silent sign-in'.log();
         return null;
       }
     } catch (e) {
-      // Handle error (e.g., log it, or return a meaningful error message)
-      "❌ [AuthCubit] Error refreshing Google access token: $e".log();
+      '❌ [AuthCubit] Error during Google token refresh: $e'.log();
       return null;
     }
   }
 
   Future<String?> refreshAppleIdToken() async {
-    try{
-      final firebaseToken = await FirebaseAuth.instance.currentUser?.getIdToken() ?? "";
-      final result = await _authRepository.requestApiLogin(firebaseToken: firebaseToken);
-
-
-    } catch(e, st){
-      ('Error refreshing Apple ID token: $e').log();
-    }
-    return _localDataSource.getAppleIdToken();
     try {
+      '⚠️ [AuthCubit] Apple token refresh requested - checking Firebase user first'.log();
+
+      // First, check if we have a valid Firebase user and can get the token from there
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        try {
+          // Try to get a fresh ID token from Firebase without re-authentication
+          final idToken = await currentUser.getIdToken(true);
+          if (idToken != null && idToken.isNotEmpty) {
+            '✅ [AuthCubit] Got fresh ID token from Firebase without re-authentication'.log();
+            return idToken;
+          }
+        } catch (e) {
+          '⚠️ [AuthCubit] Failed to refresh token from Firebase: $e'.log();
+        }
+      }
+
+      // Only request new Apple credentials if absolutely necessary (user action required)
+      '❌ [AuthCubit] Cannot refresh Apple token without user interaction - returning null'.log();
+      return null;
+
+      /* DISABLED: This triggers Apple login UI - should only be called on user action
       // Retrieve the stored nonce if you are using it again, or generate a new one
       final rawNonce = generateNonce();
       final nonce = helper.sha256ofString(rawNonce);
@@ -185,6 +172,7 @@ class AuthCubit extends BaseCubit<AuthState> {
         ],
         nonce: nonce,
       );
+
 
       // Create a new OAuthCredential using the fresh credential from Apple
       final oauthCredential = OAuthProvider("apple.com").credential(
@@ -202,25 +190,38 @@ class AuthCubit extends BaseCubit<AuthState> {
       _localDataSource.setAppleIdToken(oauthCredential.idToken ?? "");
 
       return oauthCredential.idToken ?? "";
+      */
     } catch (e) {
-      ('Error refreshing Apple ID token: $e').log();
+      '❌ [AuthCubit] Error in refreshAppleIdToken: $e'.log();
     }
     return null;
   }
 
   Future<void> onAppleLogin() async {
+    '🍎 [AuthCubit] Starting Apple login process...'.log();
+
+    // 상태 초기화 - 상태 전환이 확실히 일어나도록 보장
+    emit(state.copyWith(
+      submitStatus: RequestStatus.initial,
+      isLogInSuccessful: false,
+    ));
+
     final result = await _authRepository.requestAppleLogin();
     result.fold(
       (l) => emit(
         state.copyWith(submitStatus: RequestStatus.failure, message: l.message),
       ),
       (idToken) async {
-        // 새로운 계정 로그인 시 온보딩 상태 리셋
+        '✅ [AuthCubit] Apple login successful, got Firebase ID token'.log();
+
+        // 새로운 계정 로그인 시 온보딩 상태 및 프로필 데이터 리셋
         try {
           '🔄 [AuthCubit] Resetting onboarding state for new account login...'.log();
           final prefs = await SharedPreferences.getInstance();
           await prefs.remove(StorageValues.onboardingCurrentStep);
           await prefs.remove(StorageValues.onboardingCompleted);
+          await prefs.remove('profilePartsString'); // Clear old profile data
+          await prefs.remove(StorageValues.hasProfileParts); // Clear profile parts flag
           '✅ [AuthCubit] Onboarding state reset completed'.log();
         } catch (e) {
           '❌ [AuthCubit] Failed to reset onboarding state: $e'.log();
@@ -228,18 +229,36 @@ class AuthCubit extends BaseCubit<AuthState> {
         
         // Apple 로그인 성공 후 Wepin 준비
         try {
-          '🔄 [AuthCubit] Apple login successful, preparing Wepin...'.log();
+          '🔄 [AuthCubit] Preparing Wepin after Apple login...'.log();
+
+          // 저장 완료를 위해 짧은 지연 후 토큰 읽기
+          await Future.delayed(const Duration(milliseconds: 100));
+
           final appleIdToken = await _localDataSource.getAppleIdToken();
+          '🔍 [AuthCubit] Retrieved Apple ID token: ${appleIdToken?.isNotEmpty == true ? 'Success (${appleIdToken!.substring(0, 20)}...)' : 'Empty'}'.log();
+
           if (appleIdToken != null && appleIdToken.isNotEmpty) {
-            '🔑 [AuthCubit] Got Apple ID token, marking Wepin as ready...'.log();
+            '🔑 [AuthCubit] Got Apple ID token, logging into Wepin...'.log();
             await getIt<WepinCubit>().loginWepinWithApple(appleIdToken);
           } else {
-            '❌ [AuthCubit] Apple ID token is empty'.log();
+            '❌ [AuthCubit] Apple ID token is empty, retrying...'.log();
+
+            // 한 번 더 시도 (더 긴 지연)
+            await Future.delayed(const Duration(milliseconds: 500));
+            final retryToken = await _localDataSource.getAppleIdToken();
+
+            if (retryToken != null && retryToken.isNotEmpty) {
+              '🔄 [AuthCubit] Retry successful, logging into Wepin...'.log();
+              await getIt<WepinCubit>().loginWepinWithApple(retryToken);
+            } else {
+              '❌ [AuthCubit] Apple ID token still empty after retry'.log();
+            }
           }
         } catch (e) {
           '❌ [AuthCubit] Failed to prepare Wepin after Apple auth: $e'.log();
         }
-        
+
+        '📡 [AuthCubit] Calling backend API login with Firebase ID token...'.log();
         onBackendApiLogin(firebaseIdToken: idToken);
       },
     );
@@ -249,6 +268,9 @@ class AuthCubit extends BaseCubit<AuthState> {
   Future<void> onBackendApiLogin({
     required String firebaseIdToken,
   }) async {
+    '🚀 [AuthCubit] Starting backend API login...'.log();
+    '📊 [AuthCubit] Current state - isLogInSuccessful: ${state.isLogInSuccessful}, submitStatus: ${state.submitStatus}'.log();
+
     EasyLoading.show();
 
     emit(state.copyWith(submitStatus: RequestStatus.loading));
@@ -258,20 +280,24 @@ class AuthCubit extends BaseCubit<AuthState> {
 
     response.fold(
       (err) {
-        "inside error ****************** ${err.message}".log();
+        '❌ [AuthCubit] Backend API login failed: ${err.message}'.log();
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           isLogInSuccessful: false,
           message: err.message,
         ));
       },
-      (success) => emit(
-        state.copyWith(
-          submitStatus: RequestStatus.success,
-          isLogInSuccessful: true,
-          message: '',
-        ),
-      ),
+      (success) {
+        '✅ [AuthCubit] Backend API login successful!'.log();
+        emit(
+          state.copyWith(
+            submitStatus: RequestStatus.success,
+            isLogInSuccessful: true,
+            message: '',
+          ),
+        );
+        '📊 [AuthCubit] Final state - isLogInSuccessful: true, submitStatus: success'.log();
+      },
     );
   }
 }

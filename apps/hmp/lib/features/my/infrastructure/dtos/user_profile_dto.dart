@@ -109,8 +109,15 @@ class UserProfileDto extends Equatable {
 
   Map<String, dynamic> toJson() => _$UserProfileDtoToJson(this);
 
-  UserProfileEntity toEntity() => UserProfileEntity(
-        id: id ?? "",
+  UserProfileEntity toEntity() {
+    final userId = id ?? "";
+    // API URL 생성 - HTTPS 사용
+    final apiImageUrl = userId.isNotEmpty
+        ? 'https://dev-api.hidemeplease.xyz/v1/public/nft/user/$userId/image'
+        : "";
+
+    return UserProfileEntity(
+        id: userId,
         nickName: nickName ?? "",
         introduction: introduction ?? "",
         locationPublic: locationPublic ?? false,
@@ -121,7 +128,7 @@ class UserProfileDto extends Equatable {
         chatAccessToken: chatAccessToken ?? "",
         chatAppId: chatAppId ?? "",
         profilePartsString: profilePartsString ?? "",
-        finalProfileImageUrl: finalProfileImageUrl ?? "",
+        finalProfileImageUrl: apiImageUrl, // API URL 사용
         availableBalance: pointBalance?.availableBalance ?? 0,
         checkInStats: checkInStats != null
             ? CheckInStats(
@@ -133,6 +140,7 @@ class UserProfileDto extends Equatable {
               )
             : const CheckInStats.empty(),
       );
+  }
 
 //
 

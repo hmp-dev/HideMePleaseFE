@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mobile/app/core/helpers/translation_helper.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/infrastructure/dtos/business_hours_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/space_event_category_dto.dart';
@@ -12,12 +13,16 @@ class SpaceDto extends Equatable {
   final String? id;
   @JsonKey(name: "name")
   final String? name;
+  @JsonKey(name: "nameEn")
+  final String? nameEn;
   @JsonKey(name: "image")
   final String? image;
   @JsonKey(name: "category")
   final String? category;
   @JsonKey(name: "benefitDescription")
   final String? benefitDescription;
+  @JsonKey(name: "benefitDescriptionEn")
+  final String? benefitDescriptionEn;
   @JsonKey(name: "hot")
   final bool? hot;
   @JsonKey(name: "hotPoints")
@@ -40,9 +45,11 @@ class SpaceDto extends Equatable {
   const SpaceDto({
     this.id,
     this.name,
+    this.nameEn,
     this.image,
     this.category,
     this.benefitDescription,
+    this.benefitDescriptionEn,
     this.hot,
     this.hotPoints,
     this.hidingCount,
@@ -64,9 +71,11 @@ class SpaceDto extends Equatable {
     return [
       id,
       name,
+      nameEn,
       image,
       category,
       benefitDescription,
+      benefitDescriptionEn,
       hot,
       hotPoints,
       hidingCount,
@@ -79,20 +88,32 @@ class SpaceDto extends Equatable {
     ];
   }
 
-  SpaceEntity toEntity() => SpaceEntity(
-        id: id ?? "",
-        name: name ?? "",
-        image: image ?? "",
-        category: category ?? "",
-        benefitDescription: benefitDescription ?? "",
-        hot: hot ?? false,
-        hotPoints: hotPoints ?? 0,
-        hidingCount: hidingCount ?? 0,
-        latitude: latitude ?? 0.0,
-        longitude: longitude ?? 0.0,
-        businessHours: businessHours?.map((e) => e.toEntity()).toList() ?? [],
-        isTemporarilyClosed: isTemporarilyClosed ?? false,
-        spaceEventCategories: spaceEventCategories?.map((e) => e.toEntity()).toList() ?? [],
-        currentGroupProgress: currentGroupProgress ?? '',
-      );
+  SpaceEntity toEntity() {
+    // Handle benefit description with fallback to extracting English from combined text
+    String processedBenefitDescriptionEn = benefitDescriptionEn ?? "";
+
+    // If English description is empty, try to extract from combined field
+    if (processedBenefitDescriptionEn.isEmpty && benefitDescription != null) {
+      processedBenefitDescriptionEn = TranslationHelper.extractEnglishFromCombinedText(benefitDescription);
+    }
+
+    return SpaceEntity(
+      id: id ?? "",
+      name: name ?? "",
+      nameEn: nameEn ?? "",
+      image: image ?? "",
+      category: category ?? "",
+      benefitDescription: benefitDescription ?? "",
+      benefitDescriptionEn: processedBenefitDescriptionEn,
+      hot: hot ?? false,
+      hotPoints: hotPoints ?? 0,
+      hidingCount: hidingCount ?? 0,
+      latitude: latitude ?? 0.0,
+      longitude: longitude ?? 0.0,
+      businessHours: businessHours?.map((e) => e.toEntity()).toList() ?? [],
+      isTemporarilyClosed: isTemporarilyClosed ?? false,
+      spaceEventCategories: spaceEventCategories?.map((e) => e.toEntity()).toList() ?? [],
+      currentGroupProgress: currentGroupProgress ?? '',
+    );
+  }
 }

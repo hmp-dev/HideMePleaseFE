@@ -49,6 +49,7 @@ class _BenefitListWidgetState extends State<BenefitListWidget> {
           );
         } else {
           return Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               const VerticalSpace(10),
               Row(
@@ -60,16 +61,10 @@ class _BenefitListWidgetState extends State<BenefitListWidget> {
                 ],
               ),
               const VerticalSpace(20),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: state.nftBenefitList.length,
-                itemBuilder: (context, index) {
-                  return HomeBenefitItemWidget(
-                    benefitEntity: state.nftBenefitList[index],
-                  );
-                },
-              ),
+              // Use Column instead of ListView when items are few and shrinkWrap is true
+              ...state.nftBenefitList.map((benefit) => HomeBenefitItemWidget(
+                benefitEntity: benefit,
+              )),
               state.loadingMoreStatus == RequestStatus.loading
                   ? Padding(
                       padding: const EdgeInsets.only(bottom: 20.0),

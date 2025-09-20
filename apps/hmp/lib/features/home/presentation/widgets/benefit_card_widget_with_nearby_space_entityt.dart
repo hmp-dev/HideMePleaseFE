@@ -87,7 +87,9 @@ class BenefitCardWidgetWithNearBySpaceEntity extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          nftBenefitEntity.description,
+                          context.locale.languageCode == 'en' && nftBenefitEntity.descriptionEn.isNotEmpty
+                              ? nftBenefitEntity.descriptionEn
+                              : nftBenefitEntity.description,
                           maxLines: 4,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.left,

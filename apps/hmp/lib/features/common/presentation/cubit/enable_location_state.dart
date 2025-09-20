@@ -5,6 +5,7 @@ class EnableLocationState extends BaseState {
   final bool isLocationEnabled;
   final bool isAskToOpenLocationSettings;
   final bool isLocationPermissionGranted;
+  final bool isBackgroundLocationGranted;
   final int submitCount;
   final double latitude;
   final double longitude;
@@ -19,6 +20,7 @@ class EnableLocationState extends BaseState {
     required this.isLocationEnabled,
     required this.isAskToOpenLocationSettings,
     required this.isLocationPermissionGranted,
+    required this.isBackgroundLocationGranted,
     required this.latitude,
     required this.longitude,
     required this.isLocationDenied,
@@ -34,6 +36,7 @@ class EnableLocationState extends BaseState {
         checkLocationPermsStatus: RequestStatus.initial,
         isAskToOpenLocationSettings: false,
         isLocationPermissionGranted: false,
+        isBackgroundLocationGranted: false,
         submitCount: 0,
         latitude: 0.0,
         longitude: 0.0,
@@ -48,6 +51,7 @@ class EnableLocationState extends BaseState {
         checkLocationPermsStatus,
         isAskToOpenLocationSettings,
         isLocationPermissionGranted,
+        isBackgroundLocationGranted,
         submitCount,
         latitude,
         longitude,
@@ -60,6 +64,7 @@ class EnableLocationState extends BaseState {
     bool? isLocationEnabled,
     bool? isAskToOpenLocationSettings,
     bool? isLocationPermissionGranted,
+    bool? isBackgroundLocationGranted,
     RequestStatus? submitStatus,
     RequestStatus? checkLocationPermsStatus,
     int? submitCount,
@@ -78,6 +83,8 @@ class EnableLocationState extends BaseState {
           isAskToOpenLocationSettings ?? this.isAskToOpenLocationSettings,
       isLocationPermissionGranted:
           isLocationPermissionGranted ?? this.isLocationPermissionGranted,
+      isBackgroundLocationGranted:
+          isBackgroundLocationGranted ?? this.isBackgroundLocationGranted,
       submitCount: submitCount ?? this.submitCount,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,

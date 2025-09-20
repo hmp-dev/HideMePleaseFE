@@ -548,7 +548,7 @@ class _MapScreenState extends State<MapScreen> {
             iconImage: _getMarkerIconForCategory(space.category),
             iconSize: 0.6,
             // 줌 레벨 15 이상일 때만 매장명 텍스트 추가
-            textField: showCheckInStatus ? space.name : null,
+            textField: showCheckInStatus ? _getStoreName(space) : null,
             textColor: showCheckInStatus ? Colors.black.value : null,
             textHaloColor: showCheckInStatus ? Colors.white.value : null,
             textHaloWidth: showCheckInStatus ? 1.5 : null,
@@ -707,7 +707,7 @@ class _MapScreenState extends State<MapScreen> {
   // 인포카드 위젯 생성
   Widget _buildInfoCard(SpaceEntity space) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30), // 내부 여백으로 조정
+      margin: const EdgeInsets.symmetric(horizontal: 20), // 가로 여백 줄여서 카드 너비 확장
       child: AnimatedOpacity(
         opacity: showInfoCard ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 300),
@@ -720,18 +720,12 @@ class _MapScreenState extends State<MapScreen> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF8FF).withOpacity(0.5), // #0xFFEAF8FF 50% 투명도
-              border: Border.all(color: const Color(0xFF000000), width: 1),
-              /*
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-              */
+              color: Colors.white, // 홈 화면과 동일한 흰색 배경
+              border: Border.all(color: const Color(0xFF132E41), width: 1), // 홈 화면과 동일한 테두리
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.black.withOpacity(0.1),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
                 ),
@@ -741,55 +735,61 @@ class _MapScreenState extends State<MapScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                  padding: const EdgeInsets.all(12), // 홈 화면과 동일한 패딩
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 매장 이미지
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          color: const Color(0xFF3A3A3A),
-                          child: space.image.isNotEmpty && !space.image.contains('undefined')
-                              ? Image.network(
-                                  space.image,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded /
-                                                loadingProgress.expectedTotalBytes!
-                                            : null,
-                                        strokeWidth: 2,
-                                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00A3FF)),
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    print('❌ 이미지 로드 에러: ${space.image}');
-                                    return Center(
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.black, width: 1), // 검은색 테두리 추가
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(11),
+                          child: Container(
+                            color: const Color(0xFF3A3A3A),
+                            child: space.image.isNotEmpty && !space.image.contains('undefined')
+                                ? Image.network(
+                                    space.image,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress.expectedTotalBytes != null
+                                              ? loadingProgress.cumulativeBytesLoaded /
+                                                  loadingProgress.expectedTotalBytes!
+                                              : null,
+                                          strokeWidth: 2,
+                                          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00A3FF)),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      print('❌ 이미지 로드 에러: ${space.image}');
+                                      return Center(
+                                        child: Icon(
+                                          Icons.image_not_supported,
+                                          color: Colors.grey[600],
+                                          size: 30,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : Container(
+                                    color: const Color(0xFF3A3A3A),
+                                    child: Center(
                                       child: Icon(
-                                        Icons.image_not_supported,
+                                        Icons.store,
                                         color: Colors.grey[600],
                                         size: 30,
                                       ),
-                                    );
-                                  },
-                                )
-                              : Container(
-                                  color: const Color(0xFF3A3A3A),
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.store,
-                                      color: Colors.grey[600],
-                                      size: 30,
                                     ),
                                   ),
-                                ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -863,7 +863,7 @@ class _MapScreenState extends State<MapScreen> {
                             const SizedBox(height: 8),
                             // 매장명
                             Text(
-                              space.name,
+                              _getStoreName(space),
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 17,
@@ -878,7 +878,7 @@ class _MapScreenState extends State<MapScreen> {
                             // 운영 상태
                             _buildBusinessHoursStatus(space),
                             // 혜택 정보가 있을 때만 구분선과 혜택 표시
-                            if (space.benefitDescription.isNotEmpty) ...[
+                            if (_getBenefitDescription(space).isNotEmpty) ...[
                               const SizedBox(height: 10),
                               // 구분선
                               Container(
@@ -915,7 +915,7 @@ class _MapScreenState extends State<MapScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      space.benefitDescription,
+                                      _getBenefitDescription(space),
                                       style: const TextStyle(
                                         color: Color(0xFF999999),
                                         fontSize: 12,
@@ -1772,7 +1772,7 @@ class _MapScreenState extends State<MapScreen> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
-                            "앗! 아직 너무 멀리있어.\n좀 더 확대해서 숨을 곳을 클릭해봐!",
+                            LocaleKeys.map_zoom_in_message.tr(),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
@@ -2104,7 +2104,7 @@ class _MapScreenState extends State<MapScreen> {
     // 캔버스 크기를 2배로 줄여서 더 작게 렌더링
     const scale = 2.0;
     const dotSize = 8.0 * scale; // 점 크기 축소
-    const dotSpacing = 2.0 * scale; // 간격
+    const dotSpacing = 1.0 * scale; // 간격
     final totalDotsWidth = (dotSize * maxCapacity) + (dotSpacing * (maxCapacity - 1));
     final canvasWidth = totalDotsWidth + (10 * scale); // 여백
     final canvasHeight = dotSize + (10 * scale); // 여백
@@ -2521,7 +2521,7 @@ class _MapScreenState extends State<MapScreen> {
             
             // 지도 컨트롤 버튼들 (우측하단 - 탭바 위)
             // 알림 버튼 (현재 위치 버튼 위)
-            AnimatedPositioned(
+            /*AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
               bottom: showInfoCard && selectedSpace != null ? 360 : 168, // 현재 위치 버튼보다 58px 위 (48px 버튼 + 10px 간격)
@@ -2540,7 +2540,7 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
               ),
-            ),
+            ),*/
             
             // 현재 위치 버튼 (인포카드 바로 위)
             AnimatedPositioned(
@@ -3116,7 +3116,7 @@ class _MapScreenState extends State<MapScreen> {
         
         if (userId.isNotEmpty) {
           // API를 통해 고품질 프로필 이미지 로드
-          final apiImageUrl = 'http://dev-api.hidemeplease.xyz/v1/public/nft/user/$userId/image';
+          final apiImageUrl = 'https://dev-api.hidemeplease.xyz/v1/public/nft/user/$userId/image';
           print('🌐 API 프로필 이미지 URL: $apiImageUrl');
           
           try {
@@ -3162,7 +3162,7 @@ class _MapScreenState extends State<MapScreen> {
         // profilePartsString이 없으면 URL 기반 이미지 시도 (우선순위 2)
         final profileImageUrl = profileCubit.state.userProfileEntity.finalProfileImageUrl;
         print('🖼️ Profile image URL: ${profileImageUrl.isNotEmpty ? profileImageUrl : "URL이 비어있음"}');
-        
+
         if (profileImageUrl.isNotEmpty) {
           print('👤 프로필 이미지 URL 발견: $profileImageUrl');
           final profileImageBytes = await _loadProfileImageFromUrl(profileImageUrl);
@@ -4023,7 +4023,7 @@ class _MapScreenState extends State<MapScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    space.name,
+                    _getStoreName(space),
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 16,
@@ -4034,10 +4034,10 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                   const SizedBox(height: 4),
                   _buildBusinessHoursStatus(space),
-                  if (space.benefitDescription.isNotEmpty) ...[
+                  if (_getBenefitDescription(space).isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      space.benefitDescription,
+                      _getBenefitDescription(space),
                       style: const TextStyle(
                         color: Colors.black54,
                         fontSize: 12,
@@ -4217,5 +4217,38 @@ class _MapScreenState extends State<MapScreen> {
       default:
         return 'assets/icons/icon_cate_all.png';
     }
+  }
+
+  // 언어에 따른 혜택 설명 반환
+  String _getBenefitDescription(SpaceEntity space) {
+    final isEnglish = context.locale.languageCode == 'en';
+
+    print('🎁 MapScreen Benefit - Store: ${space.name}');
+    print('🌐 MapScreen Benefit - Locale: ${context.locale.languageCode} (isEnglish: $isEnglish)');
+    print('📝 MapScreen Benefit - benefitDescriptionEn: "${space.benefitDescriptionEn}"');
+    print('📝 MapScreen Benefit - benefitDescription: "${space.benefitDescription}"');
+
+    // 영어 모드이고 영문 설명이 있으면 영문 반환
+    if (isEnglish && space.benefitDescriptionEn.isNotEmpty) {
+      print('✅ MapScreen Benefit - Using English: ${space.benefitDescriptionEn}');
+      return space.benefitDescriptionEn;
+    }
+
+    // 그 외의 경우 기본 설명 반환
+    print('✅ MapScreen Benefit - Using Korean: ${space.benefitDescription}');
+    return space.benefitDescription;
+  }
+
+  // 언어에 따른 매장명 반환
+  String _getStoreName(SpaceEntity space) {
+    final isEnglish = context.locale.languageCode == 'en';
+
+    // 영어 모드이고 영문 매장명이 있으면 영문 반환
+    if (isEnglish && space.nameEn.isNotEmpty) {
+      return space.nameEn;
+    }
+
+    // 그 외의 경우 기본 매장명 반환
+    return space.name;
   }
 }

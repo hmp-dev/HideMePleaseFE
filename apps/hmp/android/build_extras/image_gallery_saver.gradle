@@ -1,0 +1,6 @@
+// Fix for image_gallery_saver namespace issue
+project.afterEvaluate {
+    android {
+        namespace 'com.example.imagegallerysaver'
+    }
+}

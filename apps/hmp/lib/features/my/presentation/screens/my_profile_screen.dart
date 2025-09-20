@@ -338,7 +338,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      isHiding ? LocaleKeys.hiding_status.tr() : '하이딩 전',
+                      isHiding ? LocaleKeys.hiding_status.tr() : LocaleKeys.before_hiding.tr(),
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 13,

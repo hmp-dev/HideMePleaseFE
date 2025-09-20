@@ -53,7 +53,7 @@ class MapInfoCard extends StatelessWidget {
                 height: 100,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF132E41), width: 1),
+                  border: Border.all(color: Colors.black, width: 1.2),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(11),
@@ -165,7 +165,9 @@ class MapInfoCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     // 매장명
                     Text(
-                      space.name,
+                      context.locale.languageCode == 'en' && space.nameEn.isNotEmpty
+                        ? space.nameEn
+                        : space.name,
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 16,
@@ -180,7 +182,7 @@ class MapInfoCard extends StatelessWidget {
                     // 운영 상태
                     _buildBusinessHoursStatus(space),
                     // 혜택 정보가 있을 때만 구분선과 혜택 표시
-                    if (space.benefitDescription.isNotEmpty) ...[
+                    if (_getBenefitDescription(context, space).isNotEmpty) ...[
                       const SizedBox(height: 10),
                       // 구분선
                       Container(
@@ -217,7 +219,7 @@ class MapInfoCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              space.benefitDescription,
+                              _getBenefitDescription(context, space),
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 10,
@@ -519,5 +521,18 @@ class MapInfoCard extends StatelessWidget {
       default:
         return DayOfWeek.MONDAY;
     }
+  }
+
+  // 언어에 따른 혜택 설명 반환
+  String _getBenefitDescription(BuildContext context, SpaceEntity space) {
+    final isEnglish = context.locale.languageCode == 'en';
+
+    // 영어 모드이고 영문 설명이 있으면 영문 반환
+    if (isEnglish && space.benefitDescriptionEn.isNotEmpty) {
+      return space.benefitDescriptionEn;
+    }
+
+    // 그 외의 경우 기본 설명 반환
+    return space.benefitDescription;
   }
 }

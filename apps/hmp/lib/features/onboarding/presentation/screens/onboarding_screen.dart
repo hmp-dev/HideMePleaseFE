@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -7,6 +9,7 @@ import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
+import 'package:mobile/features/common/presentation/services/image_retry_service.dart';
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/common/presentation/widgets/hmp_custom_button.dart';
 import 'package:mobile/features/common/presentation/widgets/horizontal_space.dart';
@@ -18,6 +21,7 @@ import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_
 import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_fourth.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_fifth.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_wallet_exists.dart';
+import 'package:mobile/features/onboarding/presentation/widgets/onboarding_page_profile_exists.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/test_onboarding_widget.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
@@ -90,6 +94,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   bool _isConfirming = false;
   bool _isCheckingWallet = false; // Add wallet checking state
   bool _hasExistingWallet = false; // Track if user has existing wallet
+  bool _hasExistingProfile = false; // Track if user has existing profile parts
+  bool _hasExistingNickname = false; // Track if user has existing nickname
   bool _isWepinInitialized = false; // Track if Wepin SDK is initialized
   String selectedProfile = '';
   CharacterProfile? selectedCharacter;
@@ -235,6 +241,104 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     }
   }
   
+  Future<void> _checkUserProfile() async {
+    try {
+      '🔍 Checking for existing user profile...'.log();
+
+      // Get user profile to check for existing profile parts
+      final profileCubit = getIt<ProfileCubit>();
+      await profileCubit.onGetUserProfile();
+      final userProfile = profileCubit.state.userProfileEntity;
+
+      bool hasValidProfile = false;
+
+      if (userProfile != null) {
+        // Check if we have profile parts string
+        if (userProfile.profilePartsString != null && userProfile.profilePartsString!.isNotEmpty) {
+          '✅ Profile parts exist: ${userProfile.profilePartsString!.length} characters'.log();
+          hasValidProfile = true;
+        }
+
+        // Check if we have a valid final profile image URL
+        if (!hasValidProfile &&
+            userProfile.finalProfileImageUrl != null &&
+            userProfile.finalProfileImageUrl!.isNotEmpty) {
+          '🔍 Checking if profile image URL is valid...'.log();
+          '   - URL: ${userProfile.finalProfileImageUrl}'.log();
+
+          // Validate that the image URL actually has valid data
+          final isValidImage = await _validateImageUrl(userProfile.finalProfileImageUrl!);
+
+          if (isValidImage) {
+            '✅ Profile image URL is valid and accessible'.log();
+            hasValidProfile = true;
+          } else {
+            '⚠️ Profile image URL exists but image is not ready/valid'.log();
+            '   - Treating as no profile (new user)'.log();
+          }
+        }
+
+        if (hasValidProfile) {
+          '✅ Valid profile found - skipping character selection'.log();
+          '   - ProfileParts: ${userProfile.profilePartsString?.isNotEmpty ?? false}'.log();
+          '   - ValidImage: ${hasValidProfile}'.log();
+
+          // Check if user has a nickname
+          final hasNickname = userProfile.nickName.isNotEmpty;
+          '   - Nickname: ${hasNickname ? userProfile.nickName : "없음"}'.log();
+
+          setState(() {
+            _hasExistingProfile = true;
+            _hasExistingNickname = hasNickname;
+          });
+        } else {
+          '🆕 No valid profile found - character selection needed'.log();
+          setState(() {
+            _hasExistingProfile = false;
+            _hasExistingNickname = false;
+          });
+        }
+      } else {
+        '🆕 No user profile - character selection needed'.log();
+        setState(() {
+          _hasExistingProfile = false;
+          _hasExistingNickname = false;
+        });
+      }
+    } catch (e) {
+      '❌ Error checking user profile: $e'.log();
+      setState(() {
+        _hasExistingProfile = false;
+        _hasExistingNickname = false;
+      });
+    }
+  }
+
+  /// Validate if an image URL actually contains valid image data
+  /// Uses retry logic to handle server-side image generation delays
+  Future<bool> _validateImageUrl(String imageUrl) async {
+    try {
+      // Don't validate empty URLs
+      if (imageUrl.isEmpty) return false;
+
+      '🔍 Starting image validation with retry logic for: $imageUrl'.log();
+
+      // Use the ImageRetryService with fast onboarding mode
+      final isValid = await ImageRetryService.validateImageWithRetry(imageUrl, isOnboarding: true);
+
+      if (isValid) {
+        '✅ Image validated successfully after retries'.log();
+      } else {
+        '❌ Image validation failed after all retries'.log();
+      }
+
+      return isValid;
+    } catch (e) {
+      'Error validating image URL: $e'.log();
+      return false;
+    }
+  }
+
   Future<void> _loadOnboardingState() async {
     final prefs = await SharedPreferences.getInstance();
     
@@ -280,8 +384,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  '프로세스 계속 진행하기',
+                Text(
+                  LocaleKeys.onboarding_continue_process.tr(),
                   style: TextStyle(
                     fontFamily: 'LINESeedKR',
                     fontSize: 20,
@@ -290,8 +394,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  '이전에 진행하던 온보딩 프로세스가 있구나!\n해당 단계에서부터 다시 시작할게.',
+                Text(
+                  LocaleKeys.onboarding_previous_process_found.tr(),
                   style: TextStyle(
                     fontFamily: 'LINESeedKR',
                     fontSize: 14,
@@ -323,8 +427,22 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   }
   
   Future<void> _saveCurrentStep() async {
-    // Always save current step regardless of debug mode
+    // Don't save if we're on the final page or if onboarding is completed
+    if (currentSlideIndex >= 4) {
+      '⏭️ 마지막 페이지 - 상태 저장 건너뛰기'.log();
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
+
+    // Check if onboarding is already completed
+    final isCompleted = prefs.getBool(StorageValues.onboardingCompleted) ?? false;
+    if (isCompleted) {
+      '✅ 온보딩 이미 완료됨 - 상태 저장 건너뛰기'.log();
+      return;
+    }
+
+    // Always save current step regardless of debug mode
     await prefs.setInt(StorageValues.onboardingCurrentStep, currentSlideIndex);
     '💾 온보딩 진행 상태 저장: 스텝 $currentSlideIndex'.log();
   }
@@ -352,9 +470,40 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         // No wallet, go to wallet creation page
         _moveToPage(1);
       }
-    } else if (currentSlideIndex == 1 && _hasExistingWallet) {
-      // From wallet exists page, go directly to character selection
-      _moveToPage(2);
+    } else if (currentSlideIndex == 1) {
+      // From wallet page, check if user has existing profile
+      await _checkUserProfile();
+
+      if (_hasExistingWallet) {
+        // User has existing wallet
+        if (_hasExistingProfile) {
+          '🆗 프로필 파츠 있음 - 프로필 존재 화면으로 이동'.log();
+          _moveToPage(2); // Show profile exists page
+        } else {
+          '🆕 프로필 파츠 없음 - 캐릭터 선택 화면으로 이동'.log();
+          _moveToPage(2); // Go to character selection
+        }
+      } else {
+        // Just created wallet, check profile
+        if (_hasExistingProfile) {
+          '🆗 새 지갑 생성 + 프로필 존재 - 프로필 존재 화면으로'.log();
+          _moveToPage(2); // Show profile exists page
+        } else {
+          '🆕 새 지갑 생성 + 프로필 없음 - 캐릭터 선택으로'.log();
+          _moveToPage(2); // Go to character selection
+        }
+      }
+    } else if (currentSlideIndex == 2 && _hasExistingProfile) {
+      // From profile exists page, check if user has nickname
+      if (_hasExistingNickname) {
+        // User has both profile and nickname, skip to final page
+        '✅ 프로필과 닉네임 모두 있음 - 완료 화면으로 이동'.log();
+        _moveToPage(4); // Skip nickname input, go to final page
+      } else {
+        // User has profile but no nickname, go to nickname input
+        '⚠️ 프로필은 있지만 닉네임 없음 - 닉네임 입력 화면으로 이동'.log();
+        _moveToPage(3); // Go to nickname input page
+      }
     } else if (currentSlideIndex < 4) {
       _moveToPage(currentSlideIndex + 1);
     }
@@ -581,12 +730,19 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             // Save wallets to backend (in case not saved)
             await wepinCubit.saveWalletsToHMPBackend(accounts);
             
-            // User has wallet, move to next page
+            // User has wallet, check profile before moving to next page
             setState(() {
               _isConfirming = false;
               _hasExistingWallet = true;
             });
-            _moveToPage(2); // Move to character selection
+            await _checkUserProfile();
+            if (_hasExistingProfile) {
+              '🆗 지갑 생성 완료 + 프로필 존재 - 프로필 화면으로'.log();
+              _moveToPage(2); // Show profile exists page
+            } else {
+              '🆕 지갑 생성 완료 + 프로필 없음 - 캐릭터 선택으로'.log();
+              _moveToPage(2); // Move to character selection
+            }
           } else {
             '⚠️ Has wallets but no Ethereum wallet'.log();
             // May need to create Ethereum wallet specifically
@@ -610,7 +766,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               setState(() {
                 _isConfirming = false;
               });
-              _moveToPage(2);
+              await _checkUserProfile();
+              if (_hasExistingProfile) {
+                '🆗 지갑 finalize 완료 + 프로필 존재 - 프로필 화면으로'.log();
+                _moveToPage(2); // Show profile exists page
+              } else {
+                '🆕 지갑 finalize 완료 + 프로필 없음 - 캐릭터 선택으로'.log();
+                _moveToPage(2); // Move to character selection
+              }
             } else {
               '❌ Still no wallets after finalize'.log();
               setState(() {
@@ -664,11 +827,18 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           // Save wallets to backend
           await wepinCubit.saveWalletsToHMPBackend(accounts);
           
-          // Wallet created successfully, move to next page
+          // Wallet created successfully, check profile before moving
           setState(() {
             _isConfirming = false;
           });
-          _moveToPage(2); // Move to character selection
+          await _checkUserProfile();
+          if (_hasExistingProfile) {
+            '🆗 새 지갑 생성 + 프로필 존재 - 프로필 화면으로'.log();
+            _moveToPage(2); // Show profile exists page
+          } else {
+            '🆕 새 지갑 생성 + 프로필 없음 - 캐릭터 선택으로'.log();
+            _moveToPage(2); // Move to character selection
+          }
         } else {
           '❌ No Ethereum wallet created'.log();
           setState(() {
@@ -927,7 +1097,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   }
 
   void _goToPreviousPage() {
+    // Prevent going back if confirming
+    if (_isConfirming) {
+      '⚠️ 처리 중 - 뒤로 가기 차단'.log();
+      return;
+    }
+
     if (currentSlideIndex > 0) {
+      '⬅️ 이전 페이지로 이동: ${currentSlideIndex} -> ${currentSlideIndex - 1}'.log();
       _moveToPage(currentSlideIndex - 1);
     }
   }
@@ -935,17 +1112,19 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   String _getButtonText() {
     switch (currentSlideIndex) {
       case 0:
-        return '이해했어!';  // 첫 번째 화면 (하미플 세계 소개)
+        return LocaleKeys.onboarding_understood.tr();  // 첫 번째 화면 (하미플 세계 소개)
       case 1:
-        return _hasExistingWallet 
-            ? '확인했어!'  // 지갑 있음 화면
-            : '지갑을 만들게!';  // 지갑 소개
+        return _hasExistingWallet
+            ? LocaleKeys.onboarding_confirmed.tr()  // 지갑 있음 화면
+            : LocaleKeys.onboarding_create_wallet.tr();  // 지갑 소개
       case 2:
-        return '이렇게 할게!';  // 세 번째 화면 (캐릭터 선택)
+        return _hasExistingProfile
+            ? LocaleKeys.onboarding_confirmed.tr()  // 프로필 이미 있음 화면
+            : LocaleKeys.onboarding_lets_do_this.tr();  // 세 번째 화면 (캐릭터 선택)
       case 3:
-        return '이렇게 할게!';  // 네 번째 화면 (닉네임 입력)
+        return LocaleKeys.onboarding_lets_do_this.tr();  // 네 번째 화면 (닉네임 입력)
       case 4:
-        return '하미플 세계로 입장!';  // 다섯 번째 화면 (완료)
+        return LocaleKeys.onboarding_enter_world.tr();  // 다섯 번째 화면 (완료)
       default:
         return LocaleKeys.next.tr();
     }
@@ -957,6 +1136,15 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       return nickname.isNotEmpty && nickname.length >= 2;
     }
     return true;
+  }
+
+  String _getLoadingMessage() {
+    if (_isCheckingWallet || (currentSlideIndex == 1 && _isConfirming)) {
+      return LocaleKeys.onboarding_creating_wallet.tr();
+    } else if (currentSlideIndex == 4 && _isConfirming) {
+      return LocaleKeys.onboarding_entering_world.tr();
+    }
+    return LocaleKeys.onboarding_please_wait.tr();
   }
 
   @override
@@ -990,16 +1178,35 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               }
               
               // Check if wallet was created from onboarding
-              if (wepinState.walletCreatedFromOnboarding && currentSlideIndex == 1) {
-                '✅ Wallet creation from onboarding detected!'.log();
-                
-                // Reset the flag to prevent duplicate navigation
-                getIt<WepinCubit>().resetOnboardingWalletFlag();
-                
-                // Move to next page when wallet is created
-                Future.delayed(const Duration(milliseconds: 500), () {
-                  _moveToPage(2); // Move to character selection
-                });
+              // IMPORTANT: Only handle this on the wallet creation page (index 1)
+              if (wepinState.walletCreatedFromOnboarding) {
+                if (currentSlideIndex == 1) {
+                  '✅ Wallet creation from onboarding detected on wallet page!'.log();
+
+                  // Reset the flag to prevent duplicate navigation
+                  getIt<WepinCubit>().resetOnboardingWalletFlag();
+
+                  // Move to next page when wallet is created
+                  Future.delayed(const Duration(milliseconds: 500), () async {
+                    // Double check we're still on the wallet page
+                    if (currentSlideIndex == 1) {
+                      await _checkUserProfile();
+                      if (_hasExistingProfile) {
+                        '🆗 Polling 완료 + 프로필 존재 - 프로필 화면으로'.log();
+                        _moveToPage(2); // Show profile exists page
+                      } else {
+                        '🆕 Polling 완료 + 프로필 없음 - 캐릭터 선택으로'.log();
+                        _moveToPage(2); // Move to character selection
+                      }
+                    } else {
+                      '⚠️ Page changed during wallet creation, skipping navigation'.log();
+                    }
+                  });
+                } else {
+                  '⚠️ walletCreatedFromOnboarding flag detected on wrong page (${currentSlideIndex}), resetting'.log();
+                  // Reset the flag if we're on the wrong page
+                  getIt<WepinCubit>().resetOnboardingWalletFlag();
+                }
               }
             },
           ),
@@ -1069,21 +1276,32 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                         _hasExistingWallet 
                             ? const OnboardingPageWalletExists()  // 2. 지갑 있음 화면
                             : const OnboardingPageFirst(),        // 2. 지갑 소개
-                        OnboardingPageThird(           // 3. 캐릭터 선택 (1/10 ~ 10/10 변경 가능)
-                          onProfileSelected: (profile) {
-                            setState(() {
-                              selectedProfile = profile;
-                            });
-                          },
-                          onCharacterSelected: (character) {
-                            setState(() {
-                              selectedCharacter = character;
-                            });
-                          },
-                        ),
+                        _hasExistingProfile
+                            ? OnboardingPageProfileExists(  // 3. 프로필 이미지 있음 화면
+                                userProfile: getIt<ProfileCubit>().state.userProfileEntity,
+                              )
+                            : OnboardingPageThird(                 // 3. 캐릭터 선택 (1/10 ~ 10/10 변경 가능)
+                                onProfileSelected: (profile) {
+                                  setState(() {
+                                    selectedProfile = profile;
+                                  });
+                                },
+                                onCharacterSelected: (character) {
+                                  setState(() {
+                                    selectedCharacter = character;
+                                  });
+                                },
+                              ),
                         OnboardingPageFourth(          // 4. 닉네임 입력
-                          selectedProfile: selectedProfile,
-                          selectedCharacter: selectedCharacter,
+                          selectedProfile: _hasExistingProfile
+                              ? (getIt<ProfileCubit>().state.userProfileEntity?.profilePartsString ?? selectedProfile)
+                              : selectedProfile,
+                          selectedCharacter: _hasExistingProfile
+                              ? null  // Use existing profile parts
+                              : selectedCharacter,
+                          userProfile: _hasExistingProfile
+                              ? getIt<ProfileCubit>().state.userProfileEntity
+                              : null,
                           onNicknameChanged: (name) {
                             setState(() {
                               nickname = name;
@@ -1091,9 +1309,18 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           },
                         ),
                         OnboardingPageFifth(           // 5. 완료 축하
-                          selectedProfile: selectedProfile,
-                          selectedCharacter: selectedCharacter,
-                          nickname: nickname,
+                          selectedProfile: _hasExistingProfile
+                              ? (getIt<ProfileCubit>().state.userProfileEntity?.profilePartsString ?? selectedProfile)
+                              : selectedProfile,
+                          selectedCharacter: _hasExistingProfile
+                              ? null  // Use existing profile parts
+                              : selectedCharacter,
+                          nickname: _hasExistingNickname
+                              ? (getIt<ProfileCubit>().state.userProfileEntity?.nickName ?? nickname)
+                              : nickname,
+                          userProfile: _hasExistingProfile
+                              ? getIt<ProfileCubit>().state.userProfileEntity
+                              : null,
                         ),
                       ],
                     ),
@@ -1102,18 +1329,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   currentSlideIndex == 0 || currentSlideIndex == 1
                       ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 60.0),
-                          child: _isConfirming && currentSlideIndex == 1
-                              ? const Center(
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : GradientButton(
+                          child: GradientButton(
                                   text: _getButtonText(),
-                                  onPressed: _isCheckingWallet 
-                                      ? () {} // Disable button when checking wallet
+                                  onPressed: (_isCheckingWallet || _isConfirming)
+                                      ? () {} // Disable button when processing
                                       : (currentSlideIndex == 1 && !_hasExistingWallet
-                                          ? _createWepinWallet 
+                                          ? _createWepinWallet
                                           : _goToNextPage),
                                 ),
                         )
@@ -1121,63 +1342,147 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 60.0),
                           child: currentSlideIndex + 1 == 5
                               ? GradientButton(
-                                  text: '하미플 세계로 입장!',
+                                  text: LocaleKeys.onboarding_enter_world.tr(),
                                   onPressed: _isConfirming
                                             ? () {}
                                             : () async {
+                                                // Prevent multiple clicks
+                                                if (_isConfirming) {
+                                                  '⚠️ 이미 처리 중 - 중복 클릭 방지'.log();
+                                                  return;
+                                                }
+
                                                 setState(
                                                     () => _isConfirming = true);
-                                                
-                                                '🚀 온보딩 완료 - 프로필 업데이트 시작'.log();
-                                                '📝 닉네임: $nickname'.log();
-                                                '🎨 캐릭터: $selectedProfile'.log();
-                                                if (selectedCharacter != null) {
-                                                  '🎭 캐릭터 상세 정보: ${selectedCharacter!.toJsonString()}'.log();
-                                                }
-                                                
-                                                // Update user profile with nickname and character
+
+                                                '🚀 온보딩 완료 버튼 클릭'.log();
+
+                                                // Clear saved step immediately to prevent navigation issues
                                                 try {
-                                                  final profileCubit = getIt<ProfileCubit>();
-                                                  
-                                                  // Create update profile request
-                                                  final updateRequest = UpdateProfileRequestDto(
-                                                    nickName: nickname,
-                                                    profilePartsString: selectedCharacter?.toJsonString(),
-                                                  );
-                                                  
-                                                  // Update profile
-                                                  await profileCubit.onUpdateUserProfile(updateRequest);
-                                                  '✅ 프로필 업데이트 성공'.log();
+                                                  final prefs = await SharedPreferences.getInstance();
+                                                  await prefs.remove(StorageValues.onboardingCurrentStep);
+                                                  '🗑️ 저장된 온보딩 단계 즉시 삭제'.log();
                                                 } catch (e) {
-                                                  '❌ 프로필 업데이트 실패: $e'.log();
+                                                  '❌ Failed to clear saved step: $e'.log();
                                                 }
-                                                
+
+                                                // Check if user already has VALID profile image (not just URL)
+                                                final userProfile = getIt<ProfileCubit>().state.userProfileEntity;
+                                                bool hasValidProfileImage = false;
+
+                                                // Validate finalProfileImageUrl if it exists
+                                                if (userProfile?.finalProfileImageUrl?.isNotEmpty ?? false) {
+                                                  '🔍 Validating finalProfileImageUrl...'.log();
+                                                  final isValid = await _validateImageUrl(userProfile!.finalProfileImageUrl!);
+                                                  if (isValid) {
+                                                    hasValidProfileImage = true;
+                                                    '✅ finalProfileImageUrl is valid'.log();
+                                                  } else {
+                                                    '⚠️ finalProfileImageUrl exists but image is not valid'.log();
+                                                  }
+                                                }
+
+                                                // If no valid finalProfileImageUrl, check pfpImageUrl
+                                                if (!hasValidProfileImage && (userProfile?.pfpImageUrl?.isNotEmpty ?? false)) {
+                                                  '🔍 Validating pfpImageUrl...'.log();
+                                                  final isValid = await _validateImageUrl(userProfile!.pfpImageUrl!);
+                                                  if (isValid) {
+                                                    hasValidProfileImage = true;
+                                                    '✅ pfpImageUrl is valid'.log();
+                                                  } else {
+                                                    '⚠️ pfpImageUrl exists but image is not valid'.log();
+                                                  }
+                                                }
+
+                                                // Determine what needs to be updated
+                                                String? nicknameToUpdate = _hasExistingNickname ? null : nickname;
+                                                // Don't update profileParts if user already has a VALID profile image
+                                                String? profilePartsToUpdate = hasValidProfileImage ? null : selectedCharacter?.toJsonString();
+
+                                                '📊 업데이트 필요 여부 확인'.log();
+                                                '  - 유효한 프로필 이미지: ${hasValidProfileImage ? "있음" : "없음"}'.log();
+                                                if (userProfile != null) {
+                                                  '    - finalProfileImageUrl: ${userProfile.finalProfileImageUrl ?? "없음"}'.log();
+                                                  '    - pfpImageUrl: ${userProfile.pfpImageUrl ?? "없음"}'.log();
+                                                }
+                                                '  - 닉네임 업데이트 필요: ${nicknameToUpdate != null} ${nicknameToUpdate != null ? "($nicknameToUpdate)" : "(기존 유지)"}'.log();
+                                                '  - 프로필 파츠 업데이트 필요: ${profilePartsToUpdate != null} ${profilePartsToUpdate != null ? "(새 캐릭터)" : "(기존 이미지 유지)"}'.log();
+
+                                                // Only update if there's something new to update
+                                                if (nicknameToUpdate != null || profilePartsToUpdate != null) {
+                                                  '🚀 프로필 업데이트 시작'.log();
+
+                                                  try {
+                                                    final profileCubit = getIt<ProfileCubit>();
+
+                                                    // Create update profile request with only necessary fields
+                                                    final updateRequest = UpdateProfileRequestDto(
+                                                      nickName: nicknameToUpdate,
+                                                      profilePartsString: profilePartsToUpdate,
+                                                    );
+
+                                                    // Update profile
+                                                    await profileCubit.onUpdateUserProfile(updateRequest);
+                                                    '✅ 프로필 업데이트 성공'.log();
+
+                                                    // Save profile parts string locally if new character was created
+                                                    if (profilePartsToUpdate != null && selectedCharacter != null) {
+                                                      final prefs = await SharedPreferences.getInstance();
+                                                      await prefs.setString('profilePartsString', profilePartsToUpdate);
+                                                      '💾 새 프로필 파츠 로컬 저장 완료'.log();
+                                                    }
+
+                                                    // Start background task for image merging and NFT minting (only for new profiles without valid existing image)
+                                                    if (!hasValidProfileImage && selectedCharacter != null) {
+                                                      _startImageUploadTask(selectedCharacter);
+                                                    }
+                                                  } catch (e) {
+                                                    '❌ 프로필 업데이트 실패: $e'.log();
+                                                  }
+                                                } else {
+                                                  '✅ 기존 프로필과 닉네임이 모두 있음 - 업데이트 건너뛰기'.log();
+                                                  '📝 기존 닉네임: ${getIt<ProfileCubit>().state.userProfileEntity?.nickName}'.log();
+                                                  '🎨 기존 프로필 이미지: ${getIt<ProfileCubit>().state.userProfileEntity?.finalProfileImageUrl}'.log();
+                                                }
+
                                                 // Save onboarding completion and clear saved step
                                                 final prefs = await SharedPreferences.getInstance();
                                                 await prefs.setBool(StorageValues.onboardingCompleted, true);
                                                 await prefs.remove(StorageValues.onboardingCurrentStep);
-                                                
-                                                // Save profile parts string locally
-                                                if (selectedCharacter != null) {
-                                                  final profilePartsJson = selectedCharacter!.toJsonString();
-                                                  await prefs.setString('profilePartsString', profilePartsJson);
-                                                  '💾 프로필 파츠 로컬 저장 완료'.log();
-                                                }
+                                                // Save current onboarding version
+                                                await prefs.setInt(StorageValues.onboardingVersion, StorageValues.CURRENT_ONBOARDING_VERSION);
+                                                '💾 Saved onboarding version: ${StorageValues.CURRENT_ONBOARDING_VERSION}'.log();
                                                 '✅ 온보딩 완료 - 저장된 단계 초기화'.log();
-                                                
-                                                // Start background task for image merging and NFT minting
-                                                _startImageUploadTask(selectedCharacter);
-                                                
-                                                // Give the background task time to start before navigation
-                                                await Future.delayed(const Duration(milliseconds: 100));
-                                                
-                                                // Navigate to app screen
+
+                                                // Give the background task time to start before navigation (if needed)
+                                                if ((!hasValidProfileImage && selectedCharacter != null) || !_hasExistingNickname) {
+                                                  await Future.delayed(const Duration(milliseconds: 100));
+                                                }
+
+                                                // Navigate to app screen with safety checks
                                                 if (context.mounted) {
-                                                  Navigator.pushNamedAndRemoveUntil(
-                                                    context,
-                                                    Routes.appScreen,
-                                                    (route) => false,
-                                                  );
+                                                  '🚀 Navigating to app screen...'.log();
+                                                  try {
+                                                    // Ensure no lingering states
+                                                    setState(() {
+                                                      _isConfirming = false;
+                                                    });
+
+                                                    await Navigator.pushNamedAndRemoveUntil(
+                                                      context,
+                                                      Routes.appScreen,
+                                                      (route) => false,
+                                                    );
+                                                    '✅ Successfully navigated to app screen'.log();
+                                                  } catch (e) {
+                                                    '❌ Navigation failed: $e'.log();
+                                                    // Try alternative navigation if first attempt fails
+                                                    if (context.mounted) {
+                                                      Navigator.of(context).pushReplacementNamed(Routes.appScreen);
+                                                    }
+                                                  }
+                                                } else {
+                                                  '❌ Context not mounted, cannot navigate'.log();
                                                 }
                                               },
                                 )
@@ -1197,24 +1502,33 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   ),
                 ],
               ),
-              // Loading overlay when checking wallet
-              if (_isCheckingWallet)
+              // Loading overlay when checking wallet or processing
+              if (_isCheckingWallet || (_isConfirming && (currentSlideIndex == 1 || currentSlideIndex == 4)))
                 Container(
                   color: Colors.black.withValues(alpha: 0.5),
-                  child: const Center(
+                  child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircularProgressIndicator(
+                        const CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Text(
-                          '지갑 생성 중...',
-                          style: TextStyle(
+                          _getLoadingMessage(),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
+                            fontFamily: 'LINESeedKR',
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          LocaleKeys.onboarding_please_wait.tr(),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
                             fontFamily: 'LINESeedKR',
                           ),
                         ),
@@ -1243,7 +1557,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   /// Start background task to merge character layers and mint NFT
   Future<void> _startImageUploadTask(CharacterProfile? character) async {
     '🚀 _startImageUploadTask called with character: ${character != null}'.log();
-    
+
+    // Skip if user already has existing profile (no need to mint again)
+    if (_hasExistingProfile) {
+      '⚠️ User already has existing profile - skipping NFT minting'.log();
+      return;
+    }
+
     if (character == null) {
       '⚠️ No character selected for image upload'.log();
       return;
@@ -1321,12 +1641,21 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       // Get user profile for metadata
       final profileCubit = getIt<ProfileCubit>();
       final userProfile = profileCubit.state.userProfileEntity;
-      
+
       if (userProfile == null) {
         '❌ User profile not found'.log();
         return;
       }
-      
+
+      // Check if profile parts already exist (indicating NFT was already minted)
+      if (userProfile.profilePartsString != null &&
+          userProfile.profilePartsString!.isNotEmpty) {
+        '⚠️ Profile parts already exist (${userProfile.profilePartsString}), skipping NFT minting'.log();
+        return;
+      }
+
+      '✅ No existing profile parts found, proceeding with NFT minting'.log();
+
       // Construct URLs using server endpoints
       final imageUrl = '${appEnv.apiUrl}public/nft/user/${userProfile.id}/image';
       final metadataUrl = '${appEnv.apiUrl}public/nft/user/${userProfile.id}/metadata';
@@ -1389,8 +1718,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       await prefs.setBool(StorageValues.hasWallet, hasWallet);
       await prefs.setBool(StorageValues.hasProfileParts, hasProfileParts);
       await prefs.setBool(StorageValues.onboardingCompleted, true);
-      
-      '✅ Onboarding status updated - Wallet: $hasWallet, ProfileParts: $hasProfileParts'.log();
+      // Save current onboarding version when updating status
+      await prefs.setInt(StorageValues.onboardingVersion, StorageValues.CURRENT_ONBOARDING_VERSION);
+
+      '✅ Onboarding status updated - Wallet: $hasWallet, ProfileParts: $hasProfileParts, Version: ${StorageValues.CURRENT_ONBOARDING_VERSION}'.log();
     } catch (e) {
       '❌ Error updating onboarding status: $e'.log();
     }

@@ -30,7 +30,7 @@ class RoundedButtonWithBorder extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: fontCompactMdMedium(),
+          style: fontCompactMdMedium(color: Colors.white),
         ),
       ),
     );

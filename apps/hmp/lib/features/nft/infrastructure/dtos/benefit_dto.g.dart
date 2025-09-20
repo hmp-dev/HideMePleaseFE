@@ -25,9 +25,11 @@ Map<String, dynamic> _$NftBenefitsResponseDtoToJson(
 BenefitDto _$BenefitDtoFromJson(Map<String, dynamic> json) => BenefitDto(
       id: json['id'] as String?,
       description: json['description'] as String?,
+      descriptionEn: json['descriptionEn'] as String?,
       singleUse: json['singleUse'] as bool?,
       spaceId: json['spaceId'] as String?,
       spaceName: json['spaceName'] as String?,
+      spaceNameEn: json['spaceNameEn'] as String?,
       spaceImage: json['spaceImage'] as String?,
       used: json['used'] as bool?,
       state: json['state'] as String?,
@@ -43,9 +45,11 @@ Map<String, dynamic> _$BenefitDtoToJson(BenefitDto instance) =>
     <String, dynamic>{
       'id': instance.id,
       'description': instance.description,
+      'descriptionEn': instance.descriptionEn,
       'singleUse': instance.singleUse,
       'spaceId': instance.spaceId,
       'spaceName': instance.spaceName,
+      'spaceNameEn': instance.spaceNameEn,
       'spaceImage': instance.spaceImage,
       'used': instance.used,
       'state': instance.state,

@@ -6,6 +6,7 @@ class HMPCustomButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Color bgColor;
   final double height;
+  final Color? textColor;
 
   const HMPCustomButton({
     super.key,
@@ -13,6 +14,7 @@ class HMPCustomButton extends StatelessWidget {
     required this.onPressed,
     this.bgColor = backgroundGr1,
     this.height = 54,
+    this.textColor,
   });
 
   @override
@@ -31,7 +33,7 @@ class HMPCustomButton extends StatelessWidget {
           child: Center(
             child: Text(
               text,
-              style: fontCompactMd(),
+              style: fontCompactMd(color: textColor),
             ),
           ),
         ),

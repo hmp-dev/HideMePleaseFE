@@ -11,9 +11,17 @@ import ActivityKit
   ) -> Bool {
     GMSServices.provideAPIKey("AIzaSyDJNUW4Havfk4EV9oD7wzpmOikhUw4HpKs")
     GeneratedPluginRegistrant.register(with: self)
-    
+
     setupLiveActivityChannel()
-    
+
+    // Workmanager tasks are registered automatically by the Flutter plugin
+    // No need to manually register them here
+
+    // Enable background fetch for periodic tasks
+    UIApplication.shared.setMinimumBackgroundFetchInterval(
+      TimeInterval(60 * 15) // 15 minutes
+    )
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
   

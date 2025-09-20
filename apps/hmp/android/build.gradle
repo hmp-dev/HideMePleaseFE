@@ -34,6 +34,29 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+
+    // Fix for packages without namespace and JVM target compatibility
+    project.afterEvaluate {
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    namespace = "com.example.${project.name.replaceAll('-', '_')}"
+                }
+
+                // Fix JVM target compatibility
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_1_8
+                    targetCompatibility JavaVersion.VERSION_1_8
+                }
+
+                if (project.hasProperty('kotlin')) {
+                    kotlinOptions {
+                        jvmTarget = '1.8'
+                    }
+                }
+            }
+        }
+    }
 }
 subprojects {
     project.evaluationDependsOn(':app')

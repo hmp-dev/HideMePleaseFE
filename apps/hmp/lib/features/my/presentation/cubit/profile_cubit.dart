@@ -65,20 +65,13 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       },
       (user) async {
         var userEntity = user.toEntity();
-        
-        // Load profilePartsString from local storage if not present from server
-        if (userEntity.profilePartsString == null || userEntity.profilePartsString!.isEmpty) {
-          final prefs = await SharedPreferences.getInstance();
-          final localProfileParts = prefs.getString('profilePartsString');
-          if (localProfileParts != null && localProfileParts.isNotEmpty) {
-            print('📱 Loading profilePartsString from local storage');
-            userEntity = userEntity.copyWith(profilePartsString: localProfileParts);
-          }
-        }
-        
+
+        // Don't load from local storage - trust server response for new users
+        // This prevents old user data from affecting new email signups
+
         // Save profile parts status to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
-        final hasProfileParts = userEntity.profilePartsString != null && 
+        final hasProfileParts = userEntity.profilePartsString != null &&
                                userEntity.profilePartsString!.isNotEmpty;
         await prefs.setBool(StorageValues.hasProfileParts, hasProfileParts);
         print('💾 Saved profile parts status to SharedPreferences: $hasProfileParts');

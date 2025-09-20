@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 import 'package:mobile/features/common/presentation/widgets/vertical_space.dart';
@@ -46,7 +47,9 @@ class HomeBenefitItemWidget extends StatelessWidget {
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.4,
                     child: Text(
-                      benefitEntity.description,
+                      context.locale.languageCode == 'en' && benefitEntity.descriptionEn.isNotEmpty
+                          ? benefitEntity.descriptionEn
+                          : benefitEntity.description,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: fontCompactMdMedium(),
@@ -56,7 +59,9 @@ class HomeBenefitItemWidget extends StatelessWidget {
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.4,
                     child: Text(
-                      benefitEntity.spaceName,
+                      context.locale.languageCode == 'en' && benefitEntity.spaceNameEn.isNotEmpty
+                          ? benefitEntity.spaceNameEn
+                          : benefitEntity.spaceName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: fontCompactSm(color: fore3),

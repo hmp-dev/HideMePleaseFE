@@ -26,12 +26,27 @@ class ProfileAvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Priority 1: Use layered rendering if profilePartsString is available
+    // Priority 1: Use image URL if available (finalProfileImageUrl or pfpImageUrl)
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      debugPrint('🎨 ProfileAvatarWidget - Using image URL: $imageUrl');
+      debugPrint('🎨 ProfileAvatarWidget - Size: $size x $size');
+      return CustomImageView(
+        url: imageUrl,
+        fit: fit,
+        width: size,
+        height: size,
+        radius: BorderRadius.circular(borderRadius),
+        placeHolder: placeholderPath,
+      );
+    }
+
+    // Priority 2: Use layered rendering if profilePartsString is available
     if (profilePartsString != null && profilePartsString!.isNotEmpty) {
       try {
+        debugPrint('🎨 ProfileAvatarWidget - Using profilePartsString');
         final characterData = jsonDecode(profilePartsString!);
         final character = CharacterProfile.fromJson(characterData);
-        
+
         return ClipRRect(
           borderRadius: BorderRadius.circular(borderRadius),
           child: SizedBox(
@@ -46,13 +61,14 @@ class ProfileAvatarWidget extends StatelessWidget {
         );
       } catch (e) {
         debugPrint('Error parsing profilePartsString: $e');
-        // Fall through to URL-based rendering
+        // Fall through to placeholder
       }
     }
 
-    // Priority 2: Use image URL if available
+    // Priority 3: Use placeholder
+    debugPrint('🎨 ProfileAvatarWidget - Using placeholder');
     return CustomImageView(
-      url: imageUrl,
+      url: null,
       fit: fit,
       width: size,
       height: size,
@@ -87,12 +103,24 @@ class CircularProfileAvatarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget avatarContent;
 
-    // Try to use layered rendering first
-    if (profilePartsString != null && profilePartsString!.isNotEmpty) {
+    // Priority 1: Use image URL if available
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      debugPrint('🎨 CircularProfileAvatarWidget - Using image URL: $imageUrl');
+      avatarContent = CustomImageView(
+        url: imageUrl,
+        fit: BoxFit.cover,
+        width: size,
+        height: size,
+        placeHolder: placeholderPath,
+      );
+    }
+    // Priority 2: Try to use layered rendering if profilePartsString is available
+    else if (profilePartsString != null && profilePartsString!.isNotEmpty) {
       try {
+        debugPrint('🎨 CircularProfileAvatarWidget - Using profilePartsString');
         final characterData = jsonDecode(profilePartsString!);
         final character = CharacterProfile.fromJson(characterData);
-        
+
         avatarContent = CharacterLayerWidget(
           character: character,
           size: size,
@@ -100,9 +128,9 @@ class CircularProfileAvatarWidget extends StatelessWidget {
         );
       } catch (e) {
         debugPrint('Error parsing profilePartsString: $e');
-        // Fall back to image URL
+        // Fall back to placeholder
         avatarContent = CustomImageView(
-          url: imageUrl,
+          url: null,
           fit: BoxFit.cover,
           width: size,
           height: size,
@@ -110,9 +138,10 @@ class CircularProfileAvatarWidget extends StatelessWidget {
         );
       }
     } else {
-      // Use image URL
+      // Use placeholder
+      debugPrint('🎨 CircularProfileAvatarWidget - Using placeholder');
       avatarContent = CustomImageView(
-        url: imageUrl,
+        url: null,
         fit: BoxFit.cover,
         width: size,
         height: size,

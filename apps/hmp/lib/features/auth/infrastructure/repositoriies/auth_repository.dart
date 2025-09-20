@@ -80,7 +80,18 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       late final AuthCredential credential;
 
-      final googleUser = await GoogleSignIn().signIn();
+      // Configure GoogleSignIn with proper scopes and server client ID for ID token
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: [
+          'email',
+          'openid',
+          'profile',
+        ],
+        // Web OAuth 2.0 Client ID from Firebase Console (required for ID token)
+        serverClientId: '307052986452-fnrk7udocq38qvmvrejb49je531hlr8f.apps.googleusercontent.com',
+      );
+
+      final googleUser = await googleSignIn.signIn();
       final googleAuth = await googleUser!.authentication;
 
       credential = GoogleAuthProvider.credential(

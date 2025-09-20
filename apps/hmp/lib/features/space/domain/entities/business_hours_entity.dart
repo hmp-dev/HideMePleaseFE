@@ -56,13 +56,13 @@ class BusinessHoursEntity extends Equatable {
     final openMinutes = openHour * 60 + openMinute;
     final closeMinutes = closeHour * 60 + closeMinute;
 
-    // Check if within business hours
+    // Check if within business hours (including closing time)
     bool isWithinBusinessHours = false;
     if (closeMinutes < openMinutes) {
       // Handles cases like 22:00 - 02:00 (across midnight)
-      isWithinBusinessHours = currentMinutes >= openMinutes || currentMinutes < closeMinutes;
+      isWithinBusinessHours = currentMinutes >= openMinutes || currentMinutes <= closeMinutes;
     } else {
-      isWithinBusinessHours = currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+      isWithinBusinessHours = currentMinutes >= openMinutes && currentMinutes <= closeMinutes;
     }
 
     // Check if in break time

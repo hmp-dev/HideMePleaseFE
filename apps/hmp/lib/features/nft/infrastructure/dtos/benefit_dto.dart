@@ -32,9 +32,13 @@ class NftBenefitsResponseDto extends Equatable {
 class BenefitDto extends Equatable {
   final String? id;
   final String? description;
+  @JsonKey(name: "descriptionEn")
+  final String? descriptionEn;
   final bool? singleUse;
   final String? spaceId;
   final String? spaceName;
+  @JsonKey(name: "spaceNameEn")
+  final String? spaceNameEn;
   final String? spaceImage;
   final bool? used;
   final String? state;
@@ -48,9 +52,11 @@ class BenefitDto extends Equatable {
   const BenefitDto({
     this.id,
     this.description,
+    this.descriptionEn,
     this.singleUse,
     this.spaceId,
     this.spaceName,
+    this.spaceNameEn,
     this.spaceImage,
     this.used,
     this.state,
@@ -72,9 +78,11 @@ class BenefitDto extends Equatable {
     return [
       id,
       description,
+      descriptionEn,
       singleUse,
       spaceId,
       spaceName,
+      spaceNameEn,
       spaceImage,
       used,
       state,
@@ -91,9 +99,11 @@ class BenefitDto extends Equatable {
     return BenefitEntity(
       id: id ?? '',
       description: description ?? '',
+      descriptionEn: descriptionEn ?? '',
       singleUse: singleUse ?? false,
       spaceId: spaceId ?? '',
       spaceName: spaceName ?? '',
+      spaceNameEn: spaceNameEn ?? '',
       spaceImage: spaceImage ?? '',
       used: used ?? false,
       state: state ?? '',
