@@ -172,6 +172,23 @@ class AppCubit extends BaseCubit<AppState> {
       await prefs.remove(StorageValues.onboardingCurrentStep);
       await prefs.remove('profilePartsString'); // 프로필 이미지 데이터 삭제
       await prefs.remove(StorageValues.hasProfileParts); // Clear profile parts flag
+
+      // Clear check-in related data
+      await prefs.remove(StorageValues.activeCheckInSpaceId);
+      await prefs.remove(StorageValues.checkInTimestamp);
+      await prefs.remove(StorageValues.checkInLatitude);
+      await prefs.remove(StorageValues.checkInLongitude);
+      await prefs.remove(StorageValues.checkInSpaceName);
+      await prefs.remove(StorageValues.checkInBenefitId);
+      await prefs.remove(StorageValues.checkInBenefitDescription);
+      // Clear workmanager related check-in data
+      await prefs.remove('currentCheckedInSpaceId');
+      await prefs.remove('checkInLatitude');
+      await prefs.remove('checkInLongitude');
+      await prefs.remove('shouldAutoCheckOut');
+      await prefs.remove('pendingCheckOutSpaceId');
+      '✅ [AppCubit] Check-in data cleared'.log();
+
       '✅ [AppCubit] SharedPreferences cleared'.log();
 
       // End Live Activity before logout

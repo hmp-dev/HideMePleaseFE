@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
-import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
-import 'package:mobile/features/settings/presentation/screens/announcement_screen.dart';
+import 'package:mobile/features/settings/presentation/cubit/notifications_cubit.dart';
+import 'package:mobile/features/settings/presentation/screens/notifications_screen.dart';
 
 class AlarmsIconButton extends StatelessWidget {
   const AlarmsIconButton({super.key});
@@ -13,8 +13,8 @@ class AlarmsIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        getIt<SettingsCubit>().onGetAnnouncements();
-        AnnouncementScreen.push(context);
+        getIt<NotificationsCubit>().onStart();
+        NotificationsScreen.push(context);
       },
       child: DefaultImage(
         path: "assets/icons/ic_notification.svg",

@@ -51,8 +51,12 @@ import 'package:mobile/features/space/presentation/widgets/space_benefit_list_wi
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/space/presentation/widgets/share_dialog.dart';
+import 'package:mobile/features/space/presentation/widgets/siren_create_dialog.dart';
+import 'package:mobile/features/space/presentation/widgets/siren_post_success_dialog.dart';
+import 'package:mobile/features/space/presentation/cubit/siren_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/app/core/constants/storage.dart';
+import 'package:mobile/features/friends/presentation/screens/user_profile_screen.dart';
 
 class SpaceDetailView extends StatefulWidget {
   const SpaceDetailView({super.key, required this.space, this.spaceEntity});
@@ -489,8 +493,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                     onCheckIn: _handleCheckIn,
                     benefits: state.benefitsGroupEntity.benefits,
                     currentGroupProgress: _currentGroup?.progress ?? widget.space.currentGroupProgress,
-                    onComingSoon: _showComingSoonDialog,
-                    onShare: false ? _showShareDialog : _showShareComingSoonDialog,
+                    onComingSoon: _showSirenCreateDialog,
+                    onShare: true ? _showShareDialog : _showShareComingSoonDialog,
                     currentGroup: _currentGroup,
                   );
                 },
@@ -2142,64 +2146,59 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
     );
   }
 
-  void _showComingSoonDialog() {
+  void _showSirenCreateDialog() async {
+    final sirenCubit = getIt<SirenCubit>();
+    final profileCubit = getIt<ProfileCubit>();
+
+    final locale = context.locale.languageCode;
+    final isEnglish = locale == 'en';
+    final spaceName = isEnglish && widget.space.nameEn?.isNotEmpty == true
+        ? widget.space.nameEn!
+        : widget.space.name ?? '';
+
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.white,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  LocaleKeys.coming_soon.tr(),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  LocaleKeys.notification_coming_soon.tr(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
+      builder: (BuildContext dialogContext) {
+        return SirenCreateDialog(
+          spaceId: widget.space.id ?? '',
+          spaceName: spaceName,
+          onConfirm: (String message, int hours, int points) async {
+            // 사이렌 생성
+            final success = await sirenCubit.createSiren(
+              spaceId: widget.space.id ?? '',
+              message: message,
+              days: hours, // hours를 그대로 전달 (cubit에서 변환)
+            );
+
+            if (success) {
+              // 프로필 다시 조회하여 최신 SAV 포인트 가져오기
+              await profileCubit.onGetUserProfile();
+
+              final currentPoints = profileCubit.state.userProfileEntity?.availableBalance ?? 0;
+
+              // 성공 다이얼로그 표시
+              if (context.mounted) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext successContext) {
+                    return SirenPostSuccessDialog(
+                      pointsUsed: points,
+                      remainingPoints: currentPoints,
+                    );
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF19BAFF),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      LocaleKeys.confirm.tr(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+                );
+              }
+            } else {
+              // 실패 시 에러 메시지 토스트
+              Fluttertoast.showToast(
+                msg: '포인트가 부족해!',
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: const Color(0xFFE8F4F8),
+                textColor: Colors.black87,
+              );
+            }
+          },
         );
       },
     );
@@ -2799,6 +2798,7 @@ class HidingStatusBanner extends StatelessWidget {
             child: _PlayerAvatar(
               imagePath: imageUrl,
               name: member.nickName,
+              userId: member.userId,
               isActive: isCurrentUser,
               hasAnyMembersInGroup: hasAnyMembers,
             ),
@@ -2859,6 +2859,7 @@ class HidingStatusBanner extends StatelessWidget {
 class _PlayerAvatar extends StatelessWidget {
   final String imagePath;
   final String name;
+  final String? userId;
   final bool isActive;
   final bool showTransparentOnEmpty;
   final bool hasAnyMembersInGroup;
@@ -2866,6 +2867,7 @@ class _PlayerAvatar extends StatelessWidget {
   const _PlayerAvatar({
     required this.imagePath,
     required this.name,
+    this.userId,
     this.isActive = false,
     this.showTransparentOnEmpty = false,
     this.hasAnyMembersInGroup = true, // 기본값 true로 설정 (기존 동작 유지)
@@ -2875,8 +2877,9 @@ class _PlayerAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     // 그룹에 실제 멤버가 있는 경우에만 이름 영역 높이 확보
     final bool reserveNameSpace = hasAnyMembersInGroup;
-    
-    return SizedBox(
+    final bool isClickable = name.isNotEmpty && userId != null && userId!.isNotEmpty;
+
+    Widget avatarWidget = SizedBox(
       height: reserveNameSpace ? 80 : 50, // 멤버가 있으면 80, 없으면 50 (아바타만)
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start, // 위쪽 정렬
@@ -2886,7 +2889,7 @@ class _PlayerAvatar extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: isActive
-                  ? Border.all(color: const Color(0xFF00A3FF), width: 1, style: BorderStyle.solid)
+                  ? Border.all(color: Colors.black, width: 1, style: BorderStyle.solid)
                   : Border.all(color: Colors.transparent, width: 0, style: BorderStyle.none),
               boxShadow: isActive
                   ? [
@@ -2933,6 +2936,17 @@ class _PlayerAvatar extends StatelessWidget {
         ],
       ),
     );
+
+    if (isClickable) {
+      return GestureDetector(
+        onTap: () {
+          UserProfileScreen.push(context, userId: userId!);
+        },
+        child: avatarWidget,
+      );
+    }
+
+    return avatarWidget;
   }
 }
 

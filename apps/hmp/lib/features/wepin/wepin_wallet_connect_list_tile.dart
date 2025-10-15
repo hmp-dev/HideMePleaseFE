@@ -83,7 +83,8 @@ class _WepinWalletConnectLisTileState extends State<WepinWalletConnectLisTile> {
                 getIt<NftCubit>().state.welcomeNftEntity.remainingCount > 0) {
               "inside call to onGetConsumeWelcomeNft".log();
 
-              getIt<NftCubit>().onGetConsumeWelcomeNft();
+              // WelcomeNft is no longer used - commented out to prevent requests
+              // getIt<NftCubit>().onGetConsumeWelcomeNft();
 
               //
               context.showSnackBarBottom(

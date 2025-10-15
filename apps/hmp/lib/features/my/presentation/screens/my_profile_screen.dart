@@ -4,27 +4,19 @@ import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:palette_generator/palette_generator.dart';
-import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
-import 'package:mobile/features/common/presentation/widgets/default_image.dart';
 import 'package:mobile/features/common/presentation/widgets/profile_avatar_widget.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
-import 'package:mobile/features/wallets/presentation/screens/connected_wallets_list_view.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
-import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
-import 'package:mobile/generated/locale_keys.g.dart';
-import 'package:mobile/features/space/presentation/widgets/space_guide_overlay.dart';
+import 'package:mobile/features/my/presentation/widgets/profile_image_fullscreen_viewer.dart';
+import 'package:mobile/features/friends/presentation/cubit/friends_cubit.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -93,7 +85,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     } else {
       print('✅ WePIN SDK 이미 초기화됨: ${wepinCubit.state.wepinLifeCycleStatus}');
     }
-    
+
+    // 친구 통계 로드 (친구 수 표시를 위해)
+    final friendsCubit = getIt<FriendsCubit>();
+    friendsCubit.getFriendStats();
+
     // ProfileCubit is already initialized in start_up_screen
     // Just get the current state and refresh if needed
     final profileCubit = getIt<ProfileCubit>();
@@ -242,12 +238,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
                       const SizedBox(height: 20),
 
+                      // 프로필 이미지 (크게)
+                      _buildProfileImage(userProfile),
+
                       const SizedBox(height: 20),
-
-                      // 프로필 섹션 (좌우 버튼 포함)
-                      _buildProfileWithButtons(userProfile),
-
-                      const SizedBox(height: 16),
 
                       // 이름과 소개
                       _buildNameAndIntro(userProfile),
@@ -257,21 +251,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       // 통계 섹션
                       _buildStatsSection(userProfile),
 
-                      const SizedBox(height: 30),
-
-                      // 여기에 숨었었어! 섹션
-                      _buildCardSection(
-                        title: LocaleKeys.i_was_hiding_here.tr(),
-                        content: LocaleKeys.update_in_progress.tr(),
-                      ),
-
                       const SizedBox(height: 20),
 
-                      // 업적을 확인해봐! 섹션
-                      _buildCardSection(
-                        title: LocaleKeys.check_your_achievements.tr(),
-                        content: LocaleKeys.update_in_progress.tr(),
-                      ),
+                      // 액션 버튼들 (찜, 지갑)
+                      _buildActionButtons(userProfile),
 
                       const SizedBox(height: 100), // 바텀바 공간
                     ],
@@ -384,130 +367,143 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     );
   }
 
-  Widget _buildProfileWithButtons(userProfile) {
-    return Container(
-      height: 160,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // 스페이서 (왼쪽 공간)
-          const Spacer(),
-          
-          // 프로필 이미지 - 화면 중앙에 배치
-          RepaintBoundary(
-            key: _profileKey,
-            child: Container(
-              width: 160,
-              height: 160,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(80), // 완전한 원형 (width의 절반)
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF72CCFF),
-                    const Color(0xFFF9F395),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+  Widget _buildProfileImage(userProfile) {
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          _showProfileImageFullscreen(userProfile);
+        },
+        child: RepaintBoundary(
+          key: _profileKey,
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.white,
+              border: Border.all(color: Colors.black, width: 1),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(19),
+              child: ProfileAvatarWidget(
+                profilePartsString: userProfile?.profilePartsString,
+                imageUrl: userProfile?.finalProfileImageUrl ?? userProfile?.pfpImageUrl,
+                size: 300,
+                borderRadius: 0,
+                placeholderPath: 'assets/images/profile_img.png',
+                fit: BoxFit.cover,
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(3),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(77), // 완전한 원형 유지
-                    color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(userProfile) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          // 찜 버튼
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                // 찜 기능 구현
+              },
+              child: Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 1,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(2),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(75), // 완전한 원형 유지
-                      child: ProfileAvatarWidget(
-                        profilePartsString: userProfile?.profilePartsString,
-                        imageUrl: userProfile?.finalProfileImageUrl ?? userProfile?.pfpImageUrl,
-                        size: 154,
-                        borderRadius: 0, // Already clipped by parent ClipRRect
-                        placeholderPath: 'assets/images/profile_img.png',  // Use launcher icon as default
-                        fit: BoxFit.cover,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/icons/ic_myzzim.png',
+                      width: 24,
+                      height: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      LocaleKeys.favorite.tr(),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
           ),
-          
-          // 스페이서 및 오른쪽 버튼들
+
+          const SizedBox(width: 16),
+
+          // 지갑 버튼
           Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // 찜 버튼
-                GestureDetector(
-                  onTap: () {
-                    // 찜 기능 구현
-                  },
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    color: Colors.transparent,
-                    child: Center(
-                      child: Image.asset(
-                        'assets/icons/ic_myzzim.png',
-                        width: 28,
-                        height: 28,
+            child: GestureDetector(
+              onTap: () async {
+                print('🔘 지갑 버튼 클릭됨');
+
+                try {
+                  final wepinCubit = getIt<WepinCubit>();
+                  await wepinCubit.openWepinWidget(context);
+                } catch (e) {
+                  print('❌ 지갑 버튼 에러: $e');
+                }
+              },
+              child: Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/icons/ic_mywallet.png',
+                      width: 24,
+                      height: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      LocaleKeys.wallet.tr(),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  LocaleKeys.favorite.tr(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 11,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // 지갑 버튼
-                GestureDetector(
-                  onTap: () async {
-                    print('🔘 지갑 버튼 클릭됨');
-                    
-                    try {
-                      final wepinCubit = getIt<WepinCubit>();
-                      // openWepinWidget이 모든 상태를 처리
-                      // initialized 상태에서 loginSocialAuthProvider가 토큰 새로고침을 처리
-                      await wepinCubit.openWepinWidget(context);
-                    } catch (e) {
-                      print('❌ 지갑 버튼 에러: $e');
-                    }
-                  },
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    color: Colors.transparent,
-                    child: Center(
-                      child: Image.asset(
-                        'assets/icons/ic_mywallet.png',
-                        width: 28,
-                        height: 28,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  LocaleKeys.wallet.tr(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showProfileImageFullscreen(userProfile) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ProfileImageFullscreenViewer(
+          profilePartsString: userProfile?.profilePartsString,
+          imageUrl: userProfile?.finalProfileImageUrl ?? userProfile?.pfpImageUrl,
+        ),
       ),
     );
   }
@@ -557,33 +553,40 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Widget _buildStatsSection(userProfile) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      height: 80,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF72CCFF),
-            const Color(0xFFBED7FF),
-            const Color(0xFFF9F395),
-          ],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(40),
-        border: Border.all(
-          color: const Color(0xFF132E41).withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildStatItem('0', LocaleKeys.friends.tr(), 'assets/icons/icon_status_friends.png'),
-          _buildStatItem(userProfile?.checkInStats?.totalCheckIns?.toString() ?? '0', LocaleKeys.check_in.tr(), 'assets/icons/icon_status_checkin.png'),
-          _buildStatItem(userProfile?.availableBalance?.toString() ?? '0', 'SAVORY', 'assets/icons/icon_status_sav.png'),
-        ],
-      ),
+    return BlocBuilder<FriendsCubit, FriendsState>(
+      bloc: getIt<FriendsCubit>(),
+      builder: (context, friendsState) {
+        final friendCount = friendsState.friendStats?.totalFriends?.toString() ?? '0';
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          height: 80,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                const Color(0xFF72CCFF),
+                const Color(0xFFBED7FF),
+                const Color(0xFFF9F395),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(40),
+            border: Border.all(
+              color: Colors.black,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildStatItem(friendCount, LocaleKeys.friends.tr(), 'assets/icons/icon_status_friends.png'),
+              _buildStatItem(userProfile?.checkInStats?.totalCheckIns?.toString() ?? '0', LocaleKeys.check_in.tr(), 'assets/icons/icon_status_checkin.png'),
+              _buildStatItem(userProfile?.availableBalance?.toString() ?? '0', 'SAVORY', 'assets/icons/icon_status_sav.png'),
+            ],
+          ),
+        );
+      },
     );
   }
 

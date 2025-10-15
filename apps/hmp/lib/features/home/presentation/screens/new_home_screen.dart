@@ -21,6 +21,13 @@ import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mobile/features/map/presentation/map_screen.dart';
 import 'package:mobile/features/app/presentation/cubit/page_cubit.dart';
 import 'package:mobile/app/core/enum/menu_type.dart';
+import 'package:mobile/features/space/presentation/cubit/siren_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/features/space/presentation/cubit/siren_state.dart';
+import 'package:mobile/features/friends/presentation/screens/user_profile_screen.dart';
+import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
+import 'package:mobile/features/settings/presentation/cubit/notifications_cubit.dart';
+import 'package:mobile/features/settings/presentation/screens/notifications_screen.dart';
 
 class NewHomeScreen extends StatefulWidget {
   final VoidCallback? onShowGuide;
@@ -48,7 +55,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   bool _isUsingProfileImage = false; // 프로필 이미지 사용 여부 추적
   static const double NEARBY_RADIUS_KM = 5.0; // 5km 반경
   StreamSubscription? _profileSubscription;
-  
+  late final SirenCubit _sirenCubit;
+  ScrollController? _sirenScrollController;
+  Timer? _sirenAutoScrollTimer;
+  int _currentSirenIndex = 0;
+
   static const String mapboxAccessToken = 
       'pk.eyJ1IjoiaXhwbG9yZXIiLCJhIjoiY21hbmRkN24xMHJoNDJscHI2cHg0MndteiJ9.UsGyNkHONIeWgivVmAgGbw';
 
@@ -66,6 +77,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   @override
   void initState() {
     super.initState();
+    _sirenCubit = getIt<SirenCubit>();
     WidgetsBinding.instance.addObserver(this);
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -79,6 +91,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
     _checkFirstTimeUser();
     _subscribeToProfileChanges();
     _checkBackgroundLocationPermission();
+    _initializeSirenAutoScroll();
   }
 
   Future<void> _checkBackgroundLocationPermission() async {
@@ -104,6 +117,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   @override
   void dispose() {
     _profileSubscription?.cancel();
+    _sirenAutoScrollTimer?.cancel();
+    _sirenScrollController?.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -122,10 +137,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   Future<void> _refreshLocationAndMap() async {
     // 현재 위치 다시 가져오기
     await _getCurrentLocation();
-    
+
     // 매장 데이터 다시 로드
     await _loadSpaces();
-    
+
     // 맵이 존재하면 카메라 위치 및 마커 업데이트
     if (mapboxMap != null) {
       _updateMapLocation();
@@ -158,19 +173,55 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   
 
   Future<void> _initializeData() async {
-    await _getCurrentLocation();
+    await _getCurrentLocation(); // _getCurrentLocation() 내부에서 _loadSirens() 호출됨
     await _loadSpaces();
+  }
+
+  void _loadSirens() {
+    print('🔄 [HomeScreen] Loading sirens - location: ($currentLatitude, $currentLongitude)');
+    _sirenCubit.fetchSirenList(
+      sortBy: 'time',
+      latitude: currentLatitude,
+      longitude: currentLongitude,
+    );
+    // Note: fetchSirenList is async, BlocBuilder will update UI when data loads
+  }
+
+  void _initializeSirenAutoScroll() {
+    _sirenScrollController = ScrollController();
+    _startSirenAutoScroll();
+  }
+
+  void _startSirenAutoScroll() {
+    _sirenAutoScrollTimer?.cancel();
+    _sirenAutoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (_sirenScrollController?.hasClients == true && _sirenCubit.state.sirenList.isNotEmpty) {
+        _currentSirenIndex = (_currentSirenIndex + 1) % _sirenCubit.state.sirenList.length;
+        final double offset = _currentSirenIndex * 88.0; // 카드 높이(80) + margin(8)
+        _sirenScrollController?.animateTo(
+          offset,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   Future<void> _getCurrentLocation() async {
     try {
       bool serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return;
+      if (!serviceEnabled) {
+        _loadSirens(); // 기본 위치로 사이렌 로드
+        return;
+      }
 
       geo.LocationPermission permission = await geo.Geolocator.checkPermission();
       if (permission == geo.LocationPermission.denied) {
         permission = await geo.Geolocator.requestPermission();
-        if (permission == geo.LocationPermission.denied) return;
+        if (permission == geo.LocationPermission.denied) {
+          _loadSirens(); // 기본 위치로 사이렌 로드
+          return;
+        }
       }
 
       final position = await geo.Geolocator.getCurrentPosition(
@@ -188,8 +239,12 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
       if (allSpaces.isNotEmpty) {
         _addSpaceMarkers();
       }
+      // 새 위치 기준으로 사이렌도 재로드
+      _loadSirens();
     } catch (e) {
-      // 위치 가져오기 실패: $e
+      print('❌ Error getting location: $e');
+      // 위치 정보 없이도 기본 위치로 사이렌 로드
+      _loadSirens();
     }
   }
   
@@ -694,6 +749,12 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   }
   
   void _onMapCreated(MapboxMap mapboxMap) async {
+    // 이미 초기화되었으면 중복 실행 방지
+    if (this.mapboxMap != null) {
+      print('⚠️ [HomeScreen] Map already initialized, skipping duplicate initialization');
+      return;
+    }
+
     this.mapboxMap = mapboxMap;
     mapboxMap.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
     mapboxMap.compass.updateSettings(CompassSettings(enabled: false));
@@ -706,20 +767,28 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
       pitchEnabled: false,
       rotateEnabled: false,
     ));
-    
+
     // 매장 마커 매니저 초기화 (먼저 생성)
     _spaceMarkerManager = await mapboxMap.annotations.createPointAnnotationManager();
-    
+
     // 현재 위치 마커 매니저 초기화 (나중에 생성하여 위에 표시)
     _currentLocationManager = await mapboxMap.annotations.createPointAnnotationManager();
-    
+
     // 마커 이미지 등록
     await _addSpaceMarkerImages();
     await _addCurrentLocationMarkerImage();
-    
+
+    // 현재 위치가 기본값인 경우 다시 가져오기
+    print('📍 [HomeScreen] Map created - current location: $currentLatitude, $currentLongitude');
+    if (currentLatitude == 37.5665 && currentLongitude == 126.9780) {
+      print('⚠️ [HomeScreen] Using default location, fetching current location...');
+      await _getCurrentLocation();
+      print('✅ [HomeScreen] Location updated: $currentLatitude, $currentLongitude');
+    }
+
     // 현재 위치로 카메라 설정
     _updateMapLocation();
-    
+
     // 매장 마커 추가
     if (allSpaces.isNotEmpty) {
       _addSpaceMarkers();
@@ -846,7 +915,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
                             height: 28,
                           ),
                           iconSize: 28,
-                          onPressed: _showNotificationComingSoonDialog,
+                          onPressed: () {
+                            getIt<NotificationsCubit>().onStart();
+                            NotificationsScreen.push(context);
+                          },
                         ),
                         if (false) ...[
                         Positioned(
@@ -999,20 +1071,37 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
               */
               const SizedBox(height: 24),
 
+              // Come On! 하이더들의 사이렌을 확인해봐! 섹션
+              _buildSirenSection(),
+
+              const SizedBox(height: 24),
+
               // NEW! 새로 숨을 곳이 생겼어! 섹션
-              _buildSpaceSection(
-                title: LocaleKeys.new_hiding_places.tr(),
-                spaces: nearbySpaces,
-                showCategoryTag: true,
+              BlocBuilder<SpaceCubit, SpaceState>(
+                bloc: getIt<SpaceCubit>(),
+                builder: (context, spaceState) {
+                  final spaces = spaceState.spaceList.take(3).toList();
+                  return _buildSpaceSection(
+                    title: LocaleKeys.new_hiding_places.tr(),
+                    spaces: spaces,
+                    showCategoryTag: true,
+                  );
+                },
               ),
 
               const SizedBox(height: 24),
 
               // 근처 이런 곳에 숨어봐! 섹션
-              _buildSpaceSection(
-                title: LocaleKeys.nearby_hiding_places.tr(),
-                spaces: recommendedSpaces,
-                showCategoryTag: false,
+              BlocBuilder<SpaceCubit, SpaceState>(
+                bloc: getIt<SpaceCubit>(),
+                builder: (context, spaceState) {
+                  final spaces = spaceState.spaceList.skip(3).take(3).toList();
+                  return _buildSpaceSection(
+                    title: LocaleKeys.nearby_hiding_places.tr(),
+                    spaces: spaces,
+                    showCategoryTag: false,
+                  );
+                },
               ),
 
               SizedBox(height: MediaQuery.of(context).padding.bottom + 100), // 바텀바 공간
@@ -1099,66 +1188,199 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
     );
   }
 
-  void _showNotificationComingSoonDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.white,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+  Widget _buildSirenSection() {
+    return BlocBuilder<SirenCubit, SirenState>(
+      bloc: _sirenCubit,
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                LocaleKeys.siren_home_title.tr(),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF132E41),
+                  fontFamily: 'LINESeedKR',
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  LocaleKeys.notification_home_coming_soon.tr(),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  LocaleKeys.notification_home_coming_soon.tr(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            const SizedBox(height: 12),
+            state.sirenList.isEmpty
+                ? Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF19BAFF),
-                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.white.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF132E41), width: 1),
                     ),
-                    child: const Text(
-                      '확인',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                    child: Center(
+                      child: Text(
+                        LocaleKeys.siren_home_empty_message.tr(),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF132E41),
+                          fontFamily: 'LINESeedKR',
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
+                  )
+                : SizedBox(
+                    height: 88,
+                    child: ListView.builder(
+                      controller: _sirenScrollController,
+                      padding: EdgeInsets.zero,
+                      physics: const ClampingScrollPhysics(),
+                      itemExtent: 88,
+                      itemCount: state.sirenList.length,
+                      itemBuilder: (context, index) {
+                        final siren = state.sirenList[index];
+                        final locale = context.locale.languageCode;
+                        final isEnglish = locale == 'en';
+                        final spaceName = isEnglish && siren.space?.nameEn.isNotEmpty == true
+                            ? siren.space!.nameEn
+                            : siren.space?.name ?? '';
+
+                        return GestureDetector(
+                          onTap: () {
+                            // 사이렌 탭으로 이동
+                            getIt<PageCubit>().changePage(MenuType.siren.menuIndex, MenuType.siren);
+                            getIt<PageCubit>().showBottomBar();
+                          },
+                          child: Container(
+                            height: 80,
+                            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFF132E41), width: 1),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // 상단 Row: 닉네임 @매장명 (좌측) + 거리 (우측)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '${siren.author?.nickName ?? 'Unknown'} ${spaceName.isNotEmpty ? '@$spaceName' : '@Unknown'}',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF132E41),
+                                          fontFamily: 'LINESeedKR',
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      LocaleKeys.siren_distance_from_me.tr(args: [
+                                        '${(siren.distance / 1000).toStringAsFixed(1)}'
+                                      ]),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF999999),
+                                        fontFamily: 'LINESeedKR',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                // 하단: 메시지만
+                                Text(
+                                  siren.message ?? '',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF132E41),
+                                    fontFamily: 'LINESeedKR',
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
+          ],
         );
       },
     );
   }
+
+  // void _showNotificationComingSoonDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Dialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(20),
+  //         ),
+  //         backgroundColor: Colors.white,
+  //         child: Container(
+  //           padding: const EdgeInsets.all(24),
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.circular(20),
+  //           ),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Text(
+  //                 LocaleKeys.notification_home_coming_soon.tr(),
+  //                 style: const TextStyle(
+  //                   fontSize: 18,
+  //                   fontWeight: FontWeight.bold,
+  //                   color: Colors.black,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 16),
+  //               Text(
+  //                 LocaleKeys.notification_home_coming_soon.tr(),
+  //                 style: const TextStyle(
+  //                   fontSize: 14,
+  //                   color: Colors.grey,
+  //                 ),
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //               const SizedBox(height: 24),
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: Container(
+  //                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+  //                   decoration: BoxDecoration(
+  //                     color: const Color(0xFF19BAFF),
+  //                     borderRadius: BorderRadius.circular(8),
+  //                   ),
+  //                   child: Text(
+  //                     LocaleKeys.home_confirm_button.tr(),
+  //                     style: const TextStyle(
+  //                       color: Colors.white,
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }

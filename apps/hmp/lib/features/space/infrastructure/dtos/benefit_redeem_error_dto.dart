@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class BenefitRedeemErrorDto extends Equatable {
   final int? code;
@@ -6,12 +8,12 @@ class BenefitRedeemErrorDto extends Equatable {
   final String? error;
   final String? trace;
 
-  const BenefitRedeemErrorDto({
+  BenefitRedeemErrorDto({
     this.code,
-    this.message = "오류가 발생했습니다. 잠시 후 다시 시도해주세요.", //'Something went wrong!',
+    String? message,
     this.error,
     this.trace,
-  });
+  }) : message = message ?? LocaleKeys.error_default_message.tr();
 
   @override
   List<Object?> get props => [

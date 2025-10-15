@@ -520,17 +520,7 @@ String checkTimeDifference(String dateString) {
     return "${difference.inHours} ${LocaleKeys.hoursAgo.tr()}";
   } else {
     int days = difference.inDays;
-    int hours = difference.inHours % 24;
-
-    if (days == 1) {
-      return "$days ${LocaleKeys.day.tr()}";
-    }
-
-    final dayString = (days == 1)
-        ? "$days ${LocaleKeys.day.tr()}"
-        : "$days ${LocaleKeys.days.tr()}";
-
-    return "$days $dayString and $hours ${LocaleKeys.hoursAgo.tr()}";
+    return LocaleKeys.siren_time_days_ago.tr().replaceFirst('{}', '$days');
   }
 }
 

@@ -86,6 +86,9 @@ class UserProfileDto extends Equatable {
   final String? finalProfileImageUrl;
   final PointBalanceDto? pointBalance;
   final CheckInStatsDto? checkInStats;
+  final bool? onboardingCompleted;
+  final String? appOS;
+  final String? appVersion;
 
   const UserProfileDto({
     this.id,
@@ -102,6 +105,9 @@ class UserProfileDto extends Equatable {
     this.finalProfileImageUrl,
     this.pointBalance,
     this.checkInStats,
+    this.onboardingCompleted,
+    this.appOS,
+    this.appVersion,
   });
 
   factory UserProfileDto.fromJson(Map<String, dynamic> json) =>
@@ -139,6 +145,9 @@ class UserProfileDto extends Equatable {
                 activeCheckIn: checkInStats!.activeCheckIn,
               )
             : const CheckInStats.empty(),
+        onboardingCompleted: onboardingCompleted ?? false,
+        appOS: appOS ?? "",
+        appVersion: appVersion ?? "",
       );
   }
 
@@ -157,7 +166,10 @@ class UserProfileDto extends Equatable {
       freeNftClaimed,
       chatAppId,
       profilePartsString,
-      finalProfileImageUrl
+      finalProfileImageUrl,
+      onboardingCompleted,
+      appOS,
+      appVersion,
     ];
   }
 }

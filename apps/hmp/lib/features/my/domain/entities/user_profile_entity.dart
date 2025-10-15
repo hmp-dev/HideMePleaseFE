@@ -47,6 +47,9 @@ class UserProfileEntity extends Equatable {
   final String finalProfileImageUrl;
   final int availableBalance;
   final CheckInStats checkInStats;
+  final bool onboardingCompleted;
+  final String appOS;
+  final String appVersion;
 
   const UserProfileEntity({
     required this.id,
@@ -63,6 +66,9 @@ class UserProfileEntity extends Equatable {
     required this.finalProfileImageUrl,
     required this.availableBalance,
     required this.checkInStats,
+    required this.onboardingCompleted,
+    required this.appOS,
+    required this.appVersion,
   });
 
   const UserProfileEntity.empty()
@@ -79,7 +85,10 @@ class UserProfileEntity extends Equatable {
         profilePartsString = '',
         finalProfileImageUrl = '',
         availableBalance = 0,
-        checkInStats = const CheckInStats.empty();
+        checkInStats = const CheckInStats.empty(),
+        onboardingCompleted = false,
+        appOS = '',
+        appVersion = '';
 
   @override
   List<Object?> get props {
@@ -96,7 +105,10 @@ class UserProfileEntity extends Equatable {
       profilePartsString,
       finalProfileImageUrl,
       availableBalance,
-      checkInStats
+      checkInStats,
+      onboardingCompleted,
+      appOS,
+      appVersion,
     ];
   }
 
@@ -114,6 +126,9 @@ class UserProfileEntity extends Equatable {
     String? finalProfileImageUrl,
     int? availableBalance,
     CheckInStats? checkInStats,
+    bool? onboardingCompleted,
+    String? appOS,
+    String? appVersion,
   }) {
     return UserProfileEntity(
       id: id,
@@ -130,6 +145,9 @@ class UserProfileEntity extends Equatable {
       finalProfileImageUrl: finalProfileImageUrl ?? this.finalProfileImageUrl,
       availableBalance: availableBalance ?? this.availableBalance,
       checkInStats: checkInStats ?? this.checkInStats,
+      onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+      appOS: appOS ?? this.appOS,
+      appVersion: appVersion ?? this.appVersion,
     );
   }
 }

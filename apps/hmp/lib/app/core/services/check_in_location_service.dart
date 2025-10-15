@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
@@ -85,17 +86,53 @@ class CheckInLocationService {
         return;
       }
       
-      // Configure location settings with background support
-      const LocationSettings locationSettings = LocationSettings(
+      // Configure location settings with foreground service support
+      // This enables continuous background tracking by promoting to foreground service
+      final LocationSettings locationSettings = LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 10, // Minimum distance change in meters to trigger update
         // timeLimit is optional - removes location updates after specified duration
         // Keeping it null for continuous tracking
       );
+
+      // Platform-specific settings for Android foreground service
+      final AndroidSettings androidSettings = AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+        forceLocationManager: false,
+        intervalDuration: const Duration(seconds: 30),
+        // Enable foreground service to prevent Doze mode suspension
+        foregroundNotificationConfig: const ForegroundNotificationConfig(
+          notificationText: "HideMePlease is tracking your location to maintain check-in status",
+          notificationTitle: "Location Tracking Active",
+          enableWakeLock: true, // Keep CPU awake for location updates
+        ),
+      );
+
+      // Platform-specific settings for iOS
+      final AppleSettings appleSettings = AppleSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+        activityType: ActivityType.other,
+        pauseLocationUpdatesAutomatically: false, // Continue tracking in background
+        showBackgroundLocationIndicator: true, // Show blue bar indicator
+        allowBackgroundLocationUpdates: true, // Required for background tracking
+      );
       
-      // Start listening to position updates
+      // Start listening to position updates with platform-specific settings
+      // Use foreground service on Android to prevent Doze mode suspension
+      // Use background location updates on iOS
+      LocationSettings settings;
+      if (Platform.isAndroid) {
+        settings = androidSettings;
+      } else if (Platform.isIOS) {
+        settings = appleSettings;
+      } else {
+        settings = locationSettings;
+      }
+
       _positionSubscription = Geolocator.getPositionStream(
-        locationSettings: locationSettings,
+        locationSettings: settings,
       ).listen(
         (Position position) {
           _checkDistance(position);

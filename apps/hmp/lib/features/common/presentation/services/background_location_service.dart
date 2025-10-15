@@ -114,6 +114,9 @@ class BackgroundLocationService {
 
           // Update the cubit state
           await locationCubit.requestBackgroundLocationPermission();
+
+          // Request battery optimization exclusion to prevent Doze mode from killing the service
+          await requestBatteryOptimizationExclusion();
         } else {
           // iOS - need to open settings for background permission
           print('🔔 iOS: Opening app settings for background location permission');
@@ -171,5 +174,36 @@ class BackgroundLocationService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_hasShownDialogKey);
     await prefs.remove(_lastRequestDateKey);
+  }
+
+  /// Requests battery optimization exclusion for Android
+  /// This prevents the system from putting the app into Doze mode
+  /// which would stop background location tracking after 10 minutes
+  static Future<void> requestBatteryOptimizationExclusion() async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      '🔋 Checking battery optimization status...'.log();
+
+      // Check if battery optimization permission is available
+      final status = await Permission.ignoreBatteryOptimizations.status;
+
+      if (status.isDenied) {
+        '🔋 Requesting battery optimization exclusion...'.log();
+
+        // Request permission to ignore battery optimizations
+        final result = await Permission.ignoreBatteryOptimizations.request();
+
+        if (result.isGranted) {
+          '✅ Battery optimization exclusion granted'.log();
+        } else {
+          '❌ Battery optimization exclusion denied'.log();
+        }
+      } else if (status.isGranted) {
+        '✅ Battery optimization already excluded'.log();
+      }
+    } catch (e) {
+      '❌ Error requesting battery optimization exclusion: $e'.log();
+    }
   }
 }

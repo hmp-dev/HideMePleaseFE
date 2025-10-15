@@ -87,11 +87,8 @@ class _MapScreenState extends State<MapScreen> {
       'pk.eyJ1IjoiaXhwbG9yZXIiLCJhIjoiY21hbmRkN24xMHJoNDJscHI2cHg0MndteiJ9.UsGyNkHONIeWgivVmAgGbw';
 
   PointAnnotationManager? _pointAnnotationManager; // 매장 마커 매니저
-  PointAnnotationManager? _checkInDotsManager; // 체크인 점 전용 매니저
   PointAnnotationManager? _headingAnnotationManager; // GPS heading 매니저 (최하위 레이어)
   PointAnnotationManager? _currentLocationAnnotationManager; // 현재 위치 프로필 매니저 (최상위 레이어)
-  
-  Set<String> _registeredCheckInDots = {}; // 등록된 체크인 점들 추적
   
   // 실시간 위치 추적 관련
   StreamSubscription<geo.Position>? _positionSubscription;
@@ -485,11 +482,7 @@ class _MapScreenState extends State<MapScreen> {
     _pointAnnotationManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
     await _pointAnnotationManager!.deleteAll(); // 매장 마커만 삭제
     
-    // 3. 체크인 점 매니저
-    _checkInDotsManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
-    await _checkInDotsManager!.deleteAll();
-    
-    // 4. 현재 위치 프로필 매니저 (최상위 레이어)
+    // 3. 현재 위치 프로필 매니저 (최상위 레이어)
     _currentLocationAnnotationManager ??= await mapboxMap!.annotations.createPointAnnotationManager();
     
     print('✅ 매니저 설정 완료 (레이어 순서 적용)');
@@ -497,12 +490,9 @@ class _MapScreenState extends State<MapScreen> {
     // 매장 마커 이미지 먼저 등록
     await _addMarkerImage();
 
-    // 매장 마커들과 체크인 점들
+    // 매장 마커들
     List<PointAnnotationOptions> markers = [];
-    List<PointAnnotationOptions> checkInDots = [];
     markerSpaceMap.clear();
-    
-    // 체크인 점 이미지 ID 추적은 클래스 멤버 _registeredCheckInDots 사용
     
     int validSpaceCount = 0;
     int invalidSpaceCount = 0;
@@ -559,58 +549,7 @@ class _MapScreenState extends State<MapScreen> {
         );
         markerSpaceMap[markerId] = space;
         
-        // 2. 체크인 점 추가 (줌 13 이상, 화면에 보이는 매장만)
-        if (showCheckInStatus && isVisible) {
-          // SpaceEntity의 currentGroupProgress 사용 (불필요한 API 호출 제거)
-          final progress = space.currentGroupProgress.isNotEmpty ? space.currentGroupProgress : "0/5";
-          final parts = progress.split('/');
-          final currentUsers = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 0 : 0;
-          final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
-          
-          print('🔍 체크인 점 표시: ${space.name} - ${currentUsers}/${maxCapacity}명 (실제 데이터)');
-          
-          // 체크인 점 이미지 ID
-          final checkInDotsId = 'checkin_dots_${currentUsers}_${maxCapacity}';
-          
-          // 이미지가 아직 등록되지 않은 경우 생성
-          if (!_registeredCheckInDots.contains(checkInDotsId)) {
-            print('🎨 체크인 점 생성 중: $checkInDotsId');
-            final dotsImageData = await _createCheckInDotsOnly(
-              currentUsers: currentUsers,
-              maxCapacity: maxCapacity,
-            );
-            
-            final mbxImage = MbxImage(
-              data: dotsImageData,
-              width: (36 * maxCapacity + 6 * (maxCapacity - 1)) + 30, // 동적 크기 계산
-              height: 66, // 36 + 30 = 66
-            );
-            
-            await mapboxMap!.style.addStyleImage(
-              checkInDotsId,
-              1.0,
-              mbxImage,
-              false,
-              [],
-              [],
-              null,
-            );
-            
-            _registeredCheckInDots.add(checkInDotsId);
-            print('✅ 체크인 점 등록: $checkInDotsId');
-          }
-          
-          // 체크인 점 어노테이션 추가 (마커 위에 표시)
-          checkInDots.add(
-            PointAnnotationOptions(
-              geometry: Point(coordinates: Position(space.longitude, space.latitude)),
-              iconImage: checkInDotsId,
-              iconSize: 0.8, // 체크인 점 크기
-              iconAnchor: IconAnchor.BOTTOM, // 점을 아래쪽 기준으로 정렬
-              iconOffset: [0.0, -20.0], // 마커 위로 20px 이동
-            ),
-          );
-        }
+        // 체크인 점 표시 기능 제거됨
         
         if (validSpaceCount <= 5) {
           print('✅ 마커 추가: ${space.name} (${space.category})');
@@ -628,7 +567,7 @@ class _MapScreenState extends State<MapScreen> {
     print('   ✅ 유효한 위치 정보 매장: ${validSpaceCount}개');
     print('   ❌ 위치 정보 없는 매장: ${invalidSpaceCount}개');
     print('   🗺️ 실제 생성할 마커 수: ${markers.length}개');
-    print('   🔵 체크인 점 수: ${checkInDots.length}개');
+    // 체크인 점 표시 제거됨
     
     // 기본 마커 추가
     if (markers.isNotEmpty) {
@@ -639,11 +578,7 @@ class _MapScreenState extends State<MapScreen> {
       print('❌ 추가할 매장 마커 없음 - 유효한 위치 정보가 있는 매장이 없습니다');
     }
     
-    // 체크인 점 추가 (줌 레벨이 충분할 때만)
-    if (checkInDots.isNotEmpty) {
-      await _checkInDotsManager!.createMulti(checkInDots);
-      print('🔵 ${checkInDots.length}개 체크인 점 추가 완료!');
-    }
+    // 체크인 점 표시 기능 제거됨
 
     // 현재 위치 마커 이미지 등록
     await _addCurrentLocationMarkerImage();
@@ -720,7 +655,7 @@ class _MapScreenState extends State<MapScreen> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white, // 홈 화면과 동일한 흰색 배경
+              color: const Color(0xFFEAF8FF),
               border: Border.all(color: const Color(0xFF132E41), width: 1), // 홈 화면과 동일한 테두리
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
@@ -736,9 +671,11 @@ class _MapScreenState extends State<MapScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(12), // 홈 화면과 동일한 패딩
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 100),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
                       // 매장 이미지
                       Container(
                         width: 100,
@@ -837,27 +774,8 @@ class _MapScreenState extends State<MapScreen> {
                                     ],
                                   ),
                                 ),
-                                // 상세보기
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      LocaleKeys.view_details.tr(),
-                                      style: TextStyle(
-                                        color: Colors.grey[500],
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w400,
-                                        fontFamily: 'Pretendard',
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      color: Colors.grey[500],
-                                      size: 12,
-                                    ),
-                                  ],
-                                ),
+                                // 체크인 카운트 (닷 표시)
+                                _buildCheckInDots(space),
                               ],
                             ),
                             const SizedBox(height: 8),
@@ -874,22 +792,22 @@ class _MapScreenState extends State<MapScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             // 운영 상태
                             _buildBusinessHoursStatus(space),
                             // 혜택 정보가 있을 때만 구분선과 혜택 표시
                             if (_getBenefitDescription(space).isNotEmpty) ...[
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 6),
                               // 구분선
                               Container(
                                 height: 1,
                                 color: Colors.black.withOpacity(0.3),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 6),
                               Row(
                                 children: [
                                   Image.asset(
-                                    'assets/icons/ico_infobenefit.png',
+                                    'assets/icons/ico_infobenefit2.png',
                                     width: 12,
                                     height: 12,
                                   ),
@@ -917,7 +835,7 @@ class _MapScreenState extends State<MapScreen> {
                                     child: Text(
                                       _getBenefitDescription(space),
                                       style: const TextStyle(
-                                        color: Color(0xFF999999),
+                                        color: Color(0xFF000000),
                                         fontSize: 12,
                                         fontFamily: 'Pretendard',
                                       ),
@@ -933,6 +851,7 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ],
                   ),
+                ),
                 ),
               ],
             ),
@@ -1398,70 +1317,12 @@ class _MapScreenState extends State<MapScreen> {
   void _startRealTimeUpdates() {
     // 기존 타이머가 있으면 취소
     _updateTimer?.cancel();
-    
-    // 30초마다 체크인 상태만 업데이트
-    _updateTimer = Timer.periodic(const Duration(seconds: 30), (timer) async {
-      if (mapboxMap != null && isMapStyleLoaded) {
-        print('🔄 Updating check-in status...');
-        await _updateCheckInDotsOnly();
-      }
-    });
+
+    // 체크인 점 표시 기능 제거로 인해 실시간 업데이트 비활성화됨
+    // 30초마다 체크인 상태만 업데이트 - 기능 사용 중지
   }
 
-  Future<void> _updateCheckInDotsOnly() async {
-    try {
-      // 현재 줌 레벨 확인
-      final cameraState = await mapboxMap!.getCameraState();
-      if (cameraState.zoom < 15) {
-        return; // 줌 레벨이 낮으면 업데이트 안 함
-      }
-
-      // 최신 공간 데이터 가져오기
-      final spaceCubit = getIt<SpaceCubit>();
-      await spaceCubit.onFetchAllSpaceViewData();
-      final spaces = spaceCubit.state.spaceList;
-
-      // 체크인 점만 업데이트 (마커는 그대로 유지)
-      if (_checkInDotsManager != null) {
-        // 기존 체크인 점 삭제
-        await _checkInDotsManager!.deleteAll();
-        
-        // 새 체크인 점 추가
-        final checkInDots = <PointAnnotationOptions>[];
-        for (final space in spaces) {
-          if (space.latitude != 0 && space.longitude != 0) {
-            final progress = space.currentGroupProgress.isNotEmpty ? space.currentGroupProgress : "0/5";
-            final parts = progress.split('/');
-            final currentUsers = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 0 : 0;
-            final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
-            
-            final checkInDotsId = 'checkin_dots_${currentUsers}_${maxCapacity}';
-            
-            // 이미지가 등록되어 있으면 사용
-            if (_registeredCheckInDots.contains(checkInDotsId)) {
-              checkInDots.add(
-                PointAnnotationOptions(
-                  geometry: Point(coordinates: Position(space.longitude, space.latitude)),
-                  iconImage: checkInDotsId,
-                  iconSize: 0.8,
-                  iconAnchor: IconAnchor.BOTTOM,
-                  iconOffset: [0.0, -20.0],
-                ),
-              );
-            }
-          }
-        }
-        
-        if (checkInDots.isNotEmpty) {
-          await _checkInDotsManager!.createMulti(checkInDots);
-        }
-      }
-      
-      print('✅ Check-in dots updated successfully');
-    } catch (e) {
-      print('❌ Error updating check-in dots: $e');
-    }
-  }
+  // _updateCheckInDotsOnly 함수 제거됨 - 체크인 점 표시 기능 사용 중지
   
   // 즉시 지도 설정 (지연 없이)
   Future<void> _setupMapImmediately() async {
@@ -1704,13 +1565,7 @@ class _MapScreenState extends State<MapScreen> {
       if ((oldZoom < 15 && newZoom >= 15) || (oldZoom >= 15 && newZoom < 15)) {
         print('🔄 줌 레벨 임계값 변경 - 전체 마커 업데이트 필요');
         
-        // 줌 아웃 시 체크인 점 제거
-        if (newZoom < 15) {
-          print('🔍 줌 아웃 - 체크인 점 제거');
-          if (_checkInDotsManager != null) {
-            await _checkInDotsManager!.deleteAll();
-          }
-        }
+        // 줌 아웃 시 체크인 점 제거 - 기능 사용 중지됨
         
         if (filteredSpaces.isNotEmpty) {
           await _addAllMarkers(filteredSpaces);
@@ -2093,63 +1948,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // 체크인 점만 그리는 함수 (투명 배경)
-  Future<Uint8List> _createCheckInDotsOnly({
-    required int currentUsers,
-    required int maxCapacity,
-  }) async {
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-    
-    // 캔버스 크기를 2배로 줄여서 더 작게 렌더링
-    const scale = 2.0;
-    const dotSize = 8.0 * scale; // 점 크기 축소
-    const dotSpacing = 1.0 * scale; // 간격
-    final totalDotsWidth = (dotSize * maxCapacity) + (dotSpacing * (maxCapacity - 1));
-    final canvasWidth = totalDotsWidth + (10 * scale); // 여백
-    final canvasHeight = dotSize + (10 * scale); // 여백
-    
-    // 체크인 상태 점 그리기
-    final startX = 5.0 * scale; // 왼쪽 여백
-    final startY = 5.0 * scale; // 상단 여백
-    
-    for (int i = 0; i < maxCapacity; i++) {
-      final paint = Paint()
-        ..color = i < currentUsers 
-          ? const Color(0xFF00A3FF) // 파란색 (체크인한 인원)
-            : const Color(0xFFE7F6FF)  // 연한 파란색 (빈 자리)
-        ..style = PaintingStyle.fill
-        ..isAntiAlias = true; // 안티앨리어싱 추가
-      
-      // 점에 테두리 추가 (더 선명하게)
-      final borderPaint = Paint()
-        ..color = const Color(0xFF132E41) // 진한 테두리색
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.0 * scale // 테두리 두께 감소
-        ..isAntiAlias = true;
-      
-      final center = Offset(
-        startX + (i * (dotSize + dotSpacing)) + (dotSize / 2),
-        startY + (dotSize / 2),
-      );
-      
-      // 점 그리기 (테두리보다 먼저)
-      canvas.drawCircle(center, (dotSize / 2) - (1.0 * scale), paint);
-      // 테두리 그리기
-      canvas.drawCircle(center, (dotSize / 2) - (1.0 * scale), borderPaint);
-    }
-    
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(
-      canvasWidth.toInt(),
-      canvasHeight.toInt(),
-    );
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    
-    image.dispose();
-    
-    return byteData!.buffer.asUint8List();
-  }
+  // _createCheckInDotsOnly 함수 제거됨 - 체크인 점 표시 기능 사용 중지
   
   // 체크인 정보 가져오기 (캐시 우선) - 현재 인원과 최대 인원 모두 반환
   Future<(int, int)> _getCheckInUsersCount(String spaceId) async {
@@ -2546,7 +2345,7 @@ class _MapScreenState extends State<MapScreen> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              bottom: showInfoCard && selectedSpace != null ? 300 : 110, // 인포카드 바로 위에 위치
+              bottom: (showInfoCard && selectedSpace != null ? 300 : 110) + MediaQuery.of(context).padding.bottom, // SafeArea 높이만큼 조정
               right: 30, // 더 안쪽으로 이동
               child: GestureDetector(
                 onTap: _moveToCurrentLocation,
@@ -2571,7 +2370,7 @@ class _MapScreenState extends State<MapScreen> {
                 // key: ValueKey(selectedSpace!.id), // 매장 ID를 키로 사용하여 매장 변경 시 위젯 강제 재빌드
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                bottom: showInfoCard && selectedSpace != null ? 120 : -200, // 바텀바 위에서 시작
+                bottom: (showInfoCard && selectedSpace != null ? 120 : -200) + MediaQuery.of(context).padding.bottom, // SafeArea 높이만큼 조정
                 left: 0,  // 전체 너비 사용
                 right: 0, // 전체 너비 사용
                 child: _buildInfoCard(selectedSpace!),
@@ -4250,5 +4049,38 @@ class _MapScreenState extends State<MapScreen> {
 
     // 그 외의 경우 기본 매장명 반환
     return space.name;
+  }
+
+  // 체크인 카운트 닷 표시
+  Widget _buildCheckInDots(SpaceEntity space) {
+    // Parse maxCapacity from currentGroupProgress
+    int maxDots = 5;
+    if (space.currentGroupProgress.isNotEmpty) {
+      final parts = space.currentGroupProgress.split('/');
+      if (parts.length == 2) {
+        maxDots = int.tryParse(parts[1]) ?? 5;
+      }
+    }
+
+    final filledDots = space.hidingCount;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(maxDots, (index) {
+        final isFilled = index < filledDots;
+        return Padding(
+          padding: EdgeInsets.only(right: index < maxDots - 1 ? 4 : 0),
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isFilled ? const Color(0xFF00A3FF) : Colors.transparent,
+              border: Border.all(color: Colors.black, width: 1),
+            ),
+          ),
+        );
+      }),
+    );
   }
 }

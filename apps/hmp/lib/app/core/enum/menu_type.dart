@@ -8,15 +8,20 @@ enum MenuType {
     deactivateIconPath: "assets/icons/nav_home_deactive.png",
     menuIndex: 0,
   ),
+  siren(
+    activeIconPath: "assets/icons/map_bottom_icon_siren.png",
+    deactivateIconPath: "assets/icons/map_bottom_icon_siren.png",
+    menuIndex: 1,
+  ),
   space(
     activeIconPath: "assets/icons/nav_space_active.png",
     deactivateIconPath: "assets/icons/nav_space_deactive.png",
-    menuIndex: 1,
+    menuIndex: 2,
   ),
   events(
     activeIconPath: "assets/icons/nav_wallet_active.png",
     deactivateIconPath: "assets/icons/nav_wallet_deactive.png",
-    menuIndex: 2,
+    menuIndex: 3,
   ),
   /*community(
     activeIconPath: "assets/icons/ic_community_enabled_jayden.svg",
@@ -26,7 +31,7 @@ enum MenuType {
   myProfile(
     activeIconPath: "assets/icons/nav_more_active.png",
     deactivateIconPath: "assets/icons/nav_more_deactive.png",
-    menuIndex: 3,
+    menuIndex: 4,
   );
 
   const MenuType({
@@ -43,6 +48,8 @@ enum MenuType {
     switch (this) {
       case MenuType.home:
         return LocaleKeys.nav_home.tr();
+      case MenuType.siren:
+        return LocaleKeys.nav_siren.tr();
       case MenuType.space:
         return LocaleKeys.nav_hiding.tr();
       case MenuType.events:

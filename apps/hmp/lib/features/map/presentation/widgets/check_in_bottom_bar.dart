@@ -6,17 +6,21 @@ import 'package:mobile/generated/locale_keys.g.dart';
 
 class CheckInBottomBar extends StatefulWidget {
   final VoidCallback? onHomeTap;
+  final VoidCallback? onSirenTap;
   final VoidCallback? onMapTap;
   final Future<void> Function()? onCheckInTap;
   final bool isHomeActive;
+  final bool isSirenActive;
   final bool isMapActive;
 
   const CheckInBottomBar({
     Key? key,
     this.onHomeTap,
+    this.onSirenTap,
     this.onMapTap,
     this.onCheckInTap,
     this.isHomeActive = true,
+    this.isSirenActive = false,
     this.isMapActive = false,
   }) : super(key: key);
 
@@ -29,11 +33,12 @@ class _CheckInBottomBarState extends State<CheckInBottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        bottom: 30, // 화면 하단에서 30px 띄우기
-      ),
-      child: Center(
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.only(
+          bottom: 16, // SafeArea 적용 후 16px로 조정
+        ),
+        child: Center(
         child: SizedBox(
           width: MediaQuery.of(context).size.width - 40, // 컨텐츠와 동일한 너비 (좌우 20px 마진)
           child: ClipRRect(
@@ -57,7 +62,7 @@ class _CheckInBottomBarState extends State<CheckInBottomBar> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                    // 왼쪽: 홈과 숨을곳 버튼
+                    // 왼쪽: 홈, 사이렌, 숨을곳 버튼
                     Row(
                       children: [
                         // 홈 버튼
@@ -91,7 +96,39 @@ class _CheckInBottomBarState extends State<CheckInBottomBar> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
+                        // 사이렌 버튼
+                        GestureDetector(
+                          onTap: widget.onSirenTap,
+                          child: SizedBox(
+                            width: 48,
+                            height: 63,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Opacity(
+                                  opacity: widget.isSirenActive ? 1.0 : 0.4,
+                                  child: Image.asset(
+                                    'assets/icons/map_bottom_icon_siren.png',
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  LocaleKeys.nav_siren.tr(),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF132E41).withOpacity(widget.isSirenActive ? 1.0 : 0.4),
+                                    fontWeight: widget.isSirenActive ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         // 숨을곳 버튼
                         GestureDetector(
                           onTap: widget.onMapTap,
@@ -191,6 +228,7 @@ class _CheckInBottomBarState extends State<CheckInBottomBar> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

@@ -64,6 +64,9 @@ UserProfileDto _$UserProfileDtoFromJson(Map<String, dynamic> json) =>
           ? null
           : CheckInStatsDto.fromJson(
               json['checkInStats'] as Map<String, dynamic>),
+      onboardingCompleted: json['onboardingCompleted'] as bool?,
+      appOS: json['appOS'] as String?,
+      appVersion: json['appVersion'] as String?,
     );
 
 Map<String, dynamic> _$UserProfileDtoToJson(UserProfileDto instance) =>
@@ -82,4 +85,7 @@ Map<String, dynamic> _$UserProfileDtoToJson(UserProfileDto instance) =>
       'finalProfileImageUrl': instance.finalProfileImageUrl,
       'pointBalance': instance.pointBalance,
       'checkInStats': instance.checkInStats,
+      'onboardingCompleted': instance.onboardingCompleted,
+      'appOS': instance.appOS,
+      'appVersion': instance.appVersion,
     };

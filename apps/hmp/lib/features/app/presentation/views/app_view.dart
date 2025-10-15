@@ -28,6 +28,8 @@ import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart'
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:mobile/features/space/presentation/screens/space_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/presentation/widgets/checkin_employ_dialog.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
@@ -48,6 +50,8 @@ import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
 import 'package:mobile/app/core/services/check_in_location_service.dart';
 import 'package:mobile/app/core/services/nearby_store_validation_service.dart';
+import 'package:mobile/features/space/presentation/screens/siren_screen.dart';
+import 'package:mobile/features/space/presentation/cubit/siren_cubit.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
@@ -262,7 +266,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
       if (mounted && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('매칭이 완료되었습니다! 🎉'),
+            content: Text(LocaleKeys.app_matching_complete_message.tr()),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 3),
             behavior: SnackBarBehavior.floating,
@@ -306,6 +310,9 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                               return NewHomeScreen(
                                 onShowGuide: _onShowGuide,
                               );
+                            } else if (index == MenuType.siren.menuIndex) {
+                              print('📢 Returning SirenScreen for index $index');
+                              return const SirenScreen();
                             } else if (index == MenuType.space.menuIndex) {
                               print('🗺️ Returning MapScreen for index $index');
                               return MapScreen(
@@ -338,11 +345,43 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                             bottom: 0,
                             child: CheckInBottomBar(
                           isHomeActive: state.menuType == MenuType.home,
+                          isSirenActive: state.menuType == MenuType.siren,
                           isMapActive: state.menuType == MenuType.space,
                           onHomeTap: () {
                             ('🏠 Home button tapped').log();
                             // Navigate to Home Screen
                             _onChangeMenu(MenuType.home);
+                          },
+                          onSirenTap: () async {
+                            ('📢 Siren button tapped').log();
+
+                            // 현재 위치 가져오기
+                            try {
+                              Position? position;
+                              bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+                              if (serviceEnabled) {
+                                LocationPermission permission = await Geolocator.checkPermission();
+                                if (permission != LocationPermission.denied &&
+                                    permission != LocationPermission.deniedForever) {
+                                  position = await Geolocator.getCurrentPosition(
+                                    desiredAccuracy: LocationAccuracy.high,
+                                  );
+                                }
+                              }
+
+                              // 사이렌 목록 갱신 (현재 정렬 방식 유지)
+                              final sirenCubit = getIt<SirenCubit>();
+                              await sirenCubit.fetchSirenList(
+                                sortBy: sirenCubit.state.sortBy,
+                                latitude: position?.latitude,
+                                longitude: position?.longitude,
+                              );
+                            } catch (e) {
+                              print('❌ Error refreshing siren list: $e');
+                            }
+
+                            _onChangeMenu(MenuType.siren);
                           },
                           onMapTap: () {
                             ('🗺️ MAP button tapped').log();
@@ -465,7 +504,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                     context: context,
                                     barrierDismissible: false,
                                     builder: (context) => CheckinFailDialog(
-                                      customErrorMessage: '이미 체크인한 상태입니다',
+                                      customErrorMessage: LocaleKeys.app_already_checked_in_status.tr(),
                                     ),
                                   );
                                   return;
@@ -507,7 +546,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                       context: context,
                                       barrierDismissible: false,
                                       builder: (context) => CheckinFailDialog(
-                                        customErrorMessage: '위치 정보를 가져올 수 없습니다. 다시 시도해주세요.',
+                                        customErrorMessage: LocaleKeys.app_location_fetch_error.tr(),
                                       ),
                                     );
                                     return;
@@ -581,13 +620,13 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                   if (!checkInSuccess) {
                                     ('❌ Check-in failed').log();
                                     checkInErrorMessage = spaceCubit.state.errorMessage;
-                                    
+
                                     // Parse error message
-                                    String errorMessage = checkInErrorMessage ?? '체크인 중 오류가 발생했습니다';
-                                    
-                                    if (errorMessage.toLowerCase().contains('이미 체크인한 상태입니다') || 
+                                    String errorMessage = checkInErrorMessage ?? LocaleKeys.app_check_in_failed.tr();
+
+                                    if (errorMessage.toLowerCase().contains('이미 체크인한 상태입니다') ||
                                         errorMessage.toLowerCase().contains('already_checked_in')) {
-                                      errorMessage = '이미 체크인한 상태입니다';
+                                      errorMessage = LocaleKeys.app_already_checked_in_status.tr();
                                     }
                                     
                                     // Show error dialog
@@ -711,33 +750,33 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                     
                                     // 서버에서 전달된 직접적인 에러 메시지들 처리
                                     final serverMessage = e.message.toLowerCase();
-                                    
-                                    if (serverMessage.contains('이미 체크인한 상태입니다') || 
+
+                                    if (serverMessage.contains('이미 체크인한 상태입니다') ||
                                         serverMessage.contains('already_checked_in')) {
-                                      errorMessage = '이미 체크인한 상태입니다';
+                                      errorMessage = LocaleKeys.app_already_checked_in_status.tr();
                                     } else if (serverMessage.contains('space_out_of_range') ||
                                                serverMessage.contains('거리')) {
-                                      errorMessage = '체크인 가능한 거리를 벗어났습니다';
+                                      errorMessage = LocaleKeys.app_check_in_distance_out_of_range.tr();
                                     } else if (serverMessage.contains('현재 체크인이 불가능합니다') ||
                                                serverMessage.contains('체크인이 비활성화')) {
-                                      errorMessage = '이 공간은 현재 체크인이 불가능합니다';
+                                      errorMessage = LocaleKeys.app_check_in_currently_unavailable.tr();
                                     } else if (serverMessage.contains('체크인 최대 인원수를 초과했습니다') ||
                                                serverMessage.contains('최대 인원')) {
-                                      errorMessage = '체크인 최대 인원수를 초과했습니다';
+                                      errorMessage = LocaleKeys.app_check_in_max_capacity_exceeded.tr();
                                     } else if (serverMessage.contains('오늘의 체크인 제한 인원수를 초과했습니다') ||
                                                serverMessage.contains('일일 체크인 제한')) {
-                                      errorMessage = '오늘의 체크인 제한 인원수를 초과했습니다';
+                                      errorMessage = LocaleKeys.app_check_in_daily_limit_exceeded.tr();
                                     } else if (serverMessage.contains('invalid_space')) {
-                                      errorMessage = '유효하지 않은 공간입니다';
+                                      errorMessage = LocaleKeys.app_invalid_space_error.tr();
                                     }
-                                    
+
                                     // HMPError의 error 필드에서도 체크 (백업)
                                     if (e.error?.contains('SPACE_OUT_OF_RANGE') == true) {
-                                      errorMessage = '체크인 가능한 거리를 벗어났습니다';
+                                      errorMessage = LocaleKeys.app_check_in_distance_out_of_range.tr();
                                     } else if (e.error?.contains('ALREADY_CHECKED_IN') == true) {
-                                      errorMessage = '이미 체크인한 상태입니다';
+                                      errorMessage = LocaleKeys.app_already_checked_in_status.tr();
                                     } else if (e.error?.contains('INVALID_SPACE') == true) {
-                                      errorMessage = '유효하지 않은 공간입니다';
+                                      errorMessage = LocaleKeys.app_invalid_space_error.tr();
                                     }
                                   } 
                                   // HMPError가 아닌 경우 toString()으로 체크 (기존 로직 유지)
@@ -773,13 +812,13 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                 }
                                 
                                 // 실제 오류만 다이얼로그 표시
-                                String errorMessage = '체크인에 실패했습니다';
+                                String errorMessage = LocaleKeys.app_check_in_failed.tr();
                                 if (error.contains('권한')) {
-                                  errorMessage = 'NFC 권한을 확인해주세요';
+                                  errorMessage = LocaleKeys.app_nfc_permission_error.tr();
                                 } else if (error.contains('시간초과') || error.contains('timeout')) {
-                                  errorMessage = 'NFC 태그 읽기 시간이 초과되었습니다';
+                                  errorMessage = LocaleKeys.app_nfc_timeout_error.tr();
                                 } else if (error.contains('시스템이 바쁩')) {
-                                  errorMessage = '시스템이 바쁩니다. 잠시 후 다시 시도해주세요';
+                                  errorMessage = LocaleKeys.app_system_busy_error.tr();
                                 }
                                 
                                 showDialog(
@@ -798,7 +837,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                 context: context,
                                 barrierDismissible: false,
                                 builder: (context) => CheckinFailDialog(
-                                  customErrorMessage: '위치 정보를 가져오는 중 오류가 발생했습니다. GPS를 확인해주세요.',
+                                  customErrorMessage: LocaleKeys.app_location_fetch_gps_error.tr(),
                                 ),
                               );
                             }
@@ -992,7 +1031,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
         context: context,
         barrierDismissible: false,
         builder: (context) => CheckinFailDialog(
-          customErrorMessage: '이미 체크인한 상태입니다',
+          customErrorMessage: LocaleKeys.app_already_checked_in_status.tr(),
         ),
       );
       return;

@@ -86,10 +86,76 @@ class SettingsRepositoryImp implements SettingsRepository {
   }
 
   @override
-  Future<Either<HMPError, List<NotificationDto>>> getNotifications() async {
+  Future<Either<HMPError, List<NotificationDto>>> getNotifications({int page = 1}) async {
     // Fetches the list of notifications from the remote data source.
     try {
-      final response = await _remoteDataSource.getUserNotifications();
+      final response = await _remoteDataSource.getUserNotifications(page: page);
+      return right(response);
+    } on DioException catch (e, t) {
+      // Handles DioException by returning an error object.
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      // Handles any other exception by returning an error object.
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, int>> getUnreadNotificationsCount() async {
+    // Fetches the count of unread notifications from the remote data source.
+    try {
+      final response = await _remoteDataSource.getUnreadNotificationsCount();
+      return right(response);
+    } on DioException catch (e, t) {
+      // Handles DioException by returning an error object.
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      // Handles any other exception by returning an error object.
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, bool>> markNotificationAsRead(String notificationId) async {
+    // Marks a notification as read via the remote data source.
+    try {
+      final response = await _remoteDataSource.markNotificationAsRead(notificationId);
+      return right(response);
+    } on DioException catch (e, t) {
+      // Handles DioException by returning an error object.
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      // Handles any other exception by returning an error object.
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, bool>> deleteNotification(String notificationId) async {
+    // Deletes a notification via the remote data source.
+    try {
+      final response = await _remoteDataSource.deleteNotification(notificationId);
       return right(response);
     } on DioException catch (e, t) {
       // Handles DioException by returning an error object.

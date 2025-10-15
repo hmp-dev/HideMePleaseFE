@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -12,6 +13,7 @@ import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:mobile/features/membership_settings/presentation/screens/my_membership_settings.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/nft/presentation/cubit/nft_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/model_banner_cubit.dart';
 import 'package:mobile/features/wallets/presentation/cubit/wallets_cubit.dart';
@@ -19,6 +21,7 @@ import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:mobile/features/common/presentation/services/background_location_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../app/core/storage/secure_storage.dart';
 
@@ -36,6 +39,40 @@ class _StartUpScreenState extends State<StartUpScreen>
     getIt<AppCubit>().onStart();
     //getIt<ProfileCubit>().onStart();
     super.initState();
+  }
+
+  /// Update app version and OS info silently in the background
+  Future<void> _updateAppInfo() async {
+    try {
+      '🔄 [StartUpScreen] Updating app version and OS info...'.log();
+
+      // Get app info
+      final packageInfo = await PackageInfo.fromPlatform();
+      final appVersion = packageInfo.version;
+
+      // Get OS info
+      String appOS = '';
+      if (Platform.isIOS) {
+        appOS = 'ios';
+      } else if (Platform.isAndroid) {
+        appOS = 'android';
+      }
+
+      '📱 [StartUpScreen] App version: $appVersion, OS: $appOS'.log();
+
+      // Update profile silently (without EasyLoading)
+      final profileCubit = getIt<ProfileCubit>();
+      final updateRequest = UpdateProfileRequestDto(
+        appOS: appOS,
+        appVersion: appVersion,
+      );
+
+      await profileCubit.updateProfileSilently(updateRequest);
+      '✅ [StartUpScreen] App info updated successfully'.log();
+    } catch (e) {
+      '❌ [StartUpScreen] Failed to update app info: $e'.log();
+      // Error should not affect the startup process
+    }
   }
 
   // start UP Logic
@@ -72,10 +109,14 @@ class _StartUpScreenState extends State<StartUpScreen>
 
               await getIt<ModelBannerCubit>().onGetModelBannerInfo();
 
-              await getIt<NftCubit>().onGetWelcomeNft();
+              // WelcomeNft is no longer used - commented out to prevent requests
+              // await getIt<NftCubit>().onGetWelcomeNft();
               // User is logged in
               // a - init
               await getIt<ProfileCubit>().init();
+
+              // Update app version and OS info after profile is loaded
+              await _updateAppInfo();
 
               // Restore check-in state from local storage
               print('🔄 Checking for active check-in...');
@@ -83,7 +124,7 @@ class _StartUpScreenState extends State<StartUpScreen>
 
               // Now fetch wallets after permission dialog is handled
               // This ensures navigation doesn't interrupt the dialog
-              getIt<WalletsCubit>().onGetAllWallets();
+              await getIt<WalletsCubit>().onGetAllWallets();
             }
           },
         ),
@@ -96,6 +137,7 @@ class _StartUpScreenState extends State<StartUpScreen>
         BlocListener<WalletsCubit, WalletsState>(
           bloc: getIt<WalletsCubit>(),
           listenWhen: (previous, current) =>
+              previous.submitStatus != current.submitStatus ||
               previous.connectedWallets != current.connectedWallets,
           listener: (context, walletsState) async {
             if (walletsState.submitStatus == RequestStatus.success) {
@@ -135,16 +177,36 @@ class _StartUpScreenState extends State<StartUpScreen>
                 final hasMintedNft = prefs.getBool(StorageValues.hasMintedNft) ?? false;
                 final hasWallet = prefs.getBool(StorageValues.hasWallet) ?? false;
                 final hasProfileParts = prefs.getBool(StorageValues.hasProfileParts) ?? false;
-                
+
                 // Check current profile status
                 final profileCubit = getIt<ProfileCubit>();
                 final userProfile = profileCubit.state.userProfileEntity;
                 final hasProfileImage = userProfile?.finalProfileImageUrl?.isNotEmpty == true;
-                
-                // Enhanced skip logic: Skip onboarding if all conditions are met
-                final shouldSkipOnboarding = hasWallet && hasMintedNft && hasProfileImage;
-                
-                '📊 Onboarding check - Wallet: $hasWallet, Minted: $hasMintedNft, ProfileImage: $hasProfileImage'.log();
+
+                // 🚨 최우선: 백엔드 API의 onboardingCompleted 체크
+                final backendOnboardingCompleted = userProfile?.onboardingCompleted ?? false;
+                '🔍 백엔드 API onboardingCompleted: $backendOnboardingCompleted'.log();
+
+                // 백엔드 API에서 온보딩이 완료되지 않았으면 무조건 온보딩 화면으로
+                if (!backendOnboardingCompleted && context.mounted) {
+                  '🚀 백엔드 API에서 온보딩 미완료 확인 - 온보딩 화면으로 이동'.log();
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      Routes.onboardingScreen, (Route<dynamic> route) => false);
+                  return; // 여기서 종료
+                }
+
+                // 🚨 실제 프로필 파츠 확인
+                final hasActualProfileParts = userProfile?.profilePartsString?.isNotEmpty == true;
+
+                // Check nickname validity
+                final isValidNickname = userProfile?.nickName != null &&
+                                        userProfile!.nickName.isNotEmpty &&
+                                        !userProfile.nickName.startsWith('HMP');
+
+                // Enhanced skip logic: profilePartsString이 없으면 무조건 온보딩
+                final shouldSkipOnboarding = hasActualProfileParts && hasWallet && hasMintedNft && hasProfileImage && isValidNickname;
+
+                '📊 Onboarding check - ProfileParts: $hasActualProfileParts, Wallet: $hasWallet, Minted: $hasMintedNft, ProfileImage: $hasProfileImage, ValidNickname: $isValidNickname'.log();
                 '🎯 Should skip onboarding: $shouldSkipOnboarding'.log();
 
                 if (context.mounted) {
@@ -178,29 +240,109 @@ class _StartUpScreenState extends State<StartUpScreen>
                   }
                 }
               } else {
-
-                bool wasNoWallet = (await const SecureStorage().read(StorageValues.wasOnWelcomeWalletConnectScreen)) == "true";
-
                 // If a wallet is Connected
                 // Update Home View to Show with Wallet Connected
-                // and then Navigate to Home View
                 getIt<HomeCubit>()
                     .onUpdateHomeViewType(HomeViewType.afterWalletConnected);
 
-                if(wasNoWallet && StackedService.navigatorKey?.currentContext!=null){
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const MyMembershipSettingsScreen(),
-                    ),
-                          (Route<dynamic> route) => false
-                  );
-                  /*Navigator.of(context).pushNamedAndRemoveUntil(
-                      Routes.appScreen, (Route<dynamic> route) => false);*/
-                  Future.delayed(const Duration(seconds: 1), () => const SecureStorage().write(StorageValues.wasOnWelcomeWalletConnectScreen, "false"));
-                } else {
+                // === 온보딩 검증 추가 ===
+                final prefs = await SharedPreferences.getInstance();
+
+                // Check onboarding version
+                final savedVersion = prefs.getInt(StorageValues.onboardingVersion) ?? 0;
+                final isNewVersion = savedVersion < StorageValues.CURRENT_ONBOARDING_VERSION;
+
+                '🔄 Onboarding version check (With Wallet) - Saved: $savedVersion, Current: ${StorageValues.CURRENT_ONBOARDING_VERSION}'.log();
+
+                // If new version, reset onboarding flags
+                if (isNewVersion) {
+                  '🆕 New onboarding version detected (With Wallet), resetting flags...'.log();
+                  await prefs.remove(StorageValues.onboardingCompleted);
+                  await prefs.remove(StorageValues.onboardingCurrentStep);
+                  await prefs.remove(StorageValues.hasMintedNft);
+                  await prefs.remove(StorageValues.hasProfileParts);
+                }
+
+                final onboardingCompleted = prefs.getBool(StorageValues.onboardingCompleted) ?? false;
+                final showOnboardingAfterLogout = prefs.getBool(StorageValues.showOnboardingAfterLogout) ?? false;
+
+                // Check for NFT minting and profile image
+                final hasMintedNft = prefs.getBool(StorageValues.hasMintedNft) ?? false;
+                final hasProfileParts = prefs.getBool(StorageValues.hasProfileParts) ?? false;
+
+                // Check current profile status
+                final profileCubit = getIt<ProfileCubit>();
+                final userProfile = profileCubit.state.userProfileEntity;
+                final hasProfileImage = userProfile?.finalProfileImageUrl?.isNotEmpty == true;
+
+                // 🚨 최우선: 백엔드 API의 onboardingCompleted 체크
+                final backendOnboardingCompleted = userProfile?.onboardingCompleted ?? false;
+                '🔍 백엔드 API onboardingCompleted (With Wallet): $backendOnboardingCompleted'.log();
+
+                // 백엔드 API에서 온보딩이 완료되지 않았으면 무조건 온보딩 화면으로
+                if (!backendOnboardingCompleted && context.mounted) {
+                  '🚀 백엔드 API에서 온보딩 미완료 확인 (With Wallet) - 온보딩 화면으로 이동'.log();
                   Navigator.of(context).pushNamedAndRemoveUntil(
-                      Routes.appScreen, (Route<dynamic> route) => false);
+                      Routes.onboardingScreen, (Route<dynamic> route) => false);
+                  return; // 여기서 종료
+                }
+
+                // 🚨 실제 프로필 파츠 확인
+                final hasActualProfileParts = userProfile?.profilePartsString?.isNotEmpty == true;
+
+                // Check nickname validity
+                final isValidNickname = userProfile?.nickName != null &&
+                                        userProfile!.nickName.isNotEmpty &&
+                                        !userProfile.nickName.startsWith('HMP');
+
+                // Enhanced skip logic: profilePartsString이 없으면 무조건 온보딩 (지갑은 이미 있음)
+                final shouldSkipOnboarding = hasActualProfileParts && hasMintedNft && hasProfileImage && isValidNickname;
+
+                '📊 Onboarding check (With Wallet) - ProfileParts: $hasActualProfileParts, Minted: $hasMintedNft, ProfileImage: $hasProfileImage, ValidNickname: $isValidNickname'.log();
+                '🎯 Should skip onboarding (With Wallet): $shouldSkipOnboarding'.log();
+
+                if (context.mounted) {
+                  // Show onboarding if:
+                  // 1. New version detected (isNewVersion)
+                  // 2. User logged out and logged back in (showOnboardingAfterLogout flag)
+                  // 3. Onboarding not completed yet (unless skip conditions are met)
+                  if (isNewVersion || (!shouldSkipOnboarding && (showOnboardingAfterLogout || !onboardingCompleted))) {
+                    '🚀 온보딩 화면으로 이동 (With Wallet) - 새 버전: $isNewVersion, 로그아웃 후: $showOnboardingAfterLogout, 완료: $onboardingCompleted'.log();
+
+                    // Clear the flag if it was set
+                    if (showOnboardingAfterLogout) {
+                      await prefs.setBool(StorageValues.showOnboardingAfterLogout, false);
+                    }
+
+                    // Show onboarding screen
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        Routes.onboardingScreen, (Route<dynamic> route) => false);
+                  } else {
+                    // Returning user or skip conditions met - check wasNoWallet
+                    if (shouldSkipOnboarding && !onboardingCompleted) {
+                      '✅ Skipping onboarding (With Wallet) - all conditions met'.log();
+                      // Mark onboarding as completed if skipping due to having all requirements
+                      await prefs.setBool(StorageValues.onboardingCompleted, true);
+                    }
+
+                    bool wasNoWallet = (await const SecureStorage().read(StorageValues.wasOnWelcomeWalletConnectScreen)) == "true";
+
+                    if(wasNoWallet && StackedService.navigatorKey?.currentContext!=null){
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MyMembershipSettingsScreen(),
+                        ),
+                              (Route<dynamic> route) => false
+                      );
+                      /*Navigator.of(context).pushNamedAndRemoveUntil(
+                          Routes.appScreen, (Route<dynamic> route) => false);*/
+                      Future.delayed(const Duration(seconds: 1), () => const SecureStorage().write(StorageValues.wasOnWelcomeWalletConnectScreen, "false"));
+                    } else {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          Routes.appScreen, (Route<dynamic> route) => false);
+                    }
+                  }
                 }
               }
             }

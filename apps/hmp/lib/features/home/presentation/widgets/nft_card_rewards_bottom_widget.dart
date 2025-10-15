@@ -149,7 +149,7 @@ class _NftCardRewardsBottomWidgetState extends State<NftCardRewardsBottomWidget>
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "처리 중...",
+                        LocaleKeys.nft_processing.tr(),
                         style: fontCompactLgMedium(),
                       ),
                     ],
@@ -169,7 +169,7 @@ class _NftCardRewardsBottomWidgetState extends State<NftCardRewardsBottomWidget>
   Future<void> _handleNftClaim(BuildContext context, SnackbarService snackBarService) async {
     if (_isHandlingClaim) {
       snackBarService.showSnackbar(
-        message: "이미 처리 중입니다. 잠시만 기다려주세요.",
+        message: LocaleKeys.nft_already_processing.tr(),
         duration: const Duration(seconds: 2),
       );
       return; // 이미 처리 중이면 리턴
@@ -216,20 +216,20 @@ class _NftCardRewardsBottomWidgetState extends State<NftCardRewardsBottomWidget>
         } else if (newStatus == WepinLifeCycle.loginBeforeRegister) {
           "Wepin 등록 필요".log();
           snackBarService.showSnackbar(
-            message: "지갑 등록을 완료해주세요.",
+            message: LocaleKeys.nft_wallet_registration_required.tr(),
             duration: const Duration(seconds: 3),
           );
         } else {
           "Wepin 로그인 실패".log();
           snackBarService.showSnackbar(
-            message: "지갑 연결에 실패했습니다. 다시 시도해주세요.",
+            message: LocaleKeys.nft_wallet_connection_failed.tr(),
             duration: const Duration(seconds: 3),
           );
         }
       } catch (e) {
         "Wepin 연결 오류: $e".log();
         snackBarService.showSnackbar(
-          message: "지갑 연결 중 오류가 발생했습니다.",
+          message: LocaleKeys.nft_wallet_connection_error.tr(),
           duration: const Duration(seconds: 3),
         );
       }
@@ -250,7 +250,8 @@ class _NftCardRewardsBottomWidgetState extends State<NftCardRewardsBottomWidget>
   // NFT 클레임 로직을 별도 메서드로 분리
   void _proceedWithNftClaim(SnackbarService snackBarService) {
     if (widget.welcomeNftEntity.freeNftAvailable && widget.welcomeNftEntity.remainingCount > 0) {
-      getIt<NftCubit>().onGetConsumeWelcomeNft();
+      // WelcomeNft is no longer used - commented out to prevent requests
+      // getIt<NftCubit>().onGetConsumeWelcomeNft();
     } else {
       snackBarService.showSnackbar(
         message: LocaleKeys.youCanNotUseTheFreeNft.tr(),

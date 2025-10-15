@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gal/gal.dart';
@@ -11,6 +12,7 @@ import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/space/domain/entities/space_detail_entity.dart';
 import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/services/share_image_service.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -54,7 +56,7 @@ class _ShareDialogState extends State<ShareDialog> {
       }
     } catch (e) {
       '❌ Error selecting image: $e'.log();
-      _showErrorMessage('이미지 선택 중 오류가 발생했습니다');
+      _showErrorMessage(LocaleKeys.share_select_error.tr());
     }
   }
 
@@ -109,39 +111,42 @@ class _ShareDialogState extends State<ShareDialog> {
     if (_generatedImage == null) return;
 
     try {
+      // 먼저 갤러리에 이미지 저장
+      final saved = await _saveImageToGallery(showToast: false);
+      if (saved) {
+        _showSuccessMessage(LocaleKeys.share_image_saved_select.tr());
+      }
+
+      // X(Twitter) 앱 직접 열기 시도
+      final message = Uri.encodeComponent('${widget.spaceDetailEntity.name}${LocaleKeys.share_message_hidden_time.tr()}');
+      final twitterUrl = Uri.parse('twitter://post?message=$message');
+
+      try {
+        final canLaunch = await canLaunchUrl(twitterUrl);
+        if (canLaunch) {
+          await launchUrl(twitterUrl, mode: LaunchMode.externalApplication);
+          '✅ Opened X app directly'.log();
+          return;
+        }
+      } catch (e) {
+        '⚠️ Failed to open X app, falling back to share sheet: $e'.log();
+      }
+
+      // Fallback: 시스템 공유 시트
       final tempDir = Directory.systemTemp;
       final file = File('${tempDir.path}/hmp_share_${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(_generatedImage!);
 
       final xFile = XFile(file.path);
-      // X(트위터) 앱 직접 열기
-      final text = Uri.encodeComponent('${widget.spaceDetailEntity.name}에서 Hidden Time! 🫵 #HideMePlease');
 
-      // 다양한 X/Twitter URL scheme 시도
-      final schemes = [
-        'twitter://post?text=$text',
-        'x://post?text=$text',
-        'https://twitter.com/intent/tweet?text=$text'
-      ];
-
-      bool appOpened = false;
-      for (final scheme in schemes) {
-        final url = Uri.parse(scheme);
-        if (await canLaunchUrl(url)) {
-          appOpened = await launchUrl(url, mode: LaunchMode.externalApplication);
-          if (appOpened) break;
-        }
-      }
-
-      // 시스템 공유 시트 호출
       await Share.shareXFiles(
         [xFile],
-        text: '${widget.spaceDetailEntity.name}에서 Hidden Time! 🫵 #HideMePlease',
+        text: '${widget.spaceDetailEntity.name}${LocaleKeys.share_message_hidden_time.tr()}',
         sharePositionOrigin: Rect.fromLTWH(0, 0, 100, 100),
       );
     } catch (e) {
       '❌ Error sharing to X: $e'.log();
-      _showErrorMessage('X 공유 중 오류가 발생했습니다');
+      _showErrorMessage(LocaleKeys.share_x_error.tr());
     }
   }
 
@@ -149,39 +154,42 @@ class _ShareDialogState extends State<ShareDialog> {
     if (_generatedImage == null) return;
 
     try {
+      // 먼저 갤러리에 이미지 저장
+      final saved = await _saveImageToGallery(showToast: false);
+      if (saved) {
+        _showSuccessMessage(LocaleKeys.share_image_saved_select.tr());
+      }
+
+      // Threads 앱 직접 열기 시도
+      final message = Uri.encodeComponent('${widget.spaceDetailEntity.name}${LocaleKeys.share_message_hidden_time.tr()}');
+      final threadsUrl = Uri.parse('threads://compose?text=$message');
+
+      try {
+        final canLaunch = await canLaunchUrl(threadsUrl);
+        if (canLaunch) {
+          await launchUrl(threadsUrl, mode: LaunchMode.externalApplication);
+          '✅ Opened Threads app directly'.log();
+          return;
+        }
+      } catch (e) {
+        '⚠️ Failed to open Threads app, falling back to share sheet: $e'.log();
+      }
+
+      // Fallback: 시스템 공유 시트
       final tempDir = Directory.systemTemp;
       final file = File('${tempDir.path}/hmp_share_${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(_generatedImage!);
 
       final xFile = XFile(file.path);
-      // Threads 앱 직접 열기
-      final text = Uri.encodeComponent('${widget.spaceDetailEntity.name}에서 Hidden Time! 🫵 #HideMePlease');
 
-      // Threads URL schemes
-      final schemes = [
-        'barcelona://create?text=$text',
-        'threads://create?text=$text',
-        'fb://facewebmodal/f?href=https://threads.net/intent/post?text=$text'
-      ];
-
-      bool appOpened = false;
-      for (final scheme in schemes) {
-        final url = Uri.parse(scheme);
-        if (await canLaunchUrl(url)) {
-          appOpened = await launchUrl(url, mode: LaunchMode.externalApplication);
-          if (appOpened) break;
-        }
-      }
-
-      // 시스템 공유 시트 호출
       await Share.shareXFiles(
         [xFile],
-        text: '${widget.spaceDetailEntity.name}에서 Hidden Time! 🫵',
+        text: '${widget.spaceDetailEntity.name}${LocaleKeys.share_message_hidden_time_short.tr()}',
         sharePositionOrigin: Rect.fromLTWH(0, 0, 100, 100),
       );
     } catch (e) {
       '❌ Error sharing to Threads: $e'.log();
-      _showErrorMessage('Threads 공유 중 오류가 발생했습니다');
+      _showErrorMessage(LocaleKeys.share_threads_error.tr());
     }
   }
 
@@ -189,47 +197,51 @@ class _ShareDialogState extends State<ShareDialog> {
     if (_generatedImage == null) return;
 
     try {
+      // 먼저 갤러리에 이미지 저장
+      final saved = await _saveImageToGallery(showToast: false);
+      if (saved) {
+        _showSuccessMessage(LocaleKeys.share_image_saved_select.tr());
+      }
+
+      // Instagram 앱 직접 열기 시도 (카메라로)
+      final instagramUrl = Uri.parse('instagram://camera');
+
+      try {
+        final canLaunch = await canLaunchUrl(instagramUrl);
+        if (canLaunch) {
+          await launchUrl(instagramUrl, mode: LaunchMode.externalApplication);
+          '✅ Opened Instagram app directly'.log();
+          return;
+        }
+      } catch (e) {
+        '⚠️ Failed to open Instagram app, falling back to share sheet: $e'.log();
+      }
+
+      // Fallback: 시스템 공유 시트
       final tempDir = Directory.systemTemp;
       final file = File('${tempDir.path}/hmp_share_${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(_generatedImage!);
 
       final xFile = XFile(file.path);
 
-      // Instagram 앱 직접 열기
-      final schemes = [
-        'instagram://app',  // Instagram 메인 앱 열기
-        'instagram://camera', // Instagram 카메라 열기
-        'instagram-stories://share', // Instagram Stories
-      ];
-
-      bool appOpened = false;
-      for (final scheme in schemes) {
-        final url = Uri.parse(scheme);
-        if (await canLaunchUrl(url)) {
-          appOpened = await launchUrl(url, mode: LaunchMode.externalApplication);
-          if (appOpened) break;
-        }
-      }
-
-      // 앱이 열렸든 안 열렸든 Share를 통해 이미지 공유
-      // Instagram은 Share sheet를 통해 이미지를 받음
       await Share.shareXFiles(
         [xFile],
         sharePositionOrigin: Rect.fromLTWH(0, 0, 100, 100),
       );
     } catch (e) {
       '❌ Error sharing to Instagram: $e'.log();
-      _showErrorMessage('Instagram 공유 중 오류가 발생했습니다');
+      _showErrorMessage(LocaleKeys.share_instagram_error.tr());
     }
   }
 
-  Future<void> _downloadImage() async {
+  /// Save image to gallery (common method for all share actions)
+  Future<bool> _saveImageToGallery({bool showToast = true}) async {
     if (_generatedImage == null) {
-      _showErrorMessage('저장할 이미지가 없습니다');
-      return;
+      if (showToast) _showErrorMessage(LocaleKeys.share_no_image_to_save.tr());
+      return false;
     }
 
-    '💾 Starting image download'.log();
+    '💾 Starting image save to gallery'.log();
 
     try {
       // iOS는 권한 체크 없이 바로 저장 시도 (시스템이 자동으로 권한 요청)
@@ -241,10 +253,12 @@ class _ShareDialogState extends State<ShareDialog> {
             album: 'HideMePlease',
           );
           '💾 Image saved successfully'.log();
-          _showSuccessMessage('이미지가 갤러리에 저장되었습니다');
+          if (showToast) _showSuccessMessage(LocaleKeys.share_image_saved_gallery.tr());
+          return true;
         } catch (e) {
           '❌ Save error: $e'.log();
-          _showErrorMessage('이미지 저장에 실패했습니다');
+          if (showToast) _showErrorMessage(LocaleKeys.share_save_failed.tr());
+          return false;
         }
       } else if (Platform.isAndroid) {
         '🤖 Android detected, checking permissions'.log();
@@ -276,19 +290,29 @@ class _ShareDialogState extends State<ShareDialog> {
               album: 'HideMePlease',
             );
             '💾 Image saved successfully'.log();
-            _showSuccessMessage('이미지가 갤러리에 저장되었습니다');
+            if (showToast) _showSuccessMessage(LocaleKeys.share_image_saved_gallery.tr());
+            return true;
           } catch (e) {
             '❌ Save error: $e'.log();
-            _showErrorMessage('이미지 저장에 실패했습니다');
+            if (showToast) _showErrorMessage(LocaleKeys.share_save_failed.tr());
+            return false;
           }
         } else {
-          _showErrorMessage('저장 권한이 필요합니다');
+          if (showToast) _showErrorMessage(LocaleKeys.share_permission_needed.tr());
+          return false;
         }
       }
     } catch (e) {
-      '❌ Error downloading image: $e'.log();
-      _showErrorMessage('이미지 저장 중 오류가 발생했습니다: ${e.toString()}');
+      '❌ Error saving image to gallery: $e'.log();
+      if (showToast) _showErrorMessage('${LocaleKeys.share_save_error.tr()}: ${e.toString()}');
+      return false;
     }
+
+    return false;
+  }
+
+  Future<void> _downloadImage() async {
+    await _saveImageToGallery(showToast: true);
   }
 
   void _showSuccessMessage(String message) {
@@ -296,8 +320,8 @@ class _ShareDialogState extends State<ShareDialog> {
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
+      backgroundColor: const Color(0xFFE8F4F8), // 공유 모달 배경색
+      textColor: Colors.black87,
     );
   }
 
@@ -357,7 +381,7 @@ class _ShareDialogState extends State<ShareDialog> {
                         ),
                         child: Center(
                           child: Text(
-                            '매장 사진',
+                            LocaleKeys.share_store_photo.tr(),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -384,7 +408,7 @@ class _ShareDialogState extends State<ShareDialog> {
                         ),
                         child: Center(
                           child: Text(
-                            '내 사진',
+                            LocaleKeys.share_my_photo.tr(),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -421,17 +445,17 @@ class _ShareDialogState extends State<ShareDialog> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: _isGenerating
-                    ? const Center(
+                    ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(
+                            const CircularProgressIndicator(
                               color: Color(0xFF19BAFF),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
-                              '이미지 생성 중...',
-                              style: TextStyle(
+                              LocaleKeys.share_generating_image.tr(),
+                              style: const TextStyle(
                                 color: Colors.black54,
                                 fontSize: 14,
                               ),
@@ -446,10 +470,10 @@ class _ShareDialogState extends State<ShareDialog> {
                             width: double.infinity,
                             height: double.infinity,
                           )
-                        : const Center(
+                        : Center(
                             child: Text(
-                              '이미지를 생성할 수 없습니다',
-                              style: TextStyle(
+                              LocaleKeys.share_cannot_generate_image.tr(),
+                              style: const TextStyle(
                                 color: Colors.black54,
                                 fontSize: 14,
                               ),
@@ -462,14 +486,29 @@ class _ShareDialogState extends State<ShareDialog> {
             // Share message
             Container(
               padding: const EdgeInsets.all(20),
-              child: const Text(
-                '숨어있는 소식을 친구들에게 알려봐!',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-                textAlign: TextAlign.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    LocaleKeys.share_tell_friends.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'SNS공유시 이미지는 자동으로 저장될거야!',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black87.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
 
@@ -525,9 +564,9 @@ class _ShareDialogState extends State<ShareDialog> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Text(
-                '취소',
-                style: TextStyle(
+              child: Text(
+                LocaleKeys.cancel.tr(),
+                style: const TextStyle(
                   color: Colors.black87,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

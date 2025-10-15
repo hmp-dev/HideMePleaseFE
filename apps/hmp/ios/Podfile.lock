@@ -251,17 +251,17 @@ PODS:
     - libwebp/sharpyuv
   - location (0.0.1):
     - Flutter
-  - mapbox_maps_flutter (2.8.0):
+  - mapbox_maps_flutter (2.12.0-rc.1):
     - Flutter
-    - MapboxMaps (= 11.12.0)
+    - MapboxMaps (= 11.16.0-rc.1)
     - Turf (= 4.0.0)
-  - MapboxCommon (24.12.0):
+  - MapboxCommon (24.16.0-rc.1):
     - Turf (= 4.0.0)
-  - MapboxCoreMaps (11.12.0):
-    - MapboxCommon (= 24.12.0)
-  - MapboxMaps (11.12.0):
-    - MapboxCommon (= 24.12.0)
-    - MapboxCoreMaps (= 11.12.0)
+  - MapboxCoreMaps (11.16.0-rc.1):
+    - MapboxCommon (= 24.16.0-rc.1)
+  - MapboxMaps (11.16.0-rc.1):
+    - MapboxCommon (= 24.16.0-rc.1)
+    - MapboxCoreMaps (= 11.16.0-rc.1)
     - Turf (= 4.0.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
@@ -283,6 +283,8 @@ PODS:
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
   - RecaptchaInterop (100.0.0)
+  - saver_gallery (0.0.1):
+    - Flutter
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -351,6 +353,7 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - saver_gallery (from `.symlinks/plugins/saver_gallery/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
@@ -465,6 +468,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  saver_gallery:
+    :path: ".symlinks/plugins/saver_gallery/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
@@ -542,10 +547,10 @@ SPEC CHECKSUMS:
   just_audio: a42c63806f16995daf5b219ae1d679deb76e6a79
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   location: d5cf8598915965547c3f36761ae9cc4f4e87d22e
-  mapbox_maps_flutter: 8cfc72243833dd9249c5b98824e5ec43914492a5
-  MapboxCommon: 5be9807f4d03e616ecf470ab8202f0d88ecbd459
-  MapboxCoreMaps: 036e9ce8711450a368304e30adc0156383357096
-  MapboxMaps: 9539e2193f6723b3179d1e8243aac5abf9b0e365
+  mapbox_maps_flutter: 1e8c089a1a7e77c1c961273b5fcf525ae28ef082
+  MapboxCommon: da94d0473ede78c1a1f43c468fafcf8ac9190b0c
+  MapboxCoreMaps: 0aff67a7fd64d84737c03bf6b81a274be2a62825
+  MapboxMaps: cfa3aabb6e9521daec72a1585f94eeeeeeaa731d
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   nfc_manager: d7da7cb781f7744b94df5fe9dbca904ac4a0939e
   OpenSSL-Universal: ca89c20240633a77c776082ba76b7d90f992bf77
@@ -556,6 +561,7 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
+  saver_gallery: 76172dc4bf6b40e66d694948ada9ff402304dd87
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440

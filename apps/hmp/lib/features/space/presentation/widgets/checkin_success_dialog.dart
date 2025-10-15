@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class CheckinSuccessDialog extends StatefulWidget {
   final String benefitDescription;
@@ -112,9 +114,9 @@ class _CheckinSuccessDialogState extends State<CheckinSuccessDialog> {
                           height: 16,
                         ),
                         const SizedBox(width: 4),
-                        const Text(
-                          '체크인 성공!',
-                          style: TextStyle(
+                        Text(
+                          LocaleKeys.checkin_success_title.tr(),
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -124,24 +126,24 @@ class _CheckinSuccessDialogState extends State<CheckinSuccessDialog> {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      '블루체크 매장에 체크인하고 혜택받은 걸 축하해!',
-                      style: TextStyle(
+                      LocaleKeys.checkin_success_congratulations.tr(),
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '보상으로 1 Savory를 증정할게!',
-                      style: TextStyle(
+                      LocaleKeys.checkin_success_reward.tr(),
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '이제 자동으로 매칭에 참여하게 됐어 :)',
-                      style: TextStyle(
+                      LocaleKeys.checkin_success_matching_info.tr(),
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                       ),
@@ -163,17 +165,17 @@ class _CheckinSuccessDialogState extends State<CheckinSuccessDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'SAV 획득',
-                              style: TextStyle(
+                              LocaleKeys.sav_earned.tr(),
+                              style: const TextStyle(
                                 color: Color(0xFFEA5211),
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
-                              'SAV 현황',
-                              style: TextStyle(
+                              LocaleKeys.sav_status.tr(),
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -195,7 +197,7 @@ class _CheckinSuccessDialogState extends State<CheckinSuccessDialog> {
                                 ),
                                 const SizedBox(width: 5),
                                 const Text(
-                                  '1',
+                                  '3',
                                   style: TextStyle(
                                     color: Color(0xFFEA5211),
                                     fontSize: 16,

@@ -13,7 +13,8 @@ NotificationDto _$NotificationDtoFromJson(Map<String, dynamic> json) =>
       title: json['title'] as String?,
       body: json['body'] as String?,
       type: json['type'] as String?,
-      params: json['params'] as String?,
+      params: json['params'] as Map<String, dynamic>?,
+      isRead: json['isRead'] as bool?,
     );
 
 Map<String, dynamic> _$NotificationDtoToJson(NotificationDto instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$NotificationDtoToJson(NotificationDto instance) =>
       'body': instance.body,
       'type': instance.type,
       'params': instance.params,
+      'isRead': instance.isRead,
     };

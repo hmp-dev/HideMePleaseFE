@@ -108,9 +108,7 @@ class _HomeViewAfterWalletConnectedState
       bloc: getIt<NftCubit>(),
       listener: (context, nftState) {},
       builder: (context, nftState) {
-        return ListView(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+        return Column(
           children: [
             BlocBuilder<WalletsCubit, WalletsState>(
               bloc: getIt<WalletsCubit>(),

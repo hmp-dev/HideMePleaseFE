@@ -43,7 +43,17 @@ class NotificationsCubit extends BaseCubit<NotificationsState> {
       // If the response is a success, maps the result to NotificationEntity
       // objects and emits the success state
       (result) {
-        final resultList = result.map((e) => e.toEntity()).toList();
+        final resultList = result
+            .map((e) => e.toEntity())
+            .where((notification) {
+              final typeLower = notification.type.toLowerCase();
+              // 체크인/체크아웃 알림 필터링 제외
+              return !(typeLower.contains("checkin") ||
+                       typeLower.contains("check_in") ||
+                       typeLower.contains("checkout") ||
+                       typeLower.contains("check_out"));
+            })
+            .toList();
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,
@@ -51,6 +61,98 @@ class NotificationsCubit extends BaseCubit<NotificationsState> {
             notifications: resultList,
           ),
         );
+
+        // Also fetch unread count
+        getUnreadCount();
+      },
+    );
+  }
+
+  /// Retrieves the count of unread notifications.
+  Future<void> getUnreadCount() async {
+    final response = await _settingsRepository.getUnreadNotificationsCount();
+
+    response.fold(
+      (err) {
+        // Silently fail for unread count
+      },
+      (count) {
+        emit(state.copyWith(unreadCount: count));
+      },
+    );
+  }
+
+  /// Marks a notification as read using optimistic update.
+  ///
+  /// Immediately updates the UI, then calls the API.
+  /// If the API call fails, reverts the change.
+  Future<void> markAsRead(String notificationId) async {
+    // Find the notification
+    final notificationIndex = state.notifications.indexWhere(
+      (n) => n.id == notificationId,
+    );
+
+    if (notificationIndex == -1) return;
+
+    final notification = state.notifications[notificationIndex];
+
+    // If already read, do nothing
+    if (notification.isRead) return;
+
+    // Optimistic update: mark as read immediately
+    final updatedNotifications = List<NotificationEntity>.from(state.notifications);
+    updatedNotifications[notificationIndex] = notification.copyWith(isRead: true);
+
+    final newUnreadCount = state.unreadCount > 0 ? state.unreadCount - 1 : 0;
+
+    emit(state.copyWith(
+      notifications: updatedNotifications,
+      unreadCount: newUnreadCount,
+    ));
+
+    // Call the API
+    final response = await _settingsRepository.markNotificationAsRead(notificationId);
+
+    response.fold(
+      (err) {
+        // Revert on failure
+        final revertedNotifications = List<NotificationEntity>.from(state.notifications);
+        revertedNotifications[notificationIndex] = notification;
+
+        emit(state.copyWith(
+          notifications: revertedNotifications,
+          unreadCount: state.unreadCount + 1,
+        ));
+      },
+      (success) {
+        // Success - the optimistic update is already applied
+      },
+    );
+  }
+
+  /// Deletes a notification.
+  Future<void> deleteNotification(String notificationId) async {
+    final response = await _settingsRepository.deleteNotification(notificationId);
+
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          errorMessage: LocaleKeys.somethingError.tr(),
+        ));
+      },
+      (success) {
+        // Remove from the list
+        final updatedNotifications = state.notifications
+            .where((n) => n.id != notificationId)
+            .toList();
+
+        emit(state.copyWith(
+          notifications: updatedNotifications,
+          errorMessage: '',
+        ));
+
+        // Refresh unread count
+        getUnreadCount();
       },
     );
   }

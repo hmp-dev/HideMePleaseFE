@@ -1334,7 +1334,7 @@ packages:
     source: hosted
     version: "4.1.2"
   image:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image
       sha256: "13d3349ace88f12f4a0d175eb5c12dcdd39d35c4c109a8a13dfeb6d0bd9e31c3"
@@ -1617,10 +1617,10 @@ packages:
     dependency: "direct main"
     description:
       name: mapbox_maps_flutter
-      sha256: f3dea7e14e5afc10ad03e16a6d5ece18ec5487ceaf9b2f83a64a2358d29149ba
+      sha256: "2b575db8b64657557636a54689e99baae9e52cfb5cba85ea466fa55bfeea4029"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.0"
+    version: "2.12.0-rc.1"
   matcher:
     dependency: transitive
     description:
@@ -1997,6 +1997,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  saver_gallery:
+    dependency: "direct main"
+    description:
+      name: saver_gallery
+      sha256: "35f838453cbf17d4b710d0783ced0d2c9aeb79a607f290684b9c3c798c22beb8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.10"
   sec:
     dependency: transitive
     description:

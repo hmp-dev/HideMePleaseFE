@@ -203,13 +203,13 @@ class _NfcReadProcessViewState extends State<NfcReadProcessView> {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  "사장님과 하이파이브를 해주세요!",
+                                  LocaleKeys.nfc_instruction_highfive.tr(),
                                   textAlign: TextAlign.center,
                                   style: fontTitle05Bold(),
                                 ),
                                 //
                                 Text(
-                                  "해당 공간의 혜택이 자동으로 사용돼요",
+                                  LocaleKeys.nfc_instruction_auto_benefit.tr(),
                                   textAlign: TextAlign.center,
                                   style: fontCompactMd(),
                                 ),

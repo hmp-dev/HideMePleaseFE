@@ -44,11 +44,13 @@ class MapInfoCard extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 매장 이미지
-              Container(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 100),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 매장 이미지
+                Container(
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
@@ -139,27 +141,8 @@ class MapInfoCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                        // 상세보기
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              LocaleKeys.view_details.tr(),
-                              style: TextStyle(
-                                color: Colors.grey[500],
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: 'LINESeedKR',
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.grey[500],
-                              size: 12,
-                            ),
-                          ],
-                        ),
+                        // 체크인 카운트 (닷 표시)
+                        _buildCheckInDots(space),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -237,6 +220,7 @@ class MapInfoCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
@@ -534,5 +518,38 @@ class MapInfoCard extends StatelessWidget {
 
     // 그 외의 경우 기본 설명 반환
     return space.benefitDescription;
+  }
+
+  // 체크인 카운트 닷 표시
+  Widget _buildCheckInDots(SpaceEntity space) {
+    // Parse maxCapacity from currentGroupProgress
+    int maxDots = 5;
+    if (space.currentGroupProgress.isNotEmpty) {
+      final parts = space.currentGroupProgress.split('/');
+      if (parts.length == 2) {
+        maxDots = int.tryParse(parts[1]) ?? 5;
+      }
+    }
+
+    final filledDots = space.hidingCount;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(maxDots, (index) {
+        final isFilled = index < filledDots;
+        return Padding(
+          padding: EdgeInsets.only(right: index < maxDots - 1 ? 4 : 0),
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isFilled ? const Color(0xFF00A3FF) : Colors.transparent,
+              border: Border.all(color: Colors.black, width: 1),
+            ),
+          ),
+        );
+      }),
+    );
   }
 }

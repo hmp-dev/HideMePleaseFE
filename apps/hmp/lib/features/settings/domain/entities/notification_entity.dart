@@ -6,7 +6,8 @@ class NotificationEntity extends Equatable {
   final String title;
   final String body;
   final String type;
-  final String params;
+  final Map<String, dynamic> params;
+  final bool isRead;
 
   const NotificationEntity({
     required this.id,
@@ -15,6 +16,7 @@ class NotificationEntity extends Equatable {
     required this.body,
     required this.type,
     required this.params,
+    required this.isRead,
   });
 
   @override
@@ -26,6 +28,7 @@ class NotificationEntity extends Equatable {
       body,
       type,
       params,
+      isRead,
     ];
   }
 
@@ -35,7 +38,8 @@ class NotificationEntity extends Equatable {
         title = '',
         body = '',
         type = '',
-        params = '';
+        params = const {},
+        isRead = false;
 
   NotificationEntity copyWith({
     String? id,
@@ -43,7 +47,8 @@ class NotificationEntity extends Equatable {
     String? title,
     String? body,
     String? type,
-    String? params,
+    Map<String, dynamic>? params,
+    bool? isRead,
   }) {
     return NotificationEntity(
       id: id ?? this.id,
@@ -52,6 +57,7 @@ class NotificationEntity extends Equatable {
       body: body ?? this.body,
       type: type ?? this.type,
       params: params ?? this.params,
+      isRead: isRead ?? this.isRead,
     );
   }
 }

@@ -32,5 +32,21 @@ abstract class SettingsRepository {
   ///
   /// Returns a `Either<HMPError, List<NotificationDto>>` which is either a `List<NotificationDto>`
   /// or an `HMPError` in case of failure.
-  Future<Either<HMPError, List<NotificationDto>>> getNotifications();
+  Future<Either<HMPError, List<NotificationDto>>> getNotifications({int page = 1});
+
+  /// Fetches the count of unread notifications from the server.
+  ///
+  /// Returns a `Either<HMPError, int>` which is either the count of unread notifications
+  /// or an `HMPError` in case of failure.
+  Future<Either<HMPError, int>> getUnreadNotificationsCount();
+
+  /// Marks a notification as read.
+  ///
+  /// Returns a `Either<HMPError, bool>` which is either `true` or an `HMPError` in case of failure.
+  Future<Either<HMPError, bool>> markNotificationAsRead(String notificationId);
+
+  /// Deletes a notification.
+  ///
+  /// Returns a `Either<HMPError, bool>` which is either `true` or an `HMPError` in case of failure.
+  Future<Either<HMPError, bool>> deleteNotification(String notificationId);
 }

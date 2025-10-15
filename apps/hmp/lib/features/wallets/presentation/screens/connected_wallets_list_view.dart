@@ -126,17 +126,12 @@ class _ConnectedWalletsListScreenState
                                 ),
                               ),
                               // Displays a list of connected wallets.
-                              ListView.builder(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.vertical,
-                                itemCount: state.connectedWallets.length,
-                                itemBuilder: (context, index) {
-                                  return ConnectedWalletItemWidget(
-                                    connectedWallet:
-                                        state.connectedWallets[index],
-                                  );
-                                },
-                              ),
+                              // Using Column instead of ListView to avoid nested scrollable widgets
+                              ...state.connectedWallets.map((wallet) =>
+                                ConnectedWalletItemWidget(
+                                  connectedWallet: wallet,
+                                ),
+                              ).toList(),
                             ],
                           ),
                   ),

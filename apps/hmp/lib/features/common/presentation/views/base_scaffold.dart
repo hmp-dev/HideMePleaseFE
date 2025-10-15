@@ -20,6 +20,9 @@ class BaseScaffold extends StatefulWidget {
   // Title of the screen
   final String? title;
 
+  // Custom title widget (used instead of title if provided)
+  final Widget? titleWidget;
+
   // Function to be called when the back button is pressed
   final Function? onBack;
 
@@ -56,6 +59,7 @@ class BaseScaffold extends StatefulWidget {
     this.backgroundColor,
     this.isCenterTitle = false,
     this.title,
+    this.titleWidget,
     this.onBack,
     this.suffix,
     required this.body,
@@ -135,7 +139,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
 
   _appBar() {
     bool enableBack = widget.onBack != null;
-    bool enableTitle = widget.title != null;
+    bool enableTitle = widget.title != null || widget.titleWidget != null;
     bool enableSuffix = widget.suffix != null;
 
     if (enableBack || enableSuffix || enableTitle) {
@@ -182,7 +186,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
               Container(
                 alignment: widget.isCenterTitle ? Alignment.center : null,
                 padding: EdgeInsets.only(left: widget.isCenterTitle ? 0 : 50),
-                child: Text(
+                child: widget.titleWidget ?? Text(
                   widget.title!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

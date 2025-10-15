@@ -117,31 +117,8 @@ class SpaceInfoCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            if (showDetailButton)
-                              GestureDetector(
-                                onTap: () async {
-                                  final spaceCubit = getIt<SpaceCubit>();
-                                  await spaceCubit.onGetSpaceDetailBySpaceId(spaceId: space.id);
-                                  SpaceDetailScreen.push(context);
-                                },
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      '상세보기',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[400],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 2),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      size: 10,
-                                      color: Colors.grey[400],
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            // 체크인 카운트 (닷 표시)
+                            _buildCheckInDots(space),
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -214,4 +191,37 @@ String _getBenefitDescription(BuildContext context, SpaceEntity space) {
 
   // 그 외의 경우 기본 설명 반환
   return space.benefitDescription;
+}
+
+// Helper function to build check-in dots
+Widget _buildCheckInDots(SpaceEntity space) {
+  // Parse maxCapacity from currentGroupProgress
+  int maxDots = 5;
+  if (space.currentGroupProgress.isNotEmpty) {
+    final parts = space.currentGroupProgress.split('/');
+    if (parts.length == 2) {
+      maxDots = int.tryParse(parts[1]) ?? 5;
+    }
+  }
+
+  final filledDots = space.hidingCount;
+
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: List.generate(maxDots, (index) {
+      final isFilled = index < filledDots;
+      return Padding(
+        padding: EdgeInsets.only(right: index < maxDots - 1 ? 4 : 0),
+        child: Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isFilled ? const Color(0xFF19BAFF) : Colors.transparent,
+            border: Border.all(color: Colors.black, width: 1),
+          ),
+        ),
+      );
+    }),
+  );
 }

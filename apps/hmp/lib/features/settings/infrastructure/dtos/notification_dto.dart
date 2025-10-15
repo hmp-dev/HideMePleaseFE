@@ -13,7 +13,8 @@ class NotificationDto extends Equatable {
   final String? title;
   final String? body;
   final String? type;
-  final String? params;
+  final Map<String, dynamic>? params;
+  final bool? isRead;
 
   const NotificationDto({
     this.id,
@@ -22,6 +23,7 @@ class NotificationDto extends Equatable {
     this.body,
     this.type,
     this.params,
+    this.isRead,
   });
 
   factory NotificationDto.fromJson(Map<String, dynamic> json) =>
@@ -38,6 +40,7 @@ class NotificationDto extends Equatable {
       body,
       type,
       params,
+      isRead,
     ];
   }
 
@@ -47,6 +50,7 @@ class NotificationDto extends Equatable {
         title: title ?? '',
         body: body ?? '',
         type: type ?? '',
-        params: params ?? '',
+        params: params ?? {},
+        isRead: isRead ?? false,
       );
 }

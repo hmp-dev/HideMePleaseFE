@@ -1325,13 +1325,14 @@ class WepinCubit extends BaseCubit<WepinState> {
                 
                 if (hasValidWallet || finalWallets.isNotEmpty) {
                   "✅ Wallet connected, proceeding with NFT redemption".log();
-                  
+
                   // Trigger NFT redemption
                   if (getIt<NftCubit>().state.welcomeNftEntity.remainingCount > 0) {
                     "🎁 Calling NFT redemption API...".log();
-                    getIt<NftCubit>().onGetConsumeWelcomeNft();
+                    // WelcomeNft is no longer used - commented out to prevent requests
+                    // getIt<NftCubit>().onGetConsumeWelcomeNft();
                   }
-                  
+
                   // Stop the timer as we've completed the process
                   stopWalletCheckTimer();
                   dismissLoader();
@@ -1371,15 +1372,16 @@ class WepinCubit extends BaseCubit<WepinState> {
                 dismissLoader();
               }
               // If wallet is already saved and we're trying to redeem NFT
-              else if (state.isPerformWepinWelcomeNftRedeem && 
+              else if (state.isPerformWepinWelcomeNftRedeem &&
                   getIt<WalletsCubit>().state.isWepinWalletConnected) {
                 "🎁 Wallet already connected, proceeding with NFT redemption".log();
-                
+
                 if (getIt<NftCubit>().state.welcomeNftEntity.remainingCount > 0) {
                   "🎁 Calling NFT redemption API (wallet already connected)...".log();
-                  getIt<NftCubit>().onGetConsumeWelcomeNft();
+                  // WelcomeNft is no longer used - commented out to prevent requests
+                  // getIt<NftCubit>().onGetConsumeWelcomeNft();
                 }
-                
+
                 stopWalletCheckTimer();
                 dismissLoader();
                 emit(state.copyWith(

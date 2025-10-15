@@ -1355,16 +1355,23 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                 setState(
                                                     () => _isConfirming = true);
 
-                                                '🚀 온보딩 완료 버튼 클릭'.log();
-
-                                                // Clear saved step immediately to prevent navigation issues
                                                 try {
+                                                  '🚀 온보딩 완료 버튼 클릭'.log();
+
+                                                  // CRITICAL: Mark onboarding as completed FIRST to prevent restart loop
                                                   final prefs = await SharedPreferences.getInstance();
-                                                  await prefs.remove(StorageValues.onboardingCurrentStep);
-                                                  '🗑️ 저장된 온보딩 단계 즉시 삭제'.log();
-                                                } catch (e) {
-                                                  '❌ Failed to clear saved step: $e'.log();
-                                                }
+                                                  await prefs.setBool(StorageValues.onboardingCompleted, true);
+                                                  await prefs.setInt(StorageValues.onboardingVersion, StorageValues.CURRENT_ONBOARDING_VERSION);
+                                                  '✅ 온보딩 완료 플래그 먼저 설정 (재시작 방지)'.log();
+
+                                                  // Clear saved step immediately to prevent navigation issues
+                                                  try {
+                                                    await prefs.remove(StorageValues.onboardingCurrentStep);
+                                                    '🗑️ 저장된 온보딩 단계 즉시 삭제'.log();
+                                                  } catch (e) {
+                                                    '❌ Failed to clear saved step: $e'.log();
+                                                    // Continue anyway since onboardingCompleted is already set
+                                                  }
 
                                                 // Check if user already has VALID profile image (not just URL)
                                                 final userProfile = getIt<ProfileCubit>().state.userProfileEntity;
@@ -1416,9 +1423,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                     final profileCubit = getIt<ProfileCubit>();
 
                                                     // Create update profile request with only necessary fields
+                                                    // 온보딩 완료 상태도 함께 업데이트
                                                     final updateRequest = UpdateProfileRequestDto(
                                                       nickName: nicknameToUpdate,
                                                       profilePartsString: profilePartsToUpdate,
+                                                      onboardingCompleted: true,
                                                     );
 
                                                     // Update profile
@@ -1438,21 +1447,26 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                     }
                                                   } catch (e) {
                                                     '❌ 프로필 업데이트 실패: $e'.log();
+                                                    // Continue to navigation even if profile update fails
+                                                    // User can update profile later in app
                                                   }
                                                 } else {
                                                   '✅ 기존 프로필과 닉네임이 모두 있음 - 업데이트 건너뛰기'.log();
                                                   '📝 기존 닉네임: ${getIt<ProfileCubit>().state.userProfileEntity?.nickName}'.log();
                                                   '🎨 기존 프로필 이미지: ${getIt<ProfileCubit>().state.userProfileEntity?.finalProfileImageUrl}'.log();
-                                                }
 
-                                                // Save onboarding completion and clear saved step
-                                                final prefs = await SharedPreferences.getInstance();
-                                                await prefs.setBool(StorageValues.onboardingCompleted, true);
-                                                await prefs.remove(StorageValues.onboardingCurrentStep);
-                                                // Save current onboarding version
-                                                await prefs.setInt(StorageValues.onboardingVersion, StorageValues.CURRENT_ONBOARDING_VERSION);
-                                                '💾 Saved onboarding version: ${StorageValues.CURRENT_ONBOARDING_VERSION}'.log();
-                                                '✅ 온보딩 완료 - 저장된 단계 초기화'.log();
+                                                  // 프로필과 닉네임이 있어도 온보딩 완료 상태는 업데이트
+                                                  try {
+                                                    final profileCubit = getIt<ProfileCubit>();
+                                                    final updateRequest = UpdateProfileRequestDto(
+                                                      onboardingCompleted: true,
+                                                    );
+                                                    await profileCubit.onUpdateUserProfile(updateRequest);
+                                                    '✅ 온보딩 완료 상태 업데이트 성공'.log();
+                                                  } catch (e) {
+                                                    '❌ 온보딩 완료 상태 업데이트 실패: $e'.log();
+                                                  }
+                                                }
 
                                                 // Give the background task time to start before navigation (if needed)
                                                 if ((!hasValidProfileImage && selectedCharacter != null) || !_hasExistingNickname) {
@@ -1460,31 +1474,45 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                 }
 
                                                 // Navigate to app screen with safety checks
-                                                if (context.mounted) {
-                                                  '🚀 Navigating to app screen...'.log();
-                                                  try {
-                                                    // Ensure no lingering states
-                                                    setState(() {
-                                                      _isConfirming = false;
-                                                    });
+                                                if (!context.mounted) {
+                                                  '❌ Context not mounted, cannot navigate'.log();
+                                                  return;
+                                                }
 
+                                                '🚀 Navigating to app screen...'.log();
+                                                await Navigator.pushNamedAndRemoveUntil(
+                                                  context,
+                                                  Routes.appScreen,
+                                                  (route) => false,
+                                                );
+                                                '✅ Successfully navigated to app screen'.log();
+
+                                              } catch (e) {
+                                                '❌ 온보딩 완료 처리 중 에러 발생: $e'.log();
+
+                                                // Even on error, try to navigate to app since onboarding is marked complete
+                                                if (context.mounted) {
+                                                  '🔄 에러 발생했지만 앱 화면으로 이동 시도...'.log();
+                                                  try {
                                                     await Navigator.pushNamedAndRemoveUntil(
                                                       context,
                                                       Routes.appScreen,
                                                       (route) => false,
                                                     );
-                                                    '✅ Successfully navigated to app screen'.log();
-                                                  } catch (e) {
-                                                    '❌ Navigation failed: $e'.log();
-                                                    // Try alternative navigation if first attempt fails
-                                                    if (context.mounted) {
-                                                      Navigator.of(context).pushReplacementNamed(Routes.appScreen);
-                                                    }
+                                                  } catch (navError) {
+                                                    '❌ Navigation also failed: $navError'.log();
                                                   }
-                                                } else {
-                                                  '❌ Context not mounted, cannot navigate'.log();
                                                 }
-                                              },
+                                              } finally {
+                                                // CRITICAL: Always reset _isConfirming to prevent infinite loading
+                                                if (mounted) {
+                                                  setState(() {
+                                                    _isConfirming = false;
+                                                  });
+                                                  '✅ _isConfirming 리셋 완료'.log();
+                                                }
+                                              }
+                                            },
                                 )
                               : Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 60.0),

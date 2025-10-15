@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class CheckinEmployDialog extends StatefulWidget {
   final String benefitDescription;
@@ -57,9 +59,9 @@ class _CheckinEmployDialogState extends State<CheckinEmployDialog> {
                         height: 16,
                       ),
                       const SizedBox(width: 4),
-                      const Text(
-                        '체크인 혜택',
-                        style: TextStyle(
+                      Text(
+                        LocaleKeys.checkin_benefit_title.tr(),
+                        style: const TextStyle(
                           color: Colors.black,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -112,7 +114,7 @@ class _CheckinEmployDialogState extends State<CheckinEmployDialog> {
                   ),
                   const SizedBox(height: 15),
                   Text(
-                    '*각 제휴 공간에서 1일 1회 혜택을 사용할 수 있어.',
+                    LocaleKeys.checkin_benefit_note_1.tr(),
                     style: TextStyle(
                       color: Colors.black.withOpacity(0.7),
                       fontSize: 12,
@@ -120,7 +122,7 @@ class _CheckinEmployDialogState extends State<CheckinEmployDialog> {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    '*직원이 아래 확인 버튼을 직접 누르도록 화면을 보여줘.',
+                    LocaleKeys.checkin_benefit_note_2.tr(),
                     style: TextStyle(
                       color: Colors.black.withOpacity(0.7),
                       fontSize: 12,
@@ -215,9 +217,9 @@ class _CheckinEmployDialogState extends State<CheckinEmployDialog> {
                                             valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                                           ),
                                         )
-                                      : const Text(
-                                          '사장님 확인',
-                                          style: TextStyle(
+                                      : Text(
+                                          LocaleKeys.employee_confirmation.tr(),
+                                          style: const TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.bold,
                                           ),

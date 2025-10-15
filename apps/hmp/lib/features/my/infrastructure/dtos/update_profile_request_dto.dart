@@ -7,6 +7,9 @@ class UpdateProfileRequestDto {
   final String? fcmToken;
   final String? profilePartsString;
   final String? finalProfileImageUrl;
+  final bool? onboardingCompleted;
+  final String? appOS;
+  final String? appVersion;
 
   UpdateProfileRequestDto({
     this.nickName,
@@ -17,6 +20,9 @@ class UpdateProfileRequestDto {
     this.fcmToken,
     this.profilePartsString,
     this.finalProfileImageUrl,
+    this.onboardingCompleted,
+    this.appOS,
+    this.appVersion,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,6 +35,9 @@ class UpdateProfileRequestDto {
       'fcmToken': fcmToken,
       'profilePartsString': profilePartsString,
       'finalProfileImageUrl': finalProfileImageUrl,
+      'onboardingCompleted': onboardingCompleted,
+      'appOS': appOS,
+      'appVersion': appVersion,
     };
     // Remove entries with null values
     json.removeWhere((_, value) => value == null);

@@ -67,15 +67,57 @@ class SettingsRemoteDataSource {
 
   /// Retrieves the user notifications from the server.
   ///
-  /// It sends a GET request to the "/notification" endpoint and returns
+  /// It sends a GET request to the "/push-notification" endpoint and returns
   /// the parsed response as a list of [NotificationDto] objects.
-  Future<List<NotificationDto>> getUserNotifications() async {
-    // Send a GET request to the "/notification" endpoint.
-    final response = await _network.get('/notification', {});
+  Future<List<NotificationDto>> getUserNotifications({int page = 1}) async {
+    // Send a GET request to the "/push-notification" endpoint with page parameter.
+    final response = await _network.get('/push-notification', {'page': page.toString()});
 
     // Parse the response data into a list of [NotificationDto] objects.
     return (response.data as List)
         .map((e) => NotificationDto.fromJson(e))
         .toList();
+  }
+
+  /// Retrieves the count of unread notifications from the server.
+  ///
+  /// It sends a GET request to the "/push-notification/unread/count" endpoint
+  /// and returns the count of unread notifications.
+  Future<int> getUnreadNotificationsCount() async {
+    // Send a GET request to the "/push-notification/unread/count" endpoint.
+    final response = await _network.get('/push-notification/unread/count', {});
+
+    // Return the count from the response.
+    return response.data['count'] as int;
+  }
+
+  /// Marks a notification as read.
+  ///
+  /// It sends a PATCH request to the "/push-notification/:id/read" endpoint.
+  Future<bool> markNotificationAsRead(String notificationId) async {
+    // Send a PATCH request to mark the notification as read.
+    final response = await _network.request(
+      '/push-notification/$notificationId/read',
+      'PATCH',
+      {},
+    );
+
+    // Check if the request was successful.
+    return response.statusCode == 200;
+  }
+
+  /// Deletes a notification.
+  ///
+  /// It sends a DELETE request to the "/push-notification/:id" endpoint.
+  Future<bool> deleteNotification(String notificationId) async {
+    // Send a DELETE request to delete the notification.
+    final response = await _network.request(
+      '/push-notification/$notificationId',
+      'DELETE',
+      {},
+    );
+
+    // Check if the request was successful.
+    return response.statusCode == 200;
   }
 }

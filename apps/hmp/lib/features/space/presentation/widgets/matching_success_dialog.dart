@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/common/presentation/widgets/default_image.dart';
+import 'package:mobile/generated/locale_keys.g.dart';
 
 class MatchingSuccessDialog extends StatelessWidget {
   final String benefitDescription;
@@ -60,9 +62,9 @@ class MatchingSuccessDialog extends StatelessWidget {
                           height: 16,
                         ),
                         const SizedBox(width: 4),
-                        const Text(
-                          '매칭 성공!',
-                          style: TextStyle(
+                        Text(
+                          LocaleKeys.matching_success_title.tr(),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -72,16 +74,16 @@ class MatchingSuccessDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      '오래 기다렸지!? 매칭 성공을 축하해!',
-                      style: TextStyle(
+                      LocaleKeys.matching_success_congratulations.tr(),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '보상으로 3 Savory를 증정할게!',
-                      style: TextStyle(
+                      LocaleKeys.matching_success_reward.tr(),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                       ),
@@ -103,17 +105,17 @@ class MatchingSuccessDialog extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'SAV 획득',
-                              style: TextStyle(
+                              LocaleKeys.sav_earned.tr(),
+                              style: const TextStyle(
                                 color: Color(0xFFEA5211),
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
-                              'SAV 현황',
-                              style: TextStyle(
+                              LocaleKeys.sav_status.tr(),
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

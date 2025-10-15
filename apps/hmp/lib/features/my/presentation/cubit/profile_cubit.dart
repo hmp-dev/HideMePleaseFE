@@ -94,7 +94,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(submitStatus: RequestStatus.loading));
 
     // Save profilePartsString to local storage if provided
-    if (updateProfileRequestDto.profilePartsString != null && 
+    if (updateProfileRequestDto.profilePartsString != null &&
         updateProfileRequestDto.profilePartsString!.isNotEmpty) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('profilePartsString', updateProfileRequestDto.profilePartsString!);
@@ -127,6 +127,49 @@ class ProfileCubit extends BaseCubit<ProfileState> {
         );
 
         onGetUserProfile();
+      },
+    );
+  }
+
+  /// Update user profile silently without showing EasyLoading
+  /// Useful for background updates like app version and OS info
+  Future<void> updateProfileSilently(
+    UpdateProfileRequestDto updateProfileRequestDto,
+  ) async {
+    emit(state.copyWith(submitStatus: RequestStatus.loading));
+
+    // Save profilePartsString to local storage if provided
+    if (updateProfileRequestDto.profilePartsString != null &&
+        updateProfileRequestDto.profilePartsString!.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profilePartsString', updateProfileRequestDto.profilePartsString!);
+      print('💾 Saved profilePartsString to local storage');
+    }
+
+    // No EasyLoading for silent update
+    final response = await _profileRepository.updateProfileData(
+        updateProfileRequestDto: updateProfileRequestDto);
+
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          submitStatus: RequestStatus.failure,
+          errorMessage: LocaleKeys.somethingError.tr(),
+          isProfileIncomplete: false,
+        ));
+      },
+      (user) {
+        emit(
+          state.copyWith(
+            submitStatus: RequestStatus.success,
+            errorMessage: '',
+            userProfileEntity: user.toEntity(),
+            isProfileIncomplete: false,
+          ),
+        );
+
+        // Don't call onGetUserProfile() again for silent updates
+        // to avoid overwriting the update
       },
     );
   }

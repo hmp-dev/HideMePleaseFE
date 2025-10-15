@@ -489,68 +489,69 @@ class NftCubit extends BaseCubit<NftState> {
     }
   }
 
-  /// Calls the [NftRepository.getWelcomeNft] method to get the welcome NFT.
-  ///
-  /// This method performs the following actions:
-  /// 1. Retrieves the user's current location.
-  /// 2. Calls the [NftRepository.getWelcomeNft] method to get the welcome NFT.
-  /// 3. Emits the updated state.
-  /// 4. Emits the welcome NFT state.
-  /// 5. Calls the [onGetSelectedNftTokensViaAfterWelcomeNftFetch] method to get the selected NFTs.
-  /// 6. Handles the response from the repository call.
-  ///
-  /// This method does not return anything.
-  Future<void> onGetWelcomeNft() async {
-    // Retrieve the user's current location
-    double latitude = 1;
-    double longitude = 1;
-    try {
-      final position = await Geolocator.getCurrentPosition();
-
-      latitude = position.latitude;
-      longitude = position.longitude;
-    } catch (e) {
-      // If the location cannot be retrieved, use default values
-      latitude = 1;
-      longitude = 1;
-    }
-
-    // Call the repository method to get the welcome NFT
-    final response = await _nftRepository.getWelcomeNft(
-      latitude: latitude,
-      longitude: longitude,
-    );
-
-    response.fold(
-      // Handle error response
-      (err) {
-        Log.error(err);
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
-        ));
-      },
-      // Handle success response
-      (welcomeNft) {
-        // Fetch selected NFTs
-        final isFreeNftAvailable = welcomeNft.freeNftAvailable ?? false;
-
-        // Fetch Selected NFTs
-        onGetSelectedNftTokensViaAfterWelcomeNftFetch(
-          isFreeNftAvailable: isFreeNftAvailable,
-        );
-
-        // Emit welcome NFT state
-        emit(
-          state.copyWith(
-            welcomeNftEntity: welcomeNft.toEntity(),
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-          ),
-        );
-      },
-    );
-  }
+  // WelcomeNft is no longer used - commented out to prevent requests
+  // /// Calls the [NftRepository.getWelcomeNft] method to get the welcome NFT.
+  // ///
+  // /// This method performs the following actions:
+  // /// 1. Retrieves the user's current location.
+  // /// 2. Calls the [NftRepository.getWelcomeNft] method to get the welcome NFT.
+  // /// 3. Emits the updated state.
+  // /// 4. Emits the welcome NFT state.
+  // /// 5. Calls the [onGetSelectedNftTokensViaAfterWelcomeNftFetch] method to get the selected NFTs.
+  // /// 6. Handles the response from the repository call.
+  // ///
+  // /// This method does not return anything.
+  // Future<void> onGetWelcomeNft() async {
+  //   // Retrieve the user's current location
+  //   double latitude = 1;
+  //   double longitude = 1;
+  //   try {
+  //     final position = await Geolocator.getCurrentPosition();
+  //
+  //     latitude = position.latitude;
+  //     longitude = position.longitude;
+  //   } catch (e) {
+  //     // If the location cannot be retrieved, use default values
+  //     latitude = 1;
+  //     longitude = 1;
+  //   }
+  //
+  //   // Call the repository method to get the welcome NFT
+  //   final response = await _nftRepository.getWelcomeNft(
+  //     latitude: latitude,
+  //     longitude: longitude,
+  //   );
+  //
+  //   response.fold(
+  //     // Handle error response
+  //     (err) {
+  //       Log.error(err);
+  //       emit(state.copyWith(
+  //         submitStatus: RequestStatus.failure,
+  //         errorMessage: LocaleKeys.somethingError.tr(),
+  //       ));
+  //     },
+  //     // Handle success response
+  //     (welcomeNft) {
+  //       // Fetch selected NFTs
+  //       final isFreeNftAvailable = welcomeNft.freeNftAvailable ?? false;
+  //
+  //       // Fetch Selected NFTs
+  //       onGetSelectedNftTokensViaAfterWelcomeNftFetch(
+  //         isFreeNftAvailable: isFreeNftAvailable,
+  //       );
+  //
+  //       // Emit welcome NFT state
+  //       emit(
+  //         state.copyWith(
+  //           welcomeNftEntity: welcomeNft.toEntity(),
+  //           submitStatus: RequestStatus.success,
+  //           errorMessage: '',
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   onUpdateIsWelcomeNFTConsumedStatus(bool status) {
     emit(state.copyWith(
@@ -558,69 +559,70 @@ class NftCubit extends BaseCubit<NftState> {
     ));
   }
 
-  /// Calls the [NftRepository.getConsumeUserWelcomeNft] method to consume the user's welcome NFT.
-  ///
-  /// This method performs the following actions:
-  /// 1. Shows a loading indicator.
-  /// 2. Calls the [NftRepository.getConsumeUserWelcomeNft] method to consume the user's welcome NFT.
-  /// 3. Dismisses the loading indicator.
-  /// 4. Handles the response from the repository call.
-  /// 5. Emits the updated state.
-  /// 6. Shows a success or error message based on the response.
-  ///
-  /// Returns a [Future] that completes when the method is done executing.
-  Future<void> onGetConsumeWelcomeNft() async {
-    // Show loading indicator
-    EasyLoading.show();
-
-    // Call NftRepository to consume the user's welcome NFT
-    final response = await _nftRepository.getConsumeUserWelcomeNft(
-        tokenAddress: state.welcomeNftEntity.tokenAddress);
-
-    "Log response: $response".log();
-
-    // Dismiss loading indicator
-    EasyLoading.dismiss();
-
-    // Handle response from the repository call
-    /*response.fold(
-      // If the repository call fails, update state with error message
-      (err) {
-        // Dismiss loading indicator
-        EasyLoading.dismiss();
-        Log.error(err);
-
-        // Update state with failure status and error message
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: err.message,
-        ));
-      },
-      // If the repository call succeeds, update state and show success message
-      (_) async {
-        // Dismiss loading indicator
-        EasyLoading.dismiss();
-        // Call onGetWelcomeNft to fetch welcome NFT data
-        await onGetWelcomeNft();
-
-        // Refresh user NFT communities
-        //getIt<CommunityCubit>().onGetUserNftCommunities();
-
-        // Update state with success status and empty error message
-        emit(state.copyWith(
-          submitStatus: RequestStatus.success,
-          errorMessage: '',
-        ));
-
-        // Show success snackbar
-        snackbarService.showSnackbar(
-          message: LocaleKeys.freeNftRedeemSuccessMessage.tr(),
-          //'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
-          duration: const Duration(seconds: 5),
-        );
-      },
-    ); */
-  }
+  // WelcomeNft is no longer used - commented out to prevent requests
+  // /// Calls the [NftRepository.getConsumeUserWelcomeNft] method to consume the user's welcome NFT.
+  // ///
+  // /// This method performs the following actions:
+  // /// 1. Shows a loading indicator.
+  // /// 2. Calls the [NftRepository.getConsumeUserWelcomeNft] method to consume the user's welcome NFT.
+  // /// 3. Dismisses the loading indicator.
+  // /// 4. Handles the response from the repository call.
+  // /// 5. Emits the updated state.
+  // /// 6. Shows a success or error message based on the response.
+  // ///
+  // /// Returns a [Future] that completes when the method is done executing.
+  // Future<void> onGetConsumeWelcomeNft() async {
+  //   // Show loading indicator
+  //   EasyLoading.show();
+  //
+  //   // Call NftRepository to consume the user's welcome NFT
+  //   final response = await _nftRepository.getConsumeUserWelcomeNft(
+  //       tokenAddress: state.welcomeNftEntity.tokenAddress);
+  //
+  //   "Log response: $response".log();
+  //
+  //   // Dismiss loading indicator
+  //   EasyLoading.dismiss();
+  //
+  //   // Handle response from the repository call
+  //   /*response.fold(
+  //     // If the repository call fails, update state with error message
+  //     (err) {
+  //       // Dismiss loading indicator
+  //       EasyLoading.dismiss();
+  //       Log.error(err);
+  //
+  //       // Update state with failure status and error message
+  //       emit(state.copyWith(
+  //         submitStatus: RequestStatus.failure,
+  //         errorMessage: err.message,
+  //       ));
+  //     },
+  //     // If the repository call succeeds, update state and show success message
+  //     (_) async {
+  //       // Dismiss loading indicator
+  //       EasyLoading.dismiss();
+  //       // Call onGetWelcomeNft to fetch welcome NFT data
+  //       await onGetWelcomeNft();
+  //
+  //       // Refresh user NFT communities
+  //       //getIt<CommunityCubit>().onGetUserNftCommunities();
+  //
+  //       // Update state with success status and empty error message
+  //       emit(state.copyWith(
+  //         submitStatus: RequestStatus.success,
+  //         errorMessage: '',
+  //       ));
+  //
+  //       // Show success snackbar
+  //       snackbarService.showSnackbar(
+  //         message: LocaleKeys.freeNftRedeemSuccessMessage.tr(),
+  //         //'Free NFT가 발급중에 있습니다. 잠시만 기다려주세요',
+  //         duration: const Duration(seconds: 5),
+  //       );
+  //     },
+  //   ); */
+  // }
 
   // Future<void> onGetNftBenefits({
   //   required String tokenAddress,
