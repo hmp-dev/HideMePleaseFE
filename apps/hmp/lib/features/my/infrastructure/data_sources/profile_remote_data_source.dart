@@ -4,6 +4,7 @@ import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/features/my/infrastructure/dtos/base_user_dto.dart';
 import 'package:mobile/features/my/infrastructure/dtos/user_profile_dto.dart';
+import 'package:mobile/features/my/infrastructure/dtos/points_history_response_dto.dart';
 
 @lazySingleton
 class ProfileRemoteDataSource {
@@ -82,5 +83,19 @@ class ProfileRemoteDataSource {
       "latitude": latitude,
       "longitude": longitude,
     });
+  }
+
+  /// 포인트 거래 내역 조회
+  Future<PointsHistoryResponseDto> getPointsHistory({
+    required int page,
+    required int limit,
+  }) async {
+    final response = await _network.get("points/history", {
+      "page": page.toString(),
+      "limit": limit.toString(),
+    });
+    return PointsHistoryResponseDto.fromJson(
+      response.data as Map<String, dynamic>,
+    );
   }
 }

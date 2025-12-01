@@ -28,6 +28,7 @@ SpaceDto _$SpaceDtoFromJson(Map<String, dynamic> json) => SpaceDto(
               (e) => SpaceEventCategoryDto.fromJson(e as Map<String, dynamic>))
           .toList(),
       currentGroupProgress: json['currentGroupProgress'] as String?,
+      maxCheckInCapacity: (json['maxCheckInCapacity'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{
@@ -47,4 +48,5 @@ Map<String, dynamic> _$SpaceDtoToJson(SpaceDto instance) => <String, dynamic>{
       'isTemporarilyClosed': instance.isTemporarilyClosed,
       'SpaceEventCategory': instance.spaceEventCategories,
       'currentGroupProgress': instance.currentGroupProgress,
+      'maxCheckInCapacity': instance.maxCheckInCapacity,
     };

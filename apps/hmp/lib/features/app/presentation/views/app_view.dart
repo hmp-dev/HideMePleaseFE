@@ -52,6 +52,7 @@ import 'package:mobile/app/core/services/check_in_location_service.dart';
 import 'package:mobile/app/core/services/nearby_store_validation_service.dart';
 import 'package:mobile/features/space/presentation/screens/siren_screen.dart';
 import 'package:mobile/features/space/presentation/cubit/siren_cubit.dart';
+import 'package:mobile/features/common/presentation/services/background_location_service.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
@@ -70,11 +71,28 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _checkInLocationService = CheckInLocationService(getIt<SpaceCubit>());
+
+    // Request background location permission after view is mounted
+    // Delayed to ensure navigation transition is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Small delay to ensure UI is stable after navigation
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        print('🎯 [AppView] Requesting background location permission...');
+        await BackgroundLocationService.checkAndRequestBackgroundLocation(context);
+        print('🎯 [AppView] Background location permission request completed');
+      }
+    });
+
     initializeServices();
-    
+
     // Listen to SpaceCubit state changes to start/stop tracking
-    getIt<SpaceCubit>().stream.listen((state) {
-      if (state.currentCheckedInSpaceId != null) {
+    // Use distinct() to filter duplicate events and prevent multiple tracking instances
+    getIt<SpaceCubit>().stream
+        .map((state) => state.currentCheckedInSpaceId)
+        .distinct()
+        .listen((spaceId) {
+      if (spaceId != null) {
         print('🎯 Check-in detected, starting location tracking');
         _checkInLocationService.startLocationTracking();
       } else {
@@ -566,14 +584,19 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                     orElse: () => const SpaceEntity.empty(),
                                   );
 
-                                  // 2. 혜택 설명 가져오기
+                                  // 2. 혜택 설명 가져오기 (spaceEntity에서 직접 사용)
+                                  final isEnglish = context.locale.languageCode == 'en';
+                                  final benefitDescription = isEnglish && spaceEntity.benefitDescriptionEn.isNotEmpty
+                                      ? spaceEntity.benefitDescriptionEn
+                                      : (spaceEntity.benefitDescription.isNotEmpty
+                                          ? spaceEntity.benefitDescription
+                                          : (spaceDetail.introduction.isNotEmpty
+                                              ? spaceDetail.introduction
+                                              : '체크인 혜택'));
+
+                                  // selectedBenefit는 체크인 API에 전달하기 위해 필요
                                   final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
                                   final selectedBenefit = benefits.isNotEmpty ? benefits.first : null;
-                                  final benefitDescription = selectedBenefit != null 
-                                      ? selectedBenefit.description 
-                                      : (spaceEntity.benefitDescription.isNotEmpty 
-                                          ? spaceEntity.benefitDescription 
-                                          : '체크인 혜택');
 
                                   bool checkInSuccess = false;
                                   String? checkInErrorMessage;
@@ -719,10 +742,10 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                       barrierDismissible: true, // 딤 처리 터치로 닫기 가능
                                       builder: (context) => CheckinSuccessDialog(
                                         spaceName: updatedSpaceDetail.name,
-                                        benefitDescription: spaceEntity.benefitDescription.isNotEmpty 
-                                            ? spaceEntity.benefitDescription 
+                                        benefitDescription: spaceEntity.benefitDescription.isNotEmpty
+                                            ? spaceEntity.benefitDescription
                                             : updatedSpaceDetail.introduction,
-                                        availableBalance: availableBalance + 1, // Add 1 SAV for the check-in reward
+                                        availableBalance: availableBalance,
                                       ),
                                     );
                                     
@@ -1103,7 +1126,7 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                           builder: (context) => CheckinSuccessDialog(
                             spaceName: spaceToUse.name,
                             benefitDescription: benefitDescription,
-                            availableBalance: availableBalance + 1, // Add 1 SAV for the check-in reward
+                            availableBalance: availableBalance,
                           ),
                         );
                         

@@ -8,6 +8,7 @@ import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:mobile/features/common/presentation/widgets/profile_avatar_widget.dart';
+import 'package:mobile/features/friends/domain/entities/friendship_entity.dart';
 import 'package:mobile/features/friends/presentation/cubit/friends_cubit.dart';
 import 'package:mobile/features/friends/presentation/widgets/friend_request_button.dart';
 import 'package:mobile/features/friends/presentation/widgets/friend_request_dialog.dart';
@@ -234,7 +235,49 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         );
 
         // 상대방 프로필 새로고침
-        _loadUserProfile();
+        await _loadUserProfile();
+      }
+    }
+  }
+
+  Future<void> _handleAcceptFriendRequest() async {
+    if (_userProfile == null) return;
+
+    final friendsCubit = getIt<FriendsCubit>();
+    final friendshipId = friendsCubit.state.friendshipId;
+
+    if (friendshipId == null) {
+      print('❌ friendshipId is null, cannot accept request');
+      return;
+    }
+
+    // 다이얼로그 표시 (수락 모드)
+    final confirmed = await FriendRequestDialog.show(
+      context,
+      nickName: _userProfile!.nickName,
+      profileImageUrl: _userProfile!.finalProfileImageUrl ?? _userProfile!.pfpImageUrl,
+      introduction: _userProfile!.introduction,
+      isAcceptMode: true, // 수락 모드
+    );
+
+    if (confirmed == true) {
+      // 친구 신청 수락
+      await friendsCubit.acceptFriendRequest(friendshipId);
+
+      // 성공 다이얼로그 표시
+      if (mounted && friendsCubit.state.submitStatus == RequestStatus.success) {
+        // 현재 사용자의 프로필을 다시 로드하여 최신 포인트 가져오기
+        final profileCubit = getIt<ProfileCubit>();
+        await profileCubit.init();
+
+        await FriendRequestSuccessDialog.show(
+          context,
+          savoryBalance: profileCubit.state.userProfileEntity.availableBalance,
+          isAcceptMode: true, // 수락 모드
+        );
+
+        // 상대방 프로필 새로고침
+        await _loadUserProfile();
       }
     }
   }
@@ -463,40 +506,35 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Widget _buildStatsSection() {
-    return BlocBuilder<FriendsCubit, FriendsState>(
-      bloc: getIt<FriendsCubit>(),
-      builder: (context, friendsState) {
-        final friendCount = friendsState.friendStats?.totalFriends?.toString() ?? '0';
+    final friendCount = _userProfile?.friendsCount?.toString() ?? '0';
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          height: 80,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                const Color(0xFF72CCFF),
-                const Color(0xFFBED7FF),
-                const Color(0xFFF9F395),
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(40),
-            border: Border.all(
-              color: Colors.black,
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildStatItem(friendCount, LocaleKeys.friends.tr(), 'assets/icons/icon_status_friends.png'),
-              _buildStatItem(_userProfile?.checkInStats?.totalCheckIns?.toString() ?? '0', LocaleKeys.check_in.tr(), 'assets/icons/icon_status_checkin.png'),
-              _buildStatItem(_userProfile?.availableBalance?.toString() ?? '0', 'SAVORY', 'assets/icons/icon_status_sav.png'),
-            ],
-          ),
-        );
-      },
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      height: 80,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF72CCFF),
+            const Color(0xFFBED7FF),
+            const Color(0xFFF9F395),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(40),
+        border: Border.all(
+          color: Colors.black,
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildStatItem(friendCount, LocaleKeys.friends.tr(), 'assets/icons/icon_status_friends.png'),
+          _buildStatItem(_userProfile?.checkInStats?.totalCheckIns?.toString() ?? '0', LocaleKeys.check_in.tr(), 'assets/icons/icon_status_checkin.png'),
+          _buildStatItem(_userProfile?.availableBalance?.toString() ?? '0', 'SAVORY', 'assets/icons/icon_status_sav.png'),
+        ],
+      ),
     );
   }
 
@@ -556,8 +594,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           friendshipStatus: state.friendshipStatus,
           onPressed: () {
             if (state.friendshipStatus == null) {
+              // 친구 관계 없음 → 친구 신청
               _handleFriendRequest();
+            } else if (state.friendshipStatus == FriendshipStatus.PENDING_RECEIVED) {
+              // 받은 신청 → 수락
+              _handleAcceptFriendRequest();
             }
+            // PENDING_SENT, ACCEPTED는 클릭 불가 (버튼 비활성화)
           },
           isLoading: state.submitStatus == RequestStatus.loading,
         );

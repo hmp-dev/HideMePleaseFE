@@ -12,6 +12,7 @@ import 'package:mobile/app/core/helpers/target.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/app/core/router/values.dart';
 import 'package:mobile/app/theme/theme.dart';
+import 'package:mobile/features/app/presentation/cubit/app_cubit.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/auth/presentation/widgets/agree_text_widget.dart';
 import 'package:mobile/features/auth/presentation/widgets/my_social_login_button.dart';
@@ -274,47 +275,47 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> with WidgetsBinding
             return;
           }
 
-          // 로딩이 끝났을 때 dismiss
-          EasyLoading.dismiss();
-
           // 성공 상태 처리
           if (state.submitStatus == RequestStatus.success && state.isLogInSuccessful) {
             '✅ [SocialAuthScreen] Login successful, checking onboarding requirements...'.log();
-            // Wepin SDK 상태 로깅
-            if (getIt<WepinCubit>().state.wepinWidgetSDK != null) {
-              "${getIt<WepinCubit>().state}".log();
-            }
+
+            // IMPORTANT: Update AppCubit login status after successful login
+            // This ensures the token is properly saved and state is updated
+            await getIt<AppCubit>().onStart();
+            '✅ [SocialAuthScreen] AppCubit updated with login status'.log();
 
             // 로딩 화면을 보여주기 위한 짧은 지연
             await Future.delayed(const Duration(milliseconds: 500));
 
             // 지갑과 프로필 정보 가져오기
             '🔍 Checking wallet and profile status...'.log();
-            
+
             // 지갑 정보 확인
             await getIt<WalletsCubit>().onGetAllWallets();
             final hasWallet = await getIt<WalletsCubit>().hasWallet();
             '💼 Has wallet: $hasWallet'.log();
-            
+
             // 프로필 정보 확인
             await getIt<ProfileCubit>().onGetUserProfile();
             final hasProfileParts = await getIt<ProfileCubit>().hasProfileParts();
             '👤 Has profile parts: $hasProfileParts'.log();
-            
+
             // 온보딩 표시 여부 결정
             final shouldShowOnboarding = !hasWallet || !hasProfileParts;
             '🎯 Should show onboarding: $shouldShowOnboarding (hasWallet: $hasWallet, hasProfileParts: $hasProfileParts)'.log();
-            
+
+            // Dismiss loading AFTER all async operations complete
+            EasyLoading.dismiss();
+
+            // Reset active login flag before navigation
+            setState(() {
+              _isActivelyLoggingIn = false;
+            });
+
             // 화면 전환
-            //if (true) { //debug
             if (shouldShowOnboarding) {
               // 지갑이 없거나 프로필 파츠가 없으면 온보딩 화면으로
               '📱 [SocialAuthScreen] Navigating to onboarding screen'.log();
-
-              // Reset active login flag before navigation
-              setState(() {
-                _isActivelyLoggingIn = false;
-              });
 
               await Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -322,13 +323,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> with WidgetsBinding
                 (route) => false,
               );
             } else {
-              // 둘 다 있으면 StartUp 화면으로
+              // 둘 다 있으면 StartUp 화면으로 (정상 초기화 진행)
               '📱 [SocialAuthScreen] Navigating to startup screen'.log();
-
-              // Reset active login flag before navigation
-              setState(() {
-                _isActivelyLoggingIn = false;
-              });
 
               await Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -401,65 +397,79 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> with WidgetsBinding
                     ),
                   ),*/
                   const Spacer(flex: 2),
-                  SizedBox(
-                    width: 200,
-                    height: 56,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF87CEEB),
-                            Color(0xFFFFE4B5),
-                          ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(28),
-                        border: Border.all(
-                          color: Colors.black,
-                          width: 1,
-                        ),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(28),
-                          onTap: () {
-                            if (isAgreeWithTerms) {
-                              setState(() {
-                                _isActivelyLoggingIn = true;
-                              });
-                              '🔑 [SocialAuthScreen] Starting Google login...'.log();
-                              getIt<AuthCubit>().onGoogleLogin();
-                            } else {
-                              showAgreeTermsDialogue(context);
-                            }
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ColorFiltered(
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.black,
-                                  BlendMode.srcIn,
-                                ),
-                                child: Image.asset(
-                                  "assets/social-auth-logos/google-logo.png",
-                                  width: 24,
-                                  height: 24,
-                                ),
+                  IgnorePointer(
+                    ignoring: _isActivelyLoggingIn,
+                    child: Opacity(
+                      opacity: _isActivelyLoggingIn ? 0.5 : 1.0,
+                      child: SizedBox(
+                        width: 200,
+                        height: 56,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFF87CEEB),
+                                Color(0xFFFFE4B5),
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(
+                              color: Colors.black,
+                              width: 1,
+                            ),
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(28),
+                              onTap: () {
+                                // Prevent duplicate taps during login process
+                                if (_isActivelyLoggingIn) return;
+
+                                if (isAgreeWithTerms) {
+                                  setState(() {
+                                    _isActivelyLoggingIn = true;
+                                  });
+                                  '🔑 [SocialAuthScreen] Starting Google login...'.log();
+                                  // Show loading immediately on button click
+                                  EasyLoading.show(
+                                    status: LocaleKeys.onboarding_preparing.tr(),
+                                    maskType: EasyLoadingMaskType.black,
+                                  );
+                                  getIt<AuthCubit>().onGoogleLogin();
+                                } else {
+                                  showAgreeTermsDialogue(context);
+                                }
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ColorFiltered(
+                                    colorFilter: const ColorFilter.mode(
+                                      Colors.black,
+                                      BlendMode.srcIn,
+                                    ),
+                                    child: Image.asset(
+                                      "assets/social-auth-logos/google-logo.png",
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    LocaleKeys.auth_google_login.tr(),
+                                    style: TextStyle(
+                                      fontFamily: 'LINESeedKR',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 12),
-                              Text(
-                                LocaleKeys.auth_google_login.tr(),
-                                style: TextStyle(
-                                  fontFamily: 'LINESeedKR',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -467,65 +477,79 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> with WidgetsBinding
                   ),
                   if (isIOS()) ...[
                     const SizedBox(height: 16),
-                    SizedBox(
-                      width: 200,
-                      height: 56,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF87CEEB),
-                              Color(0xFFFFE4B5),
-                            ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(28),
-                          border: Border.all(
-                            color: Colors.black,
-                            width: 1,
-                          ),
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(28),
-                            onTap: () {
-                              if (isAgreeWithTerms) {
-                                setState(() {
-                                  _isActivelyLoggingIn = true;
-                                });
-                                '🔑 [SocialAuthScreen] Starting Apple login...'.log();
-                                getIt<AuthCubit>().onAppleLogin();
-                              } else {
-                                showAgreeTermsDialogue(context);
-                              }
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ColorFiltered(
-                                  colorFilter: const ColorFilter.mode(
-                                    Colors.black,
-                                    BlendMode.srcIn,
-                                  ),
-                                  child: Image.asset(
-                                    "assets/social-auth-logos/apple-logo.png",
-                                    width: 24,
-                                    height: 24,
-                                  ),
+                    IgnorePointer(
+                      ignoring: _isActivelyLoggingIn,
+                      child: Opacity(
+                        opacity: _isActivelyLoggingIn ? 0.5 : 1.0,
+                        child: SizedBox(
+                          width: 200,
+                          height: 56,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF87CEEB),
+                                  Color(0xFFFFE4B5),
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(28),
+                              border: Border.all(
+                                color: Colors.black,
+                                width: 1,
+                              ),
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(28),
+                                onTap: () {
+                                  // Prevent duplicate taps during login process
+                                  if (_isActivelyLoggingIn) return;
+
+                                  if (isAgreeWithTerms) {
+                                    setState(() {
+                                      _isActivelyLoggingIn = true;
+                                    });
+                                    '🔑 [SocialAuthScreen] Starting Apple login...'.log();
+                                    // Show loading immediately on button click
+                                    EasyLoading.show(
+                                      status: LocaleKeys.onboarding_preparing.tr(),
+                                      maskType: EasyLoadingMaskType.black,
+                                    );
+                                    getIt<AuthCubit>().onAppleLogin();
+                                  } else {
+                                    showAgreeTermsDialogue(context);
+                                  }
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ColorFiltered(
+                                      colorFilter: const ColorFilter.mode(
+                                        Colors.black,
+                                        BlendMode.srcIn,
+                                      ),
+                                      child: Image.asset(
+                                        "assets/social-auth-logos/apple-logo.png",
+                                        width: 24,
+                                        height: 24,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      LocaleKeys.auth_apple_login.tr(),
+                                      style: TextStyle(
+                                        fontFamily: 'LINESeedKR',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  LocaleKeys.auth_apple_login.tr(),
-                                  style: TextStyle(
-                                    fontFamily: 'LINESeedKR',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
                         ),

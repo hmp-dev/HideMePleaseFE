@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
+import 'package:mobile/app/core/notifications/notification_service.dart';
 import 'package:mobile/features/space/infrastructure/dtos/benefit_redeem_error_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/benefits_group_dto.dart';
 import 'package:mobile/features/space/infrastructure/dtos/check_in_response_dto.dart';
@@ -130,55 +131,12 @@ class SpaceRemoteDataSource {
       "longitude": '$longitude',
     };
 
-    print('📡 API 호출 파라미터: $queryParams');
-    
     final response = await _network.get("space", queryParams);
-    
-    // API 응답 확인 (영업시간 데이터)
-    print('📥 API 응답 데이터 확인:');
-    print('📥 응답 타입: ${response.data.runtimeType}');
-    
-    if (response.data is List && (response.data as List).isNotEmpty) {
-      final responseList = response.data as List;
-      print('📥 총 ${responseList.length}개 매장 데이터 수신');
-      
-      // 첫 번째 매장의 전체 필드 확인
-      if (responseList.isNotEmpty) {
-        print('🔍 첫 번째 매장 전체 데이터 구조:');
-        final firstSpace = responseList[0] as Map<String, dynamic>;
-        firstSpace.forEach((key, value) {
-          print('   - $key: ${value.runtimeType} = ${value.toString().length > 100 ? value.toString().substring(0, 100) + "..." : value}');
-        });
-      }
-      
-      // 모든 매장 순회하면서 홍제점 찾기
-      for (int i = 0; i < responseList.length;
- i++) {
-        final spaceData = responseList[i];
-        final name = spaceData['name']?.toString() ?? '';
-        
-        if (name.contains('홍제') || name.toLowerCase().contains('hongje')) {
-          print('\n🎯🎯🎯 하이드미플리즈 홍제 발견! (인덱스: $i)');
-          print('📍 전체 데이터:');
-          (spaceData as Map<String, dynamic>).forEach((key, value) {
-            print('   - $key: $value');
-          });
-          print('🎯🎯🎯 홍제점 데이터 끝\n');
-        }
-      }
-    }
+
     final List<SpaceDto> spaces = response.data
         .map<SpaceDto>((e) => SpaceDto.fromJson(e as Map<String, dynamic>))
         .toList();
-    
-    print('📊 API 응답: ${spaces.length}개 매장 데이터 받음');
-    
-    // 처음 3개 매장의 위치 정보 확인
-    for (int i = 0; i < math.min(3, spaces.length); i++) {
-      final space = spaces[i];
-      print('🏪 API 매장 ${i + 1}: ${space.name} - lat: ${space.latitude}, lng: ${space.longitude}');
-    }
-    
+
     return spaces;
   }
 
@@ -215,13 +173,27 @@ class SpaceRemoteDataSource {
       'latitude': latitude,
       'longitude': longitude,
     };
-    
+
     // Add benefitId if provided
     if (benefitId != null && benefitId.isNotEmpty) {
       data['benefitId'] = benefitId;
       print('🎁 Check-in with benefit: $benefitId');
     }
-    
+
+    // Add FCM token for Silent Push heartbeat mechanism
+    try {
+      final fcmToken = await NotificationServices.instance.getDeviceToken();
+      if (fcmToken != null && fcmToken.isNotEmpty) {
+        data['fcmToken'] = fcmToken;
+        print('📱 Check-in with FCM token for Silent Push heartbeat');
+      } else {
+        print('⚠️ FCM token is null or empty, check-in without token');
+      }
+    } catch (e) {
+      print('❌ Failed to get FCM token: $e');
+      // Continue with check-in even if FCM token retrieval fails
+    }
+
     final response =
         await _network.post("space/$spaceId/check-in", data);
     return CheckInResponseDto.fromJson(response.data as Map<String, dynamic>);
@@ -251,7 +223,7 @@ class SpaceRemoteDataSource {
 
   Future<CheckOutResponseDto> checkOut({required String spaceId}) async {
     final response = await _network.request(
-      "v1/space/$spaceId/check-out", 
+      "space/$spaceId/check-out",
       "DELETE",
       null,
     );

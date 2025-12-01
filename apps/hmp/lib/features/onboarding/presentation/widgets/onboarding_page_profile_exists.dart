@@ -204,8 +204,68 @@ class OnboardingPageProfileExists extends StatelessWidget {
 
   /// 캐릭터 파츠로부터 이미지를 생성하는 위젯 (향후 구현)
   Widget _buildCharacterFromParts(String profilePartsString) {
-    // TODO: 실제 캐릭터 파츠 조합 로직 구현
-    // 현재는 placeholder 반환
+    // Use userId to fetch server-generated image
+    // Server generates image from profilePartsString on-demand
+    final userId = userProfile?.id;
+
+    if (userId != null && userId.isNotEmpty) {
+      // Build image URL using userId
+      // Server endpoint: /v1/public/nft/user/{userId}/image
+      final imageUrl = 'https://dev-api.hidemeplease.xyz/v1/public/nft/user/$userId/image';
+
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          width: 200,
+          height: 200,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: Colors.grey.withValues(alpha: 0.1),
+            ),
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          errorWidget: (context, url, error) => Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: Colors.green.withValues(alpha: 0.3),
+                width: 2,
+              ),
+              color: Colors.green.withValues(alpha: 0.1),
+            ),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.face,
+                  size: 80,
+                  color: Colors.green,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '캐릭터 파츠',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Fallback: Show placeholder if userId is not available
     return Container(
       width: 200,
       height: 200,

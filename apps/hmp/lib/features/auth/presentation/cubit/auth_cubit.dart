@@ -287,8 +287,19 @@ class AuthCubit extends BaseCubit<AuthState> {
           message: err.message,
         ));
       },
-      (success) {
+      (success) async {
         '✅ [AuthCubit] Backend API login successful!'.log();
+
+        // Set authentication flag for auto-login validation
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool(StorageValues.isAuthenticated, true);
+          '✅ [AuthCubit] Authentication flag set successfully'.log();
+        } catch (e) {
+          '⚠️ [AuthCubit] Failed to set authentication flag: $e'.log();
+          // Don't fail the login process if flag save fails
+        }
+
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,

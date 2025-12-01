@@ -47,6 +47,7 @@ class UserProfileEntity extends Equatable {
   final String finalProfileImageUrl;
   final int availableBalance;
   final CheckInStats checkInStats;
+  final int friendsCount;
   final bool onboardingCompleted;
   final String appOS;
   final String appVersion;
@@ -66,6 +67,7 @@ class UserProfileEntity extends Equatable {
     required this.finalProfileImageUrl,
     required this.availableBalance,
     required this.checkInStats,
+    required this.friendsCount,
     required this.onboardingCompleted,
     required this.appOS,
     required this.appVersion,
@@ -86,6 +88,7 @@ class UserProfileEntity extends Equatable {
         finalProfileImageUrl = '',
         availableBalance = 0,
         checkInStats = const CheckInStats.empty(),
+        friendsCount = 0,
         onboardingCompleted = false,
         appOS = '',
         appVersion = '';
@@ -106,6 +109,7 @@ class UserProfileEntity extends Equatable {
       finalProfileImageUrl,
       availableBalance,
       checkInStats,
+      friendsCount,
       onboardingCompleted,
       appOS,
       appVersion,
@@ -126,6 +130,7 @@ class UserProfileEntity extends Equatable {
     String? finalProfileImageUrl,
     int? availableBalance,
     CheckInStats? checkInStats,
+    int? friendsCount,
     bool? onboardingCompleted,
     String? appOS,
     String? appVersion,
@@ -145,6 +150,7 @@ class UserProfileEntity extends Equatable {
       finalProfileImageUrl: finalProfileImageUrl ?? this.finalProfileImageUrl,
       availableBalance: availableBalance ?? this.availableBalance,
       checkInStats: checkInStats ?? this.checkInStats,
+      friendsCount: friendsCount ?? this.friendsCount,
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
       appOS: appOS ?? this.appOS,
       appVersion: appVersion ?? this.appVersion,

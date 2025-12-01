@@ -40,6 +40,10 @@ String? _userSavedLanguageCode;
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    // Initialize Flutter engine for background isolate
+    // This is required for plugins like SharedPreferences to work in background
+    WidgetsFlutterBinding.ensureInitialized();
+
     print('💓 Background task executing: $task');
 
     try {
@@ -133,7 +137,8 @@ void callbackDispatcher() {
             await prefs.remove('checkInLatitude');
             await prefs.remove('checkInLongitude');
 
-            // Cancel the periodic task since we're checked out
+            // Cancel the OneTime task chaining since we're checked out
+            await Workmanager().cancelByTag('heartbeat');
             await Workmanager().cancelByUniqueName('check-in-heartbeat');
 
             print('✅ Auto check-out completed from background task');
@@ -142,11 +147,50 @@ void callbackDispatcher() {
             // Mark for check-out on app restart if background check-out fails
             await prefs.setBool('shouldAutoCheckOut', true);
             await prefs.setString('pendingCheckOutSpaceId', spaceId);
+
+            // Don't schedule next heartbeat if check-out failed
+            // User should manually resolve on app restart
+            return Future.value(true);
           }
+        } else {
+          // Still within range - schedule next backup heartbeat
+          print('📅 User within range, scheduling next backup heartbeat in 3 minutes');
+          await Workmanager().registerOneOffTask(
+            'check-in-heartbeat',
+            'checkInHeartbeat',
+            initialDelay: const Duration(minutes: 3),
+            constraints: Constraints(
+              networkType: NetworkType.connected,
+            ),
+            tag: 'heartbeat',
+          );
+          print('✅ Next backup heartbeat scheduled (within range check)');
         }
       }
     } catch (e) {
       print('❌ Background task error: $e');
+
+      // Even on error, try to schedule next heartbeat if check-in data still exists
+      final prefs = await SharedPreferences.getInstance();
+      final spaceId = prefs.getString('currentCheckedInSpaceId');
+
+      if (spaceId != null) {
+        print('📅 Error occurred but check-in active, scheduling next backup heartbeat in 3 minutes');
+        try {
+          await Workmanager().registerOneOffTask(
+            'check-in-heartbeat',
+            'checkInHeartbeat',
+            initialDelay: const Duration(minutes: 3),
+            constraints: Constraints(
+              networkType: NetworkType.connected,
+            ),
+            tag: 'heartbeat',
+          );
+          print('✅ Next backup heartbeat scheduled despite error');
+        } catch (scheduleError) {
+          print('❌ Failed to schedule next heartbeat: $scheduleError');
+        }
+      }
     }
 
     return Future.value(true);
@@ -238,7 +282,157 @@ Future initApp() async {
 
   // Initialize Firebase Crashlytics and configure error reporting
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
+  // Custom FlutterError handler to prevent non-critical crashes
+  FlutterError.onError = (FlutterErrorDetails details) {
+    final exceptionString = details.exception.toString();
+
+    // UI Overflow 에러는 크래시 없이 로깅만 (치명적이지 않음)
+    if (exceptionString.contains('overflowed') ||
+        exceptionString.contains('RenderFlex')) {
+      debugPrint('⚠️  UI Overflow detected (non-fatal): ${details.exception}');
+      debugPrint('   Stack: ${details.stack}');
+      FirebaseCrashlytics.instance.recordFlutterError(
+        FlutterErrorDetails(
+          exception: details.exception,
+          stack: details.stack,
+          library: details.library,
+          context: details.context,
+          informationCollector: details.informationCollector,
+          silent: true,
+        ),
+      );
+      return;
+    }
+
+    // 이미지 로딩 에러도 크래시 없이 처리
+    if (exceptionString.contains('Invalid image data') ||
+        exceptionString.contains('Failed to load network image') ||
+        exceptionString.contains('HttpException') ||
+        exceptionString.contains('Unable to load asset')) {
+      debugPrint('⚠️  Image loading error (non-fatal): ${details.exception}');
+      FirebaseCrashlytics.instance.recordFlutterError(
+        FlutterErrorDetails(
+          exception: details.exception,
+          stack: details.stack,
+          library: details.library,
+          context: details.context,
+          informationCollector: details.informationCollector,
+          silent: true,
+        ),
+      );
+      return;
+    }
+
+    // ListView/GridView 관련 assertion 에러 (Sliver 위젯)
+    if (exceptionString.contains('RenderSliverMultiBoxAdaptor') ||
+        exceptionString.contains('_debugVerifyChildOrder') ||
+        exceptionString.contains('indexOf(child) > index')) {
+      debugPrint('⚠️  Sliver child ordering issue (non-fatal): ${details.exception}');
+      debugPrint('   This is usually caused by ListView/GridView key management');
+      FirebaseCrashlytics.instance.recordFlutterError(
+        FlutterErrorDetails(
+          exception: details.exception,
+          stack: details.stack,
+          library: details.library,
+          context: details.context,
+          informationCollector: details.informationCollector,
+          silent: true,
+        ),
+      );
+      return;
+    }
+
+    // Focus 관련 assertion 에러 (InheritedElement)
+    if (exceptionString.contains('_dependents.isEmpty') ||
+        exceptionString.contains('InheritedElement') ||
+        exceptionString.contains('FocusInheritedScope')) {
+      debugPrint('⚠️  Focus widget lifecycle issue (non-fatal): ${details.exception}');
+      debugPrint('   This is usually caused by improper widget disposal');
+      FirebaseCrashlytics.instance.recordFlutterError(
+        FlutterErrorDetails(
+          exception: details.exception,
+          stack: details.stack,
+          library: details.library,
+          context: details.context,
+          informationCollector: details.informationCollector,
+          silent: true,
+        ),
+      );
+      return;
+    }
+
+    // 일반적인 Flutter assertion 에러들 (개발 모드에서만 발생)
+    if (exceptionString.contains('Failed assertion:') &&
+        (exceptionString.contains('is not true') ||
+         exceptionString.contains('is not false'))) {
+      debugPrint('⚠️  Flutter assertion failed (non-fatal): ${details.exception}');
+      debugPrint('   Library: ${details.library}');
+      FirebaseCrashlytics.instance.recordFlutterError(
+        FlutterErrorDetails(
+          exception: details.exception,
+          stack: details.stack,
+          library: details.library,
+          context: details.context,
+          informationCollector: details.informationCollector,
+          silent: true,
+        ),
+      );
+      return;
+    }
+
+    // Null check operator 에러 포괄 처리
+    if (exceptionString.contains('Null check operator used on a null value')) {
+      debugPrint('⚠️  Null check error (non-fatal): ${details.exception}');
+
+      // 발생 위치 파악을 위한 상세 로깅
+      if (exceptionString.contains('RenderViewport')) {
+        debugPrint('   Location: RenderViewport (스크롤 뷰 렌더링)');
+      } else if (exceptionString.contains('RenderSliver')) {
+        debugPrint('   Location: RenderSliver (리스트 아이템 렌더링)');
+      } else if (exceptionString.contains('paint()')) {
+        debugPrint('   Location: paint() (위젯 그리기)');
+      } else if (exceptionString.contains('performLayout()')) {
+        debugPrint('   Location: performLayout() (레이아웃 계산)');
+      }
+
+      debugPrint('   Context: ${details.context}');
+      debugPrint('   Library: ${details.library}');
+
+      FirebaseCrashlytics.instance.recordFlutterError(
+        FlutterErrorDetails(
+          exception: details.exception,
+          stack: details.stack,
+          library: details.library,
+          context: details.context,
+          informationCollector: details.informationCollector,
+          silent: true,
+        ),
+      );
+      return;
+    }
+
+    // RenderErrorBox 에러 (ErrorWidget가 잘못된 타입으로 렌더링됨)
+    if (exceptionString.contains('RenderErrorBox') ||
+        exceptionString.contains('expected a child of type')) {
+      debugPrint('⚠️  Widget type mismatch (non-fatal): ${details.exception}');
+      debugPrint('   This usually happens when an error widget is incorrectly placed');
+      FirebaseCrashlytics.instance.recordFlutterError(
+        FlutterErrorDetails(
+          exception: details.exception,
+          stack: details.stack,
+          library: details.library,
+          context: details.context,
+          informationCollector: details.informationCollector,
+          silent: true,
+        ),
+      );
+      return;
+    }
+
+    // 그 외 치명적인 에러는 Crashlytics에 기록하고 크래시
+    FirebaseCrashlytics.instance.recordFlutterError(details);
+  };
 
   // Configure the logger for the app
   Log.configureLogger();

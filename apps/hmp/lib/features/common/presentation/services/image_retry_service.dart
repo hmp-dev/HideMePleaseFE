@@ -7,9 +7,9 @@ class ImageRetryService {
   static const Duration initialDelay = Duration(seconds: 1);
   static const double backoffMultiplier = 1.2;
 
-  // Fast validation for onboarding
-  static const int onboardingMaxRetries = 2;
-  static const Duration onboardingInitialDelay = Duration(milliseconds: 500);
+  // Extended validation for onboarding to allow time for server-side image generation
+  static const int onboardingMaxRetries = 8;
+  static const Duration onboardingInitialDelay = Duration(seconds: 1);
 
   /// Validates if an image URL is accessible and returns valid image data
   /// with retry logic for handling server-side image generation delays
@@ -73,8 +73,8 @@ class ImageRetryService {
 
         stream.addListener(listener);
 
-        // Wait for result with timeout (shorter for onboarding)
-        final timeoutDuration = isOnboarding ? const Duration(seconds: 3) : const Duration(seconds: 5);
+        // Wait for result with timeout (longer for onboarding to allow server-side image generation)
+        final timeoutDuration = isOnboarding ? const Duration(seconds: 8) : const Duration(seconds: 5);
         final result = await completer.future.timeout(
           timeoutDuration,
           onTimeout: () {

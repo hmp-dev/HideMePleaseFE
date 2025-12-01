@@ -750,14 +750,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_bcrypt:
-    dependency: transitive
-    description:
-      name: flutter_bcrypt
-      sha256: "47dd6d864732ec0e19f950ba7e67b5b245bcdbe8bada288689de4b6c405c2d37"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.8"
   flutter_bloc:
     dependency: "direct main"
     description:
@@ -1537,26 +1529,26 @@ packages:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
+      sha256: "33e2e26bdd85a0112ec15400c8cbffea70d0f9c3407491f672a2fad47915e2de"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.9"
+    version: "11.0.2"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
       name: leak_tracker_flutter_testing
-      sha256: f8b613e7e6a13ec79cfdc0e97638fddb3ab848452eff057653abd3edba760573
+      sha256: "1dbc140bb5a23c75ea9c4811222756104fbcd1a27173f0c34ca01e16bea473c1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.9"
+    version: "3.0.10"
   leak_tracker_testing:
     dependency: transitive
     description:
       name: leak_tracker_testing
-      sha256: "6ba465d5d76e67ddf503e1161d1f4a6bc42306f9d66ca1e8f079a47290fb06d3"
+      sha256: "8d5a2d49f4a66b49744b23b018848400d23e54caf9463f4eb20df3eb8acb2eb1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   lints:
     dependency: transitive
     description:
@@ -1641,10 +1633,10 @@ packages:
     dependency: transitive
     description:
       name: meta
-      sha256: e3641ec5d63ebf0d9b41bd43201a66e3fc79a65db5f61fc181f04cd27aab950c
+      sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
       url: "https://pub.dev"
     source: hosted
-    version: "1.16.0"
+    version: "1.17.0"
   mime:
     dependency: transitive
     description:
@@ -2358,10 +2350,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: fb31f383e2ee25fbbfe06b40fe21e1e458d14080e3c67e7ba0acfde4df4e0bbd
+      sha256: ab2726c1a94d3176a45960b6234466ec367179b87dd74f1611adb1f3b5fb9d55
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.4"
+    version: "0.7.7"
   time:
     dependency: transitive
     description:
@@ -2542,10 +2534,10 @@ packages:
     dependency: transitive
     description:
       name: vector_math
-      sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"
+      sha256: d530bd74fea330e6e364cda7a85019c434070188383e1cd8d9777ee586914c5b
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "2.2.0"
   version:
     dependency: transitive
     description:
@@ -2726,10 +2718,10 @@ packages:
     dependency: "direct main"
     description:
       name: wepin_flutter_login_lib
-      sha256: "3da8596c1f69bbd5d9d02107f2f0c3a9de9f3b00be357dd8a0af7e24350ff0e3"
+      sha256: "929d08c40aee2bbc45e81dcf8db19302c202b54d229ee66224f0b11a0bca1d2d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.11"
+    version: "1.0.0"
   wepin_flutter_modal:
     dependency: transitive
     description:
@@ -2742,26 +2734,26 @@ packages:
     dependency: transitive
     description:
       name: wepin_flutter_network
-      sha256: "8064ae7aebebe20a79793a3be1e6a5941eccbf5d926bc06fd2ac5283d5895503"
+      sha256: "0cdf405669e9e8c84175c626bb0b816a9633db48c73655d9cb2b63b5514e2439"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.8"
+    version: "1.0.0"
   wepin_flutter_storage:
     dependency: transitive
     description:
       name: wepin_flutter_storage
-      sha256: "26399fc556fb5d0212341fa6c1c54fa8444dbd6890898d738359c7319cb1af09"
+      sha256: f0a80fe674e90315be1e2a7bf35b19a3743606015cb61d0bc83e1df5d6345b50
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "1.0.0"
   wepin_flutter_widget_sdk:
     dependency: "direct main"
     description:
       name: wepin_flutter_widget_sdk
-      sha256: "97942a3fb71d5d78c1948dc4a04433960cb7691fa4f8c49f65feeecdc7254259"
+      sha256: "816b4fdbbdea1e9ad96a4201638366879a0f83ef62f5889b350b7e509e53c698"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.9"
+    version: "1.0.0"
   win32:
     dependency: transitive
     description:
@@ -2851,5 +2843,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.7.0 <4.0.0"
+  dart: ">=3.8.0-0 <4.0.0"
   flutter: ">=3.32.0"

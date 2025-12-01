@@ -28,6 +28,7 @@ SpaceDetailDto _$SpaceDetailDtoFromJson(Map<String, dynamic> json) =>
           ?.map((e) => CheckedInUserDto.fromJson(e as Map<String, dynamic>))
           .toList(),
       currentGroupProgress: json['currentGroupProgress'] as String?,
+      maxCheckInCapacity: (json['maxCheckInCapacity'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SpaceDetailDtoToJson(SpaceDetailDto instance) =>
@@ -50,4 +51,5 @@ Map<String, dynamic> _$SpaceDetailDtoToJson(SpaceDetailDto instance) =>
       'spaceOpen': instance.spaceOpen,
       'checkedInUsers': instance.checkedInUsers,
       'currentGroupProgress': instance.currentGroupProgress,
+      'maxCheckInCapacity': instance.maxCheckInCapacity,
     };

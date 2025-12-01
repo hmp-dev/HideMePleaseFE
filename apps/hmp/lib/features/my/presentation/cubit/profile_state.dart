@@ -5,6 +5,8 @@ class ProfileState extends BaseState {
   final UserProfileEntity userProfileEntity;
   final bool isProfileIncomplete;
   final String errorMessage;
+  final List<PointTransactionEntity> pointsHistory;
+  final RequestStatus pointsHistoryStatus;
 
   @override
   final RequestStatus submitStatus;
@@ -15,6 +17,8 @@ class ProfileState extends BaseState {
     this.submitStatus = RequestStatus.initial,
     required this.isProfileIncomplete,
     required this.errorMessage,
+    this.pointsHistory = const [],
+    this.pointsHistoryStatus = RequestStatus.initial,
   });
 
   factory ProfileState.initial() => const ProfileState(
@@ -32,6 +36,8 @@ class ProfileState extends BaseState {
         submitStatus,
         isProfileIncomplete,
         errorMessage,
+        pointsHistory,
+        pointsHistoryStatus,
       ];
 
   @override
@@ -41,6 +47,8 @@ class ProfileState extends BaseState {
     RequestStatus? submitStatus,
     bool? isProfileIncomplete,
     String? errorMessage,
+    List<PointTransactionEntity>? pointsHistory,
+    RequestStatus? pointsHistoryStatus,
   }) {
     return ProfileState(
       baseUserData: baseUserData ?? this.baseUserData,
@@ -48,6 +56,8 @@ class ProfileState extends BaseState {
       submitStatus: submitStatus ?? this.submitStatus,
       isProfileIncomplete: isProfileIncomplete ?? this.isProfileIncomplete,
       errorMessage: errorMessage ?? this.errorMessage,
+      pointsHistory: pointsHistory ?? this.pointsHistory,
+      pointsHistoryStatus: pointsHistoryStatus ?? this.pointsHistoryStatus,
     );
   }
 }

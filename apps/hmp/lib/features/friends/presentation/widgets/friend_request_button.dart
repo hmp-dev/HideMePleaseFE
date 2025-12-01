@@ -67,6 +67,8 @@ class FriendRequestButton extends StatelessWidget {
   LinearGradient _getGradient() {
     switch (friendshipStatus) {
       case FriendshipStatus.PENDING:
+      case FriendshipStatus.PENDING_SENT:
+        // 보낸 신청 대기 중 - 회색
         return LinearGradient(
           colors: [
             const Color(0xFFE0E0E0),
@@ -75,7 +77,18 @@ class FriendRequestButton extends StatelessWidget {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         );
+      case FriendshipStatus.PENDING_RECEIVED:
+        // 받은 신청 - 파란색 (수락 가능)
+        return LinearGradient(
+          colors: [
+            const Color(0xff00A3FF),
+            const Color(0xff5FC5FF),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        );
       case FriendshipStatus.ACCEPTED:
+        // 이미 친구 - 초록색
         return LinearGradient(
           colors: [
             const Color(0xFF4CAF50),
@@ -85,6 +98,7 @@ class FriendRequestButton extends StatelessWidget {
           end: Alignment.centerRight,
         );
       default:
+        // 친구 신청하기 - 파란색
         return LinearGradient(
           colors: [
             const Color(0xff00A3FF),
@@ -99,11 +113,14 @@ class FriendRequestButton extends StatelessWidget {
   String _getButtonText() {
     switch (friendshipStatus) {
       case FriendshipStatus.PENDING:
-        return LocaleKeys.friend_request_pending.tr();
+      case FriendshipStatus.PENDING_SENT:
+        return LocaleKeys.friend_request_pending.tr(); // "대기 중..."
+      case FriendshipStatus.PENDING_RECEIVED:
+        return LocaleKeys.accept_friend_request.tr(); // "수락"
       case FriendshipStatus.ACCEPTED:
-        return LocaleKeys.friends.tr();
+        return LocaleKeys.friends.tr(); // "친구"
       default:
-        return LocaleKeys.friend_request.tr();
+        return LocaleKeys.friend_request.tr(); // "친구 신청"
     }
   }
 }

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobile/app/core/constants/storage.dart';
@@ -26,6 +27,17 @@ import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 
 part 'wepin_state.dart';
+
+/// 소셜 로그인 토큰 반환 클래스
+/// getSocialLoginValues()에서 반환되어 호출자가 state 동기화 문제 없이 바로 사용 가능
+class SocialLoginTokens {
+  final String socialType;
+  final String idToken;
+
+  const SocialLoginTokens({required this.socialType, required this.idToken});
+
+  bool get hasToken => idToken.isNotEmpty;
+}
 
 @lazySingleton
 class WepinCubit extends BaseCubit<WepinState> {
@@ -354,19 +366,25 @@ class WepinCubit extends BaseCubit<WepinState> {
           // Need to login first
           "📍 SDK initialized, attempting login flow...".log();
           await loginSocialAuthProvider();
-          
+
           // Check status after login attempt
           final statusAfterLogin = await state.wepinWidgetSDK!.getStatus();
           if (statusAfterLogin == WepinLifeCycle.login) {
             "✅ Login successful, opening widget".log();
             await tryOpenWidget();
-          } else {
-            "❌ Login failed, cannot open widget".log();
+          } else if (statusAfterLogin == WepinLifeCycle.loginBeforeRegister) {
+            "📝 Login successful but registration required".log();
             dismissLoader();
-            emit(state.copyWith(
-              isLoading: false,
-              error: 'Failed to login to Wepin',
-            ));
+            emit(state.copyWith(isLoading: false));
+            await state.wepinWidgetSDK!.register(context);
+            await tryOpenWidget();
+          } else {
+            // 방어적 폴백: 위젯 직접 열기
+            "⚠️ Token login failed, opening widget for direct OAuth".log();
+            await FirebaseCrashlytics.instance.log('[Wallet] FALLBACK: Opening widget for direct OAuth after notInitialized');
+            dismissLoader();
+            emit(state.copyWith(isLoading: false));
+            await state.wepinWidgetSDK!.openWidget(context);
           }
         } else {
           dismissLoader();
@@ -377,19 +395,26 @@ class WepinCubit extends BaseCubit<WepinState> {
         // SDK initialized but not logged in - need to login first
         "📍 SDK initialized, need to login before opening widget...".log();
         await loginSocialAuthProvider();
-        
+
         // Check status after login attempt
         final statusAfterLogin = await state.wepinWidgetSDK!.getStatus();
         if (statusAfterLogin == WepinLifeCycle.login) {
           "✅ Login successful, opening widget".log();
           await tryOpenWidget();
-        } else {
-          "❌ Login failed, cannot open widget".log();
+        } else if (statusAfterLogin == WepinLifeCycle.loginBeforeRegister) {
+          // Login successful but registration required
+          "📝 Login successful but registration required, opening register".log();
           dismissLoader();
-          emit(state.copyWith(
-            isLoading: false,
-            error: 'Failed to login to Wepin',
-          ));
+          emit(state.copyWith(isLoading: false));
+          await state.wepinWidgetSDK!.register(context);
+          await tryOpenWidget();
+        } else {
+          // 방어적 폴백: 토큰 로그인 실패해도 위젯 직접 열기 (사용자가 위젯 내에서 OAuth 로그인 가능)
+          "⚠️ Token login failed (status: $statusAfterLogin), opening widget for direct OAuth".log();
+          await FirebaseCrashlytics.instance.log('[Wallet] FALLBACK: Opening widget for direct OAuth, status=$statusAfterLogin');
+          dismissLoader();
+          emit(state.copyWith(isLoading: false));
+          await state.wepinWidgetSDK!.openWidget(context);
         }
         break;
 
@@ -489,8 +514,8 @@ class WepinCubit extends BaseCubit<WepinState> {
     
     "💼 ===== Wallet save process completed =====".log();
     "💼 Summary: WEPIN_EVM=${hasWepinEvm}, KLIP=${hasKlip}".log();
-    
-    // Refresh wallet list after saving
+
+    // Refresh wallet list after saving - CRITICAL: Must await!
     "🔄 Refreshing wallet list after save...".log();
     try {
       await getIt<WalletsCubit>().onGetAllWallets();
@@ -501,8 +526,9 @@ class WepinCubit extends BaseCubit<WepinState> {
       }
     } catch (e) {
       "❌ Failed to refresh wallet list: $e".log();
+      // Don't throw - allow onboarding to continue
     }
-    
+
     // Refresh user profile to get updated information
     "🔄 Refreshing user data after wallet save...".log();
     try {
@@ -510,21 +536,27 @@ class WepinCubit extends BaseCubit<WepinState> {
       "✅ User profile refreshed successfully".log();
     } catch (e) {
       "❌ Failed to refresh user profile: $e".log();
+      // Don't throw - allow onboarding to continue
     }
   }
 
-  Future<void> getSocialLoginValues() async {
+  /// 소셜 로그인 토큰을 가져옵니다.
+  /// 반환값을 통해 호출자가 state 동기화 문제 없이 바로 사용할 수 있습니다.
+  Future<SocialLoginTokens> getSocialLoginValues() async {
     String socialTokenIsAppleOrGoogle =
         await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle) ??
             '';
 
     "🔍 Getting social login values, type: $socialTokenIsAppleOrGoogle".log();
 
+    String idToken = '';
+
     if (socialTokenIsAppleOrGoogle == SocialLoginType.APPLE.name) {
       final appleIdTokenResult = await _getAppleTokenWithRetry();
-      
+
       "🍎 Apple ID Token retrieved: ${appleIdTokenResult.isNotEmpty ? 'Success' : 'Failed'}".log();
 
+      idToken = appleIdTokenResult;
       emit(state.copyWith(
         socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
         appleIdToken: appleIdTokenResult,
@@ -533,14 +565,21 @@ class WepinCubit extends BaseCubit<WepinState> {
 
     if (socialTokenIsAppleOrGoogle == SocialLoginType.GOOGLE.name) {
       final googleIdTokenResult = await _getGoogleTokenWithRetry();
-      
+
       "🔑 Google ID Token retrieved: ${googleIdTokenResult.isNotEmpty ? 'Success (${googleIdTokenResult.substring(0, min(20, googleIdTokenResult.length))}...)' : 'Failed - Unable to recover'}".log();
 
+      idToken = googleIdTokenResult;
       emit(state.copyWith(
         socialTokenIsAppleOrGoogle: socialTokenIsAppleOrGoogle,
         googleAccessToken: googleIdTokenResult, // Store ID token in googleAccessToken field for compatibility
       ));
     }
+
+    // 반환값으로 직접 사용 가능 (state 동기화 문제 해결)
+    return SocialLoginTokens(
+      socialType: socialTokenIsAppleOrGoogle,
+      idToken: idToken,
+    );
   }
 
   /// Firebase 토큰인지 확인하는 함수
@@ -743,9 +782,9 @@ class WepinCubit extends BaseCubit<WepinState> {
     }
   }
 
-  Future<void> loginSocialAuthProvider() async {
+  Future<WepinUser?> loginSocialAuthProvider() async {
     "loginSocialAuthProvider is called".log();
-    
+
     try {
       // 방어적 검사: SDK 유효성 확인
       if (state.wepinWidgetSDK == null) {
@@ -754,7 +793,7 @@ class WepinCubit extends BaseCubit<WepinState> {
           isLoading: false,
           error: 'Wepin SDK not initialized',
         ));
-        return;
+        return null;
       }
 
       // Check current status first with timeout
@@ -768,7 +807,7 @@ class WepinCubit extends BaseCubit<WepinState> {
           isLoading: false,
           error: 'Connection timeout. Please check your network and try again.',
         ));
-        return;
+        return null;
       }
 
       if (currentStatus == WepinLifeCycle.login) {
@@ -777,7 +816,7 @@ class WepinCubit extends BaseCubit<WepinState> {
           wepinLifeCycleStatus: currentStatus,
           isLoading: false,
         ));
-        return;
+        return null;
       }
       
       // Get social login type and token
@@ -817,14 +856,12 @@ class WepinCubit extends BaseCubit<WepinState> {
           idToken = state.appleIdToken;
         }
         
-        // If still no token after refresh, show error
+        // If still no token after refresh, let caller handle fallback (don't emit error)
         if (idToken == null || idToken.isEmpty) {
-          "❌ Still no ID token available after refresh attempt".log();
-          emit(state.copyWith(
-            isLoading: false,
-            error: 'Authentication failed: Unable to get valid login token. Please try logging in again.',
-          ));
-          return;
+          "⚠️ Still no ID token available after refresh - caller should handle fallback".log();
+          await FirebaseCrashlytics.instance.log('[Wallet] No token available for login, allowing fallback');
+          emit(state.copyWith(isLoading: false));  // No error - caller will open widget directly
+          return null;
         } else {
           "✅ Token obtained after refresh, proceeding with login".log();
         }
@@ -847,38 +884,47 @@ class WepinCubit extends BaseCubit<WepinState> {
           
           if (wepinLoginResponse != null) {
             "✅ loginWepin successful".log();
-            
+
             // Update status after successful login
             final newStatus = await state.wepinWidgetSDK!.getStatus();
             "📊 New Wepin status: $newStatus".log();
-            
+
+            // Check userStatus
+            final userStatus = wepinLoginResponse.userStatus;
+            "📊 User status after login: ${userStatus?.loginStatus}".log();
+
             emit(state.copyWith(
               wepinLifeCycleStatus: newStatus,
               isLoading: false,
             ));
-            
+
             "✅ Login flow completed successfully".log();
+
+            // Return WepinUser for caller to check userStatus
+            return wepinLoginResponse;
           } else {
-            "❌ loginWepin failed".log();
-            emit(state.copyWith(
-              isLoading: false,
-              error: 'Failed to complete Wepin login',
-            ));
+            "❌ loginWepin failed - caller should handle fallback".log();
+            await FirebaseCrashlytics.instance.log('[Wallet] loginWepin failed');
+            emit(state.copyWith(isLoading: false));  // error 없이 - 폴백 허용
+            return null;
           }
         } else {
-          "❌ loginWithIdToken failed".log();
-          emit(state.copyWith(
-            isLoading: false,
-            error: 'Failed to login with ID token',
-          ));
+          "❌ loginWithIdToken failed - caller should handle fallback".log();
+          await FirebaseCrashlytics.instance.log('[Wallet] loginWithIdToken failed');
+          emit(state.copyWith(isLoading: false));  // error 없이 - 폴백 허용
+          return null;
         }
       } catch (e) {
         "❌ Error during login process: $e".log();
-        _handleWepinError(e, 'login process');
+        await FirebaseCrashlytics.instance.log('[Wallet] Login exception: $e');
+        emit(state.copyWith(isLoading: false));  // error 없이 - 폴백 허용
+        return null;
       }
     } catch (e) {
       "❌ Error in loginSocialAuthProvider: $e".log();
-      _handleWepinError(e, 'social auth login');
+      await FirebaseCrashlytics.instance.log('[Wallet] Social auth exception: $e');
+      emit(state.copyWith(isLoading: false));  // error 없이 - 폴백 허용
+      return null;
     }
   }
 
@@ -1200,25 +1246,33 @@ class WepinCubit extends BaseCubit<WepinState> {
     emit(state.copyWith(wepinLifeCycleStatus: WepinLifeCycle.notInitialized));
   }
 
-  // Start periodic wallet checking for NFT redemption or onboarding
+  // Start periodic wallet checking for NFT redemption
+  // Note: Onboarding flow no longer uses polling - it uses direct userStatus check
   void startWalletCheckTimer({bool isFromOnboarding = false}) {
-    if (isFromOnboarding) {
-      "🔄 Starting wallet check timer for ONBOARDING flow".log();
-    } else {
-      "🔄 Starting wallet check timer for NFT redemption".log();
+    // 이미 타이머가 실행 중이면 중복 실행 방지
+    if (_walletCheckTimer != null && _walletCheckTimer!.isActive) {
+      "⚠️ [WalletCheckTimer] Timer already running, skipping duplicate call".log();
+      return;
     }
+
+    if (isFromOnboarding) {
+      "⚠️ DEPRECATED: Onboarding should not use polling. Use userStatus check instead.".log();
+      return; // Don't start timer for onboarding
+    }
+
+    "🔄 Starting wallet check timer for NFT redemption".log();
     "🔄 Current state - isPerformWepinWelcomeNftRedeem: ${state.isPerformWepinWelcomeNftRedeem}".log();
-    
+
     // Cancel any existing timer
     stopWalletCheckTimer();
-    
+
     // Reset counter and set checking flag
     emit(state.copyWith(
       isCheckingWallet: true,
       walletCheckCounter: 0,
-      isOnboardingFlow: isFromOnboarding,
+      isOnboardingFlow: false, // Always false now
     ));
-    
+
     "✅ Timer state updated - isCheckingWallet: true".log();
     
     // Check every 5 seconds
@@ -1345,34 +1399,20 @@ class WepinCubit extends BaseCubit<WepinState> {
               } else {
                 // Just saving wallet, not redeeming NFT
                 "✅ Wallet saved successfully (non-NFT flow)".log();
-                
-                // Check if this is from onboarding flow
-                if (state.isOnboardingFlow) {
-                  "🎯 Wallet saved from ONBOARDING - signaling completion".log();
-                  emit(state.copyWith(
-                    walletCreatedFromOnboarding: true,
-                    isOnboardingFlow: false,
-                  ));
-                }
-                
+
+                // Note: Onboarding flow no longer uses this path
+                // Wallets are saved immediately after userStatus check and register()
+
                 stopWalletCheckTimer();
                 dismissLoader();
               }
             } else {
               "ℹ️ All wallets already saved, checking NFT redemption status...".log();
-              
-              // Check if this is from onboarding flow (wallet already exists)
-              if (state.isOnboardingFlow) {
-                "🎯 Wallet already exists from ONBOARDING - signaling completion".log();
-                emit(state.copyWith(
-                  walletCreatedFromOnboarding: true,
-                  isOnboardingFlow: false,
-                ));
-                stopWalletCheckTimer();
-                dismissLoader();
-              }
+
+              // Note: Onboarding flow removed - no longer uses polling
+
               // If wallet is already saved and we're trying to redeem NFT
-              else if (state.isPerformWepinWelcomeNftRedeem &&
+              if (state.isPerformWepinWelcomeNftRedeem &&
                   getIt<WalletsCubit>().state.isWepinWalletConnected) {
                 "🎁 Wallet already connected, proceeding with NFT redemption".log();
 
@@ -1405,8 +1445,11 @@ class WepinCubit extends BaseCubit<WepinState> {
   void stopWalletCheckTimer() {
     if (_walletCheckTimer != null) {
       "🛑 Stopping wallet check timer".log();
-      _walletCheckTimer!.cancel();
-      _walletCheckTimer = null;
+    }
+    _walletCheckTimer?.cancel();
+    _walletCheckTimer = null;
+
+    if (state.isCheckingWallet) {
       emit(state.copyWith(
         isCheckingWallet: false,
         walletCheckCounter: 0,

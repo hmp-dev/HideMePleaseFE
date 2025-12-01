@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/cubit/base_cubit.dart';
 import 'package:mobile/features/my/domain/entities/base_user_entity.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
+import 'package:mobile/features/my/domain/entities/point_transaction_entity.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
@@ -192,5 +193,34 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   Future<bool> hasProfileParts() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(StorageValues.hasProfileParts) ?? false;
+  }
+
+  /// 포인트 거래 내역 조회 (SAV 히스토리)
+  Future<void> getPointsHistory() async {
+    emit(state.copyWith(pointsHistoryStatus: RequestStatus.loading));
+
+    final response = await _profileRepository.getPointsHistory(
+      page: 1,
+      limit: 100, // 전체 내역을 한 번에 조회
+    );
+
+    response.fold(
+      (err) {
+        emit(state.copyWith(
+          pointsHistoryStatus: RequestStatus.failure,
+          pointsHistory: [],
+        ));
+      },
+      (historyResponse) {
+        final transactions = historyResponse.transactions
+            .map((dto) => dto.toEntity())
+            .toList();
+
+        emit(state.copyWith(
+          pointsHistoryStatus: RequestStatus.success,
+          pointsHistory: transactions,
+        ));
+      },
+    );
   }
 }

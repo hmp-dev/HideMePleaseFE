@@ -44,7 +44,7 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   bool isNotificationEnabled = false;
   bool isLocationInfoEnabled = true;
-  bool _isLoggingOut = false;
+
   @override
   void initState() {
     super.initState();
@@ -110,32 +110,10 @@ class _SettingsViewState extends State<SettingsView> {
                 FeatureTile(
                   isShowArrowIcon: false,
                   title: LocaleKeys.logout.tr(),
-                  onTap: _isLoggingOut
-                    ? () {}
-                    : () async {
-                        if (_isLoggingOut) return;
-
-                        setState(() {
-                          _isLoggingOut = true;
-                        });
-
+                  onTap: () async {
                         try {
-                          '🔴 [Settings] Starting logout process...'.log();
-
-                          // Add timeout to prevent hanging
-                          await getIt<AppCubit>().onLogOut().timeout(
-                            const Duration(seconds: 30),
-                            onTimeout: () {
-                              '⏰ [Settings] Logout timeout after 30 seconds'.log();
-                              throw Exception('Logout timeout');
-                            },
-                          );
-
-                          '✅ [Settings] Logout completed successfully'.log();
+                          await getIt<AppCubit>().onLogOut();
                         } catch (e) {
-                          '❌ [Settings] Logout failed: $e'.log();
-
-                          // Show error message to user
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -143,13 +121,6 @@ class _SettingsViewState extends State<SettingsView> {
                                 backgroundColor: Colors.red,
                               ),
                             );
-                          }
-                        } finally {
-                          // Always reset the logout state
-                          if (mounted) {
-                            setState(() {
-                              _isLoggingOut = false;
-                            });
                           }
                         }
                       },

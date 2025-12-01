@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/core/network/network.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/announcement_dto.dart';
+import 'package:mobile/features/settings/infrastructure/dtos/mark_all_read_response_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/model_banner_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/notification_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/settings_banner_dto.dart';
@@ -104,6 +105,17 @@ class SettingsRemoteDataSource {
 
     // Check if the request was successful.
     return response.statusCode == 200;
+  }
+
+  /// Marks all notifications as read.
+  ///
+  /// It sends a POST request to the "/push-notification/read-all" endpoint.
+  Future<MarkAllReadResponseDto> markAllNotificationsAsRead() async {
+    // Send a POST request to mark all notifications as read.
+    final response = await _network.post('/push-notification/read-all', {});
+
+    // Parse the response data into a MarkAllReadResponseDto object.
+    return MarkAllReadResponseDto.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// Deletes a notification.

@@ -86,6 +86,7 @@ class UserProfileDto extends Equatable {
   final String? finalProfileImageUrl;
   final PointBalanceDto? pointBalance;
   final CheckInStatsDto? checkInStats;
+  final int? friendsCount;
   final bool? onboardingCompleted;
   final String? appOS;
   final String? appVersion;
@@ -105,6 +106,7 @@ class UserProfileDto extends Equatable {
     this.finalProfileImageUrl,
     this.pointBalance,
     this.checkInStats,
+    this.friendsCount,
     this.onboardingCompleted,
     this.appOS,
     this.appVersion,
@@ -145,6 +147,7 @@ class UserProfileDto extends Equatable {
                 activeCheckIn: checkInStats!.activeCheckIn,
               )
             : const CheckInStats.empty(),
+        friendsCount: friendsCount ?? 0,
         onboardingCompleted: onboardingCompleted ?? false,
         appOS: appOS ?? "",
         appVersion: appVersion ?? "",
@@ -167,6 +170,7 @@ class UserProfileDto extends Equatable {
       chatAppId,
       profilePartsString,
       finalProfileImageUrl,
+      friendsCount,
       onboardingCompleted,
       appOS,
       appVersion,

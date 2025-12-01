@@ -81,7 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
           await getIt<AuthCubit>().refreshGoogleAccessToken() ?? '';
     }
 
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _initWallets() async {

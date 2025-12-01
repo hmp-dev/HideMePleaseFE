@@ -24,6 +24,9 @@ class NewSpaceEntity extends Equatable {
   /// Hiding count of the space.
   final int hidingCount;
 
+  /// Maximum check-in capacity of the space.
+  final int maxCapacity;
+
   /// Constructs a new [NewSpaceEntity] instance.
   ///
   /// All parameters are required.
@@ -34,6 +37,7 @@ class NewSpaceEntity extends Equatable {
     required this.mainBenefitDescription,
     required this.remainingBenefitCount,
     required this.hidingCount,
+    this.maxCapacity = 0,
   });
 
   @override
@@ -45,6 +49,7 @@ class NewSpaceEntity extends Equatable {
       mainBenefitDescription,
       remainingBenefitCount,
       hidingCount,
+      maxCapacity,
     ];
   }
 
@@ -59,6 +64,7 @@ class NewSpaceEntity extends Equatable {
     String? mainBenefitDescription,
     int? remainingBenefitCount,
     int? hidingCount,
+    int? maxCapacity,
   }) {
     return NewSpaceEntity(
       id: id ?? this.id,
@@ -69,6 +75,7 @@ class NewSpaceEntity extends Equatable {
       remainingBenefitCount:
           remainingBenefitCount ?? this.remainingBenefitCount,
       hidingCount: hidingCount ?? this.hidingCount,
+      maxCapacity: maxCapacity ?? this.maxCapacity,
     );
   }
 
@@ -81,5 +88,6 @@ class NewSpaceEntity extends Equatable {
         image = '',
         mainBenefitDescription = '',
         remainingBenefitCount = 0,
-        hidingCount = 0;
+        hidingCount = 0,
+        maxCapacity = 0;
 }

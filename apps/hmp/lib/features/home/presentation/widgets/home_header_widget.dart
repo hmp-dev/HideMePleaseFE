@@ -60,7 +60,16 @@ class HomeHeaderWidget extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: fontCompactLgBold(),
                       ),
-                      const VerticalSpace(10)
+                      const VerticalSpace(4),
+                      Text(
+                        '${LocaleKeys.friends.tr()} ${userProfile.friendsCount}',
+                        style: TextStyle(
+                          color: Colors.black.withOpacity(0.6),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const VerticalSpace(6)
                       /*,
                       LinkedWalletButton(
                         titleText: LocaleKeys.linkedWallet.tr(),

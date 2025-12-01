@@ -27,9 +27,10 @@ class VersionInfoTile extends StatelessWidget {
       builder: (context, state) {
         // Build the UI based on the current state of the SettingsCubit.
         return GestureDetector(
+          behavior: HitTestBehavior.opaque,  // Prevent touch passthrough to logout button
           onTap: () => getIt<SettingsCubit>().onSendUserToAppStore(),
           child: Container(
-            height: 45,
+            // Removed fixed height to prevent overflow into logout button area
             margin: const EdgeInsets.symmetric(vertical: 10),
             color: Colors.transparent,
             child: Center(

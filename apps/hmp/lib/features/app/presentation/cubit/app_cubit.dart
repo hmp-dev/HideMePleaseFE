@@ -25,69 +25,107 @@ class AppCubit extends BaseCubit<AppState> {
   AppCubit(this._authRepository) : super(AppState.initial());
 
   final SecureStorage _secureStorage = getIt<SecureStorage>();
+  bool _isInitializing = false;
 
   Future<void> onStart() async {
-    await _updateAuthStatus();
+    print('🚀🚀🚀 [AppCubit] onStart() called');
+    // Prevent duplicate initialization calls
+    if (_isInitializing) {
+      print('⚠️⚠️⚠️ [AppCubit] Already initializing, skipping duplicate onStart() call');
+      '⚠️ [AppCubit] Already initializing, skipping duplicate onStart() call'.log();
+      return;
+    }
+
+    _isInitializing = true;
+    try {
+      print('🔄🔄🔄 [AppCubit] Calling _updateAuthStatus()...');
+      // Always check auth status - don't skip based on initialized flag
+      // This ensures we pick up login state changes after logout/login cycles
+      await _updateAuthStatus();
+
+      if (!state.initialized) {
+        markInitialized();
+      }
+      print('✅✅✅ [AppCubit] onStart() completed');
+    } finally {
+      _isInitializing = false;
+    }
   }
 
   Future<void> _updateAuthStatus() async {
+    print('🔍🔍🔍 [AppCubit] _updateAuthStatus() started');
     final authTokenRes = await _authRepository.getAuthToken();
 
-    authTokenRes.fold(
-      (error) {
+    await authTokenRes.fold(
+      (error) async {
+        print('❌❌❌ [AppCubit] No auth token found or error: $error');
         '❌ [AppCubit] No auth token found or error: $error'.log();
         emit(
-          state.copyWith(isLoggedIn: false),
+          state.copyWith(isLoggedIn: false, initialized: true),
         );
       },
       (authToken) async {
+        print('🔑🔑🔑 [AppCubit] Auth token found: ${authToken.substring(0, 20)}...');
         '🔑 [AppCubit] Auth token found, checking validity...'.log();
 
-        // Check if this is a fresh install by checking for user data
+        // Check authentication flag first (most reliable indicator)
         final prefs = await SharedPreferences.getInstance();
+        final isAuthenticated = prefs.getBool(StorageValues.isAuthenticated) ?? false;
+        print('🏁🏁🏁 [AppCubit] isAuthenticated flag: $isAuthenticated');
+
+        if (isAuthenticated) {
+          print('✅✅✅ [AppCubit] Authentication flag is TRUE - valid login');
+          '✅ [AppCubit] Authentication flag is true - valid login'.log();
+          emit(state.copyWith(isLoggedIn: true, initialized: true));
+
+          // 자동 로그인 성공 시 Wepin SDK 초기화 및 소셜 토큰 전달
+          await _initializeWepinForAutoLogin();
+          return;
+        }
+        print('⚠️⚠️⚠️ [AppCubit] Authentication flag is FALSE or not found');
+
+        // If authentication flag is not set, check for other user data (backward compatibility)
+        '⚠️ [AppCubit] Authentication flag not found, checking other user data...'.log();
+
+        // Also check if we have a valid social token type stored
+        final socialTokenType = await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle);
 
         // More comprehensive check for fresh install
+        // Include socialTokenType as valid user data since it's saved during auth
         final hasUserData = prefs.containsKey('userId') ||
                            prefs.containsKey('userEmail') ||
                            prefs.containsKey(StorageValues.hasWallet) ||
                            prefs.containsKey(StorageValues.hasProfileParts) ||
-                           prefs.containsKey(StorageValues.onboardingCompleted);
-
-        // Also check if we have a valid social token type stored
-        final socialTokenType = await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle);
+                           prefs.containsKey(StorageValues.onboardingCompleted) ||
+                           (socialTokenType != null && socialTokenType.isNotEmpty);
 
         if (!hasUserData) {
           '⚠️ [AppCubit] Token exists but no user data - likely stale token from previous install'.log();
           '🧹 [AppCubit] Clearing ALL stale auth data...'.log();
 
           // Clear ALL auth-related data
-          await _secureStorage.delete('authToken');
+          await _secureStorage.delete(StorageValues.accessToken);
           await _secureStorage.delete(StorageValues.appleIdToken);
           await _secureStorage.delete(StorageValues.googleAccessToken);
+          await _secureStorage.delete(StorageValues.googleIdToken);
           await _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
           await _secureStorage.deleteAll(); // Clear all secure storage to be safe
 
-          emit(state.copyWith(isLoggedIn: false));
+          emit(state.copyWith(isLoggedIn: false, initialized: true));
           return;
         }
 
-        // Even if we have user data, verify it's consistent
-        if (socialTokenType == null || socialTokenType.isEmpty) {
-          '⚠️ [AppCubit] User data exists but no social token type - inconsistent state'.log();
-          '🧹 [AppCubit] Clearing auth tokens due to inconsistent state...'.log();
-
-          // Clear auth tokens but keep user preferences
-          await _secureStorage.delete('authToken');
-          await _secureStorage.delete(StorageValues.appleIdToken);
-          await _secureStorage.delete(StorageValues.googleAccessToken);
-          await _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
-
-          emit(state.copyWith(isLoggedIn: false));
-          return;
+        // If we have user data but no authentication flag, set the flag (migration case)
+        '⚠️ [AppCubit] User data found but authentication flag missing - setting flag now'.log();
+        try {
+          await prefs.setBool(StorageValues.isAuthenticated, true);
+          '✅ [AppCubit] Authentication flag set for existing user'.log();
+        } catch (e) {
+          '⚠️ [AppCubit] Failed to set authentication flag: $e'.log();
         }
 
         '✅ [AppCubit] Valid auth token and user data found'.log();
-        emit(state.copyWith(isLoggedIn: true));
+        emit(state.copyWith(isLoggedIn: true, initialized: true));
 
         // 자동 로그인 성공 시 Wepin SDK 초기화 및 소셜 토큰 전달
         await _initializeWepinForAutoLogin();
@@ -133,11 +171,11 @@ class AppCubit extends BaseCubit<AppState> {
       emit(state.copyWith(isLoggedIn: false));
       '✅ [AppCubit] User logged out successfully'.log();
 
-      // Reset DI container - do this last
+      // Reset DI container after state emission
+      // BlocListener will trigger navigation, then StartUpScreen will get the new AppCubit
       try {
         await getIt.reset();
         await configureDependencies();
-        onStart();
       } catch (e) {
         '⚠️ [AppCubit] DI reset failed: $e'.log();
       }
@@ -158,20 +196,67 @@ class AppCubit extends BaseCubit<AppState> {
   }
 
   Future<void> _clearLocalDataOnLogout() async {
-    try {
-      // Clear secure storage
-      await _secureStorage.delete(StorageValues.appleIdToken);
-      await _secureStorage.delete(StorageValues.googleAccessToken);
-      await _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
-      '✅ [AppCubit] Secure storage cleared'.log();
+    '🧹 [AppCubit] Starting local data cleanup on logout...'.log();
 
-      // Set flag to show onboarding after logout and clear onboarding data
+    // Track all errors but continue cleanup
+    final errors = <String>[];
+
+    // 1. MOST IMPORTANT: Clear auth token first to prevent auto-login issues
+    try {
+      await _secureStorage.delete(StorageValues.accessToken);
+      '✅ [AppCubit] Auth token deleted'.log();
+    } catch (e) {
+      final error = 'Failed to delete auth token: $e';
+      '❌ [AppCubit] $error'.log();
+      errors.add(error);
+    }
+
+    // 2. Clear social auth tokens
+    try {
+      await _secureStorage.delete(StorageValues.appleIdToken);
+      '✅ [AppCubit] Apple ID token deleted'.log();
+    } catch (e) {
+      final error = 'Failed to delete Apple token: $e';
+      '⚠️ [AppCubit] $error'.log();
+      errors.add(error);
+    }
+
+    try {
+      await _secureStorage.delete(StorageValues.googleAccessToken);
+      await _secureStorage.delete(StorageValues.googleIdToken);
+      '✅ [AppCubit] Google tokens deleted'.log();
+    } catch (e) {
+      final error = 'Failed to delete Google tokens: $e';
+      '⚠️ [AppCubit] $error'.log();
+      errors.add(error);
+    }
+
+    try {
+      await _secureStorage.delete(StorageValues.socialTokenIsAppleOrGoogle);
+      '✅ [AppCubit] Social token type deleted'.log();
+    } catch (e) {
+      final error = 'Failed to delete social token type: $e';
+      '⚠️ [AppCubit] $error'.log();
+      errors.add(error);
+    }
+
+    // 3. Clear SharedPreferences data
+    try {
       final prefs = await SharedPreferences.getInstance();
+
+      // CRITICAL: Clear authentication flag first
+      await prefs.remove(StorageValues.isAuthenticated);
+      '✅ [AppCubit] Authentication flag cleared'.log();
+
+      // Set flag to show onboarding after logout
       await prefs.setBool(StorageValues.showOnboardingAfterLogout, true);
+
+      // Clear onboarding data
       await prefs.remove(StorageValues.onboardingCompleted);
       await prefs.remove(StorageValues.onboardingCurrentStep);
-      await prefs.remove('profilePartsString'); // 프로필 이미지 데이터 삭제
-      await prefs.remove(StorageValues.hasProfileParts); // Clear profile parts flag
+      await prefs.remove('profilePartsString');
+      await prefs.remove(StorageValues.hasProfileParts);
+      '✅ [AppCubit] Onboarding data cleared'.log();
 
       // Clear check-in related data
       await prefs.remove(StorageValues.activeCheckInSpaceId);
@@ -181,6 +266,7 @@ class AppCubit extends BaseCubit<AppState> {
       await prefs.remove(StorageValues.checkInSpaceName);
       await prefs.remove(StorageValues.checkInBenefitId);
       await prefs.remove(StorageValues.checkInBenefitDescription);
+
       // Clear workmanager related check-in data
       await prefs.remove('currentCheckedInSpaceId');
       await prefs.remove('checkInLatitude');
@@ -188,20 +274,66 @@ class AppCubit extends BaseCubit<AppState> {
       await prefs.remove('shouldAutoCheckOut');
       await prefs.remove('pendingCheckOutSpaceId');
       '✅ [AppCubit] Check-in data cleared'.log();
+    } catch (e) {
+      final error = 'Failed to clear SharedPreferences: $e';
+      '❌ [AppCubit] $error'.log();
+      errors.add(error);
+    }
 
-      '✅ [AppCubit] SharedPreferences cleared'.log();
+    // 4. End Live Activity (non-critical)
+    try {
+      final liveActivityService = getIt<LiveActivityService>();
+      await liveActivityService.endCheckInActivity();
+      '✅ [AppCubit] Live Activity ended'.log();
+    } catch (e) {
+      '⚠️ [AppCubit] Live Activity end failed (non-critical): $e'.log();
+      // Don't add to errors as this is non-critical
+    }
 
-      // End Live Activity before logout
-      try {
-        final liveActivityService = getIt<LiveActivityService>();
-        await liveActivityService.endCheckInActivity();
-        '✅ [AppCubit] Live Activity ended'.log();
-      } catch (e) {
-        '⚠️ [AppCubit] Live Activity end failed (non-critical): $e'.log();
+    // 5. Verify critical tokens and flags are deleted
+    try {
+      final authToken = await _secureStorage.read(StorageValues.accessToken);
+      final socialTokenType = await _secureStorage.read(StorageValues.socialTokenIsAppleOrGoogle);
+      final prefs = await SharedPreferences.getInstance();
+      final isAuthenticatedFlag = prefs.getBool(StorageValues.isAuthenticated) ?? false;
+
+      if (authToken != null && authToken.isNotEmpty) {
+        final error = 'Auth token still exists after deletion attempt!';
+        '🚨 [AppCubit] $error'.log();
+        errors.add(error);
+      } else {
+        '✅ [AppCubit] Verified auth token is deleted'.log();
+      }
+
+      if (socialTokenType != null && socialTokenType.isNotEmpty) {
+        '⚠️ [AppCubit] Social token type still exists after deletion'.log();
+      } else {
+        '✅ [AppCubit] Verified social token type is deleted'.log();
+      }
+
+      if (isAuthenticatedFlag) {
+        final error = 'Authentication flag still exists after deletion attempt!';
+        '🚨 [AppCubit] $error'.log();
+        errors.add(error);
+      } else {
+        '✅ [AppCubit] Verified authentication flag is deleted'.log();
       }
     } catch (e) {
-      '❌ [AppCubit] Error clearing local data: $e'.log();
-      throw e;
+      '⚠️ [AppCubit] Failed to verify token deletion: $e'.log();
+    }
+
+    // Report final status
+    if (errors.isEmpty) {
+      '✅ [AppCubit] All local data cleared successfully'.log();
+    } else {
+      '⚠️ [AppCubit] Logout completed with ${errors.length} error(s):'.log();
+      for (final error in errors) {
+        '   - $error'.log();
+      }
+      // Only throw if auth token deletion failed (critical)
+      if (errors.any((e) => e.contains('auth token'))) {
+        throw Exception('Critical error during logout: Failed to delete auth token');
+      }
     }
   }
 
@@ -213,7 +345,9 @@ class AppCubit extends BaseCubit<AppState> {
     // DI
     await configureDependencies();
 
-    onStart();
+    // Call onStart() on the NEW AppCubit instance created by configureDependencies()
+    final newAppCubit = getIt<AppCubit>();
+    await newAppCubit.onStart();
   }
 
   void markInitialized() {

@@ -12,6 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/onboarding/models/character_profile.dart';
 import 'package:mobile/features/onboarding/presentation/widgets/character_layer_widget.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/app/core/util/image_validation_helper.dart';
 
 class ShareImageService {
   // 고해상도로 설정하여 이미지 품질 향상
@@ -488,21 +489,7 @@ class ShareImageService {
 
   /// Load network image
   static Future<ui.Image?> _loadNetworkImage(String url) async {
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        // 원본 해상도를 유지하여 이미지 품질 보존
-        final codec = await ui.instantiateImageCodec(
-          response.bodyBytes,
-          allowUpscaling: false,  // 업스케일링 방지로 품질 유지
-        );
-        final frame = await codec.getNextFrame();
-        return frame.image;
-      }
-    } catch (e) {
-      debugPrint('Error loading network image: $e');
-    }
-    return null;
+    return await ImageValidationHelper.loadNetworkImageSafely(url: url);
   }
 
   /// Load local image

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
@@ -97,6 +98,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   bool _hasExistingProfile = false; // Track if user has existing profile parts
   bool _hasExistingNickname = false; // Track if user has existing nickname
   bool _isWepinInitialized = false; // Track if Wepin SDK is initialized
+  bool _hasMintedNft = false; // Guard flag to prevent duplicate minting
+  Timer? _walletCreationTimeoutTimer; // Timeout timer for wallet creation
   String selectedProfile = '';
   CharacterProfile? selectedCharacter;
   String nickname = '';
@@ -124,7 +127,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
+
     // Initialize Wepin SDK only once when dependencies are ready
     if (!_isWepinInitialized) {
       _isWepinInitialized = true;
@@ -211,10 +214,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         '📊 Current WePIN status: $status'.log();
         
         // User has both WePIN account and wallet address
-        setState(() {
-          _hasExistingWallet = true;
-        });
-        
+        if (mounted) {
+          setState(() {
+            _hasExistingWallet = true;
+          });
+        }
+
         // Optionally try to login silently
         if (status == WepinLifeCycle.initialized) {
           try {
@@ -227,14 +232,18 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         }
       } else if (isRegistered && !hasActualWallet) {
         '⚠️ WePIN user exists but no wallet - need to create wallet'.log();
-        setState(() {
-          _hasExistingWallet = false;
-        });
+        if (mounted) {
+          setState(() {
+            _hasExistingWallet = false;
+          });
+        }
       } else {
         '🆕 New WePIN user - will need to create account and wallet'.log();
-        setState(() {
-          _hasExistingWallet = false;
-        });
+        if (mounted) {
+          setState(() {
+            _hasExistingWallet = false;
+          });
+        }
       }
     } catch (e) {
       '❌ Error checking existing WePIN wallet: $e'.log();
@@ -254,28 +263,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
       if (userProfile != null) {
         // Check if we have profile parts string
+        // This is the only reliable indicator during onboarding
+        // Image URL validation removed: image only exists AFTER profile is saved to server
         if (userProfile.profilePartsString != null && userProfile.profilePartsString!.isNotEmpty) {
           '✅ Profile parts exist: ${userProfile.profilePartsString!.length} characters'.log();
           hasValidProfile = true;
-        }
-
-        // Check if we have a valid final profile image URL
-        if (!hasValidProfile &&
-            userProfile.finalProfileImageUrl != null &&
-            userProfile.finalProfileImageUrl!.isNotEmpty) {
-          '🔍 Checking if profile image URL is valid...'.log();
-          '   - URL: ${userProfile.finalProfileImageUrl}'.log();
-
-          // Validate that the image URL actually has valid data
-          final isValidImage = await _validateImageUrl(userProfile.finalProfileImageUrl!);
-
-          if (isValidImage) {
-            '✅ Profile image URL is valid and accessible'.log();
-            hasValidProfile = true;
-          } else {
-            '⚠️ Profile image URL exists but image is not ready/valid'.log();
-            '   - Treating as no profile (new user)'.log();
-          }
         }
 
         if (hasValidProfile) {
@@ -284,33 +276,41 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           '   - ValidImage: ${hasValidProfile}'.log();
 
           // Check if user has a nickname
-          final hasNickname = userProfile.nickName.isNotEmpty;
+          final hasNickname = userProfile.nickName?.isNotEmpty ?? false;
           '   - Nickname: ${hasNickname ? userProfile.nickName : "없음"}'.log();
 
-          setState(() {
-            _hasExistingProfile = true;
-            _hasExistingNickname = hasNickname;
-          });
+          if (mounted) {
+            setState(() {
+              _hasExistingProfile = true;
+              _hasExistingNickname = hasNickname;
+            });
+          }
         } else {
           '🆕 No valid profile found - character selection needed'.log();
+          if (mounted) {
+            setState(() {
+              _hasExistingProfile = false;
+              _hasExistingNickname = false;
+            });
+          }
+        }
+      } else {
+        '🆕 No user profile - character selection needed'.log();
+        if (mounted) {
           setState(() {
             _hasExistingProfile = false;
             _hasExistingNickname = false;
           });
         }
-      } else {
-        '🆕 No user profile - character selection needed'.log();
+      }
+    } catch (e) {
+      '❌ Error checking user profile: $e'.log();
+      if (mounted) {
         setState(() {
           _hasExistingProfile = false;
           _hasExistingNickname = false;
         });
       }
-    } catch (e) {
-      '❌ Error checking user profile: $e'.log();
-      setState(() {
-        _hasExistingProfile = false;
-        _hasExistingNickname = false;
-      });
     }
   }
 
@@ -464,11 +464,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       if (hasWallet) {
         '✅ 지갑이 있음 - 지갑 있음 화면으로 이동'.log();
         // Show wallet exists page
-        _moveToPage(1);
+        await _moveToPage(1);
       } else {
         '❌ 지갑이 없음 - 지갑 생성 화면으로 이동'.log();
         // No wallet, go to wallet creation page
-        _moveToPage(1);
+        await _moveToPage(1);
       }
     } else if (currentSlideIndex == 1) {
       // From wallet page, check if user has existing profile
@@ -478,19 +478,19 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         // User has existing wallet
         if (_hasExistingProfile) {
           '🆗 프로필 파츠 있음 - 프로필 존재 화면으로 이동'.log();
-          _moveToPage(2); // Show profile exists page
+          await _moveToPage(2); // Show profile exists page
         } else {
           '🆕 프로필 파츠 없음 - 캐릭터 선택 화면으로 이동'.log();
-          _moveToPage(2); // Go to character selection
+          await _moveToPage(2); // Go to character selection
         }
       } else {
         // Just created wallet, check profile
         if (_hasExistingProfile) {
           '🆗 새 지갑 생성 + 프로필 존재 - 프로필 존재 화면으로'.log();
-          _moveToPage(2); // Show profile exists page
+          await _moveToPage(2); // Show profile exists page
         } else {
           '🆕 새 지갑 생성 + 프로필 없음 - 캐릭터 선택으로'.log();
-          _moveToPage(2); // Go to character selection
+          await _moveToPage(2); // Go to character selection
         }
       }
     } else if (currentSlideIndex == 2 && _hasExistingProfile) {
@@ -498,23 +498,23 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       if (_hasExistingNickname) {
         // User has both profile and nickname, skip to final page
         '✅ 프로필과 닉네임 모두 있음 - 완료 화면으로 이동'.log();
-        _moveToPage(4); // Skip nickname input, go to final page
+        await _moveToPage(4); // Skip nickname input, go to final page
       } else {
         // User has profile but no nickname, go to nickname input
         '⚠️ 프로필은 있지만 닉네임 없음 - 닉네임 입력 화면으로 이동'.log();
-        _moveToPage(3); // Go to nickname input page
+        await _moveToPage(3); // Go to nickname input page
       }
     } else if (currentSlideIndex < 4) {
-      _moveToPage(currentSlideIndex + 1);
+      await _moveToPage(currentSlideIndex + 1);
     }
   }
   
-  void _moveToPage(int pageIndex) {
+  Future<void> _moveToPage(int pageIndex) async {
     setState(() {
       currentSlideIndex = pageIndex;
     });
     // Save state immediately when entering new page
-    _saveCurrentStep();
+    await _saveCurrentStep();
     '📍 온보딩 페이지 이동: $pageIndex'.log();
   }
   
@@ -581,10 +581,57 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   
   Future<void> _createWepinWallet() async {
     '🎯 지갑 생성 버튼 클릭됨!'.log();
-    
+
+    // Cancel any existing timeout timer
+    _walletCreationTimeoutTimer?.cancel();
+
+    // 세션 ID로 Crashlytics 로그 추적
+    final sessionId = DateTime.now().millisecondsSinceEpoch.toString();
+    await FirebaseCrashlytics.instance.setCustomKey('wallet_session_id', sessionId);
+    await FirebaseCrashlytics.instance.log('[Wallet-$sessionId] _createWepinWallet initiated');
+
     try {
+      // Set timeout timer (45 seconds - increased for backend processing)
+      _walletCreationTimeoutTimer = Timer(const Duration(seconds: 45), () async {
+        '⏰ Wallet creation timeout after 45 seconds'.log();
+        await FirebaseCrashlytics.instance.log('[Onboarding] TIMEOUT: Wallet creation took more than 45 seconds');
+        await logErrorWithDeviceInfo(
+          'Wallet creation timeout',
+          StackTrace.current,
+          reason: 'Onboarding: 45 second timeout reached'
+        );
+        if (mounted && _isConfirming) {
+          setState(() {
+            _isConfirming = false;
+          });
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: Text('시간 초과'),
+              content: Text('지갑 생성이 너무 오래 걸립니다.\n\n네트워크 상태를 확인하고 다시 시도해주세요.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _createWepinWallet(); // 재시도
+                  },
+                  child: Text('다시 시도'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('취소'),
+                ),
+              ],
+            ),
+          );
+        }
+      });
+
       final wepinCubit = getIt<WepinCubit>();
-      
+
       // Check if SDK is initialized
       if (wepinCubit.state.wepinWidgetSDK == null) {
         '❌ Wepin SDK not initialized for wallet creation'.log();
@@ -630,72 +677,155 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         '🔄 Wepin SDK initialized, performing login flow...'.log();
         
         try {
-          // Get stored social login tokens
-          await wepinCubit.getSocialLoginValues();
-          
-          // Check if we have tokens for login
-          final socialType = wepinCubit.state.socialTokenIsAppleOrGoogle;
-          String? idToken;
-          
+          // Get stored social login tokens (반환값 직접 사용 - state 동기화 문제 해결)
+          final tokens = await wepinCubit.getSocialLoginValues();
+          await FirebaseCrashlytics.instance.log('[Wallet] START: socialType=${tokens.socialType}, hasToken=${tokens.hasToken}');
+
+          // Check if we have tokens for login (반환값 직접 사용)
+          final socialType = tokens.socialType;
+          final idToken = tokens.idToken;
+
           if (socialType == 'GOOGLE') {
-            idToken = wepinCubit.state.googleAccessToken;
             '🔑 Using Google ID token for Wepin login'.log();
           } else if (socialType == 'APPLE') {
-            idToken = wepinCubit.state.appleIdToken;
             '🔑 Using Apple ID token for Wepin login'.log();
           }
-          
-          if (idToken == null || idToken.isEmpty) {
+
+          if (idToken.isEmpty) {
             '❌ No ID token available for Wepin login'.log();
-            
+
             // Fallback: Open widget for OAuth login
             '📱 Opening Wepin widget for OAuth login...'.log();
             setState(() {
               _isConfirming = false;
             });
-            
-            // Start polling for wallet creation with onboarding flag
-            wepinCubit.startWalletCheckTimer(isFromOnboarding: true);
-            
-            // Open widget which will show login UI
+
+            // Open widget which will show login UI and wait for completion
             await wepinCubit.openWepinWidget(context);
-            
-            '📱 Wepin widget closed - polling continues in background'.log();
-            
+
+            '📱 Wepin widget closed - checking wallet immediately'.log();
+
             // After WePIN OAuth login, check user status and save tokens
             await _checkAndSaveWepinUser();
             await _saveWepinTokensAfterOAuth();
-            
-            return; // Exit here as polling will handle wallet detection
+
+            // Check status after widget closes
+            try {
+              final statusAfterWidget = await wepinCubit.state.wepinWidgetSDK!.getStatus();
+              '📊 Wepin status after widget closed: $statusAfterWidget'.log();
+
+              if (statusAfterWidget == WepinLifeCycle.login) {
+                '✅ User registered and logged in, getting accounts immediately'.log();
+
+                // Get accounts immediately - no polling needed!
+                final accounts = await wepinCubit.state.wepinWidgetSDK!.getAccounts();
+                '💼 Found ${accounts.length} accounts immediately after registration'.log();
+
+                if (accounts.isNotEmpty) {
+                  // Save wallets to backend
+                  '📍 Saving wallets to backend...'.log();
+                  await wepinCubit.saveWalletsToHMPBackend(accounts);
+                  '✅ Wallets saved successfully'.log();
+
+                  // Check user profile
+                  await _checkUserProfile();
+
+                  setState(() {
+                    _isConfirming = false;
+                    _hasExistingWallet = true;
+                  });
+
+                  // Navigate to next page
+                  if (_hasExistingProfile) {
+                    '🆗 지갑 생성 완료 + 프로필 존재 - 프로필 화면으로'.log();
+                  } else {
+                    '🆕 지갑 생성 완료 + 프로필 없음 - 캐릭터 선택으로'.log();
+                  }
+                  await _moveToPage(2);
+                  return;
+                } else {
+                  '⚠️ No accounts found after registration'.log();
+                  setState(() => _isConfirming = false);
+                  return;
+                }
+              } else {
+                '⚠️ Not in login state after widget closed: $statusAfterWidget'.log();
+                setState(() => _isConfirming = false);
+                return;
+              }
+            } catch (e) {
+              '❌ Error checking wallet after widget closed: $e'.log();
+              setState(() => _isConfirming = false);
+              return;
+            }
           }
           
           // Perform login with ID token using the new flow
           '📍 Performing Wepin login with ID token...'.log();
-          await wepinCubit.loginSocialAuthProvider();
-          
-          // Check if login was successful
-          status = await wepinCubit.state.wepinWidgetSDK!.getStatus();
-          '📊 Wepin status after login: $status'.log();
-          
-          if (status != WepinLifeCycle.login) {
+          final wepinUser = await wepinCubit.loginSocialAuthProvider();
+
+          if (wepinUser == null) {
             '❌ Login failed, opening widget for manual login'.log();
-            
+
             setState(() {
               _isConfirming = false;
             });
-            
-            // Start polling and open widget
-            wepinCubit.startWalletCheckTimer(isFromOnboarding: true);
+
+            // Open widget for manual login
             await wepinCubit.openWepinWidget(context);
-            
+
             await _checkAndSaveWepinUser();
             await _saveWepinTokensAfterOAuth();
-            
+
+            // Check status and handle wallet creation immediately
+            final statusAfterWidget = await wepinCubit.state.wepinWidgetSDK!.getStatus();
+            if (statusAfterWidget == WepinLifeCycle.login) {
+              final accounts = await wepinCubit.state.wepinWidgetSDK!.getAccounts();
+              if (accounts.isNotEmpty) {
+                await wepinCubit.saveWalletsToHMPBackend(accounts);
+                await _checkUserProfile();
+                setState(() {
+                  _isConfirming = false;
+                  _hasExistingWallet = true;
+                });
+                await _moveToPage(2);
+              }
+            }
             return;
           }
-          
-          '✅ Login successful, proceeding to wallet creation'.log();
-          // Continue to registration/wallet creation below
+
+          // Check userStatus after login
+          final userStatus = wepinUser.userStatus;
+          '📊 User status after login: ${userStatus?.loginStatus}'.log();
+
+          if (userStatus?.loginStatus != 'complete') {
+            '📝 Registration required, calling register()'.log();
+
+            // Call register and wait for completion
+            final registeredUser = await wepinCubit.state.wepinWidgetSDK!.register(context);
+            '✅ Registration complete: ${registeredUser.userStatus?.loginStatus}'.log();
+
+            // Immediately get accounts after registration - NO POLLING!
+            final accounts = await wepinCubit.state.wepinWidgetSDK!.getAccounts();
+            '💼 Found ${accounts.length} accounts after registration'.log();
+
+            if (accounts.isNotEmpty) {
+              await wepinCubit.saveWalletsToHMPBackend(accounts);
+              await _checkUserProfile();
+
+              setState(() {
+                _isConfirming = false;
+                _hasExistingWallet = true;
+              });
+
+              await _moveToPage(2);
+              return;
+            }
+          }
+
+          '✅ Login successful and user registration complete, checking wallets'.log();
+          // Continue to check existing wallets below
+          status = WepinLifeCycle.login;
         } catch (e) {
           '❌ Error during login flow: $e'.log();
           wepinCubit.stopWalletCheckTimer(); // Stop polling on error
@@ -709,10 +839,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       // Handle based on WePIN status
       if (status == WepinLifeCycle.login) {
         '🔍 Already logged in, checking existing wallets...'.log();
-        
+
         // User is already logged in, check if they have wallets
+        '📍 Step 0: Getting Wepin accounts...'.log();
+        await FirebaseCrashlytics.instance.log('[Onboarding] Step 0: Getting Wepin accounts');
         final accounts = await wepinCubit.state.wepinWidgetSDK!.getAccounts();
-        '📋 Existing accounts: ${accounts.length}'.log();
+        '✅ Step 0 Complete: Found ${accounts.length} accounts'.log();
+        await FirebaseCrashlytics.instance.log('[Onboarding] Step 0 Complete: Found ${accounts.length} accounts');
+        '📋 Account details: ${accounts.map((a) => '${a.network}:${a.address.substring(0, 10)}...').join(", ")}'.log();
         
         if (accounts.isNotEmpty) {
           // User already has wallets
@@ -726,22 +860,77 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           
           if (ethereumAccounts.isNotEmpty) {
             '✅ Ethereum wallet already exists!'.log();
-            
+
             // Save wallets to backend (in case not saved)
-            await wepinCubit.saveWalletsToHMPBackend(accounts);
-            
-            // User has wallet, check profile before moving to next page
+            '📍 Step 1: Saving wallets to backend...'.log();
+            await FirebaseCrashlytics.instance.log('[Onboarding] Step 1: Saving wallets to backend');
+            try {
+              await wepinCubit.saveWalletsToHMPBackend(accounts);
+              '✅ Step 1 Complete: Wallets saved successfully'.log();
+              await FirebaseCrashlytics.instance.log('[Onboarding] Step 1 Complete: Wallets saved successfully');
+            } catch (e) {
+              '❌ Step 1 Failed: Failed to save wallets to backend: $e'.log();
+              await FirebaseCrashlytics.instance.log('[Onboarding] Step 1 FAILED: $e');
+              await logErrorWithDeviceInfo(e, StackTrace.current, reason: 'Onboarding: Save wallets to backend failed');
+              if (mounted) {
+                setState(() => _isConfirming = false);
+                final retry = await showDialog<bool>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => AlertDialog(
+                    title: Text('지갑 저장 실패'),
+                    content: Text('지갑 정보를 서버에 저장하지 못했습니다.\n\n에러: $e\n\n다시 시도하시겠습니까?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text('취소'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text('재시도'),
+                      ),
+                    ],
+                  ),
+                );
+                if (retry == true) {
+                  return _createWepinWallet();
+                }
+              }
+              return;
+            }
+
+            // Wait for profile check to complete before moving to next page
+            '📍 Step 2: Checking user profile...'.log();
+            await FirebaseCrashlytics.instance.log('[Onboarding] Step 2: Checking user profile');
+            try {
+              await _checkUserProfile();
+              '✅ Step 2 Complete: Profile check done (exists: $_hasExistingProfile)'.log();
+              await FirebaseCrashlytics.instance.log('[Onboarding] Step 2 Complete: Profile exists=$_hasExistingProfile');
+            } catch (e) {
+              '❌ Step 2 Failed: Failed to check user profile: $e'.log();
+              await FirebaseCrashlytics.instance.log('[Onboarding] Step 2 FAILED: $e');
+              await logErrorWithDeviceInfo(e, StackTrace.current, reason: 'Onboarding: Check user profile failed');
+              // 기본값으로 설정 (새 사용자로 간주)
+              setState(() {
+                _hasExistingProfile = false;
+              });
+              '⚠️ Assuming new user due to profile check failure'.log();
+              await FirebaseCrashlytics.instance.log('[Onboarding] Assuming new user (profile check failed)');
+            }
+
             setState(() {
               _isConfirming = false;
               _hasExistingWallet = true;
             });
-            await _checkUserProfile();
+
             if (_hasExistingProfile) {
               '🆗 지갑 생성 완료 + 프로필 존재 - 프로필 화면으로'.log();
-              _moveToPage(2); // Show profile exists page
+              await FirebaseCrashlytics.instance.log('[Onboarding] SUCCESS: Wallet exists + Profile exists -> Moving to profile page');
+              await _moveToPage(2); // Show profile exists page
             } else {
               '🆕 지갑 생성 완료 + 프로필 없음 - 캐릭터 선택으로'.log();
-              _moveToPage(2); // Move to character selection
+              await FirebaseCrashlytics.instance.log('[Onboarding] SUCCESS: Wallet exists + New user -> Moving to character selection');
+              await _moveToPage(2); // Move to character selection
             }
           } else {
             '⚠️ Has wallets but no Ethereum wallet'.log();
@@ -762,17 +951,75 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             final newAccounts = await wepinCubit.state.wepinWidgetSDK!.getAccounts();
             if (newAccounts.isNotEmpty) {
               '✅ Wallets created after finalize'.log();
-              await wepinCubit.saveWalletsToHMPBackend(newAccounts);
+
+              '📍 Step 1 (Finalize): Saving wallets to backend...'.log();
+              await FirebaseCrashlytics.instance.log('[Onboarding] Step 1 (Finalize): Saving wallets to backend');
+              try {
+                await wepinCubit.saveWalletsToHMPBackend(newAccounts);
+                '✅ Step 1 (Finalize) Complete: Wallets saved successfully'.log();
+                await FirebaseCrashlytics.instance.log('[Onboarding] Step 1 (Finalize) Complete: Wallets saved');
+              } catch (e) {
+                '❌ Step 1 (Finalize) Failed: Failed to save wallets to backend: $e'.log();
+                await FirebaseCrashlytics.instance.log('[Onboarding] Step 1 (Finalize) FAILED: $e');
+                await logErrorWithDeviceInfo(e, StackTrace.current, reason: 'Onboarding (Finalize): Save wallets failed');
+                if (mounted) {
+                  setState(() => _isConfirming = false);
+                  final retry = await showDialog<bool>(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => AlertDialog(
+                      title: Text('지갑 저장 실패'),
+                      content: Text('지갑 정보를 서버에 저장하지 못했습니다.\n\n에러: $e\n\n다시 시도하시겠습니까?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('취소'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text('재시도'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (retry == true) {
+                    return _createWepinWallet();
+                  }
+                }
+                return;
+              }
+
+              // Wait for profile check to complete before moving to next page
+              '📍 Step 2 (Finalize): Checking user profile...'.log();
+              await FirebaseCrashlytics.instance.log('[Onboarding] Step 2 (Finalize): Checking user profile');
+              try {
+                await _checkUserProfile();
+                '✅ Step 2 (Finalize) Complete: Profile check done (exists: $_hasExistingProfile)'.log();
+                await FirebaseCrashlytics.instance.log('[Onboarding] Step 2 (Finalize) Complete: Profile exists=$_hasExistingProfile');
+              } catch (e) {
+                '❌ Step 2 (Finalize) Failed: Failed to check user profile: $e'.log();
+                await FirebaseCrashlytics.instance.log('[Onboarding] Step 2 (Finalize) FAILED: $e');
+                await logErrorWithDeviceInfo(e, StackTrace.current, reason: 'Onboarding (Finalize): Check profile failed');
+                // 기본값으로 설정 (새 사용자로 간주)
+                setState(() {
+                  _hasExistingProfile = false;
+                });
+                '⚠️ Assuming new user due to profile check failure'.log();
+                await FirebaseCrashlytics.instance.log('[Onboarding] Assuming new user (Finalize: profile check failed)');
+              }
+
               setState(() {
                 _isConfirming = false;
               });
-              await _checkUserProfile();
+
               if (_hasExistingProfile) {
                 '🆗 지갑 finalize 완료 + 프로필 존재 - 프로필 화면으로'.log();
-                _moveToPage(2); // Show profile exists page
+                await FirebaseCrashlytics.instance.log('[Onboarding] SUCCESS (Finalize): Wallet created + Profile exists -> Profile page');
+                await _moveToPage(2); // Show profile exists page
               } else {
                 '🆕 지갑 finalize 완료 + 프로필 없음 - 캐릭터 선택으로'.log();
-                _moveToPage(2); // Move to character selection
+                await FirebaseCrashlytics.instance.log('[Onboarding] SUCCESS (Finalize): Wallet created + New user -> Character selection');
+                await _moveToPage(2); // Move to character selection
               }
             } else {
               '❌ Still no wallets after finalize'.log();
@@ -823,21 +1070,29 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           for (var eth in ethereumAccounts) {
             '🔷 New Ethereum Address: ${eth.address}'.log();
           }
-          
+
           // Save wallets to backend
-          await wepinCubit.saveWalletsToHMPBackend(accounts);
-          
+          try {
+            await wepinCubit.saveWalletsToHMPBackend(accounts);
+          } catch (e) {
+            '⚠️ Failed to save wallets to backend after registration, but continuing: $e'.log();
+          }
+
           // Wallet created successfully, check profile before moving
           setState(() {
             _isConfirming = false;
           });
-          await _checkUserProfile();
+          try {
+            await _checkUserProfile();
+          } catch (e) {
+            '⚠️ Failed to check user profile after registration, but continuing: $e'.log();
+          }
           if (_hasExistingProfile) {
             '🆗 새 지갑 생성 + 프로필 존재 - 프로필 화면으로'.log();
-            _moveToPage(2); // Show profile exists page
+            await _moveToPage(2); // Show profile exists page
           } else {
             '🆕 새 지갑 생성 + 프로필 없음 - 캐릭터 선택으로'.log();
-            _moveToPage(2); // Move to character selection
+            await _moveToPage(2); // Move to character selection
           }
         } else {
           '❌ No Ethereum wallet created'.log();
@@ -852,11 +1107,73 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         '❌ Wepin not in correct state for wallet creation: $status'.log();
       }
     } catch (e) {
-      setState(() {
-        _isConfirming = false;
-      });
       '❌ Error creating Wepin wallet: $e'.log();
+      if (mounted) {
+        _showWalletCreationErrorDialog('지갑 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    } finally {
+      // Cancel timeout timer
+      _walletCreationTimeoutTimer?.cancel();
+      _walletCreationTimeoutTimer = null;
+
+      // CRITICAL: Always reset _isConfirming to prevent infinite loading
+      if (mounted) {
+        setState(() {
+          _isConfirming = false;
+        });
+        '✅ _isConfirming reset in finally block'.log();
+      }
     }
+  }
+
+  /// Shows error dialog for wallet creation failures
+  void _showWalletCreationErrorDialog(String message) {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text(
+            '지갑 생성 오류',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          content: Text(
+            message,
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text(
+                '확인',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                // Retry wallet creation
+                _createWepinWallet();
+              },
+              child: const Text(
+                '다시 시도',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _checkAndSaveWepinUser() async {
@@ -1096,7 +1413,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     }
   }
 
-  void _goToPreviousPage() {
+  Future<void> _goToPreviousPage() async {
     // Prevent going back if confirming
     if (_isConfirming) {
       '⚠️ 처리 중 - 뒤로 가기 차단'.log();
@@ -1105,7 +1422,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
     if (currentSlideIndex > 0) {
       '⬅️ 이전 페이지로 이동: ${currentSlideIndex} -> ${currentSlideIndex - 1}'.log();
-      _moveToPage(currentSlideIndex - 1);
+      await _moveToPage(currentSlideIndex - 1);
     }
   }
 
@@ -1149,6 +1466,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   @override
   void dispose() {
+    // Cancel wallet creation timeout timer
+    _walletCreationTimeoutTimer?.cancel();
+    _walletCreationTimeoutTimer = null;
     //sliderTimer.cancel();
     super.dispose();
   }
@@ -1165,7 +1485,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           BlocListener<WepinCubit, WepinState>(
             bloc: getIt<WepinCubit>(),
             listener: (context, wepinState) {
-              // Update wallet checking state
+              // Update wallet checking state (keep for NFT redemption flow)
               if (wepinState.isCheckingWallet != _isCheckingWallet) {
                 setState(() {
                   _isCheckingWallet = wepinState.isCheckingWallet;
@@ -1176,38 +1496,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   '✅ Wallet check completed - unblocking UI'.log();
                 }
               }
-              
-              // Check if wallet was created from onboarding
-              // IMPORTANT: Only handle this on the wallet creation page (index 1)
-              if (wepinState.walletCreatedFromOnboarding) {
-                if (currentSlideIndex == 1) {
-                  '✅ Wallet creation from onboarding detected on wallet page!'.log();
 
-                  // Reset the flag to prevent duplicate navigation
-                  getIt<WepinCubit>().resetOnboardingWalletFlag();
-
-                  // Move to next page when wallet is created
-                  Future.delayed(const Duration(milliseconds: 500), () async {
-                    // Double check we're still on the wallet page
-                    if (currentSlideIndex == 1) {
-                      await _checkUserProfile();
-                      if (_hasExistingProfile) {
-                        '🆗 Polling 완료 + 프로필 존재 - 프로필 화면으로'.log();
-                        _moveToPage(2); // Show profile exists page
-                      } else {
-                        '🆕 Polling 완료 + 프로필 없음 - 캐릭터 선택으로'.log();
-                        _moveToPage(2); // Move to character selection
-                      }
-                    } else {
-                      '⚠️ Page changed during wallet creation, skipping navigation'.log();
-                    }
-                  });
-                } else {
-                  '⚠️ walletCreatedFromOnboarding flag detected on wrong page (${currentSlideIndex}), resetting'.log();
-                  // Reset the flag if we're on the wrong page
-                  getIt<WepinCubit>().resetOnboardingWalletFlag();
-                }
-              }
+              // Note: walletCreatedFromOnboarding polling logic removed
+              // Now using direct userStatus check and immediate getAccounts() call
             },
           ),
           BlocListener<EnableLocationCubit, EnableLocationState>(
@@ -1216,24 +1507,30 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           if (state.submitStatus == RequestStatus.success) {
             // 온보딩 완료 시 상태 업데이트
             await _updateOnboardingCompletedStatus();
-            
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              Routes.startUpScreen,
-              (route) => false,
-            );
+
+            // Navigate directly to appScreen to avoid StartUpScreen re-checking and showing onboarding again
+            if (context.mounted) {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                Routes.appScreen,
+                (route) => false,
+              );
+            }
           }
 
           if ((state.submitStatus == RequestStatus.failure) &&
               state.isLocationDenied) {
             // 위치 권한이 거부되어도 온보딩 완료로 처리
             await _updateOnboardingCompletedStatus();
-            
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              Routes.startUpScreen,
-              (route) => false,
-            );
+
+            // Navigate directly to appScreen to avoid StartUpScreen re-checking and showing onboarding again
+            if (context.mounted) {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                Routes.appScreen,
+                (route) => false,
+              );
+            }
           }
             },
           ),
@@ -1331,11 +1628,17 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 60.0),
                           child: GradientButton(
                                   text: _getButtonText(),
-                                  onPressed: (_isCheckingWallet || _isConfirming)
-                                      ? () {} // Disable button when processing
-                                      : (currentSlideIndex == 1 && !_hasExistingWallet
-                                          ? _createWepinWallet
-                                          : _goToNextPage),
+                                  onPressed: () {
+                                    if (_isCheckingWallet || _isConfirming) {
+                                      '⚠️ [Onboarding] Already processing, ignoring tap'.log();
+                                      return;
+                                    }
+                                    if (currentSlideIndex == 1 && !_hasExistingWallet) {
+                                      _createWepinWallet();
+                                    } else {
+                                      _goToNextPage();
+                                    }
+                                  },
                                 ),
                         )
                       : Padding(
@@ -1343,9 +1646,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           child: currentSlideIndex + 1 == 5
                               ? GradientButton(
                                   text: LocaleKeys.onboarding_enter_world.tr(),
-                                  onPressed: _isConfirming
-                                            ? () {}
-                                            : () async {
+                                  onPressed: () async {
                                                 // Prevent multiple clicks
                                                 if (_isConfirming) {
                                                   '⚠️ 이미 처리 중 - 중복 클릭 방지'.log();
@@ -1373,82 +1674,53 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                     // Continue anyway since onboardingCompleted is already set
                                                   }
 
-                                                // Check if user already has VALID profile image (not just URL)
+                                                // Check if user already has profile parts string (actual character data)
                                                 final userProfile = getIt<ProfileCubit>().state.userProfileEntity;
-                                                bool hasValidProfileImage = false;
-
-                                                // Validate finalProfileImageUrl if it exists
-                                                if (userProfile?.finalProfileImageUrl?.isNotEmpty ?? false) {
-                                                  '🔍 Validating finalProfileImageUrl...'.log();
-                                                  final isValid = await _validateImageUrl(userProfile!.finalProfileImageUrl!);
-                                                  if (isValid) {
-                                                    hasValidProfileImage = true;
-                                                    '✅ finalProfileImageUrl is valid'.log();
-                                                  } else {
-                                                    '⚠️ finalProfileImageUrl exists but image is not valid'.log();
-                                                  }
-                                                }
-
-                                                // If no valid finalProfileImageUrl, check pfpImageUrl
-                                                if (!hasValidProfileImage && (userProfile?.pfpImageUrl?.isNotEmpty ?? false)) {
-                                                  '🔍 Validating pfpImageUrl...'.log();
-                                                  final isValid = await _validateImageUrl(userProfile!.pfpImageUrl!);
-                                                  if (isValid) {
-                                                    hasValidProfileImage = true;
-                                                    '✅ pfpImageUrl is valid'.log();
-                                                  } else {
-                                                    '⚠️ pfpImageUrl exists but image is not valid'.log();
-                                                  }
-                                                }
+                                                final hasExistingProfileParts =
+                                                    userProfile?.profilePartsString?.isNotEmpty ?? false;
 
                                                 // Determine what needs to be updated
                                                 String? nicknameToUpdate = _hasExistingNickname ? null : nickname;
-                                                // Don't update profileParts if user already has a VALID profile image
-                                                String? profilePartsToUpdate = hasValidProfileImage ? null : selectedCharacter?.toJsonString();
+                                                // Only skip profileParts update if user already has profile parts data
+                                                String? profilePartsToUpdate = hasExistingProfileParts ? null : selectedCharacter?.toJsonString();
 
                                                 '📊 업데이트 필요 여부 확인'.log();
-                                                '  - 유효한 프로필 이미지: ${hasValidProfileImage ? "있음" : "없음"}'.log();
+                                                '  - 기존 프로필 파츠: ${hasExistingProfileParts ? "있음" : "없음"}'.log();
                                                 if (userProfile != null) {
+                                                  '    - profilePartsString: ${userProfile.profilePartsString ?? "없음"}'.log();
                                                   '    - finalProfileImageUrl: ${userProfile.finalProfileImageUrl ?? "없음"}'.log();
-                                                  '    - pfpImageUrl: ${userProfile.pfpImageUrl ?? "없음"}'.log();
                                                 }
                                                 '  - 닉네임 업데이트 필요: ${nicknameToUpdate != null} ${nicknameToUpdate != null ? "($nicknameToUpdate)" : "(기존 유지)"}'.log();
-                                                '  - 프로필 파츠 업데이트 필요: ${profilePartsToUpdate != null} ${profilePartsToUpdate != null ? "(새 캐릭터)" : "(기존 이미지 유지)"}'.log();
+                                                '  - 프로필 파츠 업데이트 필요: ${profilePartsToUpdate != null} ${profilePartsToUpdate != null ? "(새 캐릭터)" : "(기존 프로필 유지)"}'.log();
+                                                if (selectedCharacter != null) {
+                                                  '  - 선택된 캐릭터 JSON: ${selectedCharacter!.toJsonString()}'.log();
+                                                }
 
-                                                // Only update if there's something new to update
-                                                if (nicknameToUpdate != null || profilePartsToUpdate != null) {
-                                                  '🚀 프로필 업데이트 시작'.log();
-
+                                                // Process NFT minting FIRST, then save profile after success
+                                                if (!hasExistingProfileParts && selectedCharacter != null) {
+                                                  try {
+                                                    '⏳ Waiting for image merge and NFT minting to complete...'.log();
+                                                    // Pass nickname and profilePartsString to be saved AFTER minting succeeds
+                                                    await _startImageUploadTask(selectedCharacter, nicknameToUpdate, profilePartsToUpdate);
+                                                    '✅ Image processing and profile save completed'.log();
+                                                  } catch (e) {
+                                                    '❌ 민팅 및 프로필 저장 실패: $e'.log();
+                                                    // Continue to navigation even if minting/profile update fails
+                                                    // User can update profile later in app
+                                                  }
+                                                } else if (nicknameToUpdate != null || profilePartsToUpdate != null) {
+                                                  // No minting needed, just update profile
                                                   try {
                                                     final profileCubit = getIt<ProfileCubit>();
-
-                                                    // Create update profile request with only necessary fields
-                                                    // 온보딩 완료 상태도 함께 업데이트
                                                     final updateRequest = UpdateProfileRequestDto(
                                                       nickName: nicknameToUpdate,
                                                       profilePartsString: profilePartsToUpdate,
                                                       onboardingCompleted: true,
                                                     );
-
-                                                    // Update profile
                                                     await profileCubit.onUpdateUserProfile(updateRequest);
                                                     '✅ 프로필 업데이트 성공'.log();
-
-                                                    // Save profile parts string locally if new character was created
-                                                    if (profilePartsToUpdate != null && selectedCharacter != null) {
-                                                      final prefs = await SharedPreferences.getInstance();
-                                                      await prefs.setString('profilePartsString', profilePartsToUpdate);
-                                                      '💾 새 프로필 파츠 로컬 저장 완료'.log();
-                                                    }
-
-                                                    // Start background task for image merging and NFT minting (only for new profiles without valid existing image)
-                                                    if (!hasValidProfileImage && selectedCharacter != null) {
-                                                      _startImageUploadTask(selectedCharacter);
-                                                    }
                                                   } catch (e) {
                                                     '❌ 프로필 업데이트 실패: $e'.log();
-                                                    // Continue to navigation even if profile update fails
-                                                    // User can update profile later in app
                                                   }
                                                 } else {
                                                   '✅ 기존 프로필과 닉네임이 모두 있음 - 업데이트 건너뛰기'.log();
@@ -1468,10 +1740,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                   }
                                                 }
 
-                                                // Give the background task time to start before navigation (if needed)
-                                                if ((!hasValidProfileImage && selectedCharacter != null) || !_hasExistingNickname) {
-                                                  await Future.delayed(const Duration(milliseconds: 100));
-                                                }
+                                                // All processing is complete, ready to navigate
+                                                '✅ All onboarding tasks completed successfully'.log();
 
                                                 // Navigate to app screen with safety checks
                                                 if (!context.mounted) {
@@ -1582,9 +1852,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     ("isShowOnBoarding: $isShowOnBoarding").log();
   }
 
-  /// Start background task to merge character layers and mint NFT
-  Future<void> _startImageUploadTask(CharacterProfile? character) async {
+  /// Process character image merge and NFT minting
+  /// This should be awaited to ensure all processing completes before navigation
+  /// nickname and profilePartsString will be saved to backend ONLY AFTER minting succeeds
+  Future<void> _startImageUploadTask(CharacterProfile? character, String? nickname, String? profilePartsString) async {
     '🚀 _startImageUploadTask called with character: ${character != null}'.log();
+    '📝 Nickname to save after minting: ${nickname != null}'.log();
+    '📝 Profile parts to save after minting: ${profilePartsString != null}'.log();
 
     // Skip if user already has existing profile (no need to mint again)
     if (_hasExistingProfile) {
@@ -1597,75 +1871,108 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       return;
     }
 
-    // Run in background without await to ensure it continues after navigation
-    // Using anonymous async function for immediate execution
-    () async {
-      try {
-        '🎨 Starting character image merge process'.log();
-        '📝 Character ID: ${character.id}'.log();
-        '🎨 Character layers:'.log();
-        '  - Background: ${character.background}'.log();
-        '  - Body: ${character.body}'.log();
-        '  - Clothes: ${character.clothes}'.log();
-        '  - Hair: ${character.hair}'.log();
-        '  - Eyes: ${character.eyes}'.log();
-        '  - Nose: ${character.nose}'.log();
-        if (character.earAccessory != null) {
-          '  - Ear Accessory: ${character.earAccessory}'.log();
-        }
-        
-        // Step 1: Merge character layers
-        final imageBytes = await CharacterImageService.mergeCharacterLayers(character);
-        if (imageBytes == null) {
-          '❌ Failed to merge character layers'.log();
-          return;
-        }
-        '✅ Successfully merged character layers'.log();
-        '📊 Image size: ${imageBytes.length} bytes (${(imageBytes.length / 1024).toStringAsFixed(2)} KB)'.log();
-        
-        // Step 2: Skip S3 upload (not needed as per user request)
-        '⏭️ Skipping S3 upload (using server-side image generation)'.log();
-        
-        // Step 3: Get profile to ensure it's updated
-        final profileCubit = getIt<ProfileCubit>();
-        await profileCubit.onGetUserProfile();
-        '✅ Profile data refreshed'.log();
-        
-        // Step 4: Trigger NFT minting with API endpoint
-        await _mintProfileNft();
-
-      } catch (e, stackTrace) {
-        '❌ Error in background image upload task: $e'.log();
-        '📚 Stack trace: $stackTrace'.log();
+    // Process image merge and NFT minting synchronously
+    try {
+      '🎨 Starting character image merge process'.log();
+      '📝 Character ID: ${character.id}'.log();
+      '🎨 Character layers:'.log();
+      '  - Background: ${character.background}'.log();
+      '  - Body: ${character.body}'.log();
+      '  - Clothes: ${character.clothes}'.log();
+      '  - Hair: ${character.hair}'.log();
+      '  - Eyes: ${character.eyes}'.log();
+      '  - Nose: ${character.nose}'.log();
+      if (character.earAccessory != null) {
+        '  - Ear Accessory: ${character.earAccessory}'.log();
       }
-    }(); // 즉시 실행
+
+      // Step 1: Merge character layers
+      final imageBytes = await CharacterImageService.mergeCharacterLayers(character);
+      if (imageBytes == null) {
+        '❌ Failed to merge character layers'.log();
+        return;
+      }
+      '✅ Successfully merged character layers'.log();
+      '📊 Image size: ${imageBytes.length} bytes (${(imageBytes.length / 1024).toStringAsFixed(2)} KB)'.log();
+
+      // Step 2: Skip S3 upload (not needed as per user request)
+      '⏭️ Skipping S3 upload (using server-side image generation)'.log();
+
+      // Step 3: Save profile BEFORE minting (so user can retry if minting fails)
+      final profileCubit = getIt<ProfileCubit>();
+      if (nickname != null || profilePartsString != null) {
+        '🚀 Saving profile before minting...'.log();
+        final updateRequest = UpdateProfileRequestDto(
+          nickName: nickname,
+          profilePartsString: profilePartsString,
+          onboardingCompleted: true,
+        );
+        await profileCubit.onUpdateUserProfile(updateRequest);
+        '✅ Profile saved before minting'.log();
+
+        // Save profile parts string locally if new character was created
+        if (profilePartsString != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('profilePartsString', profilePartsString);
+          '💾 Profile parts saved to local storage'.log();
+        }
+
+        // Note: onUpdateUserProfile automatically calls onGetUserProfile (line 129 in profile_cubit.dart)
+        // No need to call it again here
+        '✅ Profile data refreshed via onUpdateUserProfile'.log();
+      }
+
+      // Step 4: Trigger NFT minting with API endpoint (fire and forget)
+      '🚀 Calling _mintProfileNft() - Minting request sent (non-blocking)'.log();
+      _mintProfileNft().then((_) {
+        '✅ NFT minting completed in background'.log();
+      }).catchError((e) {
+        '❌ NFT minting failed in background: $e'.log();
+      });
+      '✅ Proceeding without waiting for minting'.log();
+
+    } catch (e, stackTrace) {
+      '❌ Error in image upload task: $e'.log();
+      '📚 Stack trace: $stackTrace'.log();
+    }
   }
   
   /// Mint profile NFT using server-generated image
+  /// Profile is already saved before calling this function
   Future<void> _mintProfileNft() async {
+    // Guard against duplicate minting
+    if (_hasMintedNft) {
+      '⚠️ NFT minting already in progress or completed, skipping duplicate call'.log();
+      return;
+    }
+
+    // Set flag immediately to prevent concurrent calls
+    _hasMintedNft = true;
+    '🔒 Minting flag set to prevent duplicates'.log();
+
     try {
       '🎨 Starting profile NFT minting process'.log();
-      
+
       // Get wallet address
       final walletsCubit = getIt<WalletsCubit>();
       await walletsCubit.onGetAllWallets();
       '💼 Connected wallets: ${walletsCubit.state.connectedWallets}'.log();
-      
+
       if (walletsCubit.state.connectedWallets.isEmpty) {
         '❌ No wallet found for minting'.log();
         return;
       }
-      
+
       // Get the first Ethereum wallet (provider field contains the network)
       final ethereumWallet = walletsCubit.state.connectedWallets.firstWhere(
         (wallet) => wallet.provider.toLowerCase() == 'ethereum',
         orElse: () => walletsCubit.state.connectedWallets.first,
       );
-      
+
       final walletAddress = ethereumWallet.publicAddress;
       '💼 Using wallet ethereumWallet for minting: $ethereumWallet'.log();
       '💼 Using wallet address for minting: $walletAddress'.log();
-      
+
       // Get user profile for metadata
       final profileCubit = getIt<ProfileCubit>();
       final userProfile = profileCubit.state.userProfileEntity;
@@ -1675,14 +1982,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         return;
       }
 
-      // Check if profile parts already exist (indicating NFT was already minted)
-      if (userProfile.profilePartsString != null &&
-          userProfile.profilePartsString!.isNotEmpty) {
-        '⚠️ Profile parts already exist (${userProfile.profilePartsString}), skipping NFT minting'.log();
-        return;
-      }
-
-      '✅ No existing profile parts found, proceeding with NFT minting'.log();
+      '✅ Profile found, proceeding with NFT minting'.log();
 
       // Construct URLs using server endpoints
       final imageUrl = '${appEnv.apiUrl}public/nft/user/${userProfile.id}/image';
@@ -1698,22 +1998,26 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       );
       
       // Call minting API
+      '📡 Calling NFT repository mintPfpNft()...'.log();
       final nftRepository = getIt<NftRepository>();
       final result = await nftRepository.mintPfpNft(request: mintRequest);
-      
+      '✅ NFT repository call completed, processing result...'.log();
+
       result.fold(
         (error) {
-          '❌ NFT minting failed: ${error.message}'.log();
+          '❌ NFT minting API call failed: ${error.message}'.log();
+          '⚠️ Profile is already saved, user can retry minting later'.log();
+          // Profile is already saved, user can retry minting later
         },
         (response) async {
-          '✅ NFT minting successful!'.log();
+          '✅ NFT minting API call successful!'.log();
           '🔗 Transaction Hash: ${response.transactionHash}'.log();
           '🎨 NFT Address: ${response.tokenAddress}'.log();
           '🎨 Token ID: ${response.tokenId}'.log();
           '⛓️ Chain: ${response.chain}'.log();
           '📝 Message: ${response.message}'.log();
-          
-          // Save minting status
+
+          // Save minting status to local storage
           final prefs = await SharedPreferences.getInstance();
           await prefs.setBool(StorageValues.hasMintedNft, true);
           await prefs.setString(StorageValues.mintingTransactionId, response.transactionHash);
@@ -1722,6 +2026,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       );
     } catch (e) {
       '❌ Error in NFT minting: $e'.log();
+      // Reset flag on error to allow retry
+      _hasMintedNft = false;
+      '🔓 Minting flag reset due to error - retry possible'.log();
       // Non-blocking - user can continue even if minting fails
     }
   }

@@ -127,6 +127,15 @@ class MapInfoCard extends StatelessWidget {
                                 width: 14,
                                 height: 14,
                                 color: Colors.white,
+                                errorBuilder: (context, error, stackTrace) {
+                                  // 기본 아이콘으로 폴백
+                                  return Image.asset(
+                                    'assets/icons/icon_label_etc.png',
+                                    width: 14,
+                                    height: 14,
+                                    color: Colors.white,
+                                  );
+                                },
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -474,7 +483,7 @@ class MapInfoCard extends StatelessWidget {
       case 'PUB':
         return 'assets/icons/icon_label_cocktail.png';
       case 'MUSIC':
-        return 'assets/icons/icon_cate_guitar.png';
+        return 'assets/icons/ic_space_category_music.svg';
       case 'BAR':
         return 'assets/icons/icon_label_cocktail.png';
       case 'BAKERY':
@@ -522,16 +531,20 @@ class MapInfoCard extends StatelessWidget {
 
   // 체크인 카운트 닷 표시
   Widget _buildCheckInDots(SpaceEntity space) {
-    // Parse maxCapacity from currentGroupProgress
-    int maxDots = 5;
+    // maxCapacity를 우선 사용, 없으면 currentGroupProgress에서 파싱
+    int maxDots = space.maxCapacity > 0 ? space.maxCapacity : 5;
+    int filledDots = 0;
+
     if (space.currentGroupProgress.isNotEmpty) {
       final parts = space.currentGroupProgress.split('/');
       if (parts.length == 2) {
-        maxDots = int.tryParse(parts[1]) ?? 5;
+        filledDots = int.tryParse(parts[0]) ?? 0;  // 현재 매칭 중인 유저 수
+        // maxCapacity가 0이면 currentGroupProgress에서 가져온 값 사용
+        if (space.maxCapacity == 0) {
+          maxDots = int.tryParse(parts[1]) ?? 5;
+        }
       }
     }
-
-    final filledDots = space.hidingCount;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

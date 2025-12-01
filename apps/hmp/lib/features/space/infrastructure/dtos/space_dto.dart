@@ -41,6 +41,8 @@ class SpaceDto extends Equatable {
   final List<SpaceEventCategoryDto>? spaceEventCategories;
   @JsonKey(name: "currentGroupProgress")
   final String? currentGroupProgress;
+  @JsonKey(name: "maxCheckInCapacity")
+  final int? maxCheckInCapacity;
 
   const SpaceDto({
     this.id,
@@ -59,6 +61,7 @@ class SpaceDto extends Equatable {
     this.isTemporarilyClosed,
     this.spaceEventCategories,
     this.currentGroupProgress,
+    this.maxCheckInCapacity,
   });
 
   factory SpaceDto.fromJson(Map<String, dynamic> json) =>
@@ -85,6 +88,7 @@ class SpaceDto extends Equatable {
       isTemporarilyClosed,
       spaceEventCategories,
       currentGroupProgress,
+      maxCheckInCapacity,
     ];
   }
 
@@ -114,6 +118,7 @@ class SpaceDto extends Equatable {
       isTemporarilyClosed: isTemporarilyClosed ?? false,
       spaceEventCategories: spaceEventCategories?.map((e) => e.toEntity()).toList() ?? [],
       currentGroupProgress: currentGroupProgress ?? '',
+      maxCapacity: maxCheckInCapacity ?? 0,
     );
   }
 }

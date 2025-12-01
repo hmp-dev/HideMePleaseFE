@@ -13,17 +13,24 @@ class CheckInLocationService {
   final SpaceCubit _spaceCubit;
   StreamSubscription<Position>? _positionSubscription;
   Timer? _periodicCheckTimer;
-  
+  bool _isTracking = false;
+
   // Distance threshold in meters (50 meters)
   static const double distanceThreshold = 50.0;
-  
+
   CheckInLocationService(this._spaceCubit);
-  
-  void startLocationTracking() async {
+
+  Future<void> startLocationTracking() async {
+    // Prevent duplicate tracking
+    if (_isTracking) {
+      print('⚠️ Location tracking already running, skipping duplicate call');
+      return;
+    }
+
     print('🚀 Starting location tracking service (background enabled)');
 
-    // Cancel any existing subscriptions
-    stopLocationTracking();
+    // Cancel any existing subscriptions (but keep _isTracking flag for now)
+    await _stopTrackingInternal();
 
     // Get current state to check if user is checked in
     final state = _spaceCubit.state;
@@ -33,6 +40,9 @@ class CheckInLocationService {
       print('📍 No active check-in, skipping location tracking');
       return;
     }
+
+    // Mark as tracking after validation
+    _isTracking = true;
 
     print('📍 Check-in detected at: ${state.checkInLatitude}, ${state.checkInLongitude}');
     print('🏪 Space ID: ${state.currentCheckedInSpaceId}');
@@ -44,16 +54,19 @@ class CheckInLocationService {
     await prefs.setDouble('checkInLatitude', state.checkInLatitude!);
     await prefs.setDouble('checkInLongitude', state.checkInLongitude!);
 
-    // Register periodic background task (runs every 15 minutes minimum on iOS/Android)
-    await Workmanager().registerPeriodicTask(
+    // Register OneTime background task as BACKUP (3 minutes)
+    // Primary heartbeat mechanism: Silent Push from server every 3 minutes
+    // WorkManager is fallback in case Silent Push fails
+    await Workmanager().registerOneOffTask(
       'check-in-heartbeat',
       'checkInHeartbeat',
-      frequency: const Duration(minutes: 15), // Minimum allowed by OS
+      initialDelay: const Duration(minutes: 3), // Backup heartbeat in 3 minutes
       constraints: Constraints(
         networkType: NetworkType.connected,
       ),
+      tag: 'heartbeat', // Tag for easier cancellation
     );
-    print('✅ Background task registered');
+    print('✅ Background OneTime task registered as backup (3 min)');
 
     // For more frequent updates while app is in foreground, keep timer
     _periodicCheckTimer = Timer.periodic(
@@ -80,12 +93,24 @@ class CheckInLocationService {
           return;
         }
       }
-      
+
       if (permission == LocationPermission.deniedForever) {
         print('❌ Location permission permanently denied');
         return;
       }
-      
+
+      // Check if we have "Always" permission for background tracking on iOS
+      bool hasAlwaysPermission = false;
+      if (Platform.isIOS) {
+        if (permission == LocationPermission.always) {
+          hasAlwaysPermission = true;
+          print('✅ Always location permission granted - background tracking enabled');
+        } else {
+          print('⚠️ Only "When In Use" permission - background tracking will be limited');
+          print('💡 For reliable background tracking, please grant "Always Allow" in Settings');
+        }
+      }
+
       // Configure location settings with foreground service support
       // This enables continuous background tracking by promoting to foreground service
       final LocationSettings locationSettings = LocationSettings(
@@ -110,13 +135,14 @@ class CheckInLocationService {
       );
 
       // Platform-specific settings for iOS
+      // Only enable background tracking if we have "Always" permission
       final AppleSettings appleSettings = AppleSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 10,
         activityType: ActivityType.other,
         pauseLocationUpdatesAutomatically: false, // Continue tracking in background
-        showBackgroundLocationIndicator: true, // Show blue bar indicator
-        allowBackgroundLocationUpdates: true, // Required for background tracking
+        showBackgroundLocationIndicator: hasAlwaysPermission, // Only show if Always permission
+        allowBackgroundLocationUpdates: hasAlwaysPermission, // Only enable if Always permission
       );
       
       // Start listening to position updates with platform-specific settings
@@ -280,16 +306,19 @@ class CheckInLocationService {
     print('✅ Auto check-out completed');
   }
   
-  void stopLocationTracking() async {
-    print('🛑 Stopping location tracking');
-
+  // Internal method to stop tracking without changing _isTracking flag
+  Future<void> _stopTrackingInternal() async {
     _positionSubscription?.cancel();
     _positionSubscription = null;
 
     _periodicCheckTimer?.cancel();
     _periodicCheckTimer = null;
 
-    // Cancel background task
+    // Cancel background OneTime task by tag (Android only - iOS doesn't support cancelByTag)
+    if (Platform.isAndroid) {
+      await Workmanager().cancelByTag('heartbeat');
+    }
+    // Also cancel by unique name as fallback (works on both platforms)
     await Workmanager().cancelByUniqueName('check-in-heartbeat');
 
     // Clear stored check-in data
@@ -298,6 +327,13 @@ class CheckInLocationService {
     await prefs.remove('checkInLatitude');
     await prefs.remove('checkInLongitude');
     await prefs.remove('shouldAutoCheckOut');
+  }
+
+  // Public method to stop tracking
+  Future<void> stopLocationTracking() async {
+    print('🛑 Stopping location tracking');
+    _isTracking = false;
+    await _stopTrackingInternal();
     print('✅ Background task cancelled and data cleared');
   }
   

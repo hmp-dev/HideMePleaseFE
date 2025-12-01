@@ -17,6 +17,8 @@ import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
 import 'package:mobile/features/my/presentation/widgets/profile_image_fullscreen_viewer.dart';
 import 'package:mobile/features/friends/presentation/cubit/friends_cubit.dart';
+import 'package:mobile/features/friends/presentation/screens/friends_list_screen.dart';
+import 'package:mobile/features/my/presentation/widgets/sav_history_bottom_sheet.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -553,40 +555,46 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Widget _buildStatsSection(userProfile) {
-    return BlocBuilder<FriendsCubit, FriendsState>(
-      bloc: getIt<FriendsCubit>(),
-      builder: (context, friendsState) {
-        final friendCount = friendsState.friendStats?.totalFriends?.toString() ?? '0';
+    final friendCount = userProfile?.friendsCount?.toString() ?? '0';
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          height: 80,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                const Color(0xFF72CCFF),
-                const Color(0xFFBED7FF),
-                const Color(0xFFF9F395),
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(40),
-            border: Border.all(
-              color: Colors.black,
-              width: 1,
-            ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      height: 80,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF72CCFF),
+            const Color(0xFFBED7FF),
+            const Color(0xFFF9F395),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(40),
+        border: Border.all(
+          color: Colors.black,
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          GestureDetector(
+            onTap: () {
+              FriendsListScreen.push(context);
+            },
+            child: _buildStatItem(friendCount, LocaleKeys.friends.tr(), 'assets/icons/icon_status_friends.png'),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildStatItem(friendCount, LocaleKeys.friends.tr(), 'assets/icons/icon_status_friends.png'),
-              _buildStatItem(userProfile?.checkInStats?.totalCheckIns?.toString() ?? '0', LocaleKeys.check_in.tr(), 'assets/icons/icon_status_checkin.png'),
-              _buildStatItem(userProfile?.availableBalance?.toString() ?? '0', 'SAVORY', 'assets/icons/icon_status_sav.png'),
-            ],
+          _buildStatItem(userProfile?.checkInStats?.totalCheckIns?.toString() ?? '0', LocaleKeys.check_in.tr(), 'assets/icons/icon_status_checkin.png'),
+          GestureDetector(
+            onTap: () {
+              final balance = userProfile?.availableBalance ?? 0;
+              SavHistoryBottomSheet.show(context, balance);
+            },
+            child: _buildStatItem(userProfile?.availableBalance?.toString() ?? '0', 'SAVORY', 'assets/icons/icon_status_sav.png'),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 

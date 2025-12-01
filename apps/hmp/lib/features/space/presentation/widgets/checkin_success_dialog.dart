@@ -216,7 +216,7 @@ class _CheckinSuccessDialogState extends State<CheckinSuccessDialog> {
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
-                                  widget.availableBalance.toString(),
+                                  (widget.availableBalance + 3).toString(),
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 16,

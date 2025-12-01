@@ -5,6 +5,7 @@ import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/settings/domain/repositories/settings_repository.dart';
 import 'package:mobile/features/settings/infrastructure/data_sources/settings_remote_data_source.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/announcement_dto.dart';
+import 'package:mobile/features/settings/infrastructure/dtos/mark_all_read_response_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/model_banner_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/notification_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/settings_banner_dto.dart';
@@ -134,6 +135,28 @@ class SettingsRepositoryImp implements SettingsRepository {
     // Marks a notification as read via the remote data source.
     try {
       final response = await _remoteDataSource.markNotificationAsRead(notificationId);
+      return right(response);
+    } on DioException catch (e, t) {
+      // Handles DioException by returning an error object.
+      return left(HMPError.fromNetwork(
+        message: e.message,
+        error: e,
+        trace: t,
+      ));
+    } catch (e, t) {
+      // Handles any other exception by returning an error object.
+      return left(HMPError.fromUnknown(
+        error: e,
+        trace: t,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<HMPError, MarkAllReadResponseDto>> markAllNotificationsAsRead() async {
+    // Marks all notifications as read via the remote data source.
+    try {
+      final response = await _remoteDataSource.markAllNotificationsAsRead();
       return right(response);
     } on DioException catch (e, t) {
       // Handles DioException by returning an error object.

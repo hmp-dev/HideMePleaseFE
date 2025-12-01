@@ -21,6 +21,7 @@ import 'package:mobile/app/core/helpers/map_utils.dart';
 import 'package:mobile/app/core/services/live_activity_service.dart';
 import 'package:mobile/app/core/services/safe_nfc_service.dart';
 import 'package:mobile/app/core/services/global_overlay_service.dart';
+import 'package:mobile/features/common/presentation/services/background_location_service.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -79,7 +80,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
   late GoogleMapController _controller;
   String? _distanceInKm;
   CheckInStatusEntity? _checkInStatus;
-  
+  String? _nfcReadSpaceId;  // NFC로 읽은 매장 ID
+
   // 체크인 성공 오버레이는 GlobalOverlayService에서 관리
   CheckInUsersResponseEntity? _checkInUsersResponse;
   CurrentGroupEntity? _currentGroup;
@@ -370,10 +372,23 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                     fit: BoxFit.cover,
                   ),
             buildBackArrowIconButton(context),
-            if ((_updatedSpaceDetail?.checkInCount ?? widget.space.checkInCount) > 0)
-              BuildHidingCountWidget(
-                hidingCount: _updatedSpaceDetail?.checkInCount ?? widget.space.checkInCount,
-              ),
+            // ✅ FIX: Use actual members count instead of checkInCount for accuracy
+            Builder(
+              builder: (context) {
+                // Priority: actual members > checkInCount from detail > hidingCount from spaceEntity > checkInCount from space
+                final actualHidingCount = _checkInUsersResponse?.currentGroup?.members.length
+                    ?? _updatedSpaceDetail?.checkInCount
+                    ?? widget.spaceEntity?.hidingCount
+                    ?? widget.space.checkInCount ?? 0;
+
+                if (actualHidingCount > 0) {
+                  return BuildHidingCountWidget(
+                    hidingCount: actualHidingCount,
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ],
         ),
         // // 새로 추가된 타이틀 영역 (주석 처리)
@@ -504,6 +519,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                 checkInUsersResponse: _checkInUsersResponse,
                 currentGroup: _currentGroup,
                 checkInStatus: _checkInStatus,
+                maxCapacity: widget.space.maxCapacity,
               ),
             ],
           ),
@@ -987,10 +1003,11 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       onSuccess: (spaceId) async {
         print('🍎 NFC tag read successfully: $spaceId');
         ('📍 NFC UUID read: $spaceId').log();
-        
-        // 앱바와 동일하게 직접 context 사용 (savedContext 제거)
-        // 여기서는 실제 spaceId를 사용하지 않고 현재 공간으로 체크인
-        // (space_detail_view는 이미 특정 공간에 있으므로)
+
+        // NFC로 읽은 매장 ID 저장
+        _nfcReadSpaceId = spaceId;
+        print('💾 Saved NFC space ID: $_nfcReadSpaceId');
+
         print('🚀 NFC callback: calling _proceedWithCheckInDirect');
         await _proceedWithCheckInDirect();
       },
@@ -1027,7 +1044,11 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       onSuccess: (spaceId) async {
         print('🤖 NFC tag read successfully: $spaceId');
         ('📍 NFC UUID read: $spaceId').log();
-        
+
+        // NFC로 읽은 매장 ID 저장
+        _nfcReadSpaceId = spaceId;
+        print('💾 Saved NFC space ID: $_nfcReadSpaceId');
+
         // Close NFC dialog first
         if (mounted && context.mounted) {
           Navigator.of(context).pop();
@@ -1069,17 +1090,27 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
     
     // 바로 체크인 프로세스 진행 (지연 없이)
     print('✅ Context is mounted, proceeding with check-in flow immediately...');
-    final spaceCubit = getIt<SpaceCubit>();
-    final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
     final isEnglish = context.locale.languageCode == 'en';
-    final benefitDescription = benefits.isNotEmpty
-        ? (isEnglish && benefits.first.descriptionEn.isNotEmpty
-            ? benefits.first.descriptionEn
-            : benefits.first.description)
+
+    // ✅ FIX: Get benefit from spaceCubit to use the latest check-in target space info
+    final spaceCubit = getIt<SpaceCubit>();
+    final targetSpaceId = _nfcReadSpaceId ?? widget.space.id;
+    print('🎯 Target space ID for benefit: $targetSpaceId (NFC: $_nfcReadSpaceId, widget: ${widget.space.id})');
+    final targetSpace = spaceCubit.state.spaceList.firstWhere(
+      (s) => s.id == targetSpaceId,
+      orElse: () => SpaceEntity.empty(),
+    );
+
+    final benefitDescription = targetSpace.id.isNotEmpty
+        ? (isEnglish && targetSpace.benefitDescriptionEn.isNotEmpty
+            ? targetSpace.benefitDescriptionEn
+            : (targetSpace.benefitDescription.isNotEmpty
+                ? targetSpace.benefitDescription
+                : LocaleKeys.no_benefits_registered.tr()))
         : LocaleKeys.no_benefits_registered.tr();
 
     bool userConfirmed = false;
-    
+
     // Show CheckinEmployDialog and wait for user confirmation
     print('💳 Showing CheckinEmployDialog...');
     final dialogResult = await showDialog<bool>(
@@ -1098,22 +1129,22 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
     );
 
     print('📊 Dialog completed - dialogResult: $dialogResult, userConfirmed: $userConfirmed');
-    
+
     // User cancelled
     if (dialogResult != true) {
       print('⚠️ User cancelled check-in - dialogResult was: $dialogResult');
       return;
     }
-    
+
     if (!userConfirmed) {
       print('⚠️ userConfirmed is false - onConfirm callback was not called properly');
       return;
     }
-    
+
     print('🎯 Both dialogResult=true and userConfirmed=true, proceeding with check-in...');
-    
+
     // 이후 비즉니스 로직 계속... (앱바와 동일한 패턴)
-    await _performCheckInDirect(benefitDescription);
+    await _performCheckInDirect();
   }
   
   Future<void> _proceedWithCheckIn(BuildContext dialogContext) async {
@@ -1130,13 +1161,23 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
 
     if (mounted && dialogContext.mounted) {
       print('✅ Widget and context still mounted after delay, proceeding with check-in flow');
-      final spaceCubit = getIt<SpaceCubit>();
-      final benefits = spaceCubit.state.benefitsGroupEntity.benefits;
       final isEnglish = dialogContext.locale.languageCode == 'en';
-      final benefitDescription = benefits.isNotEmpty
-          ? (isEnglish && benefits.first.descriptionEn.isNotEmpty
-              ? benefits.first.descriptionEn
-              : benefits.first.description)
+
+      // ✅ FIX: Get benefit from spaceCubit to use the latest check-in target space info
+      final spaceCubit = getIt<SpaceCubit>();
+      final targetSpaceId = _nfcReadSpaceId ?? widget.space.id;
+      print('🎯 Target space ID for benefit: $targetSpaceId (NFC: $_nfcReadSpaceId, widget: ${widget.space.id})');
+      final targetSpace = spaceCubit.state.spaceList.firstWhere(
+        (s) => s.id == targetSpaceId,
+        orElse: () => SpaceEntity.empty(),
+      );
+
+      final benefitDescription = targetSpace.id.isNotEmpty
+          ? (isEnglish && targetSpace.benefitDescriptionEn.isNotEmpty
+              ? targetSpace.benefitDescriptionEn
+              : (targetSpace.benefitDescription.isNotEmpty
+                  ? targetSpace.benefitDescription
+                  : LocaleKeys.no_benefits_registered.tr()))
           : LocaleKeys.no_benefits_registered.tr();
 
       bool userConfirmed = false;
@@ -1169,8 +1210,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       
       print('✅ User confirmed, proceeding with check-in...');
 
-      // User confirmed, proceed with check-in  
-      await _performCheckIn(dialogContext, benefitDescription);
+      // User confirmed, proceed with check-in
+      await _performCheckIn(dialogContext);
     } else {
       print('⚠️ Widget or context unmounted after delay, cannot proceed with check-in');
     }
@@ -1228,8 +1269,10 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
         
         bool checkInApiCalled = false;
         try {
+          final targetSpaceId = _nfcReadSpaceId ?? widget.space.id;
+          print('🎯 Check-in target space ID: $targetSpaceId (NFC: $_nfcReadSpaceId, widget: ${widget.space.id})');
           await spaceCubit.onCheckInWithNfc(
-            spaceId: widget.space.id,
+            spaceId: targetSpaceId,
             latitude: position.latitude,
             longitude: position.longitude,
           );
@@ -1368,10 +1411,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
             // API 호출 실패 시 null로 유지하고 기본값 사용
           }
           
-          // currentGroupProgress에서 maxCapacity 파싱
-          final progress = widget.space.currentGroupProgress;
-          final parts = progress.split('/');
-          final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
+          // SpaceEntity의 maxCapacity 사용
+          final maxCapacity = widget.space.maxCapacity > 0 ? widget.space.maxCapacity : 5;
           
           // 현재 체크인한 인원 수 계산 (API 응답이 없으면 기본값 1 사용)
           final currentUsers = checkInUsersResponse?.currentGroup?.members?.length ?? 1;
@@ -1445,6 +1486,22 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
             ),
           );
           print('✅ CheckinSuccessDialog closed');
+
+          // Request background location permission after check-in
+          if (savedContext.mounted) {
+            print('🔔 Requesting background location permission after check-in...');
+            await BackgroundLocationService.checkAndRequestBackgroundLocation(savedContext);
+            print('✅ Background location permission request completed');
+          }
+
+          // NFC 체크인 ID 초기화
+          _nfcReadSpaceId = null;
+          print('🧹 Cleared NFC space ID');
+
+          // ✅ FIX: Refresh space data after check-in to update hiding count
+          print('🔄 Refreshing space data after check-in...');
+          await _performPeriodicRefresh();
+          print('✅ Space data refreshed');
         } else {
           print('⚠️ SavedContext is not mounted, skipping success dialog');
         }
@@ -1452,9 +1509,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
   }
   
   // 앱바와 동일한 패턴의 체크인 처리
-  Future<void> _performCheckInDirect(String benefitDescription) async {
+  Future<void> _performCheckInDirect() async {
     print('🔄 _performCheckInDirect started');
-    
+
     // End any existing Live Activity before starting new check-in
     try {
       final liveActivityService = getIt<LiveActivityService>();
@@ -1463,7 +1520,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
     } catch (e) {
       print('⚠️ No existing Live Activity to end or failed to end: $e');
     }
-    
+
     bool checkInSuccess = false;
     
     try {
@@ -1499,8 +1556,10 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       // 체크인 API 호출
       print('📱 Calling spaceCubit.onCheckInWithNfc...');
       final spaceCubit = getIt<SpaceCubit>();
+      final targetSpaceId = _nfcReadSpaceId ?? widget.space.id;
+      print('🎯 Check-in target space ID: $targetSpaceId (NFC: $_nfcReadSpaceId, widget: ${widget.space.id})');
       await spaceCubit.onCheckInWithNfc(
-        spaceId: widget.space.id,
+        spaceId: targetSpaceId,
         latitude: position.latitude,
         longitude: position.longitude,
       );
@@ -1570,9 +1629,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       try {
         print('🔄 Starting Live Activity...');
         // Live Activity 시작 시도
-        final progress = widget.space.currentGroupProgress;
-        final parts = progress.split('/');
-        final maxCapacity = parts.length == 2 ? int.tryParse(parts[1]) ?? 5 : 5;
+        final maxCapacity = widget.space.maxCapacity > 0 ? widget.space.maxCapacity : 5;
 
         final liveActivityService = getIt<LiveActivityService>();
         /*await liveActivityService.startCheckInActivity(
@@ -1603,6 +1660,24 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       final availableBalance = profileCubit.state.userProfileEntity?.availableBalance ?? 0;
       print('💰 Available balance: $availableBalance');
 
+      // 체크인 성공 시점에 현재 매장의 최신 혜택 정보 가져오기
+      final isEnglish = context.locale.languageCode == 'en';
+      final spaceCubit = getIt<SpaceCubit>();
+      final targetSpaceId = _nfcReadSpaceId ?? widget.space.id;
+      print('🎯 Target space ID for benefit: $targetSpaceId (NFC: $_nfcReadSpaceId, widget: ${widget.space.id})');
+      final targetSpace = spaceCubit.state.spaceList.firstWhere(
+        (s) => s.id == targetSpaceId,
+        orElse: () => SpaceEntity.empty(),
+      );
+
+      final benefitDescription = targetSpace.id.isNotEmpty
+          ? (isEnglish && targetSpace.benefitDescriptionEn.isNotEmpty
+              ? targetSpace.benefitDescriptionEn
+              : (targetSpace.benefitDescription.isNotEmpty
+                  ? targetSpace.benefitDescription
+                  : LocaleKeys.no_benefits_registered.tr()))
+          : LocaleKeys.no_benefits_registered.tr();
+
       print('🎉 Triggering CheckinSuccess overlay with setState...');
       print('📋 Success parameters:');
       print('   - spaceName: ${widget.space.name}');
@@ -1613,7 +1688,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       GlobalOverlayService.showCheckInSuccessOverlay(
         spaceName: widget.space.name ?? '매장',
         benefitDescription: benefitDescription ?? '체크인 혜택',
-        availableBalance: availableBalance + 1,  // Add 1 SAV for the check-in reward
+        availableBalance: availableBalance,  // 서버에서 이미 체크인 획득분이 반영된 최신 값
       );
       print('✅ GlobalOverlayService called successfully');
 
@@ -1636,9 +1711,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
   }
 
   // 기존 메서드들 (하위 호환성을 위해 유지)
-  Future<void> _performCheckIn(BuildContext savedContext, String benefitDescription) async {
+  Future<void> _performCheckIn(BuildContext savedContext) async {
     // 새로운 방식으로 리다이렉트
-    await _performCheckInDirect(benefitDescription);
+    await _performCheckInDirect();
   }
 
   /// Builds a row that displays the category icon, business status, and distance.
@@ -1677,8 +1752,14 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                                 height: 16,
                               )
                             : DefaultImage(
-                                path:
-                                    "assets/icons/ic_space_category_${spaceDetailEntity.category.toLowerCase()}.svg",
+                                path: () {
+                                  final validCategories = ['cafe', 'coworking', 'entire', 'etc', 'meal', 'music', 'pub'];
+                                  final lowerCategory = spaceDetailEntity.category.toLowerCase();
+                                  if (validCategories.contains(lowerCategory)) {
+                                    return "assets/icons/ic_space_category_$lowerCategory.svg";
+                                  }
+                                  return "assets/icons/ic_space_category_etc.svg";
+                                }(),
                                 width: 16,
                                 height: 16,
                               ),
@@ -1738,7 +1819,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
       );
 
       Color color = isOpen ? hmpBlue : fore3;
-      String statusText;
+      String statusText = '';
       String hoursText = '';
 
       if (isOpen) {
@@ -1755,47 +1836,31 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
             final breakEndMinutes =
                 int.parse(breakEndParts[0]) * 60 + int.parse(breakEndParts[1]);
 
-            if (currentMinutes >= breakStartMinutes &&
+            // 휴게시간 30분 전 체크
+            if (currentMinutes >= breakStartMinutes - 30 && currentMinutes < breakStartMinutes) {
+              hoursText = '${todayHours.breakStartTime!} ${LocaleKeys.break_time.tr()}';
+            } else if (currentMinutes >= breakStartMinutes &&
                 currentMinutes < breakEndMinutes) {
               statusText = LocaleKeys.break_time.tr();
-              hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} ${LocaleKeys.reopens_at.tr()}';
+              hoursText = '${todayHours.breakEndTime!} ${LocaleKeys.reopens_at.tr()}';
             } else {
-              hoursText = '${_formatTime24To12(todayHours.closeTime!)} ${LocaleKeys.closes_at.tr()}';
+              hoursText = '${todayHours.closeTime!} ${LocaleKeys.closes_at.tr()}';
             }
           } else {
-            hoursText = '${_formatTime24To12(todayHours.closeTime!)} ${LocaleKeys.closes_at.tr()}';
+            hoursText = '${todayHours.closeTime!} ${LocaleKeys.closes_at.tr()}';
           }
         }
       } else {
         // Closed
-        statusText = LocaleKeys.business_end.tr();
+        final currentMinutes = now.hour * 60 + now.minute;
+        bool isHandled = false;
 
-        // Only show next business day if we're past today's closing time
-        if (todayHours.closeTime != null) {
-          final closeParts = todayHours.closeTime!.split(':');
-          final closeMinutes = int.parse(closeParts[0]) * 60 + int.parse(closeParts[1]);
-          final currentMinutes = now.hour * 60 + now.minute;
+        // 1. 오늘 휴무인지 확인
+        if (todayHours.isClosed) {
+          statusText = LocaleKeys.closed_day.tr();
+          isHandled = true;
 
-          // Only show next opening time if we're past today's closing time
-          if (currentMinutes > closeMinutes) {
-            // Find next business day
-            final tomorrow = DateTime.now().add(const Duration(days: 1));
-            final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
-            final tomorrowHours = spaceEntity.businessHours.firstWhere(
-              (hours) => hours.dayOfWeek == tomorrowDay,
-              orElse: () => BusinessHoursEntity(
-                dayOfWeek: tomorrowDay,
-                isClosed: true,
-              ),
-            );
-
-            if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
-              hoursText = '${LocaleKeys.tomorrow.tr()} ${_formatTime24To12(tomorrowHours.openTime!)} ${LocaleKeys.opens_at.tr()}';
-            }
-          }
-        } else if (todayHours.isClosed) {
-          // If today is a regular closed day, show next opening day
-          // Find next business day
+          // 내일 영업 시간 표시
           final tomorrow = DateTime.now().add(const Duration(days: 1));
           final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
           final tomorrowHours = spaceEntity.businessHours.firstWhere(
@@ -1807,7 +1872,60 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
           );
 
           if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
-            hoursText = '${LocaleKeys.tomorrow.tr()} ${_formatTime24To12(tomorrowHours.openTime!)} ${LocaleKeys.opens_at.tr()}';
+            hoursText = '${LocaleKeys.tomorrow.tr()} ${tomorrowHours.openTime!} ${LocaleKeys.opens_at.tr()}';
+          }
+        }
+
+        // 2. 오픈 전인지 확인
+        if (!isHandled && todayHours.openTime != null) {
+          final openParts = todayHours.openTime!.split(':');
+          final openMinutes = int.parse(openParts[0]) * 60 + int.parse(openParts[1]);
+
+          if (currentMinutes < openMinutes) {
+            statusText = LocaleKeys.business_before_open.tr();
+            hoursText = '${todayHours.openTime!} ${LocaleKeys.opens_at.tr()}';
+            isHandled = true;
+          }
+        }
+
+        // 3. 휴게시간 중인지 확인
+        if (!isHandled && todayHours.breakStartTime != null && todayHours.breakEndTime != null) {
+          final breakStartParts = todayHours.breakStartTime!.split(':');
+          final breakEndParts = todayHours.breakEndTime!.split(':');
+          final breakStartMinutes = int.parse(breakStartParts[0]) * 60 + int.parse(breakStartParts[1]);
+          final breakEndMinutes = int.parse(breakEndParts[0]) * 60 + int.parse(breakEndParts[1]);
+
+          if (currentMinutes >= breakStartMinutes && currentMinutes < breakEndMinutes) {
+            statusText = LocaleKeys.break_time.tr();
+            hoursText = '${todayHours.breakEndTime!} 까지';
+            isHandled = true;
+          }
+        }
+
+        // 4. 영업 종료 (기본)
+        if (!isHandled) {
+          statusText = LocaleKeys.business_end.tr();
+
+          // 마감 시간 이후면 내일 오픈 시간 표시
+          if (todayHours.closeTime != null) {
+            final closeParts = todayHours.closeTime!.split(':');
+            final closeMinutes = int.parse(closeParts[0]) * 60 + int.parse(closeParts[1]);
+
+            if (currentMinutes > closeMinutes) {
+              final tomorrow = DateTime.now().add(const Duration(days: 1));
+              final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
+              final tomorrowHours = spaceEntity.businessHours.firstWhere(
+                (hours) => hours.dayOfWeek == tomorrowDay,
+                orElse: () => BusinessHoursEntity(
+                  dayOfWeek: tomorrowDay,
+                  isClosed: true,
+                ),
+              );
+
+              if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
+                hoursText = '${LocaleKeys.tomorrow.tr()} ${tomorrowHours.openTime!} ${LocaleKeys.opens_at.tr()}';
+              }
+            }
           }
         }
       }
@@ -1857,8 +1975,14 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                         height: 16,
                       )
                     : DefaultImage(
-                        path:
-                            "assets/icons/ic_space_category_${spaceDetailEntity.category.toLowerCase()}.svg",
+                        path: () {
+                          final validCategories = ['cafe', 'coworking', 'entire', 'etc', 'meal', 'music', 'pub'];
+                          final lowerCategory = spaceDetailEntity.category.toLowerCase();
+                          if (validCategories.contains(lowerCategory)) {
+                            return "assets/icons/ic_space_category_$lowerCategory.svg";
+                          }
+                          return "assets/icons/ic_space_category_etc.svg";
+                        }(),
                         width: 16,
                         height: 16,
                       ),
@@ -1962,7 +2086,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
     );
 
     Color color = isOpen ? hmpBlue : fore3;
-    String statusText;
+    String statusText = '';
     String hoursText = '';
 
     if (isOpen) {
@@ -1978,32 +2102,97 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
           final breakEndMinutes =
               int.parse(breakEndParts[0]) * 60 + int.parse(breakEndParts[1]);
 
-          if (currentMinutes >= breakStartMinutes &&
+          // 휴게시간 30분 전 체크
+          if (currentMinutes >= breakStartMinutes - 30 && currentMinutes < breakStartMinutes) {
+            hoursText = '${todayHours.breakStartTime!} ${LocaleKeys.break_time.tr()}';
+          } else if (currentMinutes >= breakStartMinutes &&
               currentMinutes < breakEndMinutes) {
             statusText = LocaleKeys.break_time.tr();
-            hoursText = '${_formatTime24To12(todayHours.breakEndTime!)} ${LocaleKeys.reopens_at.tr()}';
+            hoursText = '${todayHours.breakEndTime!} ${LocaleKeys.reopens_at.tr()}';
           } else {
-            hoursText = '${_formatTime24To12(todayHours.closeTime!)} ${LocaleKeys.closes_at.tr()}';
+            hoursText = '${todayHours.closeTime!} ${LocaleKeys.closes_at.tr()}';
           }
         } else {
-          hoursText = '${_formatTime24To12(todayHours.closeTime!)} 마감';
+          hoursText = '${todayHours.closeTime!} 마감';
         }
       }
     } else {
-      statusText = '영업 종료';
+      // Closed
+      final currentMinutes = now.hour * 60 + now.minute;
+      bool isHandled = false;
 
-      final tomorrow = DateTime.now().add(const Duration(days: 1));
-      final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
-      final tomorrowHours = space.businessHours.firstWhere(
-        (hours) => hours.dayOfWeek == tomorrowDay,
-        orElse: () => BusinessHoursEntity(
-          dayOfWeek: tomorrowDay,
-          isClosed: true,
-        ),
-      );
+      // 1. 오늘 휴무인지 확인
+      if (todayHours.isClosed) {
+        statusText = LocaleKeys.closed_day.tr();
+        isHandled = true;
 
-      if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
-        hoursText = '내일 ${_formatTime24To12(tomorrowHours.openTime!)} 오픈';
+        // 내일 영업 시간 표시
+        final tomorrow = DateTime.now().add(const Duration(days: 1));
+        final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
+        final tomorrowHours = space.businessHours.firstWhere(
+          (hours) => hours.dayOfWeek == tomorrowDay,
+          orElse: () => BusinessHoursEntity(
+            dayOfWeek: tomorrowDay,
+            isClosed: true,
+          ),
+        );
+
+        if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
+          hoursText = '${LocaleKeys.tomorrow.tr()} ${tomorrowHours.openTime!} ${LocaleKeys.opens_at.tr()}';
+        }
+      }
+
+      // 2. 오픈 전인지 확인
+      if (!isHandled && todayHours.openTime != null) {
+        final openParts = todayHours.openTime!.split(':');
+        final openMinutes = int.parse(openParts[0]) * 60 + int.parse(openParts[1]);
+
+        if (currentMinutes < openMinutes) {
+          statusText = LocaleKeys.business_before_open.tr();
+          hoursText = '${todayHours.openTime!} ${LocaleKeys.opens_at.tr()}';
+          isHandled = true;
+        }
+      }
+
+      // 3. 휴게시간 중인지 확인
+      if (!isHandled && todayHours.breakStartTime != null && todayHours.breakEndTime != null) {
+        final breakStartParts = todayHours.breakStartTime!.split(':');
+        final breakEndParts = todayHours.breakEndTime!.split(':');
+        final breakStartMinutes = int.parse(breakStartParts[0]) * 60 + int.parse(breakStartParts[1]);
+        final breakEndMinutes = int.parse(breakEndParts[0]) * 60 + int.parse(breakEndParts[1]);
+
+        if (currentMinutes >= breakStartMinutes && currentMinutes < breakEndMinutes) {
+          statusText = LocaleKeys.break_time.tr();
+          hoursText = '${todayHours.breakEndTime!} 까지';
+          isHandled = true;
+        }
+      }
+
+      // 4. 영업 종료 (기본)
+      if (!isHandled) {
+        statusText = '영업 종료';
+
+        // 마감 시간 이후면 내일 오픈 시간 표시
+        if (todayHours.closeTime != null) {
+          final closeParts = todayHours.closeTime!.split(':');
+          final closeMinutes = int.parse(closeParts[0]) * 60 + int.parse(closeParts[1]);
+
+          if (currentMinutes > closeMinutes) {
+            final tomorrow = DateTime.now().add(const Duration(days: 1));
+            final tomorrowDay = _getDayOfWeekFromDateTime(tomorrow);
+            final tomorrowHours = space.businessHours.firstWhere(
+              (hours) => hours.dayOfWeek == tomorrowDay,
+              orElse: () => BusinessHoursEntity(
+                dayOfWeek: tomorrowDay,
+                isClosed: true,
+              ),
+            );
+
+            if (!tomorrowHours.isClosed && tomorrowHours.openTime != null) {
+              hoursText = '내일 ${tomorrowHours.openTime!} 오픈';
+            }
+          }
+        }
       }
     }
 
@@ -2171,10 +2360,14 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
             );
 
             if (success) {
-              // 프로필 다시 조회하여 최신 SAV 포인트 가져오기
-              await profileCubit.onGetUserProfile();
+              // 사이렌 생성 전 현재 잔액
+              final currentBalance = profileCubit.state.userProfileEntity?.availableBalance ?? 0;
 
-              final currentPoints = profileCubit.state.userProfileEntity?.availableBalance ?? 0;
+              // 차감된 잔액 계산 (서버 업데이트 타이밍 이슈 방지)
+              final remainingBalance = currentBalance - points;
+
+              // 프로필 다시 조회하여 최신 데이터 동기화
+              await profileCubit.onGetUserProfile();
 
               // 성공 다이얼로그 표시
               if (context.mounted) {
@@ -2183,7 +2376,7 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
                   builder: (BuildContext successContext) {
                     return SirenPostSuccessDialog(
                       pointsUsed: points,
-                      remainingPoints: currentPoints,
+                      remainingPoints: remainingBalance,  // 클라이언트에서 계산한 차감 후 값
                     );
                   },
                 );
@@ -2573,34 +2766,22 @@ class HidingStatusBanner extends StatelessWidget {
       required this.currentGroupProgress,
       this.checkInUsersResponse,
       this.currentGroup,
-      this.checkInStatus});
+      this.checkInStatus,
+      required this.maxCapacity});
 
   final String currentGroupProgress;
   final CheckInUsersResponseEntity? checkInUsersResponse;
   final CurrentGroupEntity? currentGroup;
   final CheckInStatusEntity? checkInStatus;
+  final int maxCapacity;
 
   @override
   Widget build(BuildContext context) {
     final parts = currentGroupProgress.split('/');
     final int progress = parts.length == 2 ? int.tryParse(parts[0]) ?? 0 : 0;
-    
-    // maxCapacity를 서버 데이터에서 가져오기 (기본값 5 대신 서버 값 우선)
-    int total = 5; // 최종 대안 기본값
-    
-    // 1. currentGroupProgress에서 파싱 시도
-    if (parts.length == 2 && parts[1].isNotEmpty) {
-      total = int.tryParse(parts[1]) ?? 5;
-    } 
-    // 2. currentGroup.progress에서 파싱 시도
-    else if (currentGroup != null && currentGroup!.progress.isNotEmpty) {
-      final groupParts = currentGroup!.progress.split('/');
-      if (groupParts.length == 2 && groupParts[1].isNotEmpty) {
-        total = int.tryParse(groupParts[1]) ?? 5;
-      }
-    }
-    
-    print('🎯 [HidingStatusBanner] Using maxCapacity: $total (from: ${parts.length == 2 ? "currentGroupProgress" : "currentGroup"})');
+    final int total = maxCapacity > 0 ? maxCapacity : 5; // 전달받은 maxCapacity 사용, 0이면 기본값 5
+
+    print('🎯 [HidingStatusBanner] Using maxCapacity: $total (from SpaceEntity.maxCapacity)');
 
     // 현재 유저 ID 가져오기
     final currentUserId = getIt<ProfileCubit>().state.userProfileEntity?.id;

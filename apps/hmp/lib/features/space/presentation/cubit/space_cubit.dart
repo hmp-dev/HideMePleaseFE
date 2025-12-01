@@ -80,18 +80,27 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   }
 
   Future<void> onGetNewSpaceList() async {
+    print('🔄 [SpaceCubit] onGetNewSpaceList 시작');
+    print('📍 [SpaceCubit] 현재 newSpaceList 상태: ${state.newSpaceList.length}개');
+    print('📍 [SpaceCubit] 호출 위치: ${StackTrace.current.toString().split('\n').take(5).join('\n')}');
     final response = await _spaceRepository.getNewsSpaceList();
     response.fold(
           (err) {
+        print('❌ [SpaceCubit] onGetNewSpaceList 실패: $err');
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
           (result) {
+        print('✅ [SpaceCubit] onGetNewSpaceList 성공: ${result.length}개');
+        final entities = result.map((e) => e.toEntity()).toList();
+        if (entities.isNotEmpty) {
+          print('   첫 번째 매장: ${entities.first.name} (${entities.first.id})');
+        }
         emit(
           state.copyWith(
-            newSpaceList: result.map((e) => e.toEntity()).toList(),
+            newSpaceList: entities,
           ),
         );
       },
@@ -120,22 +129,31 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   Future<void> onGetSpaceList({
     required double latitude,
     required double longitude,
+    int? page,
   }) async {
+    print('🔄 [SpaceCubit] onGetSpaceList 시작 (lat: $latitude, lng: $longitude, page: $page)');
     final response = await _spaceRepository.getSpaceList(
       latitude: latitude,
       longitude: longitude,
+      page: page,
     );
     response.fold(
           (err) {
+        print('❌ [SpaceCubit] onGetSpaceList 실패: $err');
         emit(state.copyWith(
           submitStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
           (result) {
+        print('✅ [SpaceCubit] onGetSpaceList 성공: ${result.length}개');
+        final entities = result.map((e) => e.toEntity()).toList();
+        if (entities.isNotEmpty) {
+          print('   첫 번째 매장: ${entities.first.name} (${entities.first.id})');
+        }
         emit(
           state.copyWith(
-            spaceList: result.map((e) => e.toEntity()).toList(),
+            spaceList: entities,
             allSpacesLoaded:
             result.isEmpty || result.length < 10 ? true : false,
             spacesPage: 1,
@@ -219,6 +237,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
   }
 
   onFetchAllSpaceViewData() async {
+    print('🔄 [SpaceCubit] onFetchAllSpaceViewData 시작');
     double latitude = 1;
     double longitude = 1;
     try {
@@ -226,26 +245,40 @@ class SpaceCubit extends BaseCubit<SpaceState> {
 
       latitude = position.latitude;
       longitude = position.longitude;
+      print('✅ [SpaceCubit] 위치 획득: $latitude, $longitude');
     } catch (e) {
+      print('⚠️ [SpaceCubit] 위치 획득 실패, 기본값 사용: $e');
       latitude = 1;
       longitude = 1;
     }
 
+    print('🔄 [SpaceCubit] Future.wait 시작...');
+
+    // newSpaceList 캐싱: 이미 로드되어 있으면 다시 로드하지 않음
+    if (state.newSpaceList.isEmpty) {
+      print('📥 [SpaceCubit] newSpaceList 비어있음 - 새로 로드');
+    } else {
+      print('💾 [SpaceCubit] newSpaceList 캐시 사용 (${state.newSpaceList.length}개)');
+    }
+
     await Future.wait([
       onGetTopUsedNfts(),
-      onGetNewSpaceList(),
+      if (state.newSpaceList.isEmpty) onGetNewSpaceList(),  // 캐싱: 비어있을 때만 로드
       onGetRecommendSpaceList(),
       onGetSpaceList(
         latitude: latitude,
         longitude: longitude,
+        page: 999,  // 전체 매장 로드 (newSpaceList ID 매칭을 위해)
       ),
     ]);
+    print('✅ [SpaceCubit] Future.wait 완료');
 
     // Assuming success if no errors were emitted
     emit(state.copyWith(
       submitStatus: RequestStatus.success,
       errorMessage: '',
     ));
+    print('✅ [SpaceCubit] onFetchAllSpaceViewData 완료');
   }
 
   onGetSpaceDetailBySpaceId({required String spaceId}) async {
@@ -269,7 +302,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
           errorMessage: LocaleKeys.somethingError.tr(),
         ));
       },
-          (result) {
+          (result) async {
         emit(
           state.copyWith(
             submitStatus: RequestStatus.success,
@@ -277,7 +310,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
             spaceDetailEntity: result.toEntity(),
           ),
         );
-        onGetSpaceBenefitsOnSpaceDetailView(spaceId: spaceId);
+        await onGetSpaceBenefitsOnSpaceDetailView(spaceId: spaceId);
       },
     );
   }
@@ -523,26 +556,7 @@ class SpaceCubit extends BaseCubit<SpaceState> {
           ));
         },
             (spaces) async {
-          print('🎉 Raw API 응답 개수: ${spaces.length}개');
-
           final allSpaces = spaces.map((e) => e.toEntity()).toList();
-
-          // 위치 정보가 있는 매장과 없는 매장 개수 확인
-          int validLocationCount = 0;
-          int invalidLocationCount = 0;
-
-          for (final space in allSpaces) {
-            if (space.latitude != 0 && space.longitude != 0) {
-              validLocationCount++;
-            } else {
-              invalidLocationCount++;
-            }
-          }
-
-          print('📊 매장 위치 정보 분석:');
-          print('   ✅ 위치 정보 있음: ${validLocationCount}개');
-          print('   ❌ 위치 정보 없음: ${invalidLocationCount}개');
-          print('   📍 총 매장 수: ${allSpaces.length}개');
 
           emit(state.copyWith(
             submitStatus: RequestStatus.success,
@@ -550,15 +564,6 @@ class SpaceCubit extends BaseCubit<SpaceState> {
             allSpacesLoaded: true,
             errorMessage: '',
           ));
-
-          // 처음 5개 매장의 상세 정보 확인
-          for (int i = 0; i < math.min(5, allSpaces.length); i++) {
-            final space = allSpaces[i];
-            print('🏪 매장 ${i + 1}: ${space.name}');
-            print('   📍 위치: lat=${space.latitude}, lng=${space.longitude}');
-            print('   🏷️ 카테고리: ${space.category}');
-            print('   🔥 핫: ${space.hot}');
-          }
         },
       );
 

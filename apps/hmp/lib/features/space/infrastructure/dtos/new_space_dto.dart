@@ -18,6 +18,8 @@ class NewSpaceDto extends Equatable {
   final int? remainingBenefitCount;
   @JsonKey(name: "hidingCount")
   final int? hidingCount;
+  @JsonKey(name: "maxCheckInCapacity")
+  final int? maxCheckInCapacity;
 
   const NewSpaceDto({
     this.id,
@@ -26,6 +28,7 @@ class NewSpaceDto extends Equatable {
     this.mainBenefitDescription,
     this.remainingBenefitCount,
     this.hidingCount,
+    this.maxCheckInCapacity,
   });
 
   factory NewSpaceDto.fromJson(Map<String, dynamic> json) =>
@@ -42,6 +45,7 @@ class NewSpaceDto extends Equatable {
       mainBenefitDescription,
       remainingBenefitCount,
       hidingCount,
+      maxCheckInCapacity,
     ];
   }
 
@@ -52,5 +56,6 @@ class NewSpaceDto extends Equatable {
         mainBenefitDescription: mainBenefitDescription ?? "",
         remainingBenefitCount: remainingBenefitCount ?? 0,
         hidingCount: hidingCount ?? 0,
+        maxCapacity: maxCheckInCapacity ?? 0,
       );
 }

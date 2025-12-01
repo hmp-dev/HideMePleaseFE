@@ -12,6 +12,10 @@ FriendUserDto _$FriendUserDtoFromJson(Map<String, dynamic> json) =>
       nickName: json['nickName'] as String?,
       profileImageUrl: json['profileImageUrl'] as String?,
       introduction: json['introduction'] as String?,
+      activeCheckIn: json['activeCheckIn'] == null
+          ? null
+          : ActiveCheckInDto.fromJson(
+              json['activeCheckIn'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$FriendUserDtoToJson(FriendUserDto instance) =>
@@ -20,4 +24,5 @@ Map<String, dynamic> _$FriendUserDtoToJson(FriendUserDto instance) =>
       'nickName': instance.nickName,
       'profileImageUrl': instance.profileImageUrl,
       'introduction': instance.introduction,
+      'activeCheckIn': instance.activeCheckIn,
     };

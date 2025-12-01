@@ -20,6 +20,7 @@ class SpaceDetailEntity extends Equatable {
   final bool spaceOpen;
   final List<CheckedInUserEntity> checkedInUsers;
   final String currentGroupProgress;
+  final int maxCapacity;
 
   const SpaceDetailEntity({
     required this.id,
@@ -40,6 +41,7 @@ class SpaceDetailEntity extends Equatable {
     required this.spaceOpen,
     this.checkedInUsers = const [],
     this.currentGroupProgress = '',
+    this.maxCapacity = 0,
   });
 
   @override
@@ -63,6 +65,7 @@ class SpaceDetailEntity extends Equatable {
       spaceOpen,
       checkedInUsers,
       currentGroupProgress,
+      maxCapacity,
     ];
   }
 
@@ -85,6 +88,7 @@ class SpaceDetailEntity extends Equatable {
     bool? spaceOpen,
     List<CheckedInUserEntity>? checkedInUsers,
     String? currentGroupProgress,
+    int? maxCapacity,
   }) {
     return SpaceDetailEntity(
       id: id ?? this.id,
@@ -105,6 +109,7 @@ class SpaceDetailEntity extends Equatable {
       spaceOpen: spaceOpen ?? this.spaceOpen,
       checkedInUsers: checkedInUsers ?? this.checkedInUsers,
       currentGroupProgress: currentGroupProgress ?? this.currentGroupProgress,
+      maxCapacity: maxCapacity ?? this.maxCapacity,
     );
   }
 
@@ -126,5 +131,6 @@ class SpaceDetailEntity extends Equatable {
         checkInCount = 0,
         spaceOpen = false,
         checkedInUsers = const [],
-        currentGroupProgress = '';
+        currentGroupProgress = '',
+        maxCapacity = 0;
 }

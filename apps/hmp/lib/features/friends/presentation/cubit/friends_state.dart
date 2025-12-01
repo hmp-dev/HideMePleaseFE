@@ -2,6 +2,7 @@ part of 'friends_cubit.dart';
 
 class FriendsState extends Equatable {
   final RequestStatus submitStatus;
+  final RequestStatus queryStatus; // 친구 관계 조회 전용 상태
   final String errorMessage;
   final FriendshipStatus? friendshipStatus;
   final String? friendshipId;
@@ -15,6 +16,7 @@ class FriendsState extends Equatable {
 
   const FriendsState({
     required this.submitStatus,
+    required this.queryStatus,
     required this.errorMessage,
     this.friendshipStatus,
     this.friendshipId,
@@ -30,6 +32,7 @@ class FriendsState extends Equatable {
   factory FriendsState.initial() {
     return const FriendsState(
       submitStatus: RequestStatus.initial,
+      queryStatus: RequestStatus.initial,
       errorMessage: '',
       friendshipStatus: null,
       friendshipId: null,
@@ -45,6 +48,7 @@ class FriendsState extends Equatable {
 
   FriendsState copyWith({
     RequestStatus? submitStatus,
+    RequestStatus? queryStatus,
     String? errorMessage,
     FriendshipStatus? friendshipStatus,
     bool clearFriendshipStatus = false,
@@ -60,6 +64,7 @@ class FriendsState extends Equatable {
   }) {
     return FriendsState(
       submitStatus: submitStatus ?? this.submitStatus,
+      queryStatus: queryStatus ?? this.queryStatus,
       errorMessage: errorMessage ?? this.errorMessage,
       friendshipStatus: clearFriendshipStatus ? null : (friendshipStatus ?? this.friendshipStatus),
       friendshipId: clearFriendshipId ? null : (friendshipId ?? this.friendshipId),
@@ -76,6 +81,7 @@ class FriendsState extends Equatable {
   @override
   List<Object?> get props => [
         submitStatus,
+        queryStatus,
         errorMessage,
         friendshipStatus,
         friendshipId,

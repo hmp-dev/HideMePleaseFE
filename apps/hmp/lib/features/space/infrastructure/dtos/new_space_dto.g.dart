@@ -13,6 +13,7 @@ NewSpaceDto _$NewSpaceDtoFromJson(Map<String, dynamic> json) => NewSpaceDto(
       mainBenefitDescription: json['mainBenefitDescription'] as String?,
       remainingBenefitCount: (json['remainingBenefitCount'] as num?)?.toInt(),
       hidingCount: (json['hidingCount'] as num?)?.toInt(),
+      maxCheckInCapacity: (json['maxCheckInCapacity'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$NewSpaceDtoToJson(NewSpaceDto instance) =>
@@ -23,4 +24,5 @@ Map<String, dynamic> _$NewSpaceDtoToJson(NewSpaceDto instance) =>
       'mainBenefitDescription': instance.mainBenefitDescription,
       'remainingBenefitCount': instance.remainingBenefitCount,
       'hidingCount': instance.hidingCount,
+      'maxCheckInCapacity': instance.maxCheckInCapacity,
     };

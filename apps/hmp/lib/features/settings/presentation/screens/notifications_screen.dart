@@ -36,8 +36,17 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   void initState() {
-    getIt<NotificationsCubit>().onStart();
     super.initState();
+    print('🔔 [NotificationsScreen] initState called');
+    final notificationsCubit = getIt<NotificationsCubit>();
+    print('🔔 [NotificationsScreen] Got NotificationsCubit instance');
+
+    // 알림 목록 로드 (unreadCount 업데이트 안 함)
+    notificationsCubit.onStart(updateUnreadCount: false).then((_) {
+      // 알림 목록 로드 후 모든 알림을 읽음 처리
+      notificationsCubit.markAllAsRead();
+      print('🔔 [NotificationsScreen] markAllAsRead() completed');
+    });
   }
 
   @override

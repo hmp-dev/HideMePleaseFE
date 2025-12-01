@@ -116,6 +116,11 @@ class NotificationItemWidget extends StatelessWidget {
       return "assets/icons/ico_noti_sav.png";
     }
 
+    // 공지사항 알림
+    if (typeLower.contains("announcement") || typeLower.contains("공지")) {
+      return "assets/icons/ico_bell.png";
+    }
+
     // 사이렌, 매칭 알림
     if (typeLower.contains("siren") || typeLower.contains("matching")) {
       return "assets/icons/ico_noti_siren.png";

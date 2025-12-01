@@ -19,7 +19,8 @@ class SpaceEntity extends Equatable {
   final bool isTemporarilyClosed;
   final List<SpaceEventCategoryEntity> spaceEventCategories;
   final String currentGroupProgress;
-
+  final int maxCapacity;
+  
   const SpaceEntity({
     required this.id,
     required this.name,
@@ -37,7 +38,11 @@ class SpaceEntity extends Equatable {
     this.isTemporarilyClosed = false,
     this.spaceEventCategories = const [],
     this.currentGroupProgress = '',
+    this.maxCapacity = 0,
   });
+
+  // Alias for maxCapacity to match API field name
+  int get maxCheckInCapacity => maxCapacity;
 
   @override
   List<Object?> get props {
@@ -58,6 +63,7 @@ class SpaceEntity extends Equatable {
       isTemporarilyClosed,
       spaceEventCategories,
       currentGroupProgress,
+      maxCapacity,
     ];
   }
 
@@ -78,6 +84,7 @@ class SpaceEntity extends Equatable {
     bool? isTemporarilyClosed,
     List<SpaceEventCategoryEntity>? spaceEventCategories,
     String? currentGroupProgress,
+    int? maxCapacity,
   }) {
     return SpaceEntity(
       id: id ?? this.id,
@@ -96,6 +103,7 @@ class SpaceEntity extends Equatable {
       isTemporarilyClosed: isTemporarilyClosed ?? this.isTemporarilyClosed,
       spaceEventCategories: spaceEventCategories ?? this.spaceEventCategories,
       currentGroupProgress: currentGroupProgress ?? this.currentGroupProgress,
+      maxCapacity: maxCapacity ?? this.maxCapacity,
     );
   }
 
@@ -115,7 +123,8 @@ class SpaceEntity extends Equatable {
         businessHours = const [],
         isTemporarilyClosed = false,
         spaceEventCategories = const [],
-        currentGroupProgress = '';
+        currentGroupProgress = '',
+        maxCapacity = 0;
 
   // Helper method to check if the store is currently open
   bool get isCurrentlyOpen {

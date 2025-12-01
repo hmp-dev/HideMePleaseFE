@@ -19,6 +19,12 @@ class BackgroundLocationService {
       '🔔 BackgroundLocationService: Starting check...'.log();
       print('🔔 BackgroundLocationService: Starting check...');
 
+      // Initial context check
+      if (!context.mounted) {
+        '⚠️ Context not mounted at start'.log();
+        return;
+      }
+
       final locationCubit = getIt<EnableLocationCubit>();
       final prefs = await SharedPreferences.getInstance();
 
@@ -94,11 +100,21 @@ class BackgroundLocationService {
       '🔔 Will show custom dialog'.log();
 
       // Show custom explanation dialog for both platforms
-      if (!context.mounted) return;
+      // Check context before showing dialog
+      if (!context.mounted) {
+        '⚠️ Context lost before showing dialog'.log();
+        return;
+      }
 
       '🔔 Showing BackgroundLocationPermissionDialog...'.log();
       final userAccepted = await BackgroundLocationPermissionDialog.show(context);
       '🔔 Dialog result: $userAccepted'.log();
+
+      // Check context after dialog closes
+      if (!context.mounted) {
+        '⚠️ Context lost after dialog closed'.log();
+        return;
+      }
 
       if (userAccepted == true) {
         // User accepted, request system permission
@@ -107,6 +123,12 @@ class BackgroundLocationService {
         bool granted = false;
 
         if (Platform.isAndroid) {
+          // Check context before system permission request
+          if (!context.mounted) {
+            '⚠️ Context lost before Android system permission request'.log();
+            return;
+          }
+
           // On Android, requesting permission again will prompt for "Allow all the time"
           // This only works on Android 10+ (API 29+)
           final permission = await Geolocator.requestPermission();
@@ -118,6 +140,12 @@ class BackgroundLocationService {
           // Request battery optimization exclusion to prevent Doze mode from killing the service
           await requestBatteryOptimizationExclusion();
         } else {
+          // Check context before opening iOS settings
+          if (!context.mounted) {
+            '⚠️ Context lost before opening iOS settings'.log();
+            return;
+          }
+
           // iOS - need to open settings for background permission
           print('🔔 iOS: Opening app settings for background location permission');
           await openAppSettings();
@@ -126,6 +154,12 @@ class BackgroundLocationService {
           // needs to manually enable it in settings
           // Just mark as shown so we don't ask again immediately
           granted = false;
+        }
+
+        // Check context after system interactions
+        if (!context.mounted) {
+          '⚠️ Context lost after system permission flow'.log();
+          return;
         }
 
         if (granted) {

@@ -244,6 +244,9 @@ abstract class  LocaleKeys {
   static const notification = 'notification';
   static const settings_label = 'settings_label';
   static const friends = 'friends';
+  static const add_friends_message = 'add_friends_message';
+  static const no_search_results = 'no_search_results';
+  static const search = 'search';
   static const check_in = 'check_in';
   static const view_all = 'view_all';
   static const self_introduction = 'self_introduction';

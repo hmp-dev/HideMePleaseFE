@@ -32,6 +32,11 @@ class DefaultImage extends StatelessWidget {
                   : null,
               width: width,
               height: height,
+              placeholderBuilder: (context) => Icon(
+                Icons.image,
+                size: width ?? 24,
+                color: color ?? Colors.grey,
+              ),
             ),
           )
         : Container(
@@ -43,6 +48,13 @@ class DefaultImage extends StatelessWidget {
               path,
               fit: boxFit ?? BoxFit.contain,
               color: color,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(
+                  Icons.image,
+                  size: width ?? 24,
+                  color: color ?? Colors.grey,
+                );
+              },
             ),
           );
   }

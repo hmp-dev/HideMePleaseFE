@@ -52,11 +52,11 @@ class AuthRepositoryImpl implements AuthRepository {
         accessToken: appleCredential.authorizationCode,
       );
 
-      // save Social Login Type
-      _localDataSource
+      // save Social Login Type (await 추가 - 저장 완료 보장)
+      await _localDataSource
           .setSocialTokenIsAppleOrGoogle(SocialLoginType.APPLE.name);
-      // save id token in secure Storage
-      _localDataSource.setAppleIdToken(oauthCredential.idToken ?? "");
+      // save id token in secure Storage (await 추가 - 저장 완료 보장)
+      await _localDataSource.setAppleIdToken(oauthCredential.idToken ?? "");
       //===
 
       // Sign in the user with Firebase. If the nonce we generated earlier does
@@ -98,13 +98,13 @@ class AuthRepositoryImpl implements AuthRepository {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      // save Social Login Type
-      _localDataSource
+      // save Social Login Type (await 추가 - 저장 완료 보장)
+      await _localDataSource
           .setSocialTokenIsAppleOrGoogle(SocialLoginType.GOOGLE.name);
 
-      // save Access token and ID token in secure Storage to be used wepin login
-      _localDataSource.setGoogleAccessToken(googleAuth.accessToken ?? "");
-      _localDataSource.setGoogleIdToken(googleAuth.idToken ?? ""); // For Wepin login
+      // save Access token and ID token in secure Storage to be used wepin login (await 추가 - 저장 완료 보장)
+      await _localDataSource.setGoogleAccessToken(googleAuth.accessToken ?? "");
+      await _localDataSource.setGoogleIdToken(googleAuth.idToken ?? ""); // For Wepin login
       //===
 
       await FirebaseAuth.instance.signInWithCredential(credential);
@@ -180,16 +180,57 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<HMPError, Unit>> requestLogOut() async {
     try {
-      await Future.wait([
-        FirebaseAuth.instance.signOut(),
-        GoogleSignIn().signOut(),
-        _localDataSource.deleteAll(),
-    //SendbirdUIKit.disconnect(),
-    //SendbirdChat.disconnect()
-      ]);
+      ('🔴 [AuthRepository] Starting logout process...').log();
+
+      // Track errors but continue logout process
+      final errors = <String>[];
+
+      // 1. Sign out from Firebase (important for security)
+      try {
+        await FirebaseAuth.instance.signOut();
+        ('✅ [AuthRepository] Firebase signed out').log();
+      } catch (e) {
+        ('⚠️ [AuthRepository] Firebase sign out failed: $e').log();
+        errors.add('Firebase: $e');
+      }
+
+      // 2. Sign out from Google (important for preventing auto re-login)
+      try {
+        await GoogleSignIn().signOut();
+        ('✅ [AuthRepository] Google signed out').log();
+      } catch (e) {
+        ('⚠️ [AuthRepository] Google sign out failed: $e').log();
+        errors.add('Google: $e');
+      }
+
+      // 3. Delete all local data as backup (individual tokens already deleted in AppCubit)
+      try {
+        await _localDataSource.deleteAll();
+        ('✅ [AuthRepository] All local data deleted').log();
+      } catch (e) {
+        ('⚠️ [AuthRepository] Delete all failed: $e').log();
+        errors.add('LocalData: $e');
+      }
+
+      // 4. Optional: Disconnect from Sendbird (currently commented out)
+      // try {
+      //   await SendbirdUIKit.disconnect();
+      //   await SendbirdChat.disconnect();
+      //   ('✅ [AuthRepository] Sendbird disconnected').log();
+      // } catch (e) {
+      //   ('⚠️ [AuthRepository] Sendbird disconnect failed: $e').log();
+      //   errors.add('Sendbird: $e');
+      // }
+
+      if (errors.isEmpty) {
+        ('✅ [AuthRepository] Logout completed successfully').log();
+      } else {
+        ('⚠️ [AuthRepository] Logout completed with ${errors.length} non-critical error(s)').log();
+      }
 
       return right(unit);
     } catch (e, t) {
+      ('❌ [AuthRepository] Logout failed with critical error: $e').log();
       return left(HMPError.fromUnknown(
         error: e,
         trace: t,

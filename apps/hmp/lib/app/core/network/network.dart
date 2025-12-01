@@ -28,14 +28,14 @@ class Network {
     talkerDioLogger = TalkerDioLogger(
       talker: talker,
       settings: const TalkerDioLoggerSettings(
-        printResponseData: true,
+        printResponseData: false,  // Disabled to reduce log clutter
         printResponseHeaders: false,
-        printResponseMessage: true,
+        printResponseMessage: false,  // Disabled to reduce log clutter
         printErrorData: true,
         printErrorHeaders: true,
         printErrorMessage: true,
-        printRequestData: true,
-        printRequestHeaders: true,
+        printRequestData: false,  // Disabled to reduce log clutter
+        printRequestHeaders: false,
       ),
     );
 

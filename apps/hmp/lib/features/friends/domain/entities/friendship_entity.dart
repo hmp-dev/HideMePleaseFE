@@ -2,7 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:mobile/features/friends/domain/entities/friend_user_entity.dart';
 
 enum FriendshipStatus {
-  PENDING,
+  PENDING,           // 구버전 호환용 (deprecated)
+  PENDING_SENT,      // 내가 보낸 신청 (대기 중)
+  PENDING_RECEIVED,  // 받은 신청 (수락 가능)
   ACCEPTED,
   REJECTED,
   BLOCKED,

@@ -35,41 +35,54 @@ const kAppWeb = 'https://hidemeplease.xyz';
 @lazySingleton
 class WalletsCubit extends BaseCubit<WalletsState> {
   final WalletsRepository _walletsRepository;
+  bool _isFetchingWallets = false;
 
   WalletsCubit(
     this._walletsRepository,
   ) : super(WalletsState.initial());
 
   Future<void> onGetAllWallets() async {
-    emit(state.copyWith(submitStatus: RequestStatus.loading));
+    // 중복 호출 방지: 이미 요청 중이면 스킵
+    if (_isFetchingWallets) {
+      "⚠️ [WalletsCubit] Already fetching wallets, skipping duplicate call".log();
+      return;
+    }
 
-    final response = await _walletsRepository.getWallets();
+    _isFetchingWallets = true;
 
-    response.fold(
-      (err) {
-        emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
-          errorMessage: LocaleKeys.somethingError.tr(),
-        ));
-      },
-      // users.map((e) => e.toEntity()).toList()
-      (wallets) async {
-        final walletEntities = wallets.map((e) => e.toEntity()).toList();
-        
-        // Save wallet status to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool(StorageValues.hasWallet, walletEntities.isNotEmpty);
-        '💾 Saved wallet status to SharedPreferences: ${walletEntities.isNotEmpty}'.log();
-        
-        emit(
-          state.copyWith(
-            submitStatus: RequestStatus.success,
-            errorMessage: '',
-            connectedWallets: walletEntities,
-          ),
-        );
-      },
-    );
+    try {
+      emit(state.copyWith(submitStatus: RequestStatus.loading));
+
+      final response = await _walletsRepository.getWallets();
+
+      response.fold(
+        (err) {
+          emit(state.copyWith(
+            submitStatus: RequestStatus.failure,
+            errorMessage: LocaleKeys.somethingError.tr(),
+          ));
+        },
+        // users.map((e) => e.toEntity()).toList()
+        (wallets) async {
+          final walletEntities = wallets.map((e) => e.toEntity()).toList();
+
+          // Save wallet status to SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool(StorageValues.hasWallet, walletEntities.isNotEmpty);
+          '💾 Saved wallet status to SharedPreferences: ${walletEntities.isNotEmpty}'.log();
+
+          emit(
+            state.copyWith(
+              submitStatus: RequestStatus.success,
+              errorMessage: '',
+              connectedWallets: walletEntities,
+            ),
+          );
+        },
+      );
+    } finally {
+      _isFetchingWallets = false;
+    }
   }
   
   // Check if user has any wallet
@@ -94,15 +107,15 @@ class WalletsCubit extends BaseCubit<WalletsState> {
     final response = await _walletsRepository.saveWallet(
         saveWalletRequestDto: saveWalletRequestDto);
 
-    response.fold(
-      (err) {
+    await response.fold(
+      (err) async {
         "❌ [WalletsCubit] Failed to save wallet: ${err.message}".log();
-        
+
         // Check if it's a WALLET_ALREADY_LINKED error (409)
-        bool isWalletAlreadyLinked = err.message?.contains('WALLET_ALREADY_LINKED') == true || 
+        bool isWalletAlreadyLinked = err.message?.contains('WALLET_ALREADY_LINKED') == true ||
                                    err.error?.toString().contains('WALLET_ALREADY_LINKED') == true ||
                                    err.code == 409;
-        
+
         if (isWalletAlreadyLinked) {
           "ℹ️ [WalletsCubit] Wallet already linked, treating as success".log();
           emit(state.copyWith(
@@ -117,9 +130,9 @@ class WalletsCubit extends BaseCubit<WalletsState> {
           ));
         }
         // Always fetch all wallets to ensure we have the latest data
-        onGetAllWallets();
+        await onGetAllWallets();
       },
-      (wallets) {
+      (wallets) async {
         "✅ [WalletsCubit] Wallet saved successfully".log();
         emit(
           state.copyWith(
@@ -128,7 +141,7 @@ class WalletsCubit extends BaseCubit<WalletsState> {
           ),
         );
         // fetch All Wallets
-        onGetAllWallets();
+        await onGetAllWallets();
       },
     );
   }

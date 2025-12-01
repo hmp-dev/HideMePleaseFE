@@ -19,7 +19,8 @@ class FeatureTile extends StatelessWidget {
   final String title;
 
   /// The callback function that is called when the widget is tapped.
-  final VoidCallback onTap;
+  /// Changed from VoidCallback to Function() to support both sync and async callbacks
+  final Function() onTap;
 
   /// Whether to show the arrow icon or not.
   final bool isShowArrowIcon;
@@ -27,7 +28,8 @@ class FeatureTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      behavior: HitTestBehavior.opaque,  // Ensure entire area is tappable
+      onTap: onTap,  // Pass callback directly to avoid closure issues
       child: Container(
         color: Colors.transparent,
         padding: const EdgeInsets.symmetric(vertical: 15),

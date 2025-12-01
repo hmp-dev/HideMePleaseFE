@@ -193,7 +193,7 @@ class FriendRequestSuccessDialog extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    LocaleKeys.confirm_intro_button.tr(),
+                    LocaleKeys.got_it_button.tr(),
                     style: const TextStyle(
                       color: Color(0xFF000000),
                       fontSize: 16,

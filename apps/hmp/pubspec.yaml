@@ -2,10 +2,10 @@ name: mobile
 description: "A new Flutter project."
 
 publish_to: "none"
-version: 2.5.18+194
+version: 2.5.26+248
 
 environment:
-  sdk: ">=3.3.3 <4.0.0"
+  sdk: ">=3.5.0 <4.0.0"
 
 dependencies:
   app_settings: ^5.1.1
@@ -92,8 +92,8 @@ dependencies:
   video_player: ^2.9.1
   video_thumbnail: ^0.5.3
   visibility_detector: ^0.4.0+2
-  wepin_flutter_login_lib: ^0.0.11
-  wepin_flutter_widget_sdk: ^0.0.6
+  wepin_flutter_login_lib: ^1.0.0
+  wepin_flutter_widget_sdk: ^1.0.0
   web: ^1.0.0
   socket_io_client: ^2.0.3+1
   mapbox_maps_flutter: 2.12.0-rc.1
@@ -128,7 +128,6 @@ dependency_overrides:
   web: ^1.0.0
   reown_core: ^1.0.4
   web_socket_channel: ^2.4.4
-  wepin_flutter_widget_sdk: ^1.0.0
 
 flutter:
   uses-material-design: true

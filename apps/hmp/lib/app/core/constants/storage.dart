@@ -10,6 +10,9 @@ abstract class StorageValues {
   static const String appleIdToken = 'appleIdToken';
 
   static const String socialTokenIsAppleOrGoogle = 'socialTokenIsAppleOrGoogle';
+
+  // Authentication status flag (for auto-login validation)
+  static const String isAuthenticated = 'isAuthenticated';
   static const String wasOnWelcomeWalletConnectScreen = 'wasOnWelcomeWalletConnectScreen';
   static const String wepinToken = 'wepinToken';
   

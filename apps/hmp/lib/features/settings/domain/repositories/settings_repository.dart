@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/announcement_dto.dart';
+import 'package:mobile/features/settings/infrastructure/dtos/mark_all_read_response_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/model_banner_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/notification_dto.dart';
 import 'package:mobile/features/settings/infrastructure/dtos/settings_banner_dto.dart';
@@ -44,6 +45,12 @@ abstract class SettingsRepository {
   ///
   /// Returns a `Either<HMPError, bool>` which is either `true` or an `HMPError` in case of failure.
   Future<Either<HMPError, bool>> markNotificationAsRead(String notificationId);
+
+  /// Marks all notifications as read.
+  ///
+  /// Returns a `Either<HMPError, MarkAllReadResponseDto>` which is either the response DTO
+  /// or an `HMPError` in case of failure.
+  Future<Either<HMPError, MarkAllReadResponseDto>> markAllNotificationsAsRead();
 
   /// Deletes a notification.
   ///

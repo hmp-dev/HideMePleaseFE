@@ -22,6 +22,23 @@
     <intent>
         <action android:name="android.support.customtabs.action.CustomTabsService" />
     </intent>
+    <!-- Social media apps for sharing -->
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="twitter" />
+    </intent>
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="threads" />
+    </intent>
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="instagram" />
+    </intent>
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="instagram-stories" />
+    </intent>
     </queries>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -35,6 +52,14 @@
     <!-- NFC permissions -->
     <uses-permission android:name="android.permission.NFC" />
     <uses-feature android:name="android.hardware.nfc" android:required="false" />
+    <!-- Photo/Gallery permissions for saving images -->
+    <!-- Android 13+ (API 33+): READ_MEDIA_IMAGES for gallery access with Gal library -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <!-- Android 9 and below (API < 29): Full storage access for legacy devices -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"/>
     <application
         android:label="HideMePlease"
         android:name="${applicationName}"

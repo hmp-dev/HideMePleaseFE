@@ -28,6 +28,7 @@ import 'package:mobile/app/theme/theme.dart';
 import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/app/core/util/image_validation_helper.dart';
 import 'package:mobile/features/onboarding/models/character_profile.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -102,7 +103,8 @@ class _MapScreenState extends State<MapScreen> {
   double? _currentHeading; // 현재 방향 (0-360도)
   double? _compassHeading; // 나침반 방향
   bool _isMoving = false; // 이동 중 여부
-  
+  bool _isUpdatingLocationMarker = false; // 위치 마커 업데이트 동기화 플래그
+
   // 토스트 중복 방지를 위한 플래그
   bool _isShowingZoomToast = false;
   
@@ -307,19 +309,10 @@ class _MapScreenState extends State<MapScreen> {
       markersAdded = false;
       
       // 지도 전용 메서드로 전체 매장 로드 (page=999로 전체 데이터 요청)
-      print('🚀 onGetAllSpacesForMap 호출 시작');
       await spaceCubit.onGetAllSpacesForMap(
         latitude: latitude,
         longitude: longitude,
       );
-      print('🚀 onGetAllSpacesForMap 호출 완료');
-      
-      print('✅ 로드 완료 - 총 ${spaceCubit.state.spaceList.length}개 매장');
-      print('📊 상태: ${spaceCubit.state.submitStatus}');
-      
-      if (spaceCubit.state.errorMessage.isNotEmpty) {
-        print('⚠️ 오류 메시지: ${spaceCubit.state.errorMessage}');
-      }
       
       // 모든 매장 데이터 저장
       allSpaces = List<SpaceEntity>.from(spaceCubit.state.spaceList);
@@ -343,7 +336,6 @@ class _MapScreenState extends State<MapScreen> {
       
       // 데이터 로드 완료 후 바로 마커 추가 (BlocListener 대신)
       if (spaceCubit.state.submitStatus == RequestStatus.success && filteredSpaces.isNotEmpty) {
-        print('🗺️ 데이터 로드 완료 - 필터된 ${filteredSpaces.length}개 매장으로 마커 추가');
         markersAdded = true;
         await _addAllMarkers(filteredSpaces);
         
@@ -471,8 +463,6 @@ class _MapScreenState extends State<MapScreen> {
   // 모든 마커(매장+현재위치) 추가
   Future<void> _addAllMarkers(List<SpaceEntity> spaces) async {
     if (mapboxMap == null) return;
-
-    print('🔍 _addAllMarkers 시작 - 총 ${spaces.length}개 매장 데이터 받음');
 
     // 매니저들을 레이어 순서대로 생성 (먼저 생성된 것이 아래층)
     // 1. Heading 매니저 (최하위 레이어)
@@ -651,7 +641,14 @@ class _MapScreenState extends State<MapScreen> {
             // 인포카드 클릭 시 상세 화면으로 이동
             final spaceCubit = getIt<SpaceCubit>();
             await spaceCubit.onGetSpaceDetailBySpaceId(spaceId: space.id);
-            SpaceDetailScreen.push(context);
+
+            // ✅ FIX: Wait for user to return from detail screen and refresh data
+            await SpaceDetailScreen.push(context);
+
+            // Refresh space data after returning from detail screen
+            print('🔄 Returned from space detail - refreshing map data...');
+            await _loadNearbySpaces(userActualLatitude, userActualLongitude);
+            print('✅ Map data refreshed');
           },
           child: Container(
             decoration: BoxDecoration(
@@ -2241,13 +2238,9 @@ class _MapScreenState extends State<MapScreen> {
       body: BlocListener<SpaceCubit, SpaceState>(
         bloc: getIt<SpaceCubit>(),
         listener: (context, state) {
-          print('🔄 BlocListener triggered - Status: ${state.submitStatus}, Spaces: ${state.spaceList.length}');
           // BlocListener는 로그만 출력 (실제 마커 추가는 _loadNearbySpaces에서 처리)
           if (state.submitStatus == RequestStatus.success && state.spaceList.isNotEmpty) {
-            print('✅ BlocListener: Data loaded successfully - ${state.spaceList.length} spaces');
-            if (markersAdded) {
-              print('✅ BlocListener: Markers already added, skipping');
-            }
+            // Data loaded successfully
           } else if (state.submitStatus == RequestStatus.success && state.spaceList.isEmpty) {
             print('⚠️ BlocListener: Success but no spaces found');
           } else if (state.submitStatus == RequestStatus.failure) {
@@ -2398,14 +2391,10 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    print('🔍 Filtering spaces by unified category: ${category.name} (type: ${category.type})');
-    print('📊 Total spaces before filtering: ${allSpaces.length}');
-    
     if (category.type == CategoryType.space) {
       // 매장 카테고리 필터링
       if (category.spaceCategory == SpaceCategory.ENTIRE) {
         filteredSpaces = List<SpaceEntity>.from(allSpaces);
-        print('📋 ENTIRE category selected - showing all spaces');
       } else {
         filteredSpaces = allSpaces.where((space) {
           bool matches = false;
@@ -2426,7 +2415,7 @@ class _MapScreenState extends State<MapScreen> {
               matches = space.category?.toLowerCase() == 'music';
               break;
             case SpaceCategory.ETC:
-              matches = space.category?.toLowerCase() == 'etc' || 
+              matches = space.category?.toLowerCase() == 'etc' ||
                        space.category?.toLowerCase() == 'bar';
               break;
             default:
@@ -2434,7 +2423,6 @@ class _MapScreenState extends State<MapScreen> {
           }
           return matches;
         }).toList();
-        print('🔍 Filtered to ${filteredSpaces.length} spaces by space category');
       }
     } else if (category.type == CategoryType.event && category.eventCategory != null) {
       // 이벤트 카테고리 필터링
@@ -2444,14 +2432,6 @@ class _MapScreenState extends State<MapScreen> {
           (spaceEventCategory) => spaceEventCategory.eventCategory.id == eventCategory.id
         );
       }).toList();
-      print('🎉 Filtered to ${filteredSpaces.length} spaces by event category');
-    }
-    
-    // 필터링 결과 검증
-    if (filteredSpaces.isEmpty) {
-      print('⚠️ No spaces found for category: ${category.name}');
-    } else {
-      print('✅ Found ${filteredSpaces.length} spaces');
     }
     
     setState(() {});
@@ -2794,41 +2774,51 @@ class _MapScreenState extends State<MapScreen> {
   // 현재 위치 마커 실시간 업데이트
   Future<void> _updateCurrentLocationMarker(double lat, double lng) async {
     if (_currentLocationAnnotationManager == null || mapboxMap == null) return;
-    
+
+    // 🔒 동기화 플래그 체크 - 이미 업데이트 중이면 건너뜀
+    if (_isUpdatingLocationMarker) {
+      print('⏭️ 마커 업데이트 이미 진행 중 - 중복 호출 방지');
+      return;
+    }
+
     print('🔍 _updateCurrentLocationMarker 호출됨 - lat: $lat, lng: $lng');
-    
+
     // 위치가 유효하지 않으면 리턴
     if (lat == 0 || lng == 0) {
       print('⚠️ 현재 위치가 유효하지 않음 (0,0) - 마커 업데이트 건너뜀');
       return;
     }
-    
+
+    // 🔒 플래그 설정
+    _isUpdatingLocationMarker = true;
+
     try {
-      // 기존 현재 위치 마커가 있으면 삭제
-      if (_currentLocationAnnotation != null) {
-        print('🗑️ 기존 현재 위치 마커 삭제');
-        await _currentLocationAnnotationManager!.delete(_currentLocationAnnotation!);
-        _currentLocationAnnotation = null;
-      }
-      
+      // 기존 현재 위치 마커 모두 삭제 (deleteAll로 안전하게 처리)
+      print('🗑️ 기존 현재 위치 마커 모두 삭제');
+      await _currentLocationAnnotationManager!.deleteAll();
+      _currentLocationAnnotation = null;
+
       // 새로운 현재 위치 마커 생성 - 마커 타입에 따라 iconSize 조정
       // 80x80 이미지를 40x40 크기로 표시하기 위해 0.5 스케일 사용
       final double markerIconSize = _isUsingProfileImage ? 0.5 : 0.45;
       print('🎯 마커 iconSize 설정: ${_isUsingProfileImage ? "프로필 이미지" : "기본 마커"} - $markerIconSize');
-      
+
       final currentLocationMarker = PointAnnotationOptions(
         geometry: Point(coordinates: Position(lng, lat)),
         iconImage: 'current_location_marker',
         iconSize: markerIconSize,
       );
-      
+
       _currentLocationAnnotation = await _currentLocationAnnotationManager!.create(currentLocationMarker);
-      
+
       print('📍 Current location marker updated to: $lat, $lng');
       print('✅ 현재 위치 마커 ID: ${_currentLocationAnnotation?.id}');
     } catch (e) {
       print('❌ Error updating current location marker: $e');
       print('❌ Stack trace: ${StackTrace.current}');
+    } finally {
+      // 🔓 항상 플래그 해제
+      _isUpdatingLocationMarker = false;
     }
   }
   
@@ -3120,15 +3110,21 @@ class _MapScreenState extends State<MapScreen> {
       }
 
       print('📥 Loading profile image from: $imageUrl');
-      final response = await http.get(Uri.parse(imageUrl));
-      
-      if (response.statusCode == 200) {
-        print('✅ Profile image loaded successfully');
-        return response.bodyBytes;
-      } else {
-        print('❌ Failed to load profile image: ${response.statusCode}');
-        return null;
+
+      // 검증된 이미지 로딩 사용
+      final image = await ImageValidationHelper.loadNetworkImageSafely(url: imageUrl);
+
+      if (image != null) {
+        // ui.Image를 Uint8List로 변환
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        if (byteData != null) {
+          print('✅ Profile image loaded successfully');
+          return byteData.buffer.asUint8List();
+        }
       }
+
+      print('❌ Failed to load profile image');
+      return null;
     } catch (e) {
       print('❌ Error loading profile image: $e');
       return null;
@@ -4053,16 +4049,20 @@ class _MapScreenState extends State<MapScreen> {
 
   // 체크인 카운트 닷 표시
   Widget _buildCheckInDots(SpaceEntity space) {
-    // Parse maxCapacity from currentGroupProgress
+    // Parse current and max capacity from currentGroupProgress
     int maxDots = 5;
+    int filledDots = 0;
+
     if (space.currentGroupProgress.isNotEmpty) {
       final parts = space.currentGroupProgress.split('/');
       if (parts.length == 2) {
-        maxDots = int.tryParse(parts[1]) ?? 5;
+        filledDots = int.tryParse(parts[0]) ?? 0;  // 현재 매칭 중인 유저 수
+        maxDots = int.tryParse(parts[1]) ?? 5;     // 최대 인원
       }
     }
-
-    final filledDots = space.hidingCount;
+    if(space.maxCapacity > 0) {
+      maxDots = space.maxCapacity;
+    }
 
     return Row(
       mainAxisSize: MainAxisSize.min,

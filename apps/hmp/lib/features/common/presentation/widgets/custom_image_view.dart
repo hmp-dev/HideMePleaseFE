@@ -346,11 +346,32 @@ class CustomImageView extends StatelessWidget {
       errorWidget: (context, url, error) {
         print('❌ CustomImageView - Error loading image: $error');
         print('❌ CustomImageView - Failed URL: $url');
+
+        // HTTP 에러 상세 로깅
+        if (error.toString().contains('403')) {
+          print('⚠️  CustomImageView - HTTP 403 Forbidden (Access denied to S3 image)');
+        } else if (error.toString().contains('404')) {
+          print('⚠️  CustomImageView - HTTP 404 Not Found');
+        } else if (error.toString().contains('500')) {
+          print('⚠️  CustomImageView - HTTP 500 Server Error');
+        } else if (error.toString().contains('timeout')) {
+          print('⚠️  CustomImageView - Network timeout');
+        }
+
         return Image.asset(
           placeHolder,
           height: height,
           width: width,
           fit: fit ?? BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // placeholder 이미지도 없으면 회색 박스 표시
+            return Container(
+              height: height,
+              width: width,
+              color: Colors.grey[300],
+              child: const Icon(Icons.image_not_supported, color: Colors.grey),
+            );
+          },
         );
       },
     );

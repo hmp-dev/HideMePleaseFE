@@ -128,9 +128,6 @@ PODS:
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
   - Flutter (1.0.0)
-  - flutter_bcrypt (0.0.1):
-    - BCryptSwift (~> 1.1)
-    - Flutter
   - flutter_compass (0.0.1):
     - Flutter
   - flutter_inappwebview_ios (0.0.1):
@@ -313,6 +310,9 @@ PODS:
     - Flutter
   - wepin_flutter_login_lib (0.0.1):
     - AppAuth (~> 1.7.5)
+    - BCryptSwift (~> 1.1)
+    - Flutter
+  - wepin_flutter_storage (0.0.1):
     - Flutter
   - workmanager_apple (0.0.1):
     - Flutter
@@ -333,7 +333,6 @@ DEPENDENCIES:
   - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
-  - flutter_bcrypt (from `.symlinks/plugins/flutter_bcrypt/ios`)
   - flutter_compass (from `.symlinks/plugins/flutter_compass/ios`)
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
@@ -365,6 +364,7 @@ DEPENDENCIES:
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
   - wepin_flutter_common (from `.symlinks/plugins/wepin_flutter_common/ios`)
   - wepin_flutter_login_lib (from `.symlinks/plugins/wepin_flutter_login_lib/ios`)
+  - wepin_flutter_storage (from `.symlinks/plugins/wepin_flutter_storage/ios`)
   - workmanager_apple (from `.symlinks/plugins/workmanager_apple/ios`)
 
 SPEC REPOS:
@@ -430,8 +430,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
-  flutter_bcrypt:
-    :path: ".symlinks/plugins/flutter_bcrypt/ios"
   flutter_compass:
     :path: ".symlinks/plugins/flutter_compass/ios"
   flutter_inappwebview_ios:
@@ -492,6 +490,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wepin_flutter_common/ios"
   wepin_flutter_login_lib:
     :path: ".symlinks/plugins/wepin_flutter_login_lib/ios"
+  wepin_flutter_storage:
+    :path: ".symlinks/plugins/wepin_flutter_storage/ios"
   workmanager_apple:
     :path: ".symlinks/plugins/workmanager_apple/ios"
 
@@ -523,8 +523,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 487b634ccdf6f7b7ff180fdcb2a9935490f764e8
   FirebaseRemoteConfigInterop: 1c6135e8a094cc6368949f5faeeca7ee8948b8aa
   FirebaseSessions: c4d40a97f88f9eaff2834d61b4fea0a522d62123
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_bcrypt: 8ae63c682225f69d9981465509cb26b9e93522ef
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_compass: cbbd285cea1584c7ac9c4e0c3e1f17cbea55e855
   flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
@@ -573,9 +572,10 @@ SPEC CHECKSUMS:
   wakelock_plus: 373cfe59b235a6dd5837d0fb88791d2f13a90d56
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
   wepin_flutter_common: 505ac18aa0e2b9878d5d728df83d3ecd8bb93db9
-  wepin_flutter_login_lib: 7a5c331e8de42fc7423dcddc0ca0cb21341c0826
+  wepin_flutter_login_lib: 9ba2241f48e8d434199b1974be9186f42d7df1c3
+  wepin_flutter_storage: 3400570869672a0e9bd4a11751ac28377fbe8967
   workmanager_apple: 7bac258335c310689a641e2d66e88d4845d372e9
 
-PODFILE CHECKSUM: 044684804bd8d18b59ff094e1b6c62ae3951581a
+PODFILE CHECKSUM: 4b0a826b59d7e6c9722f73e53099e80ebee61db0
 
 COCOAPODS: 1.16.2

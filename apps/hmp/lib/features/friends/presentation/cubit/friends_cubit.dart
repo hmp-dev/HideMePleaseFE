@@ -20,7 +20,7 @@ class FriendsCubit extends BaseCubit<FriendsState> {
   /// 특정 사용자와의 친구 관계 상태 확인
   Future<void> checkFriendshipStatus(String userId) async {
     print('🔍 Checking friendship status for userId: $userId');
-    emit(state.copyWith(submitStatus: RequestStatus.loading));
+    emit(state.copyWith(queryStatus: RequestStatus.loading));
 
     final response = await _friendsRepository.getFriendshipStatus(userId: userId);
 
@@ -28,7 +28,7 @@ class FriendsCubit extends BaseCubit<FriendsState> {
       (err) {
         print('❌ Error checking friendship status: ${err.message}');
         emit(state.copyWith(
-          submitStatus: RequestStatus.failure,
+          queryStatus: RequestStatus.failure,
           errorMessage: LocaleKeys.somethingError.tr(),
           clearFriendshipStatus: true,
           clearFriendshipId: true,
@@ -40,7 +40,7 @@ class FriendsCubit extends BaseCubit<FriendsState> {
           // 친구 관계 없음
           print('✅ No friendship found - clearing state');
           emit(state.copyWith(
-            submitStatus: RequestStatus.success,
+            queryStatus: RequestStatus.success,
             errorMessage: '',
             clearFriendshipStatus: true,
             clearFriendshipId: true,
@@ -48,14 +48,27 @@ class FriendsCubit extends BaseCubit<FriendsState> {
         } else {
           // 친구 관계 있음
           final status = data['status'] as String?;
-          final id = data['id'] as String?;
+          final id = data['friendshipId'] as String?;
+          final direction = data['direction'] as String?;
 
-          print('📊 Friendship data - status: $status, id: $id');
+          print('📊 Friendship data - status: $status, friendshipId: $id, direction: $direction');
 
           FriendshipStatus? friendshipStatus;
           switch (status?.toUpperCase()) {
             case 'PENDING':
-              friendshipStatus = FriendshipStatus.PENDING;
+              // ✅ FIX: Use direction field from backend API
+              // direction: "sent" → 내가 보낸 신청 (PENDING_SENT)
+              // direction: "received" → 내가 받은 신청 (PENDING_RECEIVED)
+              if (direction == 'received') {
+                friendshipStatus = FriendshipStatus.PENDING_RECEIVED;
+                print('→ 받은 친구 신청 (수락 가능)');
+              } else if (direction == 'sent') {
+                friendshipStatus = FriendshipStatus.PENDING_SENT;
+                print('→ 내가 보낸 친구 신청 (대기 중)');
+              } else {
+                friendshipStatus = FriendshipStatus.PENDING;
+                print('→ 방향을 알 수 없는 PENDING 상태');
+              }
               break;
             case 'ACCEPTED':
               friendshipStatus = FriendshipStatus.ACCEPTED;
@@ -70,7 +83,7 @@ class FriendsCubit extends BaseCubit<FriendsState> {
 
           print('✅ Setting friendshipStatus to: $friendshipStatus');
           emit(state.copyWith(
-            submitStatus: RequestStatus.success,
+            queryStatus: RequestStatus.success,
             errorMessage: '',
             friendshipStatus: friendshipStatus,
             friendshipId: id,
@@ -101,7 +114,7 @@ class FriendsCubit extends BaseCubit<FriendsState> {
         emit(state.copyWith(
           submitStatus: RequestStatus.success,
           errorMessage: '',
-          friendshipStatus: FriendshipStatus.PENDING,
+          friendshipStatus: FriendshipStatus.PENDING_SENT, // 내가 보낸 신청
           friendshipId: friendshipId,
         ));
       },
@@ -311,6 +324,7 @@ class FriendsCubit extends BaseCubit<FriendsState> {
       clearFriendshipId: true,
       errorMessage: '',
       submitStatus: RequestStatus.initial,
+      queryStatus: RequestStatus.initial,
     ));
     print('✅ State after reset: friendshipStatus=${state.friendshipStatus}, friendshipId=${state.friendshipId}');
   }

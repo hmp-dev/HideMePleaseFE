@@ -53,6 +53,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appCubit = getIt<AppCubit>();
+
     return BaseScaffold(
       title: LocaleKeys.settings.tr(),
       isCenterTitle: true,
@@ -60,7 +62,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Navigator.pop(context);
       },
       body: BlocListener<AppCubit, AppState>(
-        bloc: getIt<AppCubit>(),
+        bloc: appCubit,
+        listenWhen: (previous, current) {
+          return previous.isLoggedIn != current.isLoggedIn;
+        },
         listener: (context, state) {
           if (!state.isLoggedIn) {
             Navigator.pushNamedAndRemoveUntil(
@@ -76,11 +81,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 bloc: getIt<SettingsCubit>(),
                 listener: (context, state) {},
                 builder: (context, state) {
-                  return state.submitStatus == RequestStatus.loading
-                      ? const SizedBox.shrink()
-                      : SettingsView(
-                          settingsBannerEntity: state.settingsBannerEntity,
-                        );
+                  // EasyLoading already shows loading indicator
+                  // Always show UI even during loading to prevent buttons from disappearing
+                  return SettingsView(
+                    // No key - Flutter handles State lifecycle naturally
+                    // UniqueKey caused BlocListener context issues preventing navigation
+                    settingsBannerEntity: state.settingsBannerEntity,
+                  );
                 },
               );
             },

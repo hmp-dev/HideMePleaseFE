@@ -25,9 +25,13 @@ import 'package:mobile/features/space/presentation/cubit/siren_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/features/space/presentation/cubit/siren_state.dart';
 import 'package:mobile/features/friends/presentation/screens/user_profile_screen.dart';
+import 'package:mobile/features/friends/presentation/cubit/friends_cubit.dart';
+import 'package:mobile/features/friends/domain/entities/friendship_entity.dart';
 import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
 import 'package:mobile/features/settings/presentation/cubit/notifications_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/notifications_screen.dart';
+import 'package:mobile/app/core/util/image_validation_helper.dart';
+import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
 
 class NewHomeScreen extends StatefulWidget {
   final VoidCallback? onShowGuide;
@@ -56,6 +60,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   static const double NEARBY_RADIUS_KM = 5.0; // 5km 반경
   StreamSubscription? _profileSubscription;
   late final SirenCubit _sirenCubit;
+  late final FriendsCubit _friendsCubit;
   ScrollController? _sirenScrollController;
   Timer? _sirenAutoScrollTimer;
   int _currentSirenIndex = 0;
@@ -77,7 +82,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   @override
   void initState() {
     super.initState();
+    print('🚀🚀🚀 [NewHomeScreen] initState 호출됨!!! 🚀🚀🚀');
     _sirenCubit = getIt<SirenCubit>();
+    _friendsCubit = getIt<FriendsCubit>();
+    // Load friends list for horizontal scroll
+    _friendsCubit.getFriendsList(page: 1, limit: 10);
     WidgetsBinding.instance.addObserver(this);
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -87,11 +96,16 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
       ),
     );
     MapboxOptions.setAccessToken(mapboxAccessToken);
+    print('🔄 [NewHomeScreen] _initializeData 호출 직전');
     _initializeData();
+    print('🔄 [NewHomeScreen] _initializeData 호출 직후');
     _checkFirstTimeUser();
     _subscribeToProfileChanges();
     _checkBackgroundLocationPermission();
     _initializeSirenAutoScroll();
+    // NOTE: Removed getUnreadCount() call to prevent race condition
+    // Badge is already reactive via BlocBuilder, no need to fetch on every navigation
+    print('✅ [NewHomeScreen] initState 완료');
   }
 
   Future<void> _checkBackgroundLocationPermission() async {
@@ -123,30 +137,58 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
     super.dispose();
   }
   
+  DateTime? _lastRefreshTime;
+  static const _refreshCooldown = Duration(minutes: 5);
+  bool _isRefreshing = false;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     if (state == AppLifecycleState.resumed) {
       // 앱이 포그라운드로 돌아왔을 때 위치 재갱신
-      print('🔄 App resumed - refreshing location and map');
+      print('🔄 App resumed - checking if refresh is needed');
       _refreshLocationAndMap();
     }
   }
-  
+
   Future<void> _refreshLocationAndMap() async {
-    // 현재 위치 다시 가져오기
-    await _getCurrentLocation();
+    // 중복 호출 방지: 이미 refresh 중이면 스킵
+    if (_isRefreshing) {
+      print('⏭️ Already refreshing, skipping duplicate call');
+      return;
+    }
 
-    // 매장 데이터 다시 로드
-    await _loadSpaces();
-
-    // 맵이 존재하면 카메라 위치 및 마커 업데이트
-    if (mapboxMap != null) {
-      _updateMapLocation();
-      if (allSpaces.isNotEmpty) {
-        _addSpaceMarkers();
+    // 5분 이내 중복 호출 방지
+    if (_lastRefreshTime != null) {
+      final timeSinceLastRefresh = DateTime.now().difference(_lastRefreshTime!);
+      if (timeSinceLastRefresh < _refreshCooldown) {
+        print('⏭️ Skipping refresh - last refresh was ${timeSinceLastRefresh.inSeconds}s ago (cooldown: ${_refreshCooldown.inMinutes}min)');
+        return;
       }
+    }
+
+    _isRefreshing = true;
+    _lastRefreshTime = DateTime.now();
+
+    try {
+      // 현재 위치 다시 가져오기
+      await _getCurrentLocation();
+
+      // 매장 데이터 다시 로드
+      await _loadSpaces();
+
+      // 맵이 존재하면 카메라 위치 및 마커 업데이트
+      if (mapboxMap != null) {
+        _updateMapLocation();
+        if (allSpaces.isNotEmpty) {
+          _addSpaceMarkers();
+        }
+      }
+
+      print('✅ Refresh completed successfully');
+    } finally {
+      _isRefreshing = false;
     }
   }
   
@@ -173,8 +215,27 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   
 
   Future<void> _initializeData() async {
+    print('🔄 [NewHomeScreen] _initializeData 시작');
     await _getCurrentLocation(); // _getCurrentLocation() 내부에서 _loadSirens() 호출됨
+    print('✅ [NewHomeScreen] _getCurrentLocation 완료');
+
+    // 🔍 newSpaceList 명시적으로 로드 (캐싱: 비어있을 때만)
+    final spaceCubit = getIt<SpaceCubit>();
+    if (spaceCubit.state.newSpaceList.isEmpty) {
+      print('🔄 [NewHomeScreen] onGetNewSpaceList 호출 중...');
+      await spaceCubit.onGetNewSpaceList();
+      print('✅ [NewHomeScreen] onGetNewSpaceList 완료: ${spaceCubit.state.newSpaceList.length}개');
+    } else {
+      print('💾 [NewHomeScreen] newSpaceList 캐시 사용 (${spaceCubit.state.newSpaceList.length}개)');
+    }
+
     await _loadSpaces();
+    print('✅ [NewHomeScreen] _loadSpaces 완료');
+
+    // 🔍 추가: SpaceCubit 상태 확인
+    print('📊 [NewHomeScreen] 초기화 완료 후 상태:');
+    print('   - newSpaceList: ${spaceCubit.state.newSpaceList.length}개');
+    print('   - spaceList: ${spaceCubit.state.spaceList.length}개');
   }
 
   void _loadSirens() {
@@ -263,17 +324,25 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   }
 
   Future<void> _loadSpaces() async {
+    print('🔄 [NewHomeScreen] _loadSpaces 시작');
     final spaceCubit = getIt<SpaceCubit>();
+
     await spaceCubit.onFetchAllSpaceViewData();
-    
+    print('✅ [NewHomeScreen] onFetchAllSpaceViewData 완료');
+    print('📊 [NewHomeScreen] spaceList 개수: ${spaceCubit.state.spaceList.length}');
+    print('📊 [NewHomeScreen] newSpaceList 개수: ${spaceCubit.state.newSpaceList.length}');
+
     if (spaceCubit.state.spaceList.isNotEmpty) {
       setState(() {
         allSpaces = spaceCubit.state.spaceList;
         nearbySpaces = spaceCubit.state.spaceList.take(3).toList();
         recommendedSpaces = spaceCubit.state.spaceList.skip(3).take(3).toList();
       });
+      print('✅ [NewHomeScreen] 매장 데이터 setState 완료');
       // 매장 마커 추가
       _addSpaceMarkers();
+    } else {
+      print('⚠️ [NewHomeScreen] spaceList가 비어있습니다!');
     }
   }
 
@@ -401,15 +470,21 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
       }
 
       print('📥 [HomeScreen] Loading profile image from: $imageUrl');
-      final response = await http.get(Uri.parse(imageUrl));
-      
-      if (response.statusCode == 200) {
-        print('✅ [HomeScreen] Profile image loaded successfully');
-        return response.bodyBytes;
-      } else {
-        print('❌ [HomeScreen] Failed to load profile image: ${response.statusCode}');
-        return null;
+
+      // 검증된 이미지 로딩 사용
+      final image = await ImageValidationHelper.loadNetworkImageSafely(url: imageUrl);
+
+      if (image != null) {
+        // ui.Image를 Uint8List로 변환
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        if (byteData != null) {
+          print('✅ [HomeScreen] Profile image loaded successfully');
+          return byteData.buffer.asUint8List();
+        }
       }
+
+      print('❌ [HomeScreen] Failed to load profile image');
+      return null;
     } catch (e) {
       print('❌ [HomeScreen] Error loading profile image: $e');
       return null;
@@ -786,8 +861,16 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
       print('✅ [HomeScreen] Location updated: $currentLatitude, $currentLongitude');
     }
 
-    // 현재 위치로 카메라 설정
-    _updateMapLocation();
+    // 현재 위치로 카메라 설정 (마커는 이미 814줄에서 추가됨)
+    if (mapboxMap != null) {
+      mapboxMap.setCamera(
+        CameraOptions(
+          center: Point(coordinates: Position(currentLongitude, currentLatitude)),
+          zoom: 16.0,
+          pitch: 0,
+        ),
+      );
+    }
 
     // 매장 마커 추가
     if (allSpaces.isNotEmpty) {
@@ -886,16 +969,16 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
                                 children: [
                                   _buildStatItem(
                                     'assets/icons/icon_home_friends.png',
-                                    '0'  // 친구 수는 0으로 표시
+                                    profile?.friendsCount?.toString() ?? '0'
                                   ),
                                   const SizedBox(width: 8),
                                   _buildStatItem(
-                                    'assets/icons/icon_home_checkin.png', 
+                                    'assets/icons/icon_home_checkin.png',
                                     profile?.checkInStats?.totalCheckIns?.toString() ?? '0'
                                   ),
                                   const SizedBox(width: 8),
                                   _buildStatItem(
-                                    'assets/icons/icon_home_sav.png', 
+                                    'assets/icons/icon_home_sav.png',
                                     profile?.availableBalance?.toString() ?? '0'
                                   ),
                                 ],
@@ -906,45 +989,53 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
                       ),
                     ),
                     // 알림 버튼
-                    Stack(
-                      children: [
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/icons/ico_bell.png',
-                            width: 28,
-                            height: 28,
-                          ),
-                          iconSize: 28,
-                          onPressed: () {
-                            getIt<NotificationsCubit>().onStart();
-                            NotificationsScreen.push(context);
-                          },
-                        ),
-                        if (false) ...[
-                        Positioned(
-                          right: 8,
-                          top: 8,
-                          child: Container(
-                            width: 12,
-                            height: 12,
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
+                    BlocBuilder<NotificationsCubit, NotificationsState>(
+                      bloc: getIt<NotificationsCubit>(),
+                      builder: (context, notificationState) {
+                        return Stack(
+                          children: [
+                            IconButton(
+                              icon: Image.asset(
+                                'assets/icons/ico_bell.png',
+                                width: 28,
+                                height: 28,
+                              ),
+                              iconSize: 28,
+                              onPressed: () {
+                                // NotificationsScreen에서 알아서 로드하므로 여기서는 호출 안 함
+                                NotificationsScreen.push(context);
+                              },
                             ),
-                            child: const Center(
-                              child: Text(
-                                '0',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
+                            if (notificationState.unreadCount > 0)
+                              Positioned(
+                                right: 6,
+                                top: 6,
+                                child: Container(
+                                  width: 15,
+                                  height: 15,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFF6363),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.black, width: 1),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      notificationState.unreadCount > 9
+                                          ? '9+'
+                                          : '${notificationState.unreadCount}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
-                        ],
-                      ],
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -1009,6 +1100,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
                   ),
                 ),
               ),
+
+              // 가로 스크롤 친구 목록
+              const SizedBox(height: 8),
+              _buildHorizontalFriendsList(),
 
               /*const SizedBox(height: 20),
 
@@ -1080,7 +1175,82 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
               BlocBuilder<SpaceCubit, SpaceState>(
                 bloc: getIt<SpaceCubit>(),
                 builder: (context, spaceState) {
-                  final spaces = spaceState.spaceList.take(3).toList();
+                  // 🔍 디버그 로그 1: 원본 데이터 확인
+                  print('🏠 [NewHomeScreen] ===== 새로운 공간 섹션 디버그 =====');
+                  print('🏠 [NewHomeScreen] newSpaceList 개수: ${spaceState.newSpaceList.length}');
+                  print('🏠 [NewHomeScreen] spaceList 개수: ${spaceState.spaceList.length}');
+
+                  // ⚡ newSpaceList가 비어있으면 자동으로 로드
+                  if (spaceState.newSpaceList.isEmpty && !spaceState.isLoading) {
+                    print('⚡ [NewHomeScreen] newSpaceList가 비어있어서 자동 로드 시작');
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      getIt<SpaceCubit>().onGetNewSpaceList();
+                    });
+                  }
+
+                  // 🔍 디버그 로그 2: newSpaceList 상세 정보
+                  if (spaceState.newSpaceList.isNotEmpty) {
+                    print('🏠 [NewHomeScreen] newSpaceList 첫 3개:');
+                    for (var i = 0; i < math.min(3, spaceState.newSpaceList.length); i++) {
+                      final newSpace = spaceState.newSpaceList[i];
+                      print('  - [$i] ID: ${newSpace.id}, 이름: ${newSpace.name}');
+                    }
+                  } else {
+                    print('⚠️ [NewHomeScreen] newSpaceList가 비어있습니다!');
+                  }
+
+                  // 🔍 디버그 로그 3: spaceList ID 목록
+                  if (spaceState.spaceList.isNotEmpty) {
+                    final spaceIds = spaceState.spaceList.map((s) => s.id).take(10).toList();
+                    print('🏠 [NewHomeScreen] spaceList의 첫 10개 ID: $spaceIds');
+                  } else {
+                    print('⚠️ [NewHomeScreen] spaceList가 비어있습니다!');
+                  }
+
+                  // newSpaceList의 순서를 유지하면서 spaceList에서 매칭되는 SpaceEntity 찾기
+                  List<SpaceEntity> spaces = spaceState.newSpaceList
+                      .take(3)
+                      .map((newSpace) {
+                        try {
+                          final matchedSpace = spaceState.spaceList.firstWhere(
+                            (space) => space.id == newSpace.id,
+                          );
+                          // 🔍 디버그 로그 4: 매칭 성공
+                          print('✅ [NewHomeScreen] ID 매칭 성공: ${newSpace.id} → ${matchedSpace.name}');
+                          return matchedSpace;
+                        } catch (e) {
+                          // 🔍 디버그 로그 5: 매칭 실패
+                          print('❌ [NewHomeScreen] ID 매칭 실패: ${newSpace.id}, 에러: $e');
+                          return null;
+                        }
+                      })
+                      .whereType<SpaceEntity>()  // null 제거
+                      .toList();
+
+                  // 📊 3개 미만이면 spaceList에서 채워넣기
+                  if (spaces.length < 3 && spaceState.spaceList.isNotEmpty) {
+                    print('📊 [NewHomeScreen] newSpaceList가 ${spaces.length}개뿐이므로, spaceList에서 ${3 - spaces.length}개 추가');
+                    final existingIds = spaces.map((s) => s.id).toSet();
+                    final additionalSpaces = spaceState.spaceList
+                        .where((space) => !existingIds.contains(space.id))
+                        .take(3 - spaces.length)
+                        .toList();
+                    spaces.addAll(additionalSpaces);
+                    print('✅ [NewHomeScreen] 추가 완료: 총 ${spaces.length}개');
+                  }
+
+                  // 🔍 디버그 로그 6: 최종 결과
+                  print('🏠 [NewHomeScreen] 최종 spaces 개수: ${spaces.length}');
+                  if (spaces.isNotEmpty) {
+                    print('🏠 [NewHomeScreen] 최종 spaces:');
+                    for (var i = 0; i < spaces.length; i++) {
+                      print('  - [$i] ${spaces[i].name} (${spaces[i].id})');
+                    }
+                  } else {
+                    print('⚠️ [NewHomeScreen] 최종 spaces가 비어있습니다!');
+                  }
+                  print('🏠 [NewHomeScreen] =====================================');
+
                   return _buildSpaceSection(
                     title: LocaleKeys.new_hiding_places.tr(),
                     spaces: spaces,
@@ -1383,4 +1553,88 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
   //     },
   //   );
   // }
+
+  // 가로 스크롤 친구 목록 위젯
+  Widget _buildHorizontalFriendsList() {
+    return BlocBuilder<FriendsCubit, FriendsState>(
+      bloc: _friendsCubit,
+      builder: (context, state) {
+        // 친구가 없으면 숨김
+        if (state.friendsList.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        // 체크인된 친구만 필터링 (ACCEPTED 상태 AND activeCheckIn이 있는 친구)
+        final checkedInFriends = state.friendsList
+            .where((friendship) =>
+                friendship.status == FriendshipStatus.ACCEPTED &&
+                friendship.friend.activeCheckIn != null)
+            .toList();
+
+        if (checkedInFriends.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return SizedBox(
+          height: 82,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: checkedInFriends.length,
+            itemBuilder: (context, index) {
+              final friendship = checkedInFriends[index];
+              final friend = friendship.friend;
+
+              return GestureDetector(
+                onTap: () {
+                  // 친구 프로필로 이동
+                  UserProfileScreen.push(context, userId: friend.userId);
+                },
+                child: Container(
+                  width: 52,
+                  margin: const EdgeInsets.only(right: 6),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 원형 아바타
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF132E41),
+                            width: 1,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: CustomImageView(
+                            url: friend.profileImageUrl,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // 친구 닉네임
+                      Text(
+                        friend.nickName,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
 }

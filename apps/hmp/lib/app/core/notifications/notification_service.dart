@@ -4,20 +4,106 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/my/domain/repositories/profile_repository.dart';
 import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
+import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  ("📩 Background message received").log();
   ("notifications title:${message.notification?.title}").log();
   ("notifications body:${message.notification?.body}").log();
   ('count:${message.notification?.android?.count}').log();
   ('data:${message.data.toString()}').log();
+
   await Firebase.initializeApp();
+
+  // Handle Silent Push for check-in heartbeat
+  final messageType = message.data['type'];
+  if (messageType == 'CHECKIN_HEARTBEAT') {
+    ('💓 Silent Push for heartbeat received').log();
+    await _handleHeartbeatSilentPush();
+  }
+}
+
+/// Handle Silent Push for sending heartbeat while app is in background
+Future<void> _handleHeartbeatSilentPush() async {
+  try {
+    // Initialize Flutter engine for background isolate
+    // This is required for plugins like SharedPreferences to work in background
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Import dependencies
+    await configureDependencies();
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final spaceId = prefs.getString('currentCheckedInSpaceId');
+
+    if (spaceId == null) {
+      ('📍 No active check-in, skipping heartbeat').log();
+      return;
+    }
+
+    final checkInLat = prefs.getDouble('checkInLatitude');
+    final checkInLng = prefs.getDouble('checkInLongitude');
+
+    if (checkInLat == null || checkInLng == null) {
+      ('📍 No check-in location data, skipping heartbeat').log();
+      return;
+    }
+
+    ('💓 Sending heartbeat via Silent Push for space: $spaceId').log();
+
+    // Get current position
+    Position currentPosition;
+    try {
+      currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+    } catch (e) {
+      ('⚠️ Failed to get high accuracy, trying low: $e').log();
+      currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low,
+        timeLimit: const Duration(seconds: 5),
+      );
+    }
+
+    // Send heartbeat to server
+    final spaceRemoteDataSource = getIt<SpaceRemoteDataSource>();
+    await spaceRemoteDataSource.sendCheckInHeartbeat(
+      spaceId: spaceId,
+      latitude: currentPosition.latitude,
+      longitude: currentPosition.longitude,
+    );
+
+    ('✅ Heartbeat sent successfully via Silent Push').log();
+
+    // Check distance (optional - server can also do this)
+    final distance = Geolocator.distanceBetween(
+      checkInLat,
+      checkInLng,
+      currentPosition.latitude,
+      currentPosition.longitude,
+    );
+
+    ('📏 Distance from check-in: ${distance.toStringAsFixed(2)}m').log();
+
+    if (distance > 50.0) {
+      ('🚨 User moved beyond 50m, marking for auto check-out').log();
+      await prefs.setBool('shouldAutoCheckOut', true);
+      await prefs.setString('pendingCheckOutSpaceId', spaceId);
+    }
+  } catch (e) {
+    ('❌ Error handling heartbeat Silent Push: $e').log();
+  }
 }
 
 enum NotificationType { none, spot, chat, match, matchingComplete }
@@ -103,25 +189,8 @@ class NotificationServices {
           ('count:${message.notification?.android?.count}').log();
           ('data:${message.data.toString()}').log();
 
-          // 체크인 관련 푸시는 이미 시스템 푸시로 표시되므로 로컬 알림 표시하지 않음
-          bool isCheckInNotification = message.data['type'] == 'CHECK_IN' || 
-                                       message.data['type'] == 'CHECK_IN_SUCCESS' ||
-                                       message.data['type'] == 'MATCHING_COMPLETE' ||
-                                       (message.notification?.title?.contains('체크인') ?? false) ||
-                                       (message.notification?.body?.contains('체크인') ?? false) ||
-                                       (message.notification?.title?.contains('매칭') ?? false) ||
-                                       (message.notification?.body?.contains('매칭') ?? false) ||
-                                       (message.notification?.title?.contains('체크아웃') ?? false) ||
-                                       (message.notification?.body?.contains('체크아웃') ?? false);
-
-          if (!isCheckInNotification && 
-              (!_isChatPageActive ||
-              (_isChatPageActive &&
-                  message.data['type'] != 'MESSAGE_RECEIVED'))) {
-            _showNotification(message);
-          } else if (isCheckInNotification) {
-            ('🔕 체크인 알림은 로컬 알림으로 표시하지 않음 (중복 방지)').log();
-          }
+          // 모든 알림은 서버에서 처리하므로 로컬 알림을 표시하지 않음
+          ('🔕 서버 푸시 사용 (로컬 알림 스킵)').log();
         });
 
         getDeviceToken().then((fcmToken) {
