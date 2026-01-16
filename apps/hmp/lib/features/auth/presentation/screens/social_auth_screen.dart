@@ -237,8 +237,8 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> with WidgetsBinding
             final shouldListen =
                 (previous.isLogInSuccessful != current.isLogInSuccessful) ||
                 (previous.submitStatus != current.submitStatus &&
-                 current.submitStatus == RequestStatus.success &&
-                 current.isLogInSuccessful);
+                 (current.submitStatus == RequestStatus.success ||
+                  current.submitStatus == RequestStatus.failure));
 
             '🔍 [SocialAuthScreen] listenWhen check - '
                 'prev isLogIn: ${previous.isLogInSuccessful}, '
@@ -338,6 +338,9 @@ class _SocialAuthScreenState extends State<SocialAuthScreen> with WidgetsBinding
           // 실패 상태 처리
           if (state.submitStatus == RequestStatus.failure) {
             '❌ [SocialAuthScreen] Login failed: ${state.message}'.log();
+
+            // 로딩 인디케이터 해제
+            EasyLoading.dismiss();
 
             // Reset active login flag on failure
             setState(() {

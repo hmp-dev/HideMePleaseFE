@@ -539,5 +539,23 @@
     "siren_home_empty_message": "No sirens nearby yet! Send the first siren!",
     "friend_request_received_single": "You received a friend request from a Hider!",
     "friend_request_received_multiple": "You received friend requests from multiple Hiders!",
-    "notification_announcement_message": "You have a new announcement!"
+    "notification_announcement_message": "You have a new announcement!",
+    "siren_report_title": "Report if you see any of the following content.",
+    "siren_report_reason_sexual": "Sexual or obscene content",
+    "siren_report_reason_hate": "Hate speech or discrimination",
+    "siren_report_reason_violence": "Profanity, threats, or violent content",
+    "siren_report_reason_other": "Other inappropriate content",
+    "siren_report_notice": "Your report will be submitted immediately and reviewed by our team.",
+    "siren_report_cancel": "Cancel",
+    "siren_report_submit": "Report",
+    "siren_report_success_title": "Report submitted.",
+    "siren_report_success_message": "Thanks for letting us know!",
+
+    "block_user": "Block User",
+    "block_user_title": "Block User",
+    "block_user_message": "Are you sure you want to block this user?\nPosts from blocked users will no longer be shown.",
+    "block_user_confirm": "Block",
+    "block_user_cancel": "Cancel",
+    "block_user_success_title": "Blocked",
+    "block_user_success_message": "User has been blocked."
 }

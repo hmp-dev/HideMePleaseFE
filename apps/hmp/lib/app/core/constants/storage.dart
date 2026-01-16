@@ -43,4 +43,10 @@ abstract class StorageValues {
   // Daily check-in tracking
   static const String dailyCheckedInSpaces = 'dailyCheckedInSpaces';
   static const String lastCheckInDate = 'lastCheckInDate';
+
+  // Reported siren IDs (hidden from user)
+  static const String reportedSirenIds = 'reportedSirenIds';
+
+  // Blocked user IDs (sirens from blocked users are hidden)
+  static const String blockedUserIds = 'blockedUserIds';
 }

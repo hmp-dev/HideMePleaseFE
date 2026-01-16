@@ -18,6 +18,9 @@ import 'package:mobile/features/my/infrastructure/data_sources/profile_remote_da
 import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/my/presentation/widgets/profile_image_fullscreen_viewer.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/cubit/siren_cubit.dart';
+import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final String userId;
@@ -357,6 +360,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   // 친구 신청 버튼 (타인일 경우)
                   _buildFriendRequestButton(),
 
+                  const SizedBox(height: 12),
+
+                  // 차단 버튼 (타인일 경우)
+                  _buildBlockButton(),
+
                   const SizedBox(height: 100), // 바텀바 공간
                 ],
               ),
@@ -377,41 +385,54 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-          // 하이딩 중 태그 - 가운데 정렬
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF132E41), width: 1),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: isHiding ? const Color(0xFF19BAFF) : Colors.red,
-                    shape: BoxShape.circle,
+          // 하이딩 중 태그 - 가운데 정렬 (탭하면 매장으로 이동)
+          GestureDetector(
+            onTap: isHiding ? () async {
+              final activeCheckIn = _userProfile?.checkInStats?.activeCheckIn;
+              if (activeCheckIn != null) {
+                final spaceId = activeCheckIn.spaceId;
+                final spaceCubit = getIt<SpaceCubit>();
+                await spaceCubit.onGetSpaceDetailBySpaceId(spaceId: spaceId);
+                if (mounted) {
+                  SpaceDetailScreen.push(context);
+                }
+              }
+            } : null,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF132E41), width: 1),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: isHiding ? const Color(0xFF19BAFF) : Colors.red,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  isHiding ? LocaleKeys.hiding_status.tr() : LocaleKeys.before_hiding.tr(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                  const SizedBox(width: 6),
+                  Text(
+                    isHiding ? LocaleKeys.hiding_status.tr() : LocaleKeys.before_hiding.tr(),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                Icon(
-                  Icons.chevron_right,
-                  color: const Color(0xFF132E41),
-                  size: 18,
-                ),
-              ],
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.chevron_right,
+                    color: const Color(0xFF132E41),
+                    size: 18,
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -616,6 +637,226 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           imageUrl: _userProfile?.finalProfileImageUrl ?? _userProfile?.pfpImageUrl,
         ),
       ),
+    );
+  }
+
+  Widget _buildBlockButton() {
+    // 자신의 프로필인 경우 버튼을 표시하지 않음
+    final currentUserId = getIt<ProfileCubit>().state.userProfileEntity.id;
+    if (currentUserId == widget.userId) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GestureDetector(
+        onTap: _showBlockDialog,
+        child: Container(
+          width: double.infinity,
+          height: 50,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFF6B6B),
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: const Color(0xFF000000), width: 1),
+          ),
+          child: Center(
+            child: Text(
+              LocaleKeys.block_user.tr(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showBlockDialog() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.7),
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: const Color(0xFFEAF8FF),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAF8FF),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF132E41),
+                width: 2,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 제목
+                Text(
+                  LocaleKeys.block_user_title.tr(),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF132E41),
+                    fontFamily: 'LINESeedKR',
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 메시지
+                Text(
+                  LocaleKeys.block_user_message.tr(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF132E41),
+                    fontFamily: 'LINESeedKR',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+
+                // 버튼들
+                Row(
+                  children: [
+                    // 취소 버튼
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: const Color(0x4D000000),
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              color: const Color(0xFF000000),
+                              width: 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              LocaleKeys.block_user_cancel.tr(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontFamily: 'LINESeedKR',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // 차단하기 버튼
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          getIt<SirenCubit>().blockUser(widget.userId);
+                          _showBlockSuccessDialog();
+                        },
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF6B6B),
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              color: const Color(0xFF000000),
+                              width: 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              LocaleKeys.block_user_confirm.tr(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontFamily: 'LINESeedKR',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showBlockSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.7),
+      builder: (BuildContext context) {
+        // 2초 후 자동 닫힘 + 이전 화면으로 이동
+        Future.delayed(const Duration(seconds: 2), () {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop(); // 다이얼로그 닫기
+          }
+          if (mounted && Navigator.of(this.context).canPop()) {
+            Navigator.of(this.context).pop(); // 프로필 화면 닫기
+          }
+        });
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop(); // 다이얼로그 닫기
+            Navigator.of(this.context).pop(); // 프로필 화면 닫기
+          },
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            backgroundColor: const Color(0xFFEAF8FF),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEAF8FF),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: const Color(0xFF132E41),
+                  width: 2,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    LocaleKeys.block_user_success_title.tr(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF132E41),
+                      fontFamily: 'LINESeedKR',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    LocaleKeys.block_user_success_message.tr(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF132E41),
+                      fontFamily: 'LINESeedKR',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

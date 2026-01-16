@@ -29,6 +29,7 @@ import 'package:mobile/features/friends/presentation/cubit/friends_cubit.dart';
 import 'package:mobile/features/friends/domain/entities/friendship_entity.dart';
 import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
 import 'package:mobile/features/settings/presentation/cubit/notifications_cubit.dart';
+import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/notifications_screen.dart';
 import 'package:mobile/app/core/util/image_validation_helper.dart';
 import 'package:mobile/features/common/presentation/widgets/custom_image_view.dart';
@@ -105,6 +106,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
     _initializeSirenAutoScroll();
     // NOTE: Removed getUnreadCount() call to prevent race condition
     // Badge is already reactive via BlocBuilder, no need to fetch on every navigation
+    // 공지사항 로드 (알림 아이콘 배지 표시용)
+    getIt<SettingsCubit>().onGetAnnouncements();
     print('✅ [NewHomeScreen] initState 완료');
   }
 
@@ -992,48 +995,49 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
                     BlocBuilder<NotificationsCubit, NotificationsState>(
                       bloc: getIt<NotificationsCubit>(),
                       builder: (context, notificationState) {
-                        return Stack(
-                          children: [
-                            IconButton(
-                              icon: Image.asset(
-                                'assets/icons/ico_bell.png',
-                                width: 28,
-                                height: 28,
-                              ),
-                              iconSize: 28,
-                              onPressed: () {
-                                // NotificationsScreen에서 알아서 로드하므로 여기서는 호출 안 함
-                                NotificationsScreen.push(context);
-                              },
-                            ),
-                            if (notificationState.unreadCount > 0)
-                              Positioned(
-                                right: 6,
-                                top: 6,
-                                child: Container(
-                                  width: 15,
-                                  height: 15,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFF6363),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.black, width: 1),
+                        return BlocBuilder<SettingsCubit, SettingsState>(
+                          bloc: getIt<SettingsCubit>(),
+                          builder: (context, settingsState) {
+                            // 일주일 이내 공지사항 체크
+                            final hasRecentAnnouncements = settingsState.announcements.any((a) {
+                              final createdAt = DateTime.tryParse(a.createdAt);
+                              if (createdAt == null) return false;
+                              return DateTime.now().difference(createdAt).inDays <= 7;
+                            });
+
+                            final showBadge = notificationState.unreadCount > 0 || hasRecentAnnouncements;
+
+                            return Stack(
+                              children: [
+                                IconButton(
+                                  icon: Image.asset(
+                                    'assets/icons/ico_bell.png',
+                                    width: 28,
+                                    height: 28,
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      notificationState.unreadCount > 9
-                                          ? '9+'
-                                          : '${notificationState.unreadCount}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.bold,
-                                        height: 1,
+                                  iconSize: 28,
+                                  onPressed: () {
+                                    // NotificationsScreen에서 알아서 로드하므로 여기서는 호출 안 함
+                                    NotificationsScreen.push(context);
+                                  },
+                                ),
+                                if (showBadge)
+                                  Positioned(
+                                    right: 6,
+                                    top: 6,
+                                    child: Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFF6363),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.black, width: 1),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                          ],
+                              ],
+                            );
+                          },
                         );
                       },
                     ),
@@ -1102,7 +1106,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
               ),
 
               // 가로 스크롤 친구 목록
-              const SizedBox(height: 8),
+              const SizedBox(height: 24),
               _buildHorizontalFriendsList(),
 
               /*const SizedBox(height: 20),
@@ -1164,8 +1168,6 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
                 ),
               ),
               */
-              const SizedBox(height: 24),
-
               // Come On! 하이더들의 사이렌을 확인해봐! 섹션
               _buildSirenSection(),
 
@@ -1575,64 +1577,70 @@ class _NewHomeScreenState extends State<NewHomeScreen> with WidgetsBindingObserv
           return const SizedBox.shrink();
         }
 
-        return SizedBox(
-          height: 82,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: checkedInFriends.length,
-            itemBuilder: (context, index) {
-              final friendship = checkedInFriends[index];
-              final friend = friendship.friend;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 82,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: checkedInFriends.length,
+                itemBuilder: (context, index) {
+                  final friendship = checkedInFriends[index];
+                  final friend = friendship.friend;
 
-              return GestureDetector(
-                onTap: () {
-                  // 친구 프로필로 이동
-                  UserProfileScreen.push(context, userId: friend.userId);
+                  return GestureDetector(
+                    onTap: () {
+                      // 친구 프로필로 이동
+                      UserProfileScreen.push(context, userId: friend.userId);
+                    },
+                    child: Container(
+                      width: 52,
+                      margin: const EdgeInsets.only(right: 6),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 원형 아바타
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFF132E41),
+                                width: 1,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: CustomImageView(
+                                url: friend.profileImageUrl,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          // 친구 닉네임
+                          Text(
+                            friend.nickName,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
-                child: Container(
-                  width: 52,
-                  margin: const EdgeInsets.only(right: 6),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 원형 아바타
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF132E41),
-                            width: 1,
-                          ),
-                        ),
-                        child: ClipOval(
-                          child: CustomImageView(
-                            url: friend.profileImageUrl,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      // 친구 닉네임
-                      Text(
-                        friend.nickName,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+              ),
+            ),
+            const SizedBox(height: 24), // 친구 목록 아래 간격
+          ],
         );
       },
     );

@@ -154,7 +154,7 @@ class _SavHistoryBottomSheetState extends State<SavHistoryBottomSheet> {
                         // 텍스트
                         const Expanded(
                           child: Text(
-                            '세이보리는 하미플 세계에서 쓰는 소셜 화폐야.\\n친구도 만들고, 내가 숨은 곳도 알리고,\\n사이렌까지 울릴 수 있어!',
+                            '세이보리는 하미플 세계에서 쓰는 소셜 화폐야.\n친구도 만들고, 내가 숨은 곳도 알리고,\n사이렌까지 울릴 수 있어!',
                             style: TextStyle(
                               color: Color(0xFF000000),
                               fontSize: 13,

@@ -7,6 +7,7 @@ import 'package:mobile/features/settings/presentation/widgets/notification_item_
 import 'package:mobile/features/common/presentation/views/base_scaffold.dart';
 import 'package:mobile/features/settings/domain/entities/notification_entity.dart';
 import 'package:mobile/features/settings/presentation/cubit/notifications_cubit.dart';
+import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/friends/presentation/widgets/friend_request_list_dialog.dart';
 import 'package:mobile/features/friends/presentation/cubit/friends_cubit.dart';
 import 'package:mobile/features/settings/presentation/screens/announcement_screen.dart';
@@ -93,13 +94,6 @@ class _NotificationsViewState extends State<NotificationsView> {
           final hasReceivedRequests = friendsState.receivedRequests.isNotEmpty;
           final requestCount = friendsState.receivedRequests.length;
 
-          // 읽지 않은 공지사항이 있는지 확인
-          final hasUnreadAnnouncements = widget.notifications.any(
-            (notification) =>
-                notification.type.toUpperCase().contains('ANNOUNCEMENT') &&
-                !notification.isRead,
-          );
-
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -159,53 +153,66 @@ class _NotificationsViewState extends State<NotificationsView> {
                         ),
                       ),
 
-                    // 공지사항 요약 카드
-                    if (hasUnreadAnnouncements)
-                      GestureDetector(
-                        onTap: () {
-                          AnnouncementScreen.push(context);
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF4D9),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFFFFB800).withOpacity(0.2),
-                              width: 1,
+                    // 공지사항 요약 카드 (일주일 이내 공지가 있으면 표시)
+                    BlocBuilder<SettingsCubit, SettingsState>(
+                      bloc: getIt<SettingsCubit>(),
+                      builder: (context, settingsState) {
+                        // 일주일 이내 등록된 공지가 있는지 확인
+                        final hasRecentAnnouncements = settingsState.announcements.any((announcement) {
+                          final createdAt = DateTime.tryParse(announcement.createdAt);
+                          if (createdAt == null) return false;
+                          return DateTime.now().difference(createdAt).inDays <= 7;
+                        });
+
+                        if (!hasRecentAnnouncements) return const SizedBox.shrink();
+
+                        return GestureDetector(
+                          onTap: () {
+                            AnnouncementScreen.push(context);
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                'assets/icons/ico_bell.png',
-                                width: 24,
-                                height: 24,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF4D9),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFFFFB800).withOpacity(0.2),
+                                width: 1,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  LocaleKeys.notification_announcement_message.tr(),
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                            ),
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  'assets/icons/ico_bell.png',
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    LocaleKeys.notification_announcement_message.tr(),
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                                color: Colors.black,
-                              ),
-                            ],
+                                const Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 16,
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
+                    ),
 
                     // 알림 목록
                     (widget.notifications.isEmpty)

@@ -66,6 +66,19 @@ class AuthRepositoryImpl implements AuthRepository {
       final getIdToken = await FirebaseAuth.instance.currentUser?.getIdToken();
 
       return right(getIdToken ?? "");
+    } on SignInWithAppleAuthorizationException catch (e) {
+      // 사용자가 로그인을 취소한 경우
+      if (e.code == AuthorizationErrorCode.canceled) {
+        return left(
+          HMPError.fromNetwork(
+            message: '로그인이 취소되었습니다.',
+          ),
+        );
+      }
+      ('inside Apple login Error:$e}').log();
+      return left(HMPError.fromUnknown(
+        error: e,
+      ));
     } catch (e, t) {
       ('inside Apple login Error:$e}').log();
       return left(HMPError.fromUnknown(
@@ -92,7 +105,17 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       final googleUser = await googleSignIn.signIn();
-      final googleAuth = await googleUser!.authentication;
+
+      // 사용자가 로그인을 취소한 경우
+      if (googleUser == null) {
+        return left(
+          HMPError.fromNetwork(
+            message: '로그인이 취소되었습니다.',
+          ),
+        );
+      }
+
+      final googleAuth = await googleUser.authentication;
 
       credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,

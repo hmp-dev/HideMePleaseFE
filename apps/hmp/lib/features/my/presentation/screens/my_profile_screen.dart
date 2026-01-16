@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'dart:typed_data';
@@ -19,6 +20,8 @@ import 'package:mobile/features/my/presentation/widgets/profile_image_fullscreen
 import 'package:mobile/features/friends/presentation/cubit/friends_cubit.dart';
 import 'package:mobile/features/friends/presentation/screens/friends_list_screen.dart';
 import 'package:mobile/features/my/presentation/widgets/sav_history_bottom_sheet.dart';
+import 'package:mobile/features/space/presentation/cubit/space_cubit.dart';
+import 'package:mobile/features/space/presentation/screens/space_detail_screen.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -35,6 +38,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   bool _isLoadingColor = false;
   bool _colorExtracted = false; // 색상 추출 완료 여부
   final GlobalKey _profileKey = GlobalKey(); // 프로필 위젯 캡처용
+  StreamSubscription<ProfileState>? _profileSubscription;
   
   // 나의 아지트 데이터 배열 (TODO: 서버 데이터로 교체)
   final List<Map<String, dynamic>> myHidingSpots = [
@@ -135,6 +139,24 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         _extractDominantColorFromWidget();
       }
     });
+
+    // ProfileCubit 상태 변경 구독 (체크인 후 포인트 업데이트 반영)
+    _subscribeToProfileChanges();
+  }
+
+  void _subscribeToProfileChanges() {
+    final profileCubit = getIt<ProfileCubit>();
+    _profileSubscription = profileCubit.stream.listen((state) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _profileSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _extractDominantColorFromWidget() async {
@@ -303,40 +325,51 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               ),
               
               // 하이딩 중 태그
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF132E41), width: 1),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: isHiding ? const Color(0xFF19BAFF) : Colors.red,
-                        shape: BoxShape.circle,
+              GestureDetector(
+                onTap: isHiding
+                    ? () {
+                        final activeCheckIn = userProfile?.checkInStats?.activeCheckIn;
+                        if (activeCheckIn != null) {
+                          getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(spaceId: activeCheckIn.spaceId);
+                          SpaceDetailScreen.push(context);
+                        }
+                      }
+                    : null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFF132E41), width: 1),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: isHiding ? const Color(0xFF19BAFF) : Colors.red,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      isHiding ? LocaleKeys.hiding_status.tr() : LocaleKeys.before_hiding.tr(),
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(width: 6),
+                      Text(
+                        isHiding ? LocaleKeys.hiding_status.tr() : LocaleKeys.before_hiding.tr(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Icon(
-                      Icons.chevron_right,
-                      color: const Color(0xFF132E41),
-                      size: 18,
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      Icon(
+                        Icons.chevron_right,
+                        color: const Color(0xFF132E41),
+                        size: 18,
+                      ),
+                    ],
+                  ),
                 ),
               ),
           

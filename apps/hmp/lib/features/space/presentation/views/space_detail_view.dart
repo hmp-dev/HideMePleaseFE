@@ -919,19 +919,64 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
     print('🔵 _handleCheckIn called');
     print('🔵 Platform: ${Platform.isIOS ? "iOS" : "Android"}');
 
-    // 로컬 체크인 기록 확인 (서버 요청 전에 1차 방어)
-    if (await _isAlreadyCheckedInToday(widget.space.id)) {
-      print('🚫 Already checked in today (local record)');
-      if (mounted) {
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => CheckinFailDialog(
-            customErrorMessage: '오늘 이미 이 매장에 체크인했어! 내일 다시 방문해줘 😊',
-          ),
-        );
+    // 서버에서 체크인 상태 확인 (1차 방어)
+    try {
+      final result = await _spaceRepository.getCheckInUsers(spaceId: widget.space.id);
+      final serverCheckResult = result.fold(
+        (error) => null,
+        (response) => response,
+      );
+
+      if (serverCheckResult != null) {
+        print('🔍 Server check-in status: hasCheckedInToday=${serverCheckResult.hasCheckedInToday}, isUnlimitedUser=${serverCheckResult.isUnlimitedUser}');
+
+        // 오늘 이미 체크인했고, 무제한 유저가 아닌 경우 차단
+        if (serverCheckResult.hasCheckedInToday && !serverCheckResult.isUnlimitedUser) {
+          print('🚫 Already checked in today (server response)');
+          if (mounted) {
+            await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => CheckinFailDialog(
+                customErrorMessage: '오늘 이미 이 매장에 체크인했어! 내일 다시 방문해줘 😊',
+              ),
+            );
+          }
+          return; // 체크인 프로세스 중단
+        }
+      } else {
+        // 서버 응답 실패 시 로컬 체크로 fallback
+        print('⚠️ Server check failed, falling back to local check');
+        if (await _isAlreadyCheckedInToday(widget.space.id)) {
+          print('🚫 Already checked in today (local record)');
+          if (mounted) {
+            await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => CheckinFailDialog(
+                customErrorMessage: '오늘 이미 이 매장에 체크인했어! 내일 다시 방문해줘 😊',
+              ),
+            );
+          }
+          return; // 체크인 프로세스 중단
+        }
       }
-      return; // 체크인 프로세스 중단
+    } catch (e) {
+      print('⚠️ Error checking server status: $e, falling back to local check');
+      // 예외 발생 시 로컬 체크로 fallback
+      if (await _isAlreadyCheckedInToday(widget.space.id)) {
+        print('🚫 Already checked in today (local record)');
+        if (mounted) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => CheckinFailDialog(
+              customErrorMessage: '오늘 이미 이 매장에 체크인했어! 내일 다시 방문해줘 😊',
+            ),
+          );
+        }
+        return; // 체크인 프로세스 중단
+      }
     }
 
     // 먼저 거리 체크
@@ -1436,16 +1481,8 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
           print('🔄 Proceeding without Live Activity...');
         }
         
-        // 라이브 액티비티 업데이트 - 사장님 확인 완료 상태로 변경
-        try {
-          print('📱 Updating Live Activity with isConfirmed = true');
-          await _liveActivityService.updateCheckInActivity(
-            isConfirmed: true,
-          );
-          print('✅ Live Activity updated successfully');
-        } catch (e) {
-          print('⚠️ Failed to update Live Activity (not affecting check-in): $e');
-        }
+        // Live Activity 업데이트는 서버 Push로 처리됨
+        print('📱 Live Activity will be updated via server push');
 
         // savedContext만 체크
         print('🔍 Checking savedContext.mounted: ${savedContext.mounted}');
@@ -1626,27 +1663,9 @@ class _SpaceDetailViewState extends State<SpaceDetailView>
         });
       }
 
-      try {
-        print('🔄 Starting Live Activity...');
-        // Live Activity 시작 시도
-        final maxCapacity = widget.space.maxCapacity > 0 ? widget.space.maxCapacity : 5;
-
-        final liveActivityService = getIt<LiveActivityService>();
-        /*await liveActivityService.startCheckInActivity(
-          spaceName: widget.space.name,
-          currentUsers: 1,
-          remainingUsers: maxCapacity - 1,
-          maxCapacity: maxCapacity,
-          spaceId: widget.space.id,
-        );*/
-
-        print('🔄 Updating Live Activity...');
-        // Live Activity 업데이트
-        await liveActivityService.updateCheckInActivity(isConfirmed: true);
-        print('✅ Live Activity completed');
-      } catch (e) {
-        print('⚠️ Live Activity failed but continuing: $e');
-      }
+      // Live Activity는 SpaceCubit.onCheckInWithNfc에서 시작됨
+      // 업데이트는 서버 Push 또는 폴링으로 처리됨
+      print('📱 Live Activity is managed by SpaceCubit and server push');
 
       print('🔄 Updating profile...');
       // 프로필 정보 업데이트

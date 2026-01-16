@@ -17,6 +17,8 @@ CheckInUsersResponseDto _$CheckInUsersResponseDtoFromJson(
           ? null
           : CurrentGroupDto.fromJson(
               json['currentGroup'] as Map<String, dynamic>),
+      hasCheckedInToday: json['hasCheckedInToday'] as bool?,
+      isUnlimitedUser: json['isUnlimitedUser'] as bool?,
     );
 
 Map<String, dynamic> _$CheckInUsersResponseDtoToJson(
@@ -25,4 +27,6 @@ Map<String, dynamic> _$CheckInUsersResponseDtoToJson(
       'totalCount': instance.totalCount,
       'users': instance.users,
       'currentGroup': instance.currentGroup,
+      'hasCheckedInToday': instance.hasCheckedInToday,
+      'isUnlimitedUser': instance.isUnlimitedUser,
     };

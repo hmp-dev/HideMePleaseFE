@@ -12,8 +12,12 @@ final getIt = GetIt.instance;
   asExtension: true,
 )
 Future<void> configureDependencies() async {
-  getIt.registerLazySingleton(() => SnackbarService());
-  getIt.registerLazySingleton(() => Talker());
+  if (!getIt.isRegistered<SnackbarService>()) {
+    getIt.registerLazySingleton(() => SnackbarService());
+  }
+  if (!getIt.isRegistered<Talker>()) {
+    getIt.registerLazySingleton(() => Talker());
+  }
 
   await getIt.init();
 }

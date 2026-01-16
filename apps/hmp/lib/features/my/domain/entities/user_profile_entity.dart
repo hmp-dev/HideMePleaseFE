@@ -1,11 +1,12 @@
 import 'package:equatable/equatable.dart';
+import 'package:mobile/features/friends/domain/entities/active_check_in_entity.dart';
 
 class CheckInStats extends Equatable {
   final int totalCheckIns;
   final int todayCheckIns;
   final int weekCheckIns;
   final int monthCheckIns;
-  final dynamic activeCheckIn;
+  final ActiveCheckInEntity? activeCheckIn;
 
   const CheckInStats({
     required this.totalCheckIns,

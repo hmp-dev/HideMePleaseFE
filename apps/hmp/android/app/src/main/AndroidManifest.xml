@@ -52,9 +52,6 @@
     <!-- NFC permissions -->
     <uses-permission android:name="android.permission.NFC" />
     <uses-feature android:name="android.hardware.nfc" android:required="false" />
-    <!-- Photo/Gallery permissions for saving images -->
-    <!-- Android 13+ (API 33+): READ_MEDIA_IMAGES for gallery access with Gal library -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <!-- Android 9 and below (API < 29): Full storage access for legacy devices -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"/>

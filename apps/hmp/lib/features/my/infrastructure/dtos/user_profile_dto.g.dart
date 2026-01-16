@@ -12,7 +12,10 @@ CheckInStatsDto _$CheckInStatsDtoFromJson(Map<String, dynamic> json) =>
       todayCheckIns: (json['todayCheckIns'] as num?)?.toInt(),
       weekCheckIns: (json['weekCheckIns'] as num?)?.toInt(),
       monthCheckIns: (json['monthCheckIns'] as num?)?.toInt(),
-      activeCheckIn: json['activeCheckIn'],
+      activeCheckIn: json['activeCheckIn'] == null
+          ? null
+          : ActiveCheckInDto.fromJson(
+              json['activeCheckIn'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$CheckInStatsDtoToJson(CheckInStatsDto instance) =>

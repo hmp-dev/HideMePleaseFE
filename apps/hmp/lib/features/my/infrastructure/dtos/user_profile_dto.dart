@@ -5,6 +5,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'package:mobile/features/my/domain/entities/base_user_entity.dart';
 import 'package:mobile/features/my/domain/entities/user_profile_entity.dart';
+import 'package:mobile/features/friends/infrastructure/dtos/active_check_in_dto.dart';
 
 part 'user_profile_dto.g.dart';
 
@@ -14,7 +15,7 @@ class CheckInStatsDto extends Equatable {
   final int? todayCheckIns;
   final int? weekCheckIns;
   final int? monthCheckIns;
-  final dynamic activeCheckIn;
+  final ActiveCheckInDto? activeCheckIn;
 
   const CheckInStatsDto({
     this.totalCheckIns,
@@ -144,7 +145,7 @@ class UserProfileDto extends Equatable {
                 todayCheckIns: checkInStats!.todayCheckIns ?? 0,
                 weekCheckIns: checkInStats!.weekCheckIns ?? 0,
                 monthCheckIns: checkInStats!.monthCheckIns ?? 0,
-                activeCheckIn: checkInStats!.activeCheckIn,
+                activeCheckIn: checkInStats!.activeCheckIn?.toEntity(),
               )
             : const CheckInStats.empty(),
         friendsCount: friendsCount ?? 0,

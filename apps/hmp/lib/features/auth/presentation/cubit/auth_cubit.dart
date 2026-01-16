@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/app/core/cubit/cubit.dart';
@@ -13,6 +15,8 @@ import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk.dart';
 import 'package:wepin_flutter_widget_sdk/wepin_flutter_widget_sdk_type.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/wepin/cubit/wepin_cubit.dart';
+import 'package:mobile/features/my/presentation/cubit/profile_cubit.dart';
+import 'package:mobile/features/my/infrastructure/dtos/update_profile_request_dto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/app/core/constants/storage.dart';
 
@@ -32,6 +36,12 @@ class AuthCubit extends BaseCubit<AuthState> {
   // Declare wepinSDK here
 
   Future<void> onGoogleLogin() async {
+    // 상태 초기화 - 상태 전환이 확실히 일어나도록 보장
+    emit(state.copyWith(
+      submitStatus: RequestStatus.initial,
+      isLogInSuccessful: false,
+    ));
+
     final result = await _authRepository.requestGoogleLogin();
     result.fold(
       (l) => emit(
@@ -298,6 +308,22 @@ class AuthCubit extends BaseCubit<AuthState> {
         } catch (e) {
           '⚠️ [AuthCubit] Failed to set authentication flag: $e'.log();
           // Don't fail the login process if flag save fails
+        }
+
+        // Send app version info immediately after login
+        try {
+          final packageInfo = await PackageInfo.fromPlatform();
+          final appVersion = packageInfo.version;
+          final appOS = Platform.isIOS ? 'ios' : 'android';
+
+          final profileCubit = getIt<ProfileCubit>();
+          await profileCubit.updateProfileSilently(
+            UpdateProfileRequestDto(appVersion: appVersion, appOS: appOS),
+          );
+          '✅ [AuthCubit] App version sent: $appVersion ($appOS)'.log();
+        } catch (e) {
+          '⚠️ [AuthCubit] Failed to send app version: $e'.log();
+          // Don't fail the login process if version send fails
         }
 
         emit(

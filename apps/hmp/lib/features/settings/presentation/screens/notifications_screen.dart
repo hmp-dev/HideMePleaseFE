@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/app/core/injection/injection.dart';
 import 'package:mobile/features/common/presentation/cubit/enable_location_cubit.dart';
 import 'package:mobile/features/settings/presentation/cubit/notifications_cubit.dart';
+import 'package:mobile/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mobile/features/settings/presentation/views/notifications_view.dart';
 
 /// `NotificationsScreen` is a stateful widget that represents the screen for managing user notifications.
@@ -47,6 +48,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       notificationsCubit.markAllAsRead();
       print('🔔 [NotificationsScreen] markAllAsRead() completed');
     });
+
+    // 공지사항 로드 (일주일 이내 공지 위젯 표시용)
+    getIt<SettingsCubit>().onGetAnnouncements();
   }
 
   @override

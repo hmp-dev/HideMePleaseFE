@@ -15,6 +15,8 @@ class SirenState extends Equatable {
   final SirenStatsEntity? stats;
   final String sortBy; // 'distance' or 'time'
   final int currentPage;
+  final Set<String> reportedSirenIds;
+  final Set<String> blockedUserIds;
 
   const SirenState({
     this.isLoading = false,
@@ -27,6 +29,8 @@ class SirenState extends Equatable {
     this.stats,
     this.sortBy = 'time',
     this.currentPage = 1,
+    this.reportedSirenIds = const {},
+    this.blockedUserIds = const {},
   });
 
   SirenState copyWith({
@@ -40,6 +44,8 @@ class SirenState extends Equatable {
     SirenStatsEntity? stats,
     String? sortBy,
     int? currentPage,
+    Set<String>? reportedSirenIds,
+    Set<String>? blockedUserIds,
   }) {
     return SirenState(
       isLoading: isLoading ?? this.isLoading,
@@ -52,6 +58,8 @@ class SirenState extends Equatable {
       stats: stats ?? this.stats,
       sortBy: sortBy ?? this.sortBy,
       currentPage: currentPage ?? this.currentPage,
+      reportedSirenIds: reportedSirenIds ?? this.reportedSirenIds,
+      blockedUserIds: blockedUserIds ?? this.blockedUserIds,
     );
   }
 
@@ -67,5 +75,7 @@ class SirenState extends Equatable {
         stats,
         sortBy,
         currentPage,
+        reportedSirenIds,
+        blockedUserIds,
       ];
 }

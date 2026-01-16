@@ -10,11 +10,15 @@ class CheckInUsersResponseDto {
   final int totalCount;
   final List<CheckInUserDto> users;
   final CurrentGroupDto? currentGroup;
+  final bool? hasCheckedInToday;
+  final bool? isUnlimitedUser;
 
   CheckInUsersResponseDto({
     required this.totalCount,
     required this.users,
     this.currentGroup,
+    this.hasCheckedInToday,
+    this.isUnlimitedUser,
   });
 
   factory CheckInUsersResponseDto.fromJson(Map<String, dynamic> json) =>
@@ -27,6 +31,8 @@ class CheckInUsersResponseDto {
       totalCount: totalCount,
       users: users.map((e) => e.toEntity()).toList(),
       currentGroup: currentGroup?.toEntity(),
+      hasCheckedInToday: hasCheckedInToday ?? false,
+      isUnlimitedUser: isUnlimitedUser ?? false,
     );
   }
 }

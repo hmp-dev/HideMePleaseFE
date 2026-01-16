@@ -255,4 +255,18 @@ class SpaceRemoteDataSource {
     print('✅ Check-in status retrieved');
     return CheckInStatusDto.fromJson(response.data as Map<String, dynamic>);
   }
+
+  // Registers Live Activity Push Token for server-side updates
+  Future<void> registerLiveActivityToken({required String token}) async {
+    print('📲 Registering Live Activity token...');
+    await _network.post("space/checkin/live-activity-token", {'liveActivityToken': token});
+    print('✅ Live Activity token registered');
+  }
+
+  // Removes Live Activity Push Token
+  Future<void> deleteLiveActivityToken() async {
+    print('📲 Deleting Live Activity token...');
+    await _network.request("space/checkin/live-activity-token", "DELETE", null);
+    print('✅ Live Activity token deleted');
+  }
 }

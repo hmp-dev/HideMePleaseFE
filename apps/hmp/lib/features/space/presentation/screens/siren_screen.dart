@@ -26,6 +26,8 @@ class _SirenScreenState extends State<SirenScreen> {
   @override
   void initState() {
     super.initState();
+    _sirenCubit.loadReportedSirenIds();
+    _sirenCubit.loadBlockedUserIds();
     _initializeLocation();
   }
 
@@ -286,26 +288,42 @@ class _SirenScreenState extends State<SirenScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 닉네임 @매장명 (전체 폭)
-            GestureDetector(
-              onTap: () {
-                final spaceId = siren.space?.id;
-                if (spaceId != null && spaceId.isNotEmpty) {
-                  getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(spaceId: spaceId);
-                  SpaceDetailScreen.push(context);
-                }
-              },
-              child: Text(
-                '${siren.author?.nickName ?? 'Unknown'} ${spaceName.isNotEmpty ? '@$spaceName' : '@Unknown'}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF132E41),
-                  fontFamily: 'LINESeedKR',
+            // 닉네임 @매장명 + 신고 버튼
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      final spaceId = siren.space?.id;
+                      if (spaceId != null && spaceId.isNotEmpty) {
+                        getIt<SpaceCubit>().onGetSpaceDetailBySpaceId(spaceId: spaceId);
+                        SpaceDetailScreen.push(context);
+                      }
+                    },
+                    child: Text(
+                      '${siren.author?.nickName ?? 'Unknown'} ${spaceName.isNotEmpty ? '@$spaceName' : '@Unknown'}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF132E41),
+                        fontFamily: 'LINESeedKR',
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+                const SizedBox(width: 8),
+                // 신고 버튼
+                GestureDetector(
+                  onTap: () => _showReportDialog(siren),
+                  child: Image.asset(
+                    'assets/icons/ico_report.png',
+                    width: 20,
+                    height: 20,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             // 프로필 이미지 + 메시지/시간 Row
@@ -512,6 +530,239 @@ class _SirenScreenState extends State<SirenScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showReportDialog(dynamic siren) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.7),
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: const Color(0xFFEAF8FF),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAF8FF),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF132E41),
+                width: 2,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 제목
+                Text(
+                  LocaleKeys.siren_report_title.tr(),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF132E41),
+                    fontFamily: 'LINESeedKR',
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // 신고 사유 목록
+                _buildReportReasonItem(LocaleKeys.siren_report_reason_sexual.tr()),
+                const SizedBox(height: 8),
+                _buildReportReasonItem(LocaleKeys.siren_report_reason_hate.tr()),
+                const SizedBox(height: 8),
+                _buildReportReasonItem(LocaleKeys.siren_report_reason_violence.tr()),
+                const SizedBox(height: 8),
+                _buildReportReasonItem(LocaleKeys.siren_report_reason_other.tr()),
+
+                const SizedBox(height: 20),
+
+                // 안내 문구
+                Text(
+                  LocaleKeys.siren_report_notice.tr(),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: const Color(0xFF132E41).withOpacity(0.7),
+                    fontFamily: 'LINESeedKR',
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // 버튼들
+                Row(
+                  children: [
+                    // 취소 버튼
+                    Expanded(
+                      flex: 1,
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: const Color(0x4D000000),
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              color: const Color(0xFF000000),
+                              width: 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              LocaleKeys.siren_report_cancel.tr(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontFamily: 'LINESeedKR',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // 신고하기 버튼
+                    Expanded(
+                      flex: 2,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          _sirenCubit.reportSiren(siren.id);
+                          _showReportSuccessDialog();
+                        },
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF6B6B),
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              color: const Color(0xFF000000),
+                              width: 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              LocaleKeys.siren_report_submit.tr(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontFamily: 'LINESeedKR',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReportReasonItem(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '• ',
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF132E41),
+            fontFamily: 'LINESeedKR',
+          ),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xFF132E41),
+              fontFamily: 'LINESeedKR',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showReportSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.7),
+      builder: (BuildContext context) {
+        // 2초 후 자동 닫힘
+        Future.delayed(const Duration(seconds: 2), () {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        });
+
+        return GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            backgroundColor: const Color(0xFFEAF8FF),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEAF8FF),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: const Color(0xFF132E41),
+                  width: 2,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 아이콘 + 제목
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/icons/ico_siren_info.png',
+                        width: 28,
+                        height: 28,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        LocaleKeys.siren_report_success_title.tr(),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF132E41),
+                          fontFamily: 'LINESeedKR',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // 부제목
+                  Text(
+                    LocaleKeys.siren_report_success_message.tr(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF132E41),
+                      fontFamily: 'LINESeedKR',
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );

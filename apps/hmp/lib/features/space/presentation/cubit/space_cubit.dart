@@ -15,6 +15,7 @@ import 'package:mobile/features/space/domain/entities/space_entity.dart';
 import 'package:mobile/features/space/domain/entities/spaces_response_entity.dart';
 import 'package:mobile/features/space/domain/entities/top_used_nft_entity.dart';
 import 'package:mobile/features/space/domain/repositories/space_repository.dart';
+import 'package:mobile/features/space/infrastructure/data_sources/space_remote_data_source.dart';
 import 'package:mobile/generated/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/app/core/constants/storage.dart';
@@ -448,16 +449,19 @@ class SpaceCubit extends BaseCubit<SpaceState> {
           (result) async {
         print('✅ Check-in successful in cubit!');
         ('✅ Check-in successful!').log();
-        
+
+        final checkedInAt = DateTime.now();
+
         // Save check-in info to local storage
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(StorageValues.activeCheckInSpaceId, spaceId);
-        await prefs.setInt(StorageValues.checkInTimestamp, DateTime.now().millisecondsSinceEpoch);
+        await prefs.setInt(StorageValues.checkInTimestamp, checkedInAt.millisecondsSinceEpoch);
         await prefs.setDouble(StorageValues.checkInLatitude, latitude);
         await prefs.setDouble(StorageValues.checkInLongitude, longitude);
         // Save space name if available
+        final spaceName = state.spaceDetailEntity?.name ?? 'Space';
         if (state.spaceDetailEntity != null) {
-          await prefs.setString(StorageValues.checkInSpaceName, state.spaceDetailEntity!.name);
+          await prefs.setString(StorageValues.checkInSpaceName, spaceName);
         }
         // Save benefit info if available
         if (benefitId != null) {
@@ -467,22 +471,73 @@ class SpaceCubit extends BaseCubit<SpaceState> {
           }
         }
         print('💾 Check-in info saved to local storage (including benefit)');
-        
+
         emit(state.copyWith(
           submitStatus: RequestStatus.success,
           errorMessage: '',
           currentCheckedInSpaceId: spaceId,
           checkInLatitude: latitude,
           checkInLongitude: longitude,
-          checkInTime: DateTime.now(),
+          checkInTime: checkedInAt,
         ));
-        
+
         _isCheckingIn = false; // 체크인 성공 후 플래그 해제
         print('🔄 Set _isCheckingIn = false (check-in successful)');
+
+        // Start Live Activity and register Push Token (non-blocking)
+        _startLiveActivityAndRegisterToken(
+          spaceName: spaceName,
+          spaceId: spaceId,
+          checkedInAt: checkedInAt,
+          maxCapacity: state.spaceDetailEntity?.maxCapacity ?? 5,
+        );
       },
     );
   }
   
+  /// Starts Live Activity and registers Push Token (non-blocking)
+  Future<void> _startLiveActivityAndRegisterToken({
+    required String spaceName,
+    required String spaceId,
+    required DateTime checkedInAt,
+    required int maxCapacity,
+  }) async {
+    try {
+      print('🔵 Starting Live Activity for space: $spaceId');
+
+      final liveActivityService = getIt<LiveActivityService>();
+
+      // Start Live Activity and get Push Token
+      final pushToken = await liveActivityService.startCheckInActivity(
+        spaceName: spaceName,
+        spaceId: spaceId,
+        currentMembers: 1, // 체크인 직후이므로 1명
+        requiredMembers: maxCapacity > 0 ? maxCapacity : 5,
+        checkedInAt: checkedInAt.toUtc().toIso8601String(),
+        maxCapacity: maxCapacity,
+      );
+
+      if (pushToken != null && pushToken.isNotEmpty) {
+        print('📲 Push Token received, registering with server...');
+
+        // Register Push Token with server
+        try {
+          final spaceRemoteDataSource = getIt<SpaceRemoteDataSource>();
+          await spaceRemoteDataSource.registerLiveActivityToken(token: pushToken);
+          print('✅ Live Activity Push Token registered successfully');
+        } catch (e) {
+          print('❌ Failed to register Push Token: $e');
+          // Token 등록 실패해도 폴링은 계속 동작함
+        }
+      } else {
+        print('⚠️ No Push Token received (Live Activity may still work with polling)');
+      }
+    } catch (e) {
+      print('❌ Error starting Live Activity: $e');
+      // Live Activity 시작 실패해도 체크인은 성공한 상태
+    }
+  }
+
   Future<void> onCheckOut({required String spaceId}) async {
     print('🔍 Starting check-out for space: $spaceId');
     

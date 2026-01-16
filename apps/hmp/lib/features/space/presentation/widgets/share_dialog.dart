@@ -267,17 +267,12 @@ class _ShareDialogState extends State<ShareDialog> {
         bool hasPermission = false;
         final androidInfo = await DeviceInfoPlugin().androidInfo;
 
-        if (androidInfo.version.sdkInt >= 33) {
-          // Android 13+ uses photos permission
-          final status = await Permission.photos.request();
-          hasPermission = status.isGranted || status.isLimited;
-          '📱 Android 13+ photos permission: $status'.log();
-        } else if (androidInfo.version.sdkInt >= 29) {
-          // Android 10-12 doesn't need permission for MediaStore
+        if (androidInfo.version.sdkInt >= 29) {
+          // Android 10+ (API 29+): MediaStore API를 사용하여 권한 없이 저장 가능
           hasPermission = true;
-          '📱 Android 10-12 no permission needed'.log();
+          '📱 Android 10+ no permission needed for MediaStore'.log();
         } else {
-          // Older Android versions use storage permission
+          // Android 9 and below: storage permission required
           final status = await Permission.storage.request();
           hasPermission = status.isGranted;
           '📱 Android <10 storage permission: $status'.log();

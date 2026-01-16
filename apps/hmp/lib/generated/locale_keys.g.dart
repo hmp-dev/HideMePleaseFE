@@ -539,5 +539,22 @@ abstract class  LocaleKeys {
   static const friend_request_received_single = 'friend_request_received_single';
   static const friend_request_received_multiple = 'friend_request_received_multiple';
   static const notification_announcement_message = 'notification_announcement_message';
+  static const siren_report_title = 'siren_report_title';
+  static const siren_report_reason_sexual = 'siren_report_reason_sexual';
+  static const siren_report_reason_hate = 'siren_report_reason_hate';
+  static const siren_report_reason_violence = 'siren_report_reason_violence';
+  static const siren_report_reason_other = 'siren_report_reason_other';
+  static const siren_report_notice = 'siren_report_notice';
+  static const siren_report_cancel = 'siren_report_cancel';
+  static const siren_report_submit = 'siren_report_submit';
+  static const siren_report_success_title = 'siren_report_success_title';
+  static const siren_report_success_message = 'siren_report_success_message';
+  static const block_user = 'block_user';
+  static const block_user_title = 'block_user_title';
+  static const block_user_message = 'block_user_message';
+  static const block_user_confirm = 'block_user_confirm';
+  static const block_user_cancel = 'block_user_cancel';
+  static const block_user_success_title = 'block_user_success_title';
+  static const block_user_success_message = 'block_user_success_message';
 
 }

@@ -6,13 +6,17 @@ class CheckInUsersResponseEntity extends Equatable {
   final int totalCount;
   final List<CheckInUserEntity> users;
   final CurrentGroupEntity? currentGroup;
+  final bool hasCheckedInToday;
+  final bool isUnlimitedUser;
 
   const CheckInUsersResponseEntity({
     required this.totalCount,
     required this.users,
     this.currentGroup,
+    this.hasCheckedInToday = false,
+    this.isUnlimitedUser = false,
   });
 
   @override
-  List<Object?> get props => [totalCount, users, currentGroup];
+  List<Object?> get props => [totalCount, users, currentGroup, hasCheckedInToday, isUnlimitedUser];
 }

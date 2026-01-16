@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/app/core/constants/storage.dart';
 import 'package:mobile/app/core/error/error.dart';
 import 'package:mobile/app/core/helpers/helper_functions.dart';
 import 'package:mobile/features/space/domain/entities/siren_entity.dart';
@@ -70,6 +72,12 @@ class SirenCubit extends Cubit<SirenState> {
           return siren;
         }).toList();
       }
+
+      // 신고된 사이렌 + 차단된 유저 필터링
+      sirens = sirens.where((siren) =>
+          !state.reportedSirenIds.contains(siren.id) &&
+          !state.blockedUserIds.contains(siren.author?.userId)
+      ).toList();
 
       emit(state.copyWith(
         isLoading: false,
@@ -254,5 +262,61 @@ class SirenCubit extends Cubit<SirenState> {
       // 알 수 없는 에러인 경우 원본 메시지 반환
       return errorCode;
     }
+  }
+
+  /// 신고된 사이렌 ID 목록 로드
+  Future<void> loadReportedSirenIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final reported = prefs.getStringList(StorageValues.reportedSirenIds) ?? [];
+    emit(state.copyWith(reportedSirenIds: reported.toSet()));
+  }
+
+  /// 사이렌 신고 처리
+  Future<void> reportSiren(String sirenId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final reported = prefs.getStringList(StorageValues.reportedSirenIds) ?? [];
+
+    if (!reported.contains(sirenId)) {
+      reported.add(sirenId);
+      await prefs.setStringList(StorageValues.reportedSirenIds, reported);
+    }
+
+    // state에서 해당 사이렌 제거
+    final updatedList = state.sirenList
+        .where((siren) => siren.id != sirenId)
+        .toList();
+
+    emit(state.copyWith(
+      reportedSirenIds: reported.toSet(),
+      sirenList: updatedList,
+    ));
+  }
+
+  /// 차단된 사용자 ID 목록 로드
+  Future<void> loadBlockedUserIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final blocked = prefs.getStringList(StorageValues.blockedUserIds) ?? [];
+    emit(state.copyWith(blockedUserIds: blocked.toSet()));
+  }
+
+  /// 사용자 차단 처리
+  Future<void> blockUser(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final blocked = prefs.getStringList(StorageValues.blockedUserIds) ?? [];
+
+    if (!blocked.contains(userId)) {
+      blocked.add(userId);
+      await prefs.setStringList(StorageValues.blockedUserIds, blocked);
+    }
+
+    // state에서 해당 유저의 사이렌 제거
+    final updatedList = state.sirenList
+        .where((siren) => siren.author?.userId != userId)
+        .toList();
+
+    emit(state.copyWith(
+      blockedUserIds: blocked.toSet(),
+      sirenList: updatedList,
+    ));
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/app/core/extensions/log_extension.dart';
@@ -1712,10 +1714,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                   // No minting needed, just update profile
                                                   try {
                                                     final profileCubit = getIt<ProfileCubit>();
+                                                    final packageInfo = await PackageInfo.fromPlatform();
                                                     final updateRequest = UpdateProfileRequestDto(
                                                       nickName: nicknameToUpdate,
                                                       profilePartsString: profilePartsToUpdate,
                                                       onboardingCompleted: true,
+                                                      appVersion: packageInfo.version,
+                                                      appOS: Platform.isIOS ? 'ios' : 'android',
                                                     );
                                                     await profileCubit.onUpdateUserProfile(updateRequest);
                                                     '✅ 프로필 업데이트 성공'.log();
@@ -1730,8 +1735,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                                   // 프로필과 닉네임이 있어도 온보딩 완료 상태는 업데이트
                                                   try {
                                                     final profileCubit = getIt<ProfileCubit>();
+                                                    final packageInfo = await PackageInfo.fromPlatform();
                                                     final updateRequest = UpdateProfileRequestDto(
                                                       onboardingCompleted: true,
+                                                      appVersion: packageInfo.version,
+                                                      appOS: Platform.isIOS ? 'ios' : 'android',
                                                     );
                                                     await profileCubit.onUpdateUserProfile(updateRequest);
                                                     '✅ 온보딩 완료 상태 업데이트 성공'.log();
@@ -1902,10 +1910,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       final profileCubit = getIt<ProfileCubit>();
       if (nickname != null || profilePartsString != null) {
         '🚀 Saving profile before minting...'.log();
+        final packageInfo = await PackageInfo.fromPlatform();
         final updateRequest = UpdateProfileRequestDto(
           nickName: nickname,
           profilePartsString: profilePartsString,
           onboardingCompleted: true,
+          appVersion: packageInfo.version,
+          appOS: Platform.isIOS ? 'ios' : 'android',
         );
         await profileCubit.onUpdateUserProfile(updateRequest);
         '✅ Profile saved before minting'.log();

@@ -720,17 +720,8 @@ class _AppViewState extends State<AppView> with WidgetsBindingObserver {
                                       );*/
                                     }
                                     
-                                    // 라이브 액티비티 업데이트 - 체크인 확인 완료 상태로 변경
-                                    try {
-                                      ('📱 Updating Live Activity with isConfirmed = true').log();
-                                      final liveActivityService = getIt<LiveActivityService>();
-                                      await liveActivityService.updateCheckInActivity(
-                                        isConfirmed: true,
-                                      );
-                                      ('✅ Live Activity updated successfully').log();
-                                    } catch (e) {
-                                      ('❌ Failed to update Live Activity: $e').log();
-                                    }
+                                    // Live Activity 업데이트는 서버 Push로 처리됨
+                                    ('📱 Live Activity will be updated via server push').log();
                                     
                                     // 성공 다이얼로그 표시
                                     // Get the current user's available balance

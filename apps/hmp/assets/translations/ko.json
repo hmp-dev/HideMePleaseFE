@@ -540,5 +540,23 @@
     "savory_balance": "SAVORY 현황",
     "siren_home_title": "Come On! 하이더들의 사이렌을 확인해봐!",
     "siren_home_empty_message": "아직 근처에 사이렌이 없어요 첫 사이렌을 날려봐!",
-    "notification_announcement_message": "새로운 공지가 있어!"
+    "notification_announcement_message": "새로운 공지가 있어!",
+    "siren_report_title": "아래와 같은 내용이 포함되어 있다면 신고해줘.",
+    "siren_report_reason_sexual": "성적인 발언 또는 음란한 표현",
+    "siren_report_reason_hate": "혐오·차별 발언",
+    "siren_report_reason_violence": "욕설, 위협, 폭력적인 내용",
+    "siren_report_reason_other": "기타 부적절한 표현",
+    "siren_report_notice": "신고는 바로 접수되며, 운영팀이 확인할거야.",
+    "siren_report_cancel": "취소",
+    "siren_report_submit": "신고하기",
+    "siren_report_success_title": "신고가 접수됐어.",
+    "siren_report_success_message": "알려줘서 고마워!",
+
+    "block_user": "사용자 차단",
+    "block_user_title": "사용자 차단",
+    "block_user_message": "이 사용자를 차단할까?\n차단된 사용자의 게시글은 더 이상 안 보여.",
+    "block_user_confirm": "차단하기",
+    "block_user_cancel": "취소",
+    "block_user_success_title": "차단 완료",
+    "block_user_success_message": "사용자를 차단했어."
 }
